@@ -48,41 +48,47 @@ export function DoctorCard({ doctor }: { doctor: Doctor }) {
 
   useEffect(() => {
     const translateDetails = async () => {
-      if (lang === 'ar') {
-        setIsTranslating(true);
-        try {
-          const [nameRes, specialtyRes, addressRes] = await Promise.all([
-            translateText({ text: doctor.name, targetLanguage: 'Arabic' }),
-            translateText({ text: doctor.specialty, targetLanguage: 'Arabic' }),
-            translateText({ text: doctor.clinicAddress, targetLanguage: 'Arabic' })
-          ]);
-          setTranslatedDetails({
-            name: nameRes.translation,
-            specialty: specialtyRes.translation,
-            clinicAddress: addressRes.translation,
-          });
-        } catch (error) {
-          console.error("Translation failed", error);
-          // Fallback to original if translation fails
-          setTranslatedDetails({
-            name: doctor.name,
-            specialty: doctor.specialty,
-            clinicAddress: doctor.clinicAddress
-          });
-        } finally {
-          setIsTranslating(false);
-        }
-      } else {
-        setTranslatedDetails(null);
+      const targetLanguage = lang === 'ar' ? 'Arabic' : 'English';
+      // Only translate if the target language is different from the source's assumed language (English)
+      // or if there's no original text (which is not the case here).
+      // A more robust solution would be to detect the source language.
+      // For now, we translate always unless we are in 'en' and there are no previous translations.
+      if (lang === 'en' && !translatedDetails) {
+          setTranslatedDetails(null);
+          return;
+      }
+      
+      setIsTranslating(true);
+      try {
+        const [nameRes, specialtyRes, addressRes] = await Promise.all([
+          translateText({ text: doctor.name, targetLanguage }),
+          translateText({ text: doctor.specialty, targetLanguage }),
+          translateText({ text: doctor.clinicAddress, targetLanguage })
+        ]);
+        setTranslatedDetails({
+          name: nameRes.translation,
+          specialty: specialtyRes.translation,
+          clinicAddress: addressRes.translation,
+        });
+      } catch (error) {
+        console.error("Translation failed", error);
+        // Fallback to original if translation fails
+        setTranslatedDetails({
+          name: doctor.name,
+          specialty: doctor.specialty,
+          clinicAddress: doctor.clinicAddress
+        });
+      } finally {
+        setIsTranslating(false);
       }
     };
 
     translateDetails();
   }, [lang, doctor]);
 
-  const displayName = lang === 'ar' ? (translatedDetails?.name || doctor.name) : doctor.name;
-  const displaySpecialty = lang === 'ar' ? (translatedDetails?.specialty || doctor.specialty) : doctor.specialty;
-  const displayAddress = lang === 'ar' ? (translatedDetails?.clinicAddress || doctor.clinicAddress) : doctor.clinicAddress;
+  const displayName = translatedDetails?.name ?? doctor.name;
+  const displaySpecialty = translatedDetails?.specialty ?? doctor.specialty;
+  const displayAddress = translatedDetails?.clinicAddress ?? doctor.clinicAddress;
 
   const commission = doctor.referralCount * 100;
 
@@ -138,7 +144,7 @@ export function DoctorCard({ doctor }: { doctor: Doctor }) {
                 {doctor.isPartner ? <ToggleRight className="text-primary" /> : <ToggleLeft />}
             </Button>
           </div>
-          {isTranslating && lang === 'ar' ? (
+          {isTranslating ? (
               <div className="space-y-2">
                   <Skeleton className="h-7 w-3/4" />
                   <Skeleton className="h-4 w-1/2" />
@@ -182,7 +188,7 @@ export function DoctorCard({ doctor }: { doctor: Doctor }) {
                 <Phone className="h-4 w-4 mt-0.5 shrink-0" /> 
                 <a href={`tel:${doctor.phoneNumber}`} className="hover:underline" dir="ltr">{doctor.phoneNumber}</a>
             </p>
-            {isTranslating && lang === 'ar' ? (
+            {isTranslating ? (
                 <Skeleton className="h-4 w-full" />
             ) : (
                 <p className="flex items-start gap-2">
