@@ -25,8 +25,17 @@ const LOGGED_IN_USER_KEY = 'iraqi_doctors_loggedin_user_v2';
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+const adminUser: StoredUser = {
+  id: 'admin-user',
+  username: 'HUNTER',
+  pass: 'Ah5535670',
+  phoneNumber: '07803080003',
+  email: 'im.a.hunter.one@gmail.com',
+  role: 'admin',
+};
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [storedUsers, setStoredUsers] = useLocalStorage<StoredUser[]>(USERS_STORAGE_KEY, []);
+  const [storedUsers, setStoredUsers] = useLocalStorage<StoredUser[]>(USERS_STORAGE_KEY, [adminUser]);
   const [loggedInUser, setLoggedInUser] = useLocalStorage<User | null>(LOGGED_IN_USER_KEY, null);
   
   const [user, setUser] = useState<User | null>(null);
@@ -35,23 +44,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     setIsLoading(true);
 
-    // Initialize admin user if not present
-    setStoredUsers(prevUsers => {
-        const adminExists = prevUsers.some(u => u.username === 'HUNTER');
-        if (!adminExists) {
-            const adminUser: StoredUser = {
-                id: 'admin-user',
-                username: 'HUNTER',
-                pass: 'Ah5535670',
-                phoneNumber: '07803080003',
-                email: 'im.a.hunter.one@gmail.com',
-                role: 'admin',
-            };
-            return [adminUser, ...prevUsers.filter(u => u.id !== 'admin-user')];
-        }
-        // Also ensure admin role is correct if user already exists
-        return prevUsers.map(u => u.username === 'HUNTER' ? { ...u, role: 'admin', pass: 'Ah5535670', phoneNumber: '07803080003', email: 'im.a.hunter.one@gmail.com' } : u);
-    });
+    // Initialize with only the admin user
+    setStoredUsers([adminUser]);
 
     // On initial load, check if there's a logged-in user session
     if (loggedInUser) {
@@ -160,7 +154,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [storedUsers, setStoredUsers]);
   
   const deleteUser = useCallback((userId: string) => {
-    setStoredUsers(prev => prev.filter(u => u.id !== userId));
+    setStoredUsers(prev => prev.filter(u => u.id !== userId && u.id !== 'admin-user'));
   }, [setStoredUsers]);
 
   const updateUserRole = useCallback((userId: string, role: 'admin' | 'user') => {
