@@ -45,6 +45,7 @@ import { NearbyDoctorsDialog } from '@/components/ai/nearby-doctors-dialog';
 import { ChatDialog } from '@/components/ai/chat-dialog';
 import { exportToExcel } from '@/lib/excel';
 import { useToast } from '@/hooks/use-toast';
+import { ScrollArea } from '../ui/scroll-area';
 
 export function UserMenu() {
   const { user, logout } = useAuth();
@@ -102,119 +103,121 @@ export function UserMenu() {
             <span className="sr-only">Toggle user menu</span>
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-56">
-          <DropdownMenuLabel className="font-normal">
-            <div className="flex flex-col space-y-1">
-              <p className="text-sm font-medium leading-none">{t('userMenu.greeting')},</p>
-              <p className="text-xs leading-none text-muted-foreground">{user.username}</p>
-            </div>
-          </DropdownMenuLabel>
-          <DropdownMenuSeparator />
-          
-          <DropdownMenuSub>
-            <DropdownMenuSubTrigger>
-              <Languages className="mr-2 h-4 w-4" />
-              <span>{t('userMenu.changeLanguage')}</span>
-            </DropdownMenuSubTrigger>
-            <DropdownMenuPortal>
-              <DropdownMenuSubContent>
-                <DropdownMenuRadioGroup value={lang} onValueChange={(value) => setLang(value as 'en' | 'ar')}>
-                  <DropdownMenuRadioItem value="en">{t('userMenu.english')}</DropdownMenuRadioItem>
-                  <DropdownMenuRadioItem value="ar">{t('userMenu.arabic')}</DropdownMenuRadioItem>
-                </DropdownMenuRadioGroup>
-              </DropdownMenuSubContent>
-            </DropdownMenuPortal>
-          </DropdownMenuSub>
+        <DropdownMenuContent align="end" className="w-60">
+            <ScrollArea className="max-h-[80vh] p-1">
+                <DropdownMenuLabel className="font-normal px-2 pt-2">
+                    <div className="flex flex-col space-y-1">
+                    <p className="text-sm font-medium leading-none">{t('userMenu.greeting')},</p>
+                    <p className="text-xs leading-none text-muted-foreground">{user.username}</p>
+                    </div>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                
+                <DropdownMenuSub>
+                    <DropdownMenuSubTrigger>
+                    <Languages className="mr-2 h-4 w-4" />
+                    <span>{t('userMenu.changeLanguage')}</span>
+                    </DropdownMenuSubTrigger>
+                    <DropdownMenuPortal>
+                    <DropdownMenuSubContent>
+                        <DropdownMenuRadioGroup value={lang} onValueChange={(value) => setLang(value as 'en' | 'ar')}>
+                        <DropdownMenuRadioItem value="en">{t('userMenu.english')}</DropdownMenuRadioItem>
+                        <DropdownMenuRadioItem value="ar">{t('userMenu.arabic')}</DropdownMenuRadioItem>
+                        </DropdownMenuRadioGroup>
+                    </DropdownMenuSubContent>
+                    </DropdownMenuPortal>
+                </DropdownMenuSub>
 
-          <DropdownMenuSub>
-            <DropdownMenuSubTrigger>
-              <Sun className="mr-2 h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-              <Moon className="absolute mr-2 h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-              <span>{t('userMenu.toggleTheme')}</span>
-            </DropdownMenuSubTrigger>
-            <DropdownMenuPortal>
-              <DropdownMenuSubContent>
-                <DropdownMenuRadioGroup value={theme} onValueChange={(value) => setTheme(value as 'light' | 'dark' | 'system')}>
-                  <DropdownMenuRadioItem value="light">{t('userMenu.light')}</DropdownMenuRadioItem>
-                  <DropdownMenuRadioItem value="dark">{t('userMenu.dark')}</DropdownMenuRadioItem>
-                  <DropdownMenuRadioItem value="system">{t('userMenu.system')}</DropdownMenuRadioItem>
-                </DropdownMenuRadioGroup>
-              </DropdownMenuSubContent>
-            </DropdownMenuPortal>
-          </DropdownMenuSub>
+                <DropdownMenuSub>
+                    <DropdownMenuSubTrigger>
+                    <Sun className="mr-2 h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+                    <Moon className="absolute mr-2 h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+                    <span>{t('userMenu.toggleTheme')}</span>
+                    </DropdownMenuSubTrigger>
+                    <DropdownMenuPortal>
+                    <DropdownMenuSubContent>
+                        <DropdownMenuRadioGroup value={theme} onValueChange={(value) => setTheme(value as 'light' | 'dark' | 'system')}>
+                        <DropdownMenuRadioItem value="light">{t('userMenu.light')}</DropdownMenuRadioItem>
+                        <DropdownMenuRadioItem value="dark">{t('userMenu.dark')}</DropdownMenuRadioItem>
+                        <DropdownMenuRadioItem value="system">{t('userMenu.system')}</DropdownMenuRadioItem>
+                        </DropdownMenuRadioGroup>
+                    </DropdownMenuSubContent>
+                    </DropdownMenuPortal>
+                </DropdownMenuSub>
 
-          <DropdownMenuSeparator />
+                <DropdownMenuSeparator />
 
-          <DropdownMenuLabel>{t('userMenu.aiTools')}</DropdownMenuLabel>
-          <DropdownMenuItem onSelect={() => setSpecialtySearchOpen(true)}>
-            <Globe className="mr-2 h-4 w-4" />
-            <span>{t('userMenu.searchBySpecialty')}</span>
-          </DropdownMenuItem>
-          <DropdownMenuItem onSelect={() => setCitySearchOpen(true)}>
-            <Map className="mr-2 h-4 w-4" />
-            <span>{t('userMenu.searchByCity')}</span>
-          </DropdownMenuItem>
-          <DropdownMenuItem onSelect={() => setNearbySearchOpen(true)}>
-            <BrainCircuit className="mr-2 h-4 w-4" />
-            <span>{t('userMenu.searchNearby')}</span>
-          </DropdownMenuItem>
-          <DropdownMenuItem onSelect={() => setChatOpen(true)}>
-            <BrainCircuit className="mr-2 h-4 w-4" />
-            <span>{t('userMenu.aiChat')}</span>
-          </DropdownMenuItem>
+                <DropdownMenuLabel>{t('userMenu.aiTools')}</DropdownMenuLabel>
+                <DropdownMenuItem onSelect={() => setSpecialtySearchOpen(true)}>
+                    <Globe className="mr-2 h-4 w-4" />
+                    <span>{t('userMenu.searchBySpecialty')}</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onSelect={() => setCitySearchOpen(true)}>
+                    <Map className="mr-2 h-4 w-4" />
+                    <span>{t('userMenu.searchByCity')}</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onSelect={() => setNearbySearchOpen(true)}>
+                    <BrainCircuit className="mr-2 h-4 w-4" />
+                    <span>{t('userMenu.searchNearby')}</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onSelect={() => setChatOpen(true)}>
+                    <BrainCircuit className="mr-2 h-4 w-4" />
+                    <span>{t('userMenu.aiChat')}</span>
+                </DropdownMenuItem>
 
-          <DropdownMenuSeparator />
-          
-          <DropdownMenuLabel>{t('userMenu.dataActions')}</DropdownMenuLabel>
-          <DropdownMenuItem onSelect={handleSearchOnMap}>
-            <Map className="mr-2 h-4 w-4" />
-            <span>{t('userMenu.searchOnMap')}</span>
-          </DropdownMenuItem>
-          <DropdownMenuItem onSelect={handleExport}>
-            <FileDown className="mr-2 h-4 w-4" />
-            <span>{t('userMenu.exportToExcel')}</span>
-          </DropdownMenuItem>
-          <DropdownMenuItem onSelect={openImportDialog}>
-            <FileUp className="mr-2 h-4 w-4" />
-            <span>{t('userMenu.importFromExcel')}</span>
-          </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                
+                <DropdownMenuLabel>{t('userMenu.dataActions')}</DropdownMenuLabel>
+                <DropdownMenuItem onSelect={handleSearchOnMap}>
+                    <Map className="mr-2 h-4 w-4" />
+                    <span>{t('userMenu.searchOnMap')}</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onSelect={handleExport}>
+                    <FileDown className="mr-2 h-4 w-4" />
+                    <span>{t('userMenu.exportToExcel')}</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onSelect={openImportDialog}>
+                    <FileUp className="mr-2 h-4 w-4" />
+                    <span>{t('userMenu.importFromExcel')}</span>
+                </DropdownMenuItem>
 
-          <DropdownMenuSeparator />
+                <DropdownMenuSeparator />
 
-          <DropdownMenuLabel>{t('userMenu.management')}</DropdownMenuLabel>
-          <ConfirmationDialog
-            title={t('dialogs.resetReferralsTitle')}
-            description={t('dialogs.resetReferralsDesc')}
-            onConfirm={resetAllReferrals}
-            trigger={
-              <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                <RotateCcw className="mr-2 h-4 w-4" />
-                <span>{t('userMenu.resetAllReferrals')}</span>
-              </DropdownMenuItem>
-            }
-          />
-          <ConfirmationDialog
-            title={t('dialogs.uncheckPartnersTitle')}
-            description={t('dialogs.uncheckPartnersDesc')}
-            onConfirm={uncheckAllPartners}
-            trigger={
-              <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                <StarOff className="mr-2 h-4 w-4" />
-                <span>{t('userMenu.uncheckAllPartners')}</span>
-              </DropdownMenuItem>
-            }
-          />
+                <DropdownMenuLabel>{t('userMenu.management')}</DropdownMenuLabel>
+                <ConfirmationDialog
+                    title={t('dialogs.resetReferralsTitle')}
+                    description={t('dialogs.resetReferralsDesc')}
+                    onConfirm={resetAllReferrals}
+                    trigger={
+                    <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                        <RotateCcw className="mr-2 h-4 w-4" />
+                        <span>{t('userMenu.resetAllReferrals')}</span>
+                    </DropdownMenuItem>
+                    }
+                />
+                <ConfirmationDialog
+                    title={t('dialogs.uncheckPartnersTitle')}
+                    description={t('dialogs.uncheckPartnersDesc')}
+                    onConfirm={uncheckAllPartners}
+                    trigger={
+                    <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                        <StarOff className="mr-2 h-4 w-4" />
+                        <span>{t('userMenu.uncheckAllPartners')}</span>
+                    </DropdownMenuItem>
+                    }
+                />
 
-          <DropdownMenuSeparator />
-          
-          <DropdownMenuItem onSelect={() => setAboutOpen(true)}>
-            <Info className="mr-2 h-4 w-4" />
-            <span>{t('userMenu.about')}</span>
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={logout}>
-            <LogOut className="mr-2 h-4 w-4" />
-            <span>{t('auth.logout')}</span>
-          </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                
+                <DropdownMenuItem onSelect={() => setAboutOpen(true)}>
+                    <Info className="mr-2 h-4 w-4" />
+                    <span>{t('userMenu.about')}</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={logout}>
+                    <LogOut className="mr-2 h-4 w-4" />
+                    <span>{t('auth.logout')}</span>
+                </DropdownMenuItem>
+            </ScrollArea>
         </DropdownMenuContent>
       </DropdownMenu>
 
