@@ -31,9 +31,6 @@ import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
 import { Label } from '../ui/label';
 import { ConfirmationDialog } from '@/components/confirmation-dialog';
 import { AboutDialog } from '@/components/about-dialog';
-import { SpecialtySearchDialog } from '@/components/ai/specialty-search-dialog';
-import { CitySearchDialog } from '@/components/ai/city-search-dialog';
-import { NearbyDoctorsDialog } from '@/components/ai/nearby-doctors-dialog';
 import { ChatDialog } from '@/components/ai/chat-dialog';
 import { exportToExcel } from '@/lib/excel';
 import { useToast } from '@/hooks/use-toast';
@@ -45,15 +42,7 @@ import { translateText } from '@/ai/flows/translation-flow';
 import { Doctor } from '@/types';
 
 type DoctorExportData = {
-  'الاسم': string;
-  'التخصص': string;
-  'رقم الهاتف': string;
-  'عنوان العيادة': string;
-  'رابط الخريطة': string;
-  'شريك': boolean;
-  'عدد الإحالات': number;
-  'العمولة': number;
-  'أيام التواجد': string;
+  [key: string]: string | number | boolean;
 };
 
 export function UserMenu() {
@@ -65,48 +54,42 @@ export function UserMenu() {
 
   const [isMenuOpen, setMenuOpen] = useState(false);
   const [isAboutOpen, setAboutOpen] = useState(false);
-  const [isSpecialtySearchOpen, setSpecialtySearchOpen] = useState(false);
-  const [isCitySearchOpen, setCitySearchOpen] = useState(false);
-  const [isNearbySearchOpen, setNearbySearchOpen] = useState(false);
   const [isChatOpen, setChatOpen] = useState(false);
   const [isAdminPanelOpen, setAdminPanelOpen] = useState(false);
 
   const getTranslatedDoctorData = async (doctor: Doctor): Promise<DoctorExportData> => {
     const targetLanguage = lang === 'ar' ? 'Arabic' : 'English';
-    const containsArabic = /[\u0600-\u06FF]/.test(doctor.name);
-    const containsEnglish = /[a-zA-Z]/.test(doctor.name);
-
-    let translatedName = doctor.name;
-    let translatedSpecialty = doctor.specialty;
-    let translatedAddress = doctor.clinicAddress;
-
-    if ((lang === 'en' && containsArabic) || (lang === 'ar' && containsEnglish)) {
-      try {
-        const result = await translateText({ 
-          name: doctor.name, 
-          specialty: doctor.specialty, 
-          clinicAddress: doctor.clinicAddress, 
-          targetLanguage 
-        });
-        translatedName = result.name;
-        translatedSpecialty = result.specialty;
-        translatedAddress = result.clinicAddress;
-      } catch (error) {
-        console.error("Translation for export failed for doctor:", doctor.name, error);
-        // Use original data on failure
-      }
+    const headers = {
+        name: lang === 'ar' ? 'الاسم' : 'Name',
+        specialty: lang === 'ar' ? 'التخصص' : 'Specialty',
+        clinicAddress: lang === 'ar' ? 'عنوان العيادة' : 'Clinic Address',
+        phoneNumber: lang === 'ar' ? 'رقم الهاتف' : 'Phone Number',
+        mapLocation: lang === 'ar' ? 'رابط الخريطة' : 'Map Link',
+        isPartner: lang === 'ar' ? 'شريك' : 'Partner',
+        referralCount: lang === 'ar' ? 'عدد الإحالات' : 'Referrals',
+        commission: lang === 'ar' ? 'العمولة' : 'Commission',
+        availableDays: lang === 'ar' ? 'أيام التواجد' : 'Available Days',
+    };
+    
+    let translatedData = { name: doctor.name, specialty: doctor.specialty, clinicAddress: doctor.clinicAddress };
+    
+    try {
+        const result = await translateText({ name: doctor.name, specialty: doctor.specialty, clinicAddress: doctor.clinicAddress, targetLanguage });
+        translatedData = result;
+    } catch (error) {
+        console.error("Translation failed for", doctor.name, "falling back to original.");
     }
-
+    
     return {
-      'الاسم': translatedName,
-      'التخصص': translatedSpecialty,
-      'رقم الهاتف': doctor.phoneNumber,
-      'عنوان العيادة': translatedAddress,
-      'رابط الخريطة': doctor.mapLocation,
-      'شريك': doctor.isPartner,
-      'عدد الإحالات': doctor.referralCount,
-      'العمولة': doctor.referralCount * 100,
-      'أيام التواجد': doctor.availableDays.join(', '),
+      [headers.name]: translatedData.name,
+      [headers.specialty]: translatedData.specialty,
+      [headers.clinicAddress]: translatedData.clinicAddress,
+      [headers.phoneNumber]: doctor.phoneNumber,
+      [headers.mapLocation]: doctor.mapLocation,
+      [headers.isPartner]: doctor.isPartner,
+      [headers.referralCount]: doctor.referralCount,
+      [headers.commission]: doctor.referralCount * 100,
+      [headers.availableDays]: doctor.availableDays.join(', '),
     };
   };
 
@@ -121,7 +104,7 @@ export function UserMenu() {
         }
       }
       
-      toast({title: "Preparing export...", description: "Translating data, please wait."});
+      toast({title: t('toasts.exporting'), description: t('toasts.exportingDesc')});
 
       const translatedData = await Promise.all(doctorsToExport.map(doc => getTranslatedDoctorData(doc)));
       
@@ -216,9 +199,6 @@ export function UserMenu() {
               )}
               
               <div className="px-2 py-1.5 text-sm font-semibold">{t('userMenu.aiTools')}</div>
-              <MenuItem icon={<Globe className="mr-2 h-4 w-4" />} label={t('userMenu.searchBySpecialty')} onClick={() => { setSpecialtySearchOpen(true); setMenuOpen(false); }} />
-              <MenuItem icon={<Map className="mr-2 h-4 w-4" />} label={t('userMenu.searchByCity')} onClick={() => { setCitySearchOpen(true); setMenuOpen(false); }} />
-              <MenuItem icon={<BrainCircuit className="mr-2 h-4 w-4" />} label={t('userMenu.searchNearby')} onClick={() => { setNearbySearchOpen(true); setMenuOpen(false); }} />
               <MenuItem icon={<BrainCircuit className="mr-2 h-4 w-4" />} label={t('userMenu.aiChat')} onClick={() => { setChatOpen(true); setMenuOpen(false); }} />
               <Separator className="my-2" />
 
@@ -285,9 +265,6 @@ export function UserMenu() {
       
       {/* Dialogs */}
       <AboutDialog open={isAboutOpen} onOpenChange={setAboutOpen} />
-      <SpecialtySearchDialog open={isSpecialtySearchOpen} onOpenChange={setSpecialtySearchOpen} />
-      <CitySearchDialog open={isCitySearchOpen} onOpenChange={setCitySearchOpen} />
-      <NearbyDoctorsDialog open={isNearbySearchOpen} onOpenChange={setNearbySearchOpen} />
       <ChatDialog open={isChatOpen} onOpenChange={setChatOpen} />
       
       {/* Admin Panel Sheet */}
