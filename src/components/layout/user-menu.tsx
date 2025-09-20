@@ -49,6 +49,8 @@ import { ChatDialog } from '@/components/ai/chat-dialog';
 import { exportToExcel } from '@/lib/excel';
 import { useToast } from '@/hooks/use-toast';
 import { ScrollArea } from '../ui/scroll-area';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '../ui/sheet';
+import { AdminPanel } from '../admin/admin-panel';
 
 export function UserMenu() {
   const { user, logout } = useAuth();
@@ -62,6 +64,7 @@ export function UserMenu() {
   const [isCitySearchOpen, setCitySearchOpen] = useState(false);
   const [isNearbySearchOpen, setNearbySearchOpen] = useState(false);
   const [isChatOpen, setChatOpen] = useState(false);
+  const [isAdminPanelOpen, setAdminPanelOpen] = useState(false);
 
   const handleExport = () => {
     try {
@@ -199,13 +202,11 @@ export function UserMenu() {
           </ScrollArea>
           <DropdownMenuSeparator />
             {user.role === 'admin' && (
-                <DropdownMenuItem asChild>
-                  <Link href="/admin">
+                <DropdownMenuItem onClick={() => setAdminPanelOpen(true)}>
                     <Shield className="mr-2 h-4 w-4" />
                     <span>{t('header.adminDashboard')}</span>
-                  </Link>
                 </DropdownMenuItem>
-              )}
+            )}
           <DropdownMenuItem onClick={() => setAboutOpen(true)}><Info className="mr-2 h-4 w-4" /><span>{t('userMenu.about')}</span></DropdownMenuItem>
           <DropdownMenuItem onClick={logout}><LogOut className="mr-2 h-4 w-4" /><span>{t('auth.logout')}</span></DropdownMenuItem>
         </DropdownMenuContent>
@@ -226,6 +227,18 @@ export function UserMenu() {
       <CitySearchDialog open={isCitySearchOpen} onOpenChange={setCitySearchOpen} />
       <NearbyDoctorsDialog open={isNearbySearchOpen} onOpenChange={setNearbySearchOpen} />
       <ChatDialog open={isChatOpen} onOpenChange={setChatOpen} />
+      
+      {/* Admin Panel Sheet */}
+      {user.role === 'admin' && (
+        <Sheet open={isAdminPanelOpen} onOpenChange={setAdminPanelOpen}>
+            <SheetContent className="w-full sm:max-w-3xl overflow-y-auto">
+                <SheetHeader>
+                    <SheetTitle>{t('admin.dashboardTitle')}</SheetTitle>
+                </SheetHeader>
+                <AdminPanel />
+            </SheetContent>
+        </Sheet>
+      )}
     </>
   );
 }
