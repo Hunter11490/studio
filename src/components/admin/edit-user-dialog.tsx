@@ -41,6 +41,13 @@ export function EditUserDialog({ open, onOpenChange, userToEdit }: EditUserDialo
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
+    defaultValues: {
+      username: '',
+      email: '',
+      pass: '',
+      phoneNumber: '',
+      role: 'user',
+    },
   });
 
   useEffect(() => {
@@ -49,7 +56,7 @@ export function EditUserDialog({ open, onOpenChange, userToEdit }: EditUserDialo
         username: userToEdit.username,
         email: userToEdit.email,
         pass: userToEdit.pass,
-        phoneNumber: userToEdit.phoneNumber,
+        phoneNumber: userToEdit.phoneNumber || '',
         role: userToEdit.role,
       });
     }
