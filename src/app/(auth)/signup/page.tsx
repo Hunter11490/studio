@@ -36,7 +36,7 @@ export default function SignupPage() {
   });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    const success = signup(values.username, values.password, values.phoneNumber || '');
+    const success = signup(values.username, values.password, values.phoneNumber);
     if (success) {
       toast({
         title: t('auth.signupSuccessTitle'),
