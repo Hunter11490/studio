@@ -118,13 +118,7 @@ export function UserMenu() {
               {user.role === 'admin' && (
                 <>
                   <DropdownMenuGroup>
-                    <DropdownMenuLabel>Admin</DropdownMenuLabel>
-                    <DropdownMenuItem asChild>
-                      <Link href="/admin">
-                        <Shield className="mr-2 h-4 w-4" />
-                        <span>{t('header.adminDashboard')}</span>
-                      </Link>
-                    </DropdownMenuItem>
+                    <DropdownMenuLabel>{t('userMenu.management')}</DropdownMenuLabel>
                      <ConfirmationDialog
                         title={t('dialogs.resetReferralsTitle')}
                         description={t('dialogs.resetReferralsDesc')}
@@ -204,6 +198,14 @@ export function UserMenu() {
             </div>
           </ScrollArea>
           <DropdownMenuSeparator />
+            {user.role === 'admin' && (
+                <DropdownMenuItem asChild>
+                  <Link href="/admin">
+                    <Shield className="mr-2 h-4 w-4" />
+                    <span>{t('header.adminDashboard')}</span>
+                  </Link>
+                </DropdownMenuItem>
+              )}
           <DropdownMenuItem onClick={() => setAboutOpen(true)}><Info className="mr-2 h-4 w-4" /><span>{t('userMenu.about')}</span></DropdownMenuItem>
           <DropdownMenuItem onClick={logout}><LogOut className="mr-2 h-4 w-4" /><span>{t('auth.logout')}</span></DropdownMenuItem>
         </DropdownMenuContent>
