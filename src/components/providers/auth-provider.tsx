@@ -2,78 +2,109 @@
 
 import { createContext, useState, useEffect, useMemo, useCallback } from 'react';
 import { useLocalStorage } from '@/hooks/use-local-storage';
+import type { User, StoredUser } from '@/types';
 
 // In a real offline-first app, this might involve more complex client-side hashing
 // For this prototype, we'll keep it simple.
 
-type User = {
-  username: string;
-};
-
 export type AuthContextType = {
   user: User | null;
+  users: User[];
   isLoading: boolean;
   login: (username: string, pass: string) => boolean;
-  signup: (username: string, pass: string) => boolean;
+  signup: (username: string, pass: string, phoneNumber: string) => boolean;
   logout: () => void;
 };
 
-const USER_STORAGE_KEY = 'iraqi_doctors_user';
+const USERS_STORAGE_KEY = 'iraqi_doctors_users_v2';
+const LOGGED_IN_USER_KEY = 'iraqi_doctors_loggedin_user_v2';
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [storedUser, setStoredUser] = useLocalStorage<any | null>(USER_STORAGE_KEY, null);
+  const [storedUsers, setStoredUsers] = useLocalStorage<StoredUser[]>(USERS_STORAGE_KEY, []);
+  const [loggedInUser, setLoggedInUser] = useLocalStorage<User | null>(LOGGED_IN_USER_KEY, null);
+  
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // This effect simulates checking the stored user data on mount
-    try {
-        if (storedUser && storedUser.username) {
-            setUser({ username: storedUser.username });
-        }
-    } catch (e) {
-        console.error("Failed to parse user from storage", e);
-        setStoredUser(null);
-    } finally {
-        setIsLoading(false);
+    // On initial load, check if there's a logged-in user session
+    setIsLoading(true);
+    if (loggedInUser) {
+      // Verify user still exists
+      const userExists = storedUsers.some(u => u.id === loggedInUser.id);
+      if (userExists) {
+        setUser(loggedInUser);
+      } else {
+        setLoggedInUser(null); // Clear invalid session
+      }
     }
-  }, [storedUser]);
+    // Create admin if no users exist
+    if (storedUsers.length === 0) {
+      const adminUser: StoredUser = {
+        id: 'admin-user',
+        username: 'admin',
+        pass: 'admin',
+        phoneNumber: '0000000000',
+        role: 'admin',
+      };
+      setStoredUsers([adminUser]);
+    }
+    setIsLoading(false);
+  }, [loggedInUser, setLoggedInUser, storedUsers, setStoredUsers]);
 
   const login = useCallback((username: string, pass: string): boolean => {
-    if (storedUser && storedUser.username === username && storedUser.pass === pass) {
-      const loggedInUser = { username };
-      setUser(loggedInUser);
+    const userToLogin = storedUsers.find(
+      (u) => u.username === username && u.pass === pass
+    );
+
+    if (userToLogin) {
+      const sessionUser: User = {
+        id: userToLogin.id,
+        username: userToLogin.username,
+        phoneNumber: userToLogin.phoneNumber,
+        role: userToLogin.role,
+      };
+      setUser(sessionUser);
+      setLoggedInUser(sessionUser);
       return true;
     }
     return false;
-  }, [storedUser]);
+  }, [storedUsers, setLoggedInUser]);
 
-  const signup = useCallback((username: string, pass: string): boolean => {
-    // This simple offline auth only allows one user.
-    if (storedUser) {
+  const signup = useCallback((username: string, pass: string, phoneNumber: string): boolean => {
+    const userExists = storedUsers.some(u => u.username === username);
+    if (userExists) {
       return false; 
     }
-    const newUser = { username, pass }; // Storing password directly for simplicity.
-    setStoredUser(newUser);
+    
+    const newUser: StoredUser = { 
+        id: new Date().toISOString(),
+        username, 
+        pass, // Storing password directly for simplicity.
+        phoneNumber,
+        role: 'user'
+    };
+    setStoredUsers(prev => [...prev, newUser]);
     return true;
-  }, [storedUser, setStoredUser]);
+  }, [storedUsers, setStoredUsers]);
 
   const logout = useCallback(() => {
     setUser(null);
-    // Note: We are not clearing the localStorage here so the user can log back in
-    // without signing up again. To fully "sign out" and remove the user,
-    // you would call setStoredUser(null).
-  }, []);
+    setLoggedInUser(null);
+  }, [setLoggedInUser]);
   
+  const publicUsers = useMemo(() => storedUsers.map(({ pass, ...rest }) => rest), [storedUsers]);
+
   const value = useMemo(() => ({
     user,
+    users: publicUsers,
     isLoading,
     login,
     signup,
     logout,
-  }), [user, isLoading, login, signup, logout]);
+  }), [user, publicUsers, isLoading, login, signup, logout]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

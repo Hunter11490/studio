@@ -17,6 +17,7 @@ import { Logo } from '@/components/logo';
 const formSchema = z.object({
   username: z.string().min(3, 'Username must be at least 3 characters'),
   password: z.string().min(6, 'Password must be at least 6 characters'),
+  phoneNumber: z.string().min(10, 'Phone number must be at least 10 digits'),
 });
 
 export default function SignupPage() {
@@ -30,21 +31,22 @@ export default function SignupPage() {
     defaultValues: {
       username: '',
       password: '',
+      phoneNumber: '',
     },
   });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    const success = signup(values.username, values.password);
+    const success = signup(values.username, values.password, values.phoneNumber);
     if (success) {
       toast({
-        title: 'Account Created',
-        description: 'You can now log in.',
+        title: t('auth.signupSuccessTitle'),
+        description: t('auth.signupSuccessDesc'),
       });
       router.replace('/login');
     } else {
       toast({
-        title: 'Signup Failed',
-        description: 'A user already exists. Only one user is allowed in this offline version.',
+        title: t('auth.signupFailedTitle'),
+        description: t('auth.signupFailedDesc'),
         variant: 'destructive',
       });
     }
@@ -59,7 +61,7 @@ export default function SignupPage() {
       </CardHeader>
       <CardContent>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <FormField
               control={form.control}
               name="username"
@@ -81,6 +83,19 @@ export default function SignupPage() {
                   <FormLabel>{t('auth.password')}</FormLabel>
                   <FormControl>
                     <Input type="password" placeholder="••••••••" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+             <FormField
+              control={form.control}
+              name="phoneNumber"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t('auth.phoneNumber')}</FormLabel>
+                  <FormControl>
+                    <Input placeholder="07..." {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

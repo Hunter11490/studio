@@ -8,11 +8,16 @@ export const translations: Translations = {
       signup: 'Sign Up',
       username: 'Username',
       password: 'Password',
+      phoneNumber: 'Phone Number',
       loginCta: 'Log into your account',
       signupCta: 'Create a new account',
       noAccount: "Don't have an account?",
       haveAccount: 'Already have an account?',
       logout: 'Logout',
+      signupSuccessTitle: 'Account Created',
+      signupSuccessDesc: 'You can now log in.',
+      signupFailedTitle: 'Signup Failed',
+      signupFailedDesc: 'A user with this username already exists.',
     },
     header: {
       searchPlaceholder: 'Search by name, specialty, address...',
@@ -20,6 +25,7 @@ export const translations: Translations = {
       filterPartners: 'Filter Partners',
       totalDoctors: 'Total Doctors',
       totalPartners: 'Total Partners',
+      adminDashboard: 'Admin Dashboard',
     },
     doctorCard: {
       partner: 'Partner',
@@ -117,6 +123,13 @@ export const translations: Translations = {
       loading: 'Loading...',
       noResults: 'No doctors found. Try adjusting your search or adding a new doctor.',
     },
+     admin: {
+      dashboardTitle: 'Admin Dashboard',
+      usersTable: 'Registered Users',
+      username: 'Username',
+      phoneNumber: 'Phone Number',
+      role: 'Role',
+    },
   },
   ar: {
     appName: 'مندوبي العراق',
@@ -125,11 +138,16 @@ export const translations: Translations = {
       signup: 'إنشاء حساب',
       username: 'اسم المستخدم',
       password: 'كلمة المرور',
+      phoneNumber: 'رقم الهاتف',
       loginCta: 'سجل الدخول إلى حسابك',
       signupCta: 'إنشاء حساب جديد',
       noAccount: 'ليس لديك حساب؟',
       haveAccount: 'لديك حساب بالفعل؟',
       logout: 'تسجيل الخروج',
+      signupSuccessTitle: 'تم إنشاء الحساب',
+      signupSuccessDesc: 'يمكنك الآن تسجيل الدخول.',
+      signupFailedTitle: 'فشل في إنشاء الحساب',
+      signupFailedDesc: 'يوجد مستخدم بهذا الاسم بالفعل.',
     },
     header: {
       searchPlaceholder: 'ابحث بالاسم، التخصص، العنوان...',
@@ -137,6 +155,7 @@ export const translations: Translations = {
       filterPartners: 'تصفية الشركاء',
       totalDoctors: 'مجموع الأطباء',
       totalPartners: 'مجموع الشركاء',
+      adminDashboard: 'لوحة تحكم المسؤول',
     },
     doctorCard: {
       partner: 'شريك',
@@ -233,6 +252,13 @@ export const translations: Translations = {
     common: {
       loading: 'جار التحميل...',
       noResults: 'لم يتم العثور على أطباء. حاول تعديل بحثك أو إضافة طبيب جديد.',
+    },
+    admin: {
+      dashboardTitle: 'لوحة تحكم المسؤول',
+      usersTable: 'المستخدمون المسجلون',
+      username: 'اسم المستخدم',
+      phoneNumber: 'رقم الهاتف',
+      role: 'الدور',
     },
   },
 };

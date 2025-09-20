@@ -12,6 +12,17 @@ export type Doctor = {
   createdAt: string; // ISO date string
 };
 
+export type User = {
+  id: string;
+  username: string;
+  phoneNumber: string;
+  role: 'admin' | 'user';
+};
+
+export type StoredUser = User & {
+  pass: string;
+};
+
 export type Translation = {
   [key: string]: string | Translation;
 };
