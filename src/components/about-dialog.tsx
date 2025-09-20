@@ -8,7 +8,9 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { useLanguage } from '@/hooks/use-language';
+import { useAuth } from '@/hooks/use-auth';
 import { Logo } from './logo';
+import { StoredUser } from '@/types';
 
 type AboutDialogProps = {
   open: boolean;
@@ -17,6 +19,10 @@ type AboutDialogProps = {
 
 export function AboutDialog({ open, onOpenChange }: AboutDialogProps) {
   const { t } = useLanguage();
+  const { users } = useAuth();
+  
+  const projectOwner = users.find(u => u.username === 'HUNTER') as StoredUser | undefined;
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
@@ -27,6 +33,13 @@ export function AboutDialog({ open, onOpenChange }: AboutDialogProps) {
             {t('dialogs.aboutDesc')}
           </DialogDescription>
         </DialogHeader>
+        {projectOwner && (
+          <div className="pt-4 text-center text-sm text-muted-foreground">
+            <p className="font-semibold">{t('dialogs.contactOwner')}</p>
+            <p dir="ltr">{projectOwner.email}</p>
+            <p dir="ltr">{projectOwner.phoneNumber}</p>
+          </div>
+        )}
       </DialogContent>
     </Dialog>
   );
