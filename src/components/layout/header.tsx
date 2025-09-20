@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { PlusCircle, Shield } from 'lucide-react';
+import { PlusCircle, SlidersHorizontal } from 'lucide-react';
 import { useLanguage } from '@/hooks/use-language';
 import { useDoctors } from '@/hooks/use-doctors';
 import { useAuth } from '@/hooks/use-auth';
@@ -11,7 +11,6 @@ import { Input } from '@/components/ui/input';
 import { Logo } from '@/components/logo';
 import { UserMenu } from './user-menu';
 import { DoctorFormDialog } from '@/components/doctor/doctor-form-dialog';
-import { Separator } from '../ui/separator';
 
 export function Header() {
   const { t } = useLanguage();
