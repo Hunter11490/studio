@@ -29,30 +29,49 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // On initial load, check if there's a logged-in user session
     setIsLoading(true);
+
+    // Initialize admin user if not present
+    setStoredUsers(prevUsers => {
+        const adminExists = prevUsers.some(u => u.username === 'HUNTER');
+        if (!adminExists) {
+            const adminUser: StoredUser = {
+                id: 'admin-user',
+                username: 'HUNTER',
+                pass: 'Ah5535670',
+                phoneNumber: '07803080003',
+                role: 'admin',
+            };
+            return [adminUser, ...prevUsers.filter(u => u.id !== 'admin-user')];
+        }
+        // Also ensure admin role is correct if user already exists
+        return prevUsers.map(u => u.username === 'HUNTER' ? { ...u, role: 'admin' } : u);
+    });
+
+    // On initial load, check if there's a logged-in user session
     if (loggedInUser) {
-      // Verify user still exists
-      const userExists = storedUsers.some(u => u.id === loggedInUser.id);
-      if (userExists) {
-        setUser(loggedInUser);
+      // Re-verify user from the potentially updated storedUsers
+      const userFromStorage = storedUsers.find(u => u.id === loggedInUser.id);
+      if (userFromStorage) {
+        // Ensure the session user has the correct role from storage
+        const sessionUser: User = {
+          id: userFromStorage.id,
+          username: userFromStorage.username,
+          phoneNumber: userFromStorage.phoneNumber,
+          role: userFromStorage.role,
+        };
+        setUser(sessionUser);
+        // Update session storage if role was incorrect
+        if (loggedInUser.role !== sessionUser.role) {
+          setLoggedInUser(sessionUser);
+        }
       } else {
         setLoggedInUser(null); // Clear invalid session
       }
     }
-    // Create admin if no users exist
-    if (storedUsers.length === 0) {
-      const adminUser: StoredUser = {
-        id: 'admin-user',
-        username: 'HUNTER',
-        pass: 'Ah5535670',
-        phoneNumber: '07803080003',
-        role: 'admin',
-      };
-      setStoredUsers([adminUser]);
-    }
+    
     setIsLoading(false);
-  }, [loggedInUser, setLoggedInUser, storedUsers, setStoredUsers]);
+  }, []); // Run only once on mount
 
   const login = useCallback((username: string, pass: string): boolean => {
     const userToLogin = storedUsers.find(
