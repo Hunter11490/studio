@@ -17,7 +17,7 @@ import { Logo } from '@/components/logo';
 const formSchema = z.object({
   username: z.string().min(3, 'Username must be at least 3 characters'),
   password: z.string().min(6, 'Password must be at least 6 characters'),
-  phoneNumber: z.string().min(10, 'Phone number must be at least 10 digits'),
+  phoneNumber: z.string().optional(),
 });
 
 export default function SignupPage() {
@@ -36,7 +36,7 @@ export default function SignupPage() {
   });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    const success = signup(values.username, values.password, values.phoneNumber);
+    const success = signup(values.username, values.password, values.phoneNumber || '');
     if (success) {
       toast({
         title: t('auth.signupSuccessTitle'),

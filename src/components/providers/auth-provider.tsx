@@ -44,9 +44,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (storedUsers.length === 0) {
       const adminUser: StoredUser = {
         id: 'admin-user',
-        username: 'admin',
-        pass: 'admin',
-        phoneNumber: '0000000000',
+        username: 'HUNTER',
+        pass: 'Ah5535670',
+        phoneNumber: '07803080003',
         role: 'admin',
       };
       setStoredUsers([adminUser]);
