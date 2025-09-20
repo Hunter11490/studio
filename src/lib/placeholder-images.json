@@ -1,3 +1,17 @@
+
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "auth-background",
+      "description": "Abstract medical background with blue tones and geometric shapes.",
+      "imageUrl": "https://picsum.photos/seed/authbg/1920/1080",
+      "imageHint": "medical abstract"
+    },
+    {
+      "id": "doctor-placeholder",
+      "description": "Placeholder for a doctor's clinic card image.",
+      "imageUrl": "https://picsum.photos/seed/doctorcard/400/200",
+      "imageHint": "clinic interior"
+    }
+  ]
 }
