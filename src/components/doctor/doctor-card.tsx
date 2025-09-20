@@ -49,12 +49,17 @@ export function DoctorCard({ doctor }: { doctor: Doctor }) {
 
   useEffect(() => {
     const translateDetails = async () => {
+      if (!doctor.name && !doctor.specialty && !doctor.clinicAddress) {
+        setTranslatedDetails(null);
+        return;
+      }
+
       const targetLanguage = lang === 'ar' ? 'Arabic' : 'English';
       
       const containsArabic = /[\u0600-\u06FF]/.test(doctor.name);
       const containsEnglish = /[a-zA-Z]/.test(doctor.name);
 
-      if ((lang === 'en' && !containsArabic) || (lang === 'ar' && !containsEnglish)) {
+      if ((lang === 'en' && !containsArabic) || (lang === 'ar' && !containsEnglish && doctor.name)) {
         setTranslatedDetails(null);
         return;
       }
@@ -82,7 +87,7 @@ export function DoctorCard({ doctor }: { doctor: Doctor }) {
     };
 
     translateDetails();
-  }, [lang, doctor]);
+  }, [lang, doctor.name, doctor.specialty, doctor.clinicAddress]);
 
   const displayName = translatedDetails?.name ?? doctor.name;
   const displaySpecialty = translatedDetails?.specialty ?? doctor.specialty;
