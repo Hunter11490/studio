@@ -23,7 +23,6 @@ import { Minus, Plus, Users, FileDown, FileText } from 'lucide-react';
 import { ScrollArea } from '../ui/scroll-area';
 import type { Doctor } from '@/types';
 import { translateText } from '@/ai/flows/translation-flow';
-import { Skeleton } from '../ui/skeleton';
 import { exportToExcel } from '@/lib/excel';
 import { useToast } from '@/hooks/use-toast';
 import jsPDF from 'jspdf';
@@ -34,10 +33,6 @@ type PartnerDashboardProps = {
   onOpenChange: (open: boolean) => void;
 };
 
-type TranslatedDetails = {
-    name: string;
-};
-
 type PartnerExportData = {
   [key: string]: string | number;
 };
@@ -46,48 +41,7 @@ type PartnerExportData = {
 function PartnerDoctorItem({ doctor }: { doctor: Doctor }) {
   const { updateDoctor } = useDoctors();
   const { t, lang } = useLanguage();
-  const [translatedDetails, setTranslatedDetails] = useState<TranslatedDetails | null>(null);
-  const [isTranslating, setIsTranslating] = useState(false);
-
-  useEffect(() => {
-    const translateDetails = async () => {
-      if (!doctor.name) {
-        setTranslatedDetails(null);
-        return;
-      }
-
-      const targetLanguage = lang === 'ar' ? 'Arabic' : 'English';
-      
-      const containsArabic = /[\u0600-\u06FF]/.test(doctor.name);
-      const containsEnglish = /[a-zA-Z]/.test(doctor.name);
-
-      if ((lang === 'en' && !containsArabic) || (lang === 'ar' && !containsEnglish && doctor.name)) {
-        setTranslatedDetails(null);
-        return;
-      }
-      
-      setIsTranslating(true);
-      try {
-        const result = await translateText({ 
-          name: doctor.name, 
-          specialty: doctor.specialty, // Required by flow, but we only need name
-          clinicAddress: doctor.clinicAddress, // Required by flow
-          targetLanguage 
-        });
-        setTranslatedDetails(result);
-      } catch (error) {
-        console.error("Translation failed", error);
-        setTranslatedDetails({ name: doctor.name });
-      } finally {
-        setIsTranslating(false);
-      }
-    };
-
-    translateDetails();
-  }, [lang, doctor.name, doctor.specialty, doctor.clinicAddress]);
-
-  const displayName = translatedDetails?.name ?? doctor.name;
-
+  
   const handleReferralChange = (doctorId: string, currentCount: number, amount: number) => {
     const newCount = Math.max(0, currentCount + amount);
     updateDoctor(doctorId, { referralCount: newCount });
@@ -97,10 +51,7 @@ function PartnerDoctorItem({ doctor }: { doctor: Doctor }) {
     <AccordionItem value={doctor.id}>
       <AccordionTrigger className="px-4 hover:no-underline">
         <div className="flex flex-1 items-center justify-between gap-2">
-          {isTranslating ? 
-            <Skeleton className="h-5 w-32" /> :
-            <span className="font-semibold truncate">{displayName}</span>
-          }
+            <span className="font-semibold truncate">{doctor.name}</span>
           <Badge variant="secondary" className="whitespace-nowrap">
             {t('doctorCard.referrals')}: {doctor.referralCount}
           </Badge>
