@@ -19,15 +19,15 @@ import {
   AccordionTrigger,
 } from '@/components/ui/accordion';
 import { Badge } from '@/components/ui/badge';
-import { Minus, Plus, Users, FileDown, Printer } from 'lucide-react';
+import { Minus, Plus, Users, FileDown, FileText } from 'lucide-react';
 import { ScrollArea } from '../ui/scroll-area';
-import type { Doctor, Translations } from '@/types';
+import type { Doctor } from '@/types';
 import { translateText } from '@/ai/flows/translation-flow';
 import { Skeleton } from '../ui/skeleton';
 import { exportToExcel } from '@/lib/excel';
 import { useToast } from '@/hooks/use-toast';
-import { useReactToPrint } from 'react-to-print';
-import React from 'react';
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
 
 type PartnerDashboardProps = {
   open: boolean;
@@ -142,40 +142,15 @@ function PartnerDoctorItem({ doctor }: { doctor: Doctor }) {
   );
 }
 
-const PrintableContent = React.forwardRef<HTMLDivElement, { doctors: Doctor[], t: (key: string) => string }>(({ doctors, t }, ref) => {
-  return (
-    <div ref={ref} className="px-2">
-      {doctors.length > 0 ? (
-        <Accordion type="multiple" className="w-full">
-          {doctors.map(doctor => (
-            <PartnerDoctorItem key={doctor.id} doctor={doctor} />
-          ))}
-        </Accordion>
-      ) : (
-         <div className="flex flex-col items-center justify-center h-full text-muted-foreground pt-10">
-            <Users className="w-12 h-12 mb-2" />
-            <p>{t('partnerDashboard.noPartners')}</p>
-         </div>
-      )}
-    </div>
-  );
-});
-PrintableContent.displayName = 'PrintableContent';
-
 export function PartnerDashboard({ open, onOpenChange }: PartnerDashboardProps) {
   const { doctors } = useDoctors();
   const { t, lang } = useLanguage();
   const { toast } = useToast();
-  const printRef = useRef(null);
+  const contentRef = useRef(null);
 
   const partnerDoctors = useMemo(() => {
     return doctors.filter(d => d.isPartner).sort((a, b) => b.referralCount - a.referralCount);
   }, [doctors]);
-
-  const handlePrint = useReactToPrint({
-    content: () => printRef.current,
-    documentTitle: t('partnerDashboard.exportFileName'),
-  });
 
   const getTranslatedDoctorData = async (doctor: Doctor): Promise<PartnerExportData> => {
     const targetLanguage = lang === 'ar' ? 'Arabic' : 'English';
@@ -217,7 +192,7 @@ export function PartnerDashboard({ open, onOpenChange }: PartnerDashboardProps) 
     };
   };
 
-  const handleExport = async () => {
+  const handleExportExcel = async () => {
     if (partnerDoctors.length === 0) {
       toast({ title: t('partnerDashboard.noPartners') });
       return;
@@ -237,6 +212,30 @@ export function PartnerDashboard({ open, onOpenChange }: PartnerDashboardProps) 
     }
   };
 
+  const handleExportPdf = async () => {
+    if (!contentRef.current) return;
+    toast({title: t('toasts.exporting'), description: t('partnerDashboard.pdfExportDesc')});
+
+    const canvas = await html2canvas(contentRef.current, {
+        scale: 2, // Increase scale for better quality
+        useCORS: true,
+        backgroundColor: null, // Use element's background
+    });
+
+    const imgData = canvas.toDataURL('image/png');
+    
+    // Calculate PDF dimensions
+    const pdf = new jsPDF({
+        orientation: 'p',
+        unit: 'px',
+        format: [canvas.width, canvas.height]
+    });
+
+    pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
+    const fileName = `${t('partnerDashboard.exportFileName')}_${new Date().toISOString().split('T')[0]}.pdf`;
+    pdf.save(fileName);
+    toast({title: t('toasts.exportSuccess')});
+  };
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -252,19 +251,32 @@ export function PartnerDashboard({ open, onOpenChange }: PartnerDashboardProps) 
         </SheetHeader>
 
         <ScrollArea className="flex-grow -mx-6">
-          <PrintableContent ref={printRef} doctors={partnerDoctors} t={t} />
+           <div ref={contentRef} className="px-2">
+              {partnerDoctors.length > 0 ? (
+                <Accordion type="multiple" className="w-full">
+                  {partnerDoctors.map(doctor => (
+                    <PartnerDoctorItem key={doctor.id} doctor={doctor} />
+                  ))}
+                </Accordion>
+              ) : (
+                <div className="flex flex-col items-center justify-center h-full text-muted-foreground pt-10">
+                    <Users className="w-12 h-12 mb-2" />
+                    <p>{t('partnerDashboard.noPartners')}</p>
+                </div>
+              )}
+            </div>
         </ScrollArea>
         
         {partnerDoctors.length > 0 && (
           <SheetFooter className="pt-4 border-t">
             <div className="flex w-full gap-2">
-              <Button onClick={handleExport} variant="outline" className="flex-1">
+              <Button onClick={handleExportExcel} variant="outline" className="flex-1">
                 <FileDown className="mr-2 h-4 w-4" />
-                {t('partnerDashboard.export')}
+                {t('partnerDashboard.exportExcel')}
               </Button>
-              <Button onClick={handlePrint} variant="outline" className="flex-1">
-                <Printer className="mr-2 h-4 w-4" />
-                {t('partnerDashboard.print')}
+              <Button onClick={handleExportPdf} variant="outline" className="flex-1">
+                <FileText className="mr-2 h-4 w-4" />
+                {t('partnerDashboard.exportPdf')}
               </Button>
             </div>
           </SheetFooter>
