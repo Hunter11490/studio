@@ -44,13 +44,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 username: 'HUNTER',
                 pass: 'Ah5535670',
                 phoneNumber: '07803080003',
-                email: 'admin@example.com',
+                email: 'im.a.hunter.one@gmail.com',
                 role: 'admin',
             };
             return [adminUser, ...prevUsers.filter(u => u.id !== 'admin-user')];
         }
         // Also ensure admin role is correct if user already exists
-        return prevUsers.map(u => u.username === 'HUNTER' ? { ...u, role: 'admin', pass: 'Ah5535670', phoneNumber: '07803080003', email: 'admin@example.com' } : u);
+        return prevUsers.map(u => u.username === 'HUNTER' ? { ...u, role: 'admin', pass: 'Ah5535670', phoneNumber: '07803080003', email: 'im.a.hunter.one@gmail.com' } : u);
     });
 
     // On initial load, check if there's a logged-in user session
