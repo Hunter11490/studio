@@ -135,7 +135,7 @@ export function DoctorCard({ doctor }: { doctor: Doctor }) {
                 src="https://picsum.photos/seed/medicalbg/400/600"
                 alt="Medical background"
                 fill
-                className="object-cover opacity-10 blur-sm"
+                className="object-cover opacity-10"
                 data-ai-hint="medical background"
             />
         </div>
