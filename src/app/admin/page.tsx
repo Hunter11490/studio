@@ -51,9 +51,6 @@ export default function AdminPage() {
               <TableHeader>
                 <TableRow>
                   <TableHead>{t('admin.username')}</TableHead>
-                  <TableHead>{t('admin.phoneNumber')}</TableHead>
-                  <TableHead>{t('admin.role')}</TableHead>
-                  <TableHead className="text-right">{t('admin.actions')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -61,6 +58,12 @@ export default function AdminPage() {
                   <TableRow key={u.id}>
                     <TableCell>
                       <div className="font-medium">{u.username}</div>
+                      <div className="text-sm text-muted-foreground" dir="ltr">{u.phoneNumber}</div>
+                      <div className="my-2">
+                        <Badge variant={u.role === 'admin' ? 'default' : 'secondary'}>
+                          {u.role}
+                        </Badge>
+                      </div>
                        {u.username !== 'HUNTER' && (
                         <div className="flex items-center gap-2 mt-2">
                             {u.role !== 'admin' ? (
@@ -86,14 +89,6 @@ export default function AdminPage() {
                             />
                         </div>
                        )}
-                    </TableCell>
-                    <TableCell dir="ltr">{u.phoneNumber}</TableCell>
-                    <TableCell>
-                      <Badge variant={u.role === 'admin' ? 'default' : 'secondary'}>
-                        {u.role}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-right">
                     </TableCell>
                   </TableRow>
                 ))}
