@@ -27,6 +27,7 @@ import { Skeleton } from '../ui/skeleton';
 import { exportToExcel } from '@/lib/excel';
 import { useToast } from '@/hooks/use-toast';
 import { useReactToPrint } from 'react-to-print';
+import React from 'react';
 
 type PartnerDashboardProps = {
   open: boolean;
@@ -141,6 +142,25 @@ function PartnerDoctorItem({ doctor }: { doctor: Doctor }) {
   );
 }
 
+const PrintableContent = React.forwardRef<HTMLDivElement, { doctors: Doctor[], t: (key: string) => string }>(({ doctors, t }, ref) => {
+  return (
+    <div ref={ref} className="px-2">
+      {doctors.length > 0 ? (
+        <Accordion type="multiple" className="w-full">
+          {doctors.map(doctor => (
+            <PartnerDoctorItem key={doctor.id} doctor={doctor} />
+          ))}
+        </Accordion>
+      ) : (
+         <div className="flex flex-col items-center justify-center h-full text-muted-foreground pt-10">
+            <Users className="w-12 h-12 mb-2" />
+            <p>{t('partnerDashboard.noPartners')}</p>
+         </div>
+      )}
+    </div>
+  );
+});
+PrintableContent.displayName = 'PrintableContent';
 
 export function PartnerDashboard({ open, onOpenChange }: PartnerDashboardProps) {
   const { doctors } = useDoctors();
@@ -231,20 +251,10 @@ export function PartnerDashboard({ open, onOpenChange }: PartnerDashboardProps) 
           </SheetDescription>
         </SheetHeader>
 
-        <ScrollArea ref={printRef} className="flex-grow -mx-6 px-2">
-          {partnerDoctors.length > 0 ? (
-            <Accordion type="multiple" className="w-full">
-              {partnerDoctors.map(doctor => (
-                <PartnerDoctorItem key={doctor.id} doctor={doctor} />
-              ))}
-            </Accordion>
-          ) : (
-             <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
-                <Users className="w-12 h-12 mb-2" />
-                <p>{t('partnerDashboard.noPartners')}</p>
-             </div>
-          )}
+        <ScrollArea className="flex-grow -mx-6">
+          <PrintableContent ref={printRef} doctors={partnerDoctors} t={t} />
         </ScrollArea>
+        
         {partnerDoctors.length > 0 && (
           <SheetFooter className="pt-4 border-t">
             <div className="flex w-full gap-2">
