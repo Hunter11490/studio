@@ -19,7 +19,7 @@ import {
   AccordionTrigger,
 } from '@/components/ui/accordion';
 import { Badge } from '@/components/ui/badge';
-import { Minus, Plus, Users, FileDown } from 'lucide-react';
+import { Minus, Plus, Users, FileDown, X } from 'lucide-react';
 import { ScrollArea } from '../ui/scroll-area';
 import type { Doctor } from '@/types';
 import { translateText } from '@/ai/flows/translation-flow';
@@ -35,21 +35,20 @@ type PartnerExportData = {
   [key: string]: string | number;
 };
 
-
 function PartnerDoctorItem({ doctor }: { doctor: Doctor }) {
   const { updateDoctor } = useDoctors();
   const { t } = useLanguage();
-  
+
   const handleReferralChange = (doctorId: string, currentCount: number, amount: number) => {
     const newCount = Math.max(0, currentCount + amount);
     updateDoctor(doctorId, { referralCount: newCount });
   };
-  
+
   return (
     <AccordionItem value={doctor.id}>
       <AccordionTrigger className="px-4 hover:no-underline">
         <div className="flex flex-1 items-center justify-between gap-2">
-            <span className="font-semibold truncate">{doctor.name}</span>
+          <span className="font-semibold truncate">{doctor.name}</span>
           <Badge variant="secondary" className="whitespace-nowrap">
             {t('doctorCard.referrals')}: {doctor.referralCount}
           </Badge>
@@ -57,34 +56,34 @@ function PartnerDoctorItem({ doctor }: { doctor: Doctor }) {
       </AccordionTrigger>
       <AccordionContent className="px-4">
         <div className="space-y-3 pt-2">
-            <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">{t('doctorCard.commission')}:</span>
-                <span className="font-semibold text-accent">
-                    {(doctor.referralCount * 100).toLocaleString()} {t('doctorCard.usd')}
-                </span>
+          <div className="flex items-center justify-between">
+            <span className="text-sm text-muted-foreground">{t('doctorCard.commission')}:</span>
+            <span className="font-semibold text-accent">
+              {(doctor.referralCount * 100).toLocaleString()} {t('doctorCard.usd')}
+            </span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-sm text-muted-foreground">{t('partnerDashboard.editReferrals')}:</span>
+            <div className="flex items-center gap-2">
+              <Button
+                size="icon"
+                variant="outline"
+                className="h-7 w-7"
+                onClick={() => handleReferralChange(doctor.id, doctor.referralCount, -1)}
+              >
+                <Minus className="h-4 w-4" />
+              </Button>
+              <span className="font-bold w-5 text-center">{doctor.referralCount}</span>
+              <Button
+                size="icon"
+                variant="outline"
+                className="h-7 w-7"
+                onClick={() => handleReferralChange(doctor.id, doctor.referralCount, 1)}
+              >
+                <Plus className="h-4 w-4" />
+              </Button>
             </div>
-            <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">{t('partnerDashboard.editReferrals')}:</span>
-                <div className="flex items-center gap-2">
-                    <Button
-                    size="icon"
-                    variant="outline"
-                    className="h-7 w-7"
-                    onClick={() => handleReferralChange(doctor.id, doctor.referralCount, -1)}
-                    >
-                    <Minus className="h-4 w-4" />
-                    </Button>
-                    <span className="font-bold w-5 text-center">{doctor.referralCount}</span>
-                    <Button
-                    size="icon"
-                    variant="outline"
-                    className="h-7 w-7"
-                    onClick={() => handleReferralChange(doctor.id, doctor.referralCount, 1)}
-                    >
-                    <Plus className="h-4 w-4" />
-                    </Button>
-                </div>
-            </div>
+          </div>
         </div>
       </AccordionContent>
     </AccordionItem>
@@ -102,9 +101,15 @@ export function PartnerDashboard({ open, onOpenChange }: PartnerDashboardProps) 
 
   const getTranslatedDoctorData = async (doctor: Doctor): Promise<PartnerExportData> => {
     const targetLanguage = lang === 'ar' ? 'Arabic' : 'English';
+    let translatedData = { name: doctor.name, specialty: doctor.specialty, clinicAddress: doctor.clinicAddress };
     
-    // For simplicity, we just use the current data which should be in the correct language
-    // as per the UI language. A more robust solution might force re-translation here.
+    try {
+        const result = await translateText({ name: doctor.name, specialty: doctor.specialty, clinicAddress: doctor.clinicAddress, targetLanguage });
+        translatedData = result;
+    } catch (error) {
+        console.error("Translation failed for", doctor.name, "falling back to original.");
+    }
+    
     const headers: { [key: string]: string } = {
         name: t('partnerDashboard.exportName'),
         address: t('partnerDashboard.exportAddress'),
@@ -114,8 +119,8 @@ export function PartnerDashboard({ open, onOpenChange }: PartnerDashboardProps) 
     };
 
     return {
-        [headers.name]: doctor.name,
-        [headers.address]: doctor.clinicAddress,
+        [headers.name]: translatedData.name,
+        [headers.address]: translatedData.clinicAddress,
         [headers.phone]: doctor.phoneNumber,
         [headers.referrals]: doctor.referralCount,
         [headers.commission]: doctor.referralCount * 100,
@@ -172,16 +177,20 @@ export function PartnerDashboard({ open, onOpenChange }: PartnerDashboardProps) 
             </div>
         </ScrollArea>
         
-        {partnerDoctors.length > 0 && (
-          <DialogFooter className="p-4 border-t">
-            <div className="flex w-full gap-2">
+        <DialogFooter className="p-4 border-t">
+          <div className="flex w-full gap-2">
+            <Button onClick={() => onOpenChange(false)} variant="secondary" className="flex-1">
+              <X className="mr-2 h-4 w-4" />
+              {t('partnerDashboard.close')}
+            </Button>
+            {partnerDoctors.length > 0 && (
               <Button onClick={handleExportExcel} variant="outline" className="flex-1">
                 <FileDown className="mr-2 h-4 w-4" />
                 {t('partnerDashboard.exportExcel')}
               </Button>
-            </div>
-          </DialogFooter>
-        )}
+            )}
+          </div>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );
