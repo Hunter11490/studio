@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState, useEffect, useRef } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { useDoctors } from '@/hooks/use-doctors';
 import { useLanguage } from '@/hooks/use-language';
 import { Button } from '@/components/ui/button';
@@ -19,14 +19,12 @@ import {
   AccordionTrigger,
 } from '@/components/ui/accordion';
 import { Badge } from '@/components/ui/badge';
-import { Minus, Plus, Users, FileDown, FileText } from 'lucide-react';
+import { Minus, Plus, Users, FileDown } from 'lucide-react';
 import { ScrollArea } from '../ui/scroll-area';
 import type { Doctor } from '@/types';
 import { translateText } from '@/ai/flows/translation-flow';
 import { exportToExcel } from '@/lib/excel';
 import { useToast } from '@/hooks/use-toast';
-import jsPDF from 'jspdf';
-import html2canvas from 'html2canvas';
 
 type PartnerDashboardProps = {
   open: boolean;
@@ -40,7 +38,7 @@ type PartnerExportData = {
 
 function PartnerDoctorItem({ doctor }: { doctor: Doctor }) {
   const { updateDoctor } = useDoctors();
-  const { t, lang } = useLanguage();
+  const { t } = useLanguage();
   
   const handleReferralChange = (doctorId: string, currentCount: number, amount: number) => {
     const newCount = Math.max(0, currentCount + amount);
@@ -97,7 +95,6 @@ export function PartnerDashboard({ open, onOpenChange }: PartnerDashboardProps) 
   const { doctors } = useDoctors();
   const { t, lang } = useLanguage();
   const { toast } = useToast();
-  const contentRef = useRef(null);
 
   const partnerDoctors = useMemo(() => {
     return doctors.filter(d => d.isPartner).sort((a, b) => b.referralCount - a.referralCount);
@@ -163,31 +160,6 @@ export function PartnerDashboard({ open, onOpenChange }: PartnerDashboardProps) 
     }
   };
 
-  const handleExportPdf = async () => {
-    if (!contentRef.current) return;
-    toast({title: t('toasts.exporting'), description: t('partnerDashboard.pdfExportDesc')});
-
-    const canvas = await html2canvas(contentRef.current, {
-        scale: 2, // Increase scale for better quality
-        useCORS: true,
-        backgroundColor: null, // Use element's background
-    });
-
-    const imgData = canvas.toDataURL('image/png');
-    
-    // Calculate PDF dimensions
-    const pdf = new jsPDF({
-        orientation: 'p',
-        unit: 'px',
-        format: [canvas.width, canvas.height]
-    });
-
-    pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
-    const fileName = `${t('partnerDashboard.exportFileName')}_${new Date().toISOString().split('T')[0]}.pdf`;
-    pdf.save(fileName);
-    toast({title: t('toasts.exportSuccess')});
-  };
-
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent className="max-w-md md:max-w-lg flex flex-col">
@@ -202,7 +174,7 @@ export function PartnerDashboard({ open, onOpenChange }: PartnerDashboardProps) 
         </SheetHeader>
 
         <ScrollArea className="flex-grow -mx-6">
-           <div ref={contentRef} className="px-2">
+           <div className="px-2">
               {partnerDoctors.length > 0 ? (
                 <Accordion type="multiple" className="w-full">
                   {partnerDoctors.map(doctor => (
@@ -224,10 +196,6 @@ export function PartnerDashboard({ open, onOpenChange }: PartnerDashboardProps) 
               <Button onClick={handleExportExcel} variant="outline" className="flex-1">
                 <FileDown className="mr-2 h-4 w-4" />
                 {t('partnerDashboard.exportExcel')}
-              </Button>
-              <Button onClick={handleExportPdf} variant="outline" className="flex-1">
-                <FileText className="mr-2 h-4 w-4" />
-                {t('partnerDashboard.exportPdf')}
               </Button>
             </div>
           </SheetFooter>
