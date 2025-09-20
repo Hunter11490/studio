@@ -12,6 +12,8 @@ import {
   BadgePercent,
   CalendarDays,
   Check,
+  ToggleLeft,
+  ToggleRight,
 } from 'lucide-react';
 import { Doctor } from '@/types';
 import { useDoctors } from '@/hooks/use-doctors';
@@ -66,6 +68,10 @@ export function DoctorCard({ doctor }: { doctor: Doctor }) {
     updateDoctor(doctor.id, { availableDays: newDays });
   };
 
+  const handlePartnerToggle = () => {
+    updateDoctor(doctor.id, { isPartner: !doctor.isPartner });
+  };
+
   return (
     <>
       <Card className={cn("flex flex-col relative overflow-hidden", doctor.isPartner && "border-primary shadow-lg")}>
@@ -73,12 +79,17 @@ export function DoctorCard({ doctor }: { doctor: Doctor }) {
           <StethoscopeLogo className="w-48 h-48 text-muted/20" />
         </div>
         <CardHeader className="p-4">
-          {doctor.isPartner && (
+          <div className="flex items-center justify-between">
+            {doctor.isPartner ? (
               <Badge className="w-fit bg-primary">
                 <Star className="mr-1 h-3 w-3" />
                 {t('doctorCard.partner')}
               </Badge>
-            )}
+            ) : <div />}
+            <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground" onClick={handlePartnerToggle}>
+                {doctor.isPartner ? <ToggleRight className="text-primary" /> : <ToggleLeft />}
+            </Button>
+          </div>
           <CardTitle className="font-headline text-xl">{doctor.name}</CardTitle>
           <CardDescription>{doctor.specialty}</CardDescription>
         </CardHeader>
