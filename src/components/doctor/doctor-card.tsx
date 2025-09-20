@@ -21,10 +21,10 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
-import { Checkbox } from '@/components/ui/checkbox';
 import { ConfirmationDialog } from '@/components/confirmation-dialog';
 import { DoctorFormDialog } from './doctor-form-dialog';
 import { cn } from '@/lib/utils';
+import { Logo } from '../logo';
 
 const WEEK_DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
@@ -68,7 +68,10 @@ export function DoctorCard({ doctor }: { doctor: Doctor }) {
 
   return (
     <>
-      <Card className={cn("flex flex-col", doctor.isPartner && "border-primary shadow-lg")}>
+      <Card className={cn("flex flex-col relative overflow-hidden", doctor.isPartner && "border-primary shadow-lg")}>
+        <div className="absolute inset-0 flex items-center justify-center -z-10">
+          <Logo className="w-48 h-48 text-muted/20" />
+        </div>
         <CardHeader className="p-4">
           {doctor.isPartner && (
               <Badge className="w-fit bg-primary">
