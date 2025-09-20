@@ -5,12 +5,12 @@ import { useDoctors } from '@/hooks/use-doctors';
 import { useLanguage } from '@/hooks/use-language';
 import { Button } from '@/components/ui/button';
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from '@/components/ui/dialog';
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetDescription,
+} from '@/components/ui/sheet';
 import {
   Accordion,
   AccordionContent,
@@ -40,17 +40,17 @@ export function PartnerDashboard({ open, onOpenChange }: PartnerDashboardProps) 
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md md:max-w-lg max-h-[80vh] flex flex-col">
-        <DialogHeader>
-          <DialogTitle className="font-headline flex items-center gap-2">
+    <Sheet open={open} onOpenChange={onOpenChange}>
+      <SheetContent className="max-w-md md:max-w-lg flex flex-col">
+        <SheetHeader>
+          <SheetTitle className="font-headline flex items-center gap-2">
             <Users />
             {t('header.partnerDashboard')}
-          </DialogTitle>
-          <DialogDescription>
+          </SheetTitle>
+          <SheetDescription>
             {t('partnerDashboard.description')}
-          </DialogDescription>
-        </DialogHeader>
+          </SheetDescription>
+        </SheetHeader>
 
         <ScrollArea className="flex-grow -mx-6 px-2">
           {partnerDoctors.length > 0 ? (
@@ -107,7 +107,7 @@ export function PartnerDashboard({ open, onOpenChange }: PartnerDashboardProps) 
              </div>
           )}
         </ScrollArea>
-      </DialogContent>
-    </Dialog>
+      </SheetContent>
+    </Sheet>
   );
 }
