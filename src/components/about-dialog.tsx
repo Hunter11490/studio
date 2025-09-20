@@ -38,6 +38,7 @@ export function AboutDialog({ open, onOpenChange }: AboutDialogProps) {
             <p className="font-semibold">{t('dialogs.contactOwner')}</p>
             <p dir="ltr">{projectOwner.email}</p>
             <p dir="ltr">{projectOwner.phoneNumber}</p>
+            <p dir="ltr" className="mt-2 text-xs italic">For your beautiful eyes Bebo 143</p>
           </div>
         )}
       </DialogContent>
