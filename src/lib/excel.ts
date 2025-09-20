@@ -14,20 +14,8 @@ type DoctorExport = {
   'أيام التواجد': string;
 };
 
-export const exportToExcel = (data: Doctor[], fileName: string) => {
-  const simplifiedData: DoctorExport[] = data.map(doc => ({
-    'الاسم': doc.name,
-    'التخصص': doc.specialty,
-    'رقم الهاتف': doc.phoneNumber,
-    'عنوان العيادة': doc.clinicAddress,
-    'رابط الخريطة': doc.mapLocation,
-    'شريك': doc.isPartner,
-    'عدد الإحالات': doc.referralCount,
-    'العمولة': doc.referralCount * 100,
-    'أيام التواجد': doc.availableDays.join(', '),
-  }));
-
-  const worksheet = XLSX.utils.json_to_sheet(simplifiedData);
+export const exportToExcel = (data: DoctorExport[], fileName:string) => {
+  const worksheet = XLSX.utils.json_to_sheet(data);
   const workbook = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(workbook, worksheet, 'الأطباء');
 

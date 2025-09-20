@@ -41,6 +41,20 @@ import { ScrollArea } from '../ui/scroll-area';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetClose } from '../ui/sheet';
 import { AdminPanel } from '../admin/admin-panel';
 import { Separator } from '../ui/separator';
+import { translateText } from '@/ai/flows/translation-flow';
+import { Doctor } from '@/types';
+
+type DoctorExportData = {
+  'الاسم': string;
+  'التخصص': string;
+  'رقم الهاتف': string;
+  'عنوان العيادة': string;
+  'رابط الخريطة': string;
+  'شريك': boolean;
+  'عدد الإحالات': number;
+  'العمولة': number;
+  'أيام التواجد': string;
+};
 
 export function UserMenu() {
   const { user, logout } = useAuth();
@@ -57,31 +71,71 @@ export function UserMenu() {
   const [isChatOpen, setChatOpen] = useState(false);
   const [isAdminPanelOpen, setAdminPanelOpen] = useState(false);
 
-  const handleExport = () => {
-    try {
-      exportToExcel(doctors, `Iraqi_Doctors_${new Date().toISOString().split('T')[0]}.xlsx`);
-      toast({ title: t('toasts.exportSuccess') });
-    } catch (error) {
-      console.error(error);
-      toast({ title: t('toasts.exportError'), variant: 'destructive' });
-    }
-  };
+  const getTranslatedDoctorData = async (doctor: Doctor): Promise<DoctorExportData> => {
+    const targetLanguage = lang === 'ar' ? 'Arabic' : 'English';
+    const containsArabic = /[\u0600-\u06FF]/.test(doctor.name);
+    const containsEnglish = /[a-zA-Z]/.test(doctor.name);
 
-  const handleFilteredExport = () => {
-    try {
-      const filteredDoctors = doctors.filter(doc => doc.isPartner && doc.referralCount > 0);
-      if (filteredDoctors.length === 0) {
-        toast({ title: t('toasts.exportNoData'), description: t('toasts.exportNoDataDesc') });
-        return;
+    let translatedName = doctor.name;
+    let translatedSpecialty = doctor.specialty;
+    let translatedAddress = doctor.clinicAddress;
+
+    if ((lang === 'en' && containsArabic) || (lang === 'ar' && containsEnglish)) {
+      try {
+        const result = await translateText({ 
+          name: doctor.name, 
+          specialty: doctor.specialty, 
+          clinicAddress: doctor.clinicAddress, 
+          targetLanguage 
+        });
+        translatedName = result.name;
+        translatedSpecialty = result.specialty;
+        translatedAddress = result.clinicAddress;
+      } catch (error) {
+        console.error("Translation for export failed for doctor:", doctor.name, error);
+        // Use original data on failure
       }
-      exportToExcel(filteredDoctors, `Active_Partners_${new Date().toISOString().split('T')[0]}.xlsx`);
+    }
+
+    return {
+      'الاسم': translatedName,
+      'التخصص': translatedSpecialty,
+      'رقم الهاتف': doctor.phoneNumber,
+      'عنوان العيادة': translatedAddress,
+      'رابط الخريطة': doctor.mapLocation,
+      'شريك': doctor.isPartner,
+      'عدد الإحالات': doctor.referralCount,
+      'العمولة': doctor.referralCount * 100,
+      'أيام التواجد': doctor.availableDays.join(', '),
+    };
+  };
+
+  const handleExport = async (filtered = false) => {
+    try {
+      let doctorsToExport = doctors;
+      if (filtered) {
+        doctorsToExport = doctors.filter(doc => doc.isPartner && doc.referralCount > 0);
+        if (doctorsToExport.length === 0) {
+          toast({ title: t('toasts.exportNoData'), description: t('toasts.exportNoDataDesc') });
+          return;
+        }
+      }
+      
+      toast({title: "Preparing export...", description: "Translating data, please wait."});
+
+      const translatedData = await Promise.all(doctorsToExport.map(doc => getTranslatedDoctorData(doc)));
+      
+      const fileName = filtered 
+        ? `Active_Partners_${new Date().toISOString().split('T')[0]}.xlsx`
+        : `Iraqi_Doctors_${new Date().toISOString().split('T')[0]}.xlsx`;
+
+      exportToExcel(translatedData, fileName);
       toast({ title: t('toasts.exportSuccess') });
     } catch (error) {
       console.error(error);
       toast({ title: t('toasts.exportError'), variant: 'destructive' });
     }
   };
-
 
   const handleImport = async (event: React.ChangeEvent<HTMLInputElement>) => {
     toast({ title: "Import functionality is under development." });
@@ -170,8 +224,8 @@ export function UserMenu() {
 
               <div className="px-2 py-1.5 text-sm font-semibold">{t('userMenu.dataActions')}</div>
               <MenuItem icon={<Map className="mr-2 h-4 w-4" />} label={t('userMenu.searchOnMap')} onClick={handleSearchOnMap} />
-              <MenuItem icon={<FileDown className="mr-2 h-4 w-4" />} label={t('userMenu.exportToExcel')} onClick={handleExport} />
-              <MenuItem icon={<Users className="mr-2 h-4 w-4" />} label={t('userMenu.exportActivePartners')} onClick={handleFilteredExport} />
+              <MenuItem icon={<FileDown className="mr-2 h-4 w-4" />} label={t('userMenu.exportToExcel')} onClick={() => handleExport(false)} />
+              <MenuItem icon={<Users className="mr-2 h-4 w-4" />} label={t('userMenu.exportActivePartners')} onClick={() => handleExport(true)} />
               <MenuItem icon={<FileUp className="mr-2 h-4 w-4" />} label={t('userMenu.importFromExcel')} onClick={openImportDialog} />
               <Separator className="my-2" />
 
