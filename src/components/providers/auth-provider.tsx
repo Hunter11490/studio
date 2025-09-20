@@ -9,7 +9,7 @@ import type { User, StoredUser } from '@/types';
 
 export type AuthContextType = {
   user: User | null;
-  users: User[];
+  users: StoredUser[];
   isLoading: boolean;
   login: (username: string, pass: string) => boolean;
   signup: (username:string, pass:string, phoneNumber?:string) => boolean;
@@ -166,11 +166,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setLoggedInUser(null);
   }, [setLoggedInUser]);
   
-  const publicUsers = useMemo(() => storedUsers.map(({ pass, ...rest }) => rest), [storedUsers]);
-
   const value = useMemo(() => ({
     user,
-    users: publicUsers,
+    users: storedUsers,
     isLoading,
     login,
     signup,
@@ -178,7 +176,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     addUserByAdmin,
     deleteUser,
     updateUserRole,
-  }), [user, publicUsers, isLoading, login, signup, logout, addUserByAdmin, deleteUser, updateUserRole]);
+  }), [user, storedUsers, isLoading, login, signup, logout, addUserByAdmin, deleteUser, updateUserRole]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
