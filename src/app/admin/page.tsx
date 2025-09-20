@@ -16,15 +16,19 @@ import {
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { PlusCircle, Shield, ShieldOff, Trash2 } from 'lucide-react';
+import { PlusCircle, Shield, ShieldOff, Trash2, Pencil } from 'lucide-react';
 import { ConfirmationDialog } from '@/components/confirmation-dialog';
 import { AddUserDialog } from '@/components/admin/add-user-dialog';
+import { EditUserDialog } from '@/components/admin/edit-user-dialog';
+import type { StoredUser } from '@/types';
 
 export default function AdminPage() {
   const { user, users, isLoading, deleteUser, updateUserRole } = useAuth();
   const router = useRouter();
   const { t } = useLanguage();
   const [isAddUserDialogOpen, setAddUserDialogOpen] = useState(false);
+  const [isEditUserDialogOpen, setEditUserDialogOpen] = useState(false);
+  const [userToEdit, setUserToEdit] = useState<StoredUser | null>(null);
 
   useEffect(() => {
     if (!isLoading) {
@@ -33,6 +37,11 @@ export default function AdminPage() {
       }
     }
   }, [user, isLoading, router]);
+  
+  const handleEditClick = (user: StoredUser) => {
+    setUserToEdit(user);
+    setEditUserDialogOpen(true);
+  };
 
   if (isLoading || !user || user.role !== 'admin') {
     return <AuthLoader />;
@@ -68,6 +77,10 @@ export default function AdminPage() {
                       </div>
                        {u.username !== 'HUNTER' && (
                         <div className="flex items-center gap-2 mt-2">
+                            <Button variant="outline" size="xs" onClick={() => handleEditClick(u)}>
+                                <Pencil className="mr-1 h-3 w-3" />
+                                {t('doctorCard.edit')}
+                            </Button>
                             {u.role !== 'admin' ? (
                                 <Button variant="outline" size="xs" onClick={() => updateUserRole(u.id, 'admin')}>
                                     <Shield className="mr-1 h-3 w-3" />
@@ -106,6 +119,11 @@ export default function AdminPage() {
         </Card>
       </div>
       <AddUserDialog open={isAddUserDialogOpen} onOpenChange={setAddUserDialogOpen} />
+      <EditUserDialog 
+        open={isEditUserDialogOpen} 
+        onOpenChange={setEditUserDialogOpen}
+        userToEdit={userToEdit}
+      />
     </>
   );
 }

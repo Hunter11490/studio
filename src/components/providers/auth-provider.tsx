@@ -17,6 +17,7 @@ export type AuthContextType = {
   addUserByAdmin: (username: string, pass: string, phoneNumber: string, email: string, role: 'admin' | 'user') => boolean;
   deleteUser: (userId: string) => void;
   updateUserRole: (userId: string, role: 'admin' | 'user') => void;
+  updateUser: (userId: string, updates: Partial<Omit<StoredUser, 'id'>>) => boolean;
 };
 
 const USERS_STORAGE_KEY = 'iraqi_doctors_users_v2';
@@ -165,6 +166,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const updateUserRole = useCallback((userId: string, role: 'admin' | 'user') => {
     setStoredUsers(prev => prev.map(u => u.id === userId ? { ...u, role } : u));
   }, [setStoredUsers]);
+  
+  const updateUser = useCallback((userId: string, updates: Partial<Omit<StoredUser, 'id'>>): boolean => {
+    // Check if new username or email already exists for another user
+    if (updates.username || updates.email) {
+      const userExists = storedUsers.some(u => 
+        u.id !== userId && (
+          (updates.username && u.username === updates.username) || 
+          (updates.email && u.email === updates.email)
+        )
+      );
+      if (userExists) {
+        return false;
+      }
+    }
+
+    setStoredUsers(prev => 
+      prev.map(u => (u.id === userId ? { ...u, ...updates } : u))
+    );
+    return true;
+  }, [storedUsers, setStoredUsers]);
 
 
   const logout = useCallback(() => {
@@ -182,7 +203,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     addUserByAdmin,
     deleteUser,
     updateUserRole,
-  }), [user, storedUsers, isLoading, login, signup, logout, addUserByAdmin, deleteUser, updateUserRole]);
+    updateUser,
+  }), [user, storedUsers, isLoading, login, signup, logout, addUserByAdmin, deleteUser, updateUserRole, updateUser]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
