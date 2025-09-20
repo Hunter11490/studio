@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { PlusCircle, SlidersHorizontal, Shield } from 'lucide-react';
+import { PlusCircle, Shield } from 'lucide-react';
 import { useLanguage } from '@/hooks/use-language';
 import { useDoctors } from '@/hooks/use-doctors';
 import { useAuth } from '@/hooks/use-auth';
@@ -32,14 +32,6 @@ export function Header() {
               <PlusCircle className="h-4 w-4" />
               <span className="hidden md:inline">{t('header.addDoctor')}</span>
             </Button>
-            {user?.role === 'admin' && (
-              <Button asChild variant="outline" size="sm" className="gap-1">
-                <Link href="/admin">
-                  <Shield className="h-4 w-4" />
-                  <span className="hidden md:inline">{t('header.adminDashboard')}</span>
-                </Link>
-              </Button>
-            )}
           </div>
 
           {/* Centered App Name */}

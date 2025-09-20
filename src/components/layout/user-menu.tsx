@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import {
   BrainCircuit,
   CircleUser,
@@ -16,6 +17,8 @@ import {
   RotateCcw,
   StarOff,
   Info,
+  Shield,
+  SlidersHorizontal
 } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
 import { useLanguage } from '@/hooks/use-language';
@@ -110,8 +113,19 @@ export function UserMenu() {
             </div>
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
-          <ScrollArea className="h-[calc(100vh-200px)] lg:h-auto lg:max-h-[60vh] pr-3">
-            <div className="space-y-2 pl-1">
+          <ScrollArea className="h-auto max-h-[60vh] pr-3">
+            <div className="space-y-1 pl-1">
+              {user.role === 'admin' && (
+                <>
+                  <DropdownMenuItem asChild>
+                    <Link href="/admin">
+                      <Shield className="mr-2 h-4 w-4" />
+                      <span>{t('header.adminDashboard')}</span>
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                </>
+              )}
               <DropdownMenuGroup>
                 <div className="relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none">
                   <div className="space-y-2">
@@ -134,9 +148,9 @@ export function UserMenu() {
                  <div className="relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none">
                   <div className="space-y-2">
                     <Label className="flex items-center">
-                      <div className="relative mr-2">
-                        <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-                        <Moon className="absolute top-0 left-0 h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+                      <div className="relative mr-2 h-[1.2rem] w-[1.2rem]">
+                        <Sun className="h-full w-full rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+                        <Moon className="absolute top-0 left-0 h-full w-full rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
                       </div>
                       <span>{t('userMenu.toggleTheme')}</span>
                     </Label>
