@@ -77,7 +77,7 @@ export function NearbyDoctorsDialog({ open, onOpenChange }: NearbyDoctorsDialogP
           </Button>
         </div>
         
-        <ScrollArea className="flex-grow mt-4">
+        <ScrollArea className="flex-grow mt-4 overflow-auto">
           {isLoading && <AILoader />}
           {results && (
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">

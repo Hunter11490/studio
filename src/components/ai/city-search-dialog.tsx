@@ -70,7 +70,7 @@ export function CitySearchDialog({ open, onOpenChange }: CitySearchDialogProps) 
         </DialogHeader>
         
         {isLoading || results ? (
-          <ScrollArea className="flex-grow">
+          <ScrollArea className="flex-grow overflow-auto">
             {isLoading && <AILoader />}
             {results && (
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">

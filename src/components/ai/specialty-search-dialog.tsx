@@ -71,9 +71,11 @@ export function SpecialtySearchDialog({ open, onOpenChange }: SpecialtySearchDia
                  <h3 className="text-lg font-semibold mb-4">Results for "{currentSpecialty}"</h3>
                 {isLoading && <AILoader />}
                 {results && (
-                    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                        {results.map((doc, i) => <SuggestedDoctorCard key={i} doctor={doc} />)}
-                    </div>
+                    <ScrollArea className="flex-grow overflow-auto">
+                        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                            {results.map((doc, i) => <SuggestedDoctorCard key={i} doctor={doc} />)}
+                        </div>
+                    </ScrollArea>
                 )}
             </div>
         ) : (
