@@ -61,7 +61,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           id: userFromStorage.id,
           username: userFromStorage.username,
           phoneNumber: userFromStorage.phoneNumber,
-          role: userFromstorage.role,
+          role: userFromStorage.role,
         };
         setUser(sessionUser);
         // Update session storage if role was incorrect
