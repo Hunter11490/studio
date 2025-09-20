@@ -240,7 +240,7 @@ export const translations: Translations = {
       light: 'فاتح',
       dark: 'داكن',
       system: 'النظام',
-      aiTools: 'أدوات الذكاء الاصطناعي',
+aiTools: 'أدوات الذكاء الاصطناعي',
       aiChat: 'محادثة AI',
       internetSearch: 'بحث في الإنترنت عن أطباء',
       dataActions: 'إجراءات البيانات',
