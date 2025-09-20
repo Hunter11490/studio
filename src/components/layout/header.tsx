@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Logo } from '@/components/logo';
 import { UserMenu } from './user-menu';
 import { DoctorFormDialog } from '@/components/doctor/doctor-form-dialog';
+import { Separator } from '../ui/separator';
 
 export function Header() {
   const { t } = useLanguage();
@@ -19,13 +20,13 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-background px-4 md:px-6">
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 mr-4">
         <Logo className="h-8 w-8 text-primary" />
-        <h1 className="text-lg font-bold tracking-tight">{t('appName')}</h1>
+        <h1 className="text-lg font-semibold tracking-tight">{t('appName')}</h1>
       </div>
 
-      <div className="flex w-full items-center gap-4 md:ml-auto md:gap-2 lg:gap-4">
-        <div className="relative ml-auto flex-1 md:grow-0">
+      <div className="flex flex-1 items-center gap-4">
+        <div className="relative flex-1 md:grow-0">
           <Input
             type="search"
             placeholder={t('header.searchPlaceholder')}
@@ -51,12 +52,20 @@ export function Header() {
             <span className="hidden md:inline">{t('header.addDoctor')}</span>
           </Button>
         </DoctorFormDialog>
+      </div>
 
-        <div className="flex items-center gap-4 text-sm font-medium">
-          <span>{t('header.totalDoctors')}: {doctors.length}</span>
-          <span>{t('header.totalPartners')}: {partnerCount}</span>
+      <div className="flex items-center gap-4 ml-auto">
+        <div className="hidden md:flex items-center gap-4 text-sm font-medium">
+          <div className="flex items-center gap-2">
+            <span>{t('header.totalDoctors')}:</span>
+            <span className="font-bold">{doctors.length}</span>
+          </div>
+          <Separator orientation="vertical" className="h-6" />
+          <div className="flex items-center gap-2">
+            <span>{t('header.totalPartners')}:</span>
+            <span className="font-bold">{partnerCount}</span>
+          </div>
         </div>
-        
         <UserMenu />
       </div>
     </header>
