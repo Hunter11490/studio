@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/use-auth';
 import { useLanguage } from '@/hooks/use-language';
@@ -16,7 +17,7 @@ import {
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { PlusCircle, Shield, ShieldOff, Trash2, Pencil } from 'lucide-react';
+import { PlusCircle, Shield, ShieldOff, Trash2, Pencil, ArrowLeft } from 'lucide-react';
 import { ConfirmationDialog } from '@/components/confirmation-dialog';
 import { AddUserDialog } from '@/components/admin/add-user-dialog';
 import { EditUserDialog } from '@/components/admin/edit-user-dialog';
@@ -50,7 +51,15 @@ export default function AdminPage() {
   return (
     <>
       <div className="p-4 md:p-8">
-        <h1 className="text-3xl font-headline mb-6">{t('admin.dashboardTitle')}</h1>
+        <div className="flex items-center justify-between mb-6">
+            <h1 className="text-3xl font-headline">{t('admin.dashboardTitle')}</h1>
+            <Button asChild variant="outline">
+                <Link href="/dashboard">
+                    <ArrowLeft className="mr-2 h-4 w-4" />
+                    Back to Dashboard
+                </Link>
+            </Button>
+        </div>
         <Card>
           <CardHeader>
             <CardTitle>{t('admin.usersTable')}</CardTitle>
