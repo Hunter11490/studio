@@ -27,6 +27,7 @@ export const translations: Translations = {
       totalDoctors: 'Total Doctors',
       totalPartners: 'Total Partners',
       adminDashboard: 'Admin Dashboard',
+      partnerDashboard: 'Partner Dashboard',
     },
     doctorCard: {
       partner: 'Partner',
@@ -150,6 +151,11 @@ export const translations: Translations = {
       addUserSuccess: 'User added successfully',
       addUserError: 'Failed to add user',
     },
+    partnerDashboard: {
+      description: 'A quick overview of your partner doctors and their referrals.',
+      editReferrals: 'Edit Referrals',
+      noPartners: 'You have no partner doctors yet.',
+    },
   },
   ar: {
     appName: 'مندوبي العراق',
@@ -177,6 +183,7 @@ export const translations: Translations = {
       totalDoctors: 'مجموع الأطباء',
       totalPartners: 'مجموع الشركاء',
       adminDashboard: 'لوحة تحكم المسؤول',
+      partnerDashboard: 'لوحة الشركاء',
     },
     doctorCard: {
       partner: 'شريك',
@@ -299,6 +306,11 @@ export const translations: Translations = {
       confirmPassword: 'تأكيد كلمة المرور',
       addUserSuccess: 'تمت إضافة المستخدم بنجاح',
       addUserError: 'فشل في إضافة المستخدم',
+    },
+    partnerDashboard: {
+      description: 'نظرة سريعة على الأطباء الشركاء وإحالاتهم.',
+      editReferrals: 'تعديل الإحالات',
+      noPartners: 'ليس لديك أطباء شركاء بعد.',
     },
   },
 };

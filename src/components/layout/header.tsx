@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { PlusCircle } from 'lucide-react';
+import { PlusCircle, Users } from 'lucide-react';
 import { useLanguage } from '@/hooks/use-language';
 import { useDoctors } from '@/hooks/use-doctors';
 import { useAuth } from '@/hooks/use-auth';
@@ -11,12 +11,14 @@ import { Logo } from '@/components/logo';
 import { UserMenu } from './user-menu';
 import { DoctorFormDialog } from '@/components/doctor/doctor-form-dialog';
 import { SlidersHorizontal } from 'lucide-react';
+import { PartnerDashboard } from '../doctor/partner-dashboard';
 
 export function Header() {
   const { t } = useLanguage();
   const { doctors, searchTerm, setSearchTerm, filterPartners, setFilterPartners } = useDoctors();
   const { user } = useAuth();
   const [isAddDoctorOpen, setAddDoctorOpen] = useState(false);
+  const [isPartnerDashboardOpen, setPartnerDashboardOpen] = useState(false);
 
   const partnerCount = doctors.filter(d => d.isPartner).length;
 
@@ -30,6 +32,10 @@ export function Header() {
             <Button size="sm" className="gap-1" onClick={() => setAddDoctorOpen(true)}>
               <PlusCircle className="h-4 w-4" />
               <span className="hidden md:inline">{t('header.addDoctor')}</span>
+            </Button>
+             <Button variant="outline" size="sm" className="gap-1" onClick={() => setPartnerDashboardOpen(true)}>
+              <Users className="h-4 w-4" />
+              <span className="hidden md:inline">{t('header.partnerDashboard')}</span>
             </Button>
           </div>
 
@@ -77,6 +83,7 @@ export function Header() {
         </div>
       </header>
       <DoctorFormDialog open={isAddDoctorOpen} onOpenChange={setAddDoctorOpen} />
+      <PartnerDashboard open={isPartnerDashboardOpen} onOpenChange={setPartnerDashboardOpen} />
     </>
   );
 }
