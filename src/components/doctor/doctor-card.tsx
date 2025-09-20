@@ -104,7 +104,7 @@ export function DoctorCard({ doctor }: { doctor: Doctor }) {
             <div className="flex items-center gap-2 text-muted-foreground">
                 <span>{t('doctorCard.commission')}</span>
             </div>
-            <span className="font-semibold text-accent">{commission.toLocaleString()} {t('doctorCard.iqd')}</span>
+            <span className="font-semibold text-accent">{commission.toLocaleString()} {t('doctorCard.usd')}</span>
           </div>
 
           <Separator />
