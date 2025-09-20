@@ -29,6 +29,7 @@ import { DoctorFormDialog } from './doctor-form-dialog';
 import { cn } from '@/lib/utils';
 import { translateText } from '@/ai/flows/translation-flow';
 import { Skeleton } from '../ui/skeleton';
+import { StethoscopeLogo } from '../stethoscope-logo';
 
 const WEEK_DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
@@ -50,27 +51,23 @@ export function DoctorCard({ doctor }: { doctor: Doctor }) {
     const translateDetails = async () => {
       const targetLanguage = lang === 'ar' ? 'Arabic' : 'English';
       
-      if (lang === 'en' && doctor.name.match(/[\u0600-\u06FF]/) === null) {
-          setTranslatedDetails(null);
-          return;
-      }
-      if (lang === 'ar' && doctor.name.match(/[a-zA-Z]/) === null) {
-          setTranslatedDetails(null);
-          return;
+      const containsArabic = /[\u0600-\u06FF]/.test(doctor.name);
+      const containsEnglish = /[a-zA-Z]/.test(doctor.name);
+
+      if ((lang === 'en' && !containsArabic) || (lang === 'ar' && !containsEnglish)) {
+        setTranslatedDetails(null);
+        return;
       }
       
       setIsTranslating(true);
       try {
-        const [nameRes, specialtyRes, addressRes] = await Promise.all([
-          translateText({ text: doctor.name, targetLanguage }),
-          translateText({ text: doctor.specialty, targetLanguage }),
-          translateText({ text: doctor.clinicAddress, targetLanguage })
-        ]);
-        setTranslatedDetails({
-          name: nameRes.translation,
-          specialty: specialtyRes.translation,
-          clinicAddress: addressRes.translation,
+        const result = await translateText({ 
+          name: doctor.name, 
+          specialty: doctor.specialty, 
+          clinicAddress: doctor.clinicAddress, 
+          targetLanguage 
         });
+        setTranslatedDetails(result);
       } catch (error) {
         console.error("Translation failed", error);
         // Fallback to original if translation fails
@@ -130,14 +127,8 @@ export function DoctorCard({ doctor }: { doctor: Doctor }) {
   return (
     <>
       <Card className={cn("flex flex-col relative overflow-hidden", doctor.isPartner && "border-primary shadow-lg")}>
-        <div className="absolute inset-0 -z-10">
-            <Image
-                src="https://picsum.photos/seed/medicalbg/400/600"
-                alt="Medical background"
-                fill
-                className="object-cover opacity-10"
-                data-ai-hint="medical background"
-            />
+        <div className="absolute inset-0 flex items-center justify-center -z-10 opacity-5">
+            <StethoscopeLogo className="h-48 w-48 text-muted-foreground" />
         </div>
         <CardHeader className="p-4">
           <div className="flex items-center justify-between">
