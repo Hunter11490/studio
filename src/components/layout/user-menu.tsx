@@ -19,7 +19,8 @@ import {
   Shield,
   SlidersHorizontal,
   ChevronRight,
-  X
+  X,
+  Users,
 } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
 import { useLanguage } from '@/hooks/use-language';
@@ -65,6 +66,22 @@ export function UserMenu() {
       toast({ title: t('toasts.exportError'), variant: 'destructive' });
     }
   };
+
+  const handleFilteredExport = () => {
+    try {
+      const filteredDoctors = doctors.filter(doc => doc.isPartner && doc.referralCount > 0);
+      if (filteredDoctors.length === 0) {
+        toast({ title: t('toasts.exportNoData'), description: t('toasts.exportNoDataDesc') });
+        return;
+      }
+      exportToExcel(filteredDoctors, `Active_Partners_${new Date().toISOString().split('T')[0]}.xlsx`);
+      toast({ title: t('toasts.exportSuccess') });
+    } catch (error) {
+      console.error(error);
+      toast({ title: t('toasts.exportError'), variant: 'destructive' });
+    }
+  };
+
 
   const handleImport = async (event: React.ChangeEvent<HTMLInputElement>) => {
     toast({ title: "Import functionality is under development." });
@@ -154,6 +171,7 @@ export function UserMenu() {
               <div className="px-2 py-1.5 text-sm font-semibold">{t('userMenu.dataActions')}</div>
               <MenuItem icon={<Map className="mr-2 h-4 w-4" />} label={t('userMenu.searchOnMap')} onClick={handleSearchOnMap} />
               <MenuItem icon={<FileDown className="mr-2 h-4 w-4" />} label={t('userMenu.exportToExcel')} onClick={handleExport} />
+              <MenuItem icon={<Users className="mr-2 h-4 w-4" />} label={t('userMenu.exportActivePartners')} onClick={handleFilteredExport} />
               <MenuItem icon={<FileUp className="mr-2 h-4 w-4" />} label={t('userMenu.importFromExcel')} onClick={openImportDialog} />
               <Separator className="my-2" />
 

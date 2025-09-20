@@ -86,6 +86,7 @@ export const translations: Translations = {
       resetAllReferrals: 'Reset All Referrals',
       uncheckAllPartners: 'Uncheck All Partners',
       about: 'About',
+      exportActivePartners: 'Export Active Partners',
     },
     dialogs: {
       confirm: 'Confirm',
@@ -120,6 +121,8 @@ export const translations: Translations = {
       exportError: 'Failed to export data.',
       importSuccess: 'Doctors imported successfully!',
       importError: 'Failed to import doctors from file.',
+      exportNoData: 'No Data to Export',
+      exportNoDataDesc: 'There are no active partners with referrals to export.',
     },
     common: {
       loading: 'Loading...',
@@ -233,6 +236,7 @@ export const translations: Translations = {
       resetAllReferrals: 'إعادة تعيين كل الإحالات',
       uncheckAllPartners: 'إلغاء تحديد كل الشركاء',
       about: 'حول التطبيق',
+      exportActivePartners: 'تصدير الشركاء النشطين',
     },
     dialogs: {
       confirm: 'تأكيد',
@@ -267,6 +271,8 @@ export const translations: Translations = {
       exportError: 'فشل تصدير البيانات.',
       importSuccess: 'تم استيراد الأطباء بنجاح!',
       importError: 'فشل استيراد الأطباء من الملف.',
+      exportNoData: 'لا توجد بيانات للتصدير',
+      exportNoDataDesc: 'لا يوجد شركاء نشطون لديهم إحالات لتصديرهم.',
     },
     common: {
       loading: 'جار التحميل...',
