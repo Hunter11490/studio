@@ -1,10 +1,10 @@
-import { BrainCircuit } from 'lucide-react';
+import { MedicalLoader } from '../medical-loader';
 
-export function AILoader({ text = "AI is thinking..." }: { text?: string }) {
+export function AILoader({ text }: { text?: string }) {
   return (
     <div className="flex flex-col items-center justify-center gap-4 my-8 text-muted-foreground">
-      <BrainCircuit className="h-12 w-12 animate-pulse text-primary" />
-      <p className="text-sm">{text}</p>
+      <MedicalLoader />
+      {text && <p className="text-sm">{text}</p>}
     </div>
   );
 }

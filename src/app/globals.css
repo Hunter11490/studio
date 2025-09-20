@@ -1,3 +1,6 @@
+/* Import the new loader CSS */
+@import '../components/medical-loader.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

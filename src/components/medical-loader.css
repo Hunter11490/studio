@@ -1,0 +1,17 @@
+.medical-loader-path {
+  stroke-dasharray: 200;
+  stroke-dashoffset: 200;
+  animation: draw-ecg 2s linear infinite;
+}
+
+@keyframes draw-ecg {
+  0% {
+    stroke-dashoffset: 200;
+  }
+  50% {
+    stroke-dashoffset: 0;
+  }
+  100% {
+    stroke-dashoffset: -200;
+  }
+}
