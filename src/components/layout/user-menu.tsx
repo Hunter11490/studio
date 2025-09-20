@@ -40,6 +40,7 @@ import { AdminPanel } from '../admin/admin-panel';
 import { Separator } from '../ui/separator';
 import { translateText } from '@/ai/flows/translation-flow';
 import { Doctor } from '@/types';
+import { InternetSearchDialog } from '../ai/internet-search-dialog';
 
 type DoctorExportData = {
   [key: string]: string | number | boolean;
@@ -55,6 +56,7 @@ export function UserMenu() {
   const [isMenuOpen, setMenuOpen] = useState(false);
   const [isAboutOpen, setAboutOpen] = useState(false);
   const [isChatOpen, setChatOpen] = useState(false);
+  const [isInternetSearchOpen, setInternetSearchOpen] = useState(false);
   const [isAdminPanelOpen, setAdminPanelOpen] = useState(false);
 
   const getTranslatedDoctorData = async (doctor: Doctor): Promise<DoctorExportData> => {
@@ -200,6 +202,7 @@ export function UserMenu() {
               
               <div className="px-2 py-1.5 text-sm font-semibold">{t('userMenu.aiTools')}</div>
               <MenuItem icon={<BrainCircuit className="mr-2 h-4 w-4" />} label={t('userMenu.aiChat')} onClick={() => { setChatOpen(true); setMenuOpen(false); }} />
+              <MenuItem icon={<Globe className="mr-2 h-4 w-4" />} label={t('userMenu.internetSearch')} onClick={() => { setInternetSearchOpen(true); setMenuOpen(false); }} />
               <Separator className="my-2" />
 
               <div className="px-2 py-1.5 text-sm font-semibold">{t('userMenu.dataActions')}</div>
@@ -266,6 +269,8 @@ export function UserMenu() {
       {/* Dialogs */}
       <AboutDialog open={isAboutOpen} onOpenChange={setAboutOpen} />
       <ChatDialog open={isChatOpen} onOpenChange={setChatOpen} />
+      <InternetSearchDialog open={isInternetSearchOpen} onOpenChange={setInternetSearchOpen} />
+
       
       {/* Admin Panel Sheet */}
       {user.role === 'admin' && (
