@@ -25,13 +25,6 @@ export async function chat(input: ChatInput): Promise<ChatOutput> {
   return chatFlow(input);
 }
 
-const prompt = ai.definePrompt({
-  name: 'chatPrompt',
-  input: {schema: ChatInputSchema},
-  output: {schema: ChatOutputSchema},
-  prompt: `You are a medical assistant helping medical representatives by answering questions from doctors. Use your knowledge to provide accurate and helpful answers.\n\nQuestion: {{{question}}}`,
-});
-
 const chatFlow = ai.defineFlow(
   {
     name: 'chatFlow',
@@ -39,6 +32,13 @@ const chatFlow = ai.defineFlow(
     outputSchema: ChatOutputSchema,
   },
   async input => {
+    const prompt = ai.definePrompt({
+      name: 'chatPrompt',
+      input: {schema: ChatInputSchema},
+      output: {schema: ChatOutputSchema},
+      prompt: `You are a medical assistant helping medical representatives by answering questions from doctors. Use your knowledge to provide accurate and helpful answers.\n\nQuestion: {{{question}}}`,
+    });
+
     const {output} = await prompt(input);
     return output!;
   }

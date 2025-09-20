@@ -30,21 +30,6 @@ export async function translateText(input: TranslateTextInput): Promise<Translat
   return translationFlow(input);
 }
 
-const prompt = ai.definePrompt({
-  name: 'translationPrompt',
-  input: {schema: TranslateTextInputSchema},
-  output: {schema: TranslateTextOutputSchema},
-  prompt: `Translate the following JSON values to {{{targetLanguage}}}. Return only the translated JSON object.
-
-{
-  "name": "{{{name}}}",
-  "specialty": "{{{specialty}}}",
-  "clinicAddress": "{{{clinicAddress}}}"
-}
-
-Provide only the translated JSON object.`,
-});
-
 const translationFlow = ai.defineFlow(
   {
     name: 'translationFlow',
@@ -56,6 +41,21 @@ const translationFlow = ai.defineFlow(
     if (!input.name || input.name.trim().length < 2) {
         return { name: input.name, specialty: input.specialty, clinicAddress: input.clinicAddress };
     }
+    
+    const prompt = ai.definePrompt({
+      name: 'translationPrompt',
+      input: {schema: TranslateTextInputSchema},
+      output: {schema: TranslateTextOutputSchema},
+      prompt: `Translate the following JSON values to {{{targetLanguage}}}. Return only the translated JSON object.
+
+{
+  "name": "{{{name}}}",
+  "specialty": "{{{specialty}}}",
+  "clinicAddress": "{{{clinicAddress}}}"
+}
+
+Provide only the translated JSON object.`,
+    });
     
     const {output} = await prompt(input);
     return output!;
