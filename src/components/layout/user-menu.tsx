@@ -116,15 +116,12 @@ export function UserMenu() {
           <ScrollArea className="h-auto max-h-[60vh] pr-3">
             <div className="space-y-1 pl-1">
               {user.role === 'admin' && (
-                <>
                   <DropdownMenuItem asChild>
                     <Link href="/admin">
                       <Shield className="mr-2 h-4 w-4" />
                       <span>{t('header.adminDashboard')}</span>
                     </Link>
                   </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                </>
               )}
               <DropdownMenuGroup>
                 <div className="relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none">
