@@ -131,9 +131,9 @@ export function UserMenu() {
 
               {/* Theme */}
               <div className="space-y-2">
-                <Label>
-                  <Sun className="inline-block mr-2 h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-                  <Moon className="absolute inline-block mr-2 h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+                <Label className="flex items-center">
+                  <Sun className="h-4 w-4 mr-2 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+                  <Moon className="absolute h-4 w-4 mr-2 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
                   <span className="ml-6">{t('userMenu.toggleTheme')}</span>
                 </Label>
                 <RadioGroup value={theme} onValueChange={(value) => setTheme(value as 'light' | 'dark' | 'system')} className="flex gap-4">
@@ -221,5 +221,3 @@ export function UserMenu() {
     </>
   );
 }
-
-    
