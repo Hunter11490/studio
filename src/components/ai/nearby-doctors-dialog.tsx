@@ -15,6 +15,9 @@ import { suggestDoctors, SuggestDoctorsOutput } from '@/ai/flows/ai-suggested-do
 import { AILoader } from './ai-loader';
 import { SuggestedDoctorCard } from './suggested-doctor-card';
 import { ScrollArea } from '../ui/scroll-area';
+import { useDoctors } from '@/hooks/use-doctors';
+import { useToast } from '@/hooks/use-toast';
+import { PlusCircle } from 'lucide-react';
 
 type NearbyDoctorsDialogProps = {
   open: boolean;
@@ -27,6 +30,8 @@ export function NearbyDoctorsDialog({ open, onOpenChange }: NearbyDoctorsDialogP
   const [nameOrSpecialty, setNameOrSpecialty] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [results, setResults] = useState<SuggestDoctorsOutput | null>(null);
+  const { addDoctor } = useDoctors();
+  const { toast } = useToast();
 
   const handleSearch = async () => {
     if (!location) return;
@@ -44,6 +49,24 @@ export function NearbyDoctorsDialog({ open, onOpenChange }: NearbyDoctorsDialogP
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleAddAll = () => {
+    if (!results) return;
+    results.forEach(doctor => {
+      addDoctor({
+        name: doctor.name,
+        specialty: doctor.specialty,
+        phoneNumber: doctor.phone,
+        clinicAddress: doctor.address,
+        mapLocation: '',
+        clinicCardImageUrl: '',
+        isPartner: false,
+        referralCount: 0,
+        availableDays: [],
+      });
+    });
+    toast({ title: `${results.length} doctors have been added to your directory.` });
   };
 
   const resetSearch = () => {
@@ -77,7 +100,7 @@ export function NearbyDoctorsDialog({ open, onOpenChange }: NearbyDoctorsDialogP
           </Button>
         </div>
         
-        <ScrollArea className="flex-grow mt-4 overflow-auto">
+        <ScrollArea className="flex-grow mt-4 overflow-auto -mx-6 px-6">
           {isLoading && <AILoader />}
           {results && (
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -86,6 +109,14 @@ export function NearbyDoctorsDialog({ open, onOpenChange }: NearbyDoctorsDialogP
             </div>
           )}
         </ScrollArea>
+        {results && results.length > 0 && (
+            <div className="pt-4 border-t">
+                <Button onClick={handleAddAll} className="w-full">
+                    <PlusCircle className="mr-2 h-4 w-4" />
+                    Add All Results to My Directory
+                </Button>
+            </div>
+        )}
       </DialogContent>
     </Dialog>
   );

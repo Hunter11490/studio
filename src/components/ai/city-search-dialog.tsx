@@ -16,6 +16,9 @@ import { suggestDoctors, SuggestDoctorsOutput } from '@/ai/flows/ai-suggested-do
 import { AILoader } from './ai-loader';
 import { SuggestedDoctorCard } from './suggested-doctor-card';
 import { ScrollArea } from '../ui/scroll-area';
+import { useDoctors } from '@/hooks/use-doctors';
+import { useToast } from '@/hooks/use-toast';
+import { PlusCircle } from 'lucide-react';
 
 type CitySearchDialogProps = {
   open: boolean;
@@ -30,6 +33,8 @@ export function CitySearchDialog({ open, onOpenChange }: CitySearchDialogProps) 
   const [selectedRegion, setSelectedRegion] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [results, setResults] = useState<SuggestDoctorsOutput | null>(null);
+  const { addDoctor } = useDoctors();
+  const { toast } = useToast();
 
   const regions = useMemo(() => {
     return selectedGovernorate ? IRAQI_GOVERNORATES[selectedGovernorate as keyof typeof IRAQI_GOVERNORATES] : [];
@@ -54,6 +59,24 @@ export function CitySearchDialog({ open, onOpenChange }: CitySearchDialogProps) 
     }
   };
 
+  const handleAddAll = () => {
+    if (!results) return;
+    results.forEach(doctor => {
+      addDoctor({
+        name: doctor.name,
+        specialty: doctor.specialty,
+        phoneNumber: doctor.phone,
+        clinicAddress: doctor.address,
+        mapLocation: '',
+        clinicCardImageUrl: '',
+        isPartner: false,
+        referralCount: 0,
+        availableDays: [],
+      });
+    });
+    toast({ title: `${results.length} doctors have been added to your directory.` });
+  };
+
   const resetSearch = () => {
     setSelectedGovernorate('');
     setSelectedRegion('');
@@ -70,15 +93,25 @@ export function CitySearchDialog({ open, onOpenChange }: CitySearchDialogProps) 
         </DialogHeader>
         
         {isLoading || results ? (
-          <ScrollArea className="flex-grow overflow-auto">
-            {isLoading && <AILoader />}
-            {results && (
-              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                {results.length > 0 ? results.map((doc, i) => <SuggestedDoctorCard key={i} doctor={doc} />)
-                : <p className="col-span-full text-center text-muted-foreground">{t('common.noResults')}</p>}
-              </div>
+          <>
+            <ScrollArea className="flex-grow overflow-auto -mx-6 px-6">
+              {isLoading && <AILoader />}
+              {results && (
+                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                  {results.length > 0 ? results.map((doc, i) => <SuggestedDoctorCard key={i} doctor={doc} />)
+                  : <p className="col-span-full text-center text-muted-foreground">{t('common.noResults')}</p>}
+                </div>
+              )}
+            </ScrollArea>
+             {results && results.length > 0 && (
+                <div className="pt-4 border-t">
+                    <Button onClick={handleAddAll} className="w-full">
+                        <PlusCircle className="mr-2 h-4 w-4" />
+                        Add All Results to My Directory
+                    </Button>
+                </div>
             )}
-          </ScrollArea>
+          </>
         ) : (
           <div className="space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

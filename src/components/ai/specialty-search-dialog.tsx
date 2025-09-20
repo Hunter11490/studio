@@ -15,6 +15,10 @@ import { MEDICAL_SPECIALTIES } from '@/lib/constants';
 import { suggestDoctors, SuggestDoctorsOutput } from '@/ai/flows/ai-suggested-doctors';
 import { AILoader } from './ai-loader';
 import { SuggestedDoctorCard } from './suggested-doctor-card';
+import { useDoctors } from '@/hooks/use-doctors';
+import { useToast } from '@/hooks/use-toast';
+import { PlusCircle } from 'lucide-react';
+import { Button } from '../ui/button';
 
 type SpecialtySearchDialogProps = {
   open: boolean;
@@ -27,6 +31,8 @@ export function SpecialtySearchDialog({ open, onOpenChange }: SpecialtySearchDia
   const [isLoading, setIsLoading] = useState(false);
   const [results, setResults] = useState<SuggestDoctorsOutput | null>(null);
   const [currentSpecialty, setCurrentSpecialty] = useState<string | null>(null);
+  const { addDoctor } = useDoctors();
+  const { toast } = useToast();
 
   const filteredSpecialties = MEDICAL_SPECIALTIES.filter(s =>
     s.toLowerCase().includes(searchTerm.toLowerCase())
@@ -51,6 +57,24 @@ export function SpecialtySearchDialog({ open, onOpenChange }: SpecialtySearchDia
     }
   };
 
+  const handleAddAll = () => {
+    if (!results) return;
+    results.forEach(doctor => {
+      addDoctor({
+        name: doctor.name,
+        specialty: doctor.specialty,
+        phoneNumber: doctor.phone,
+        clinicAddress: doctor.address,
+        mapLocation: '',
+        clinicCardImageUrl: '',
+        isPartner: false,
+        referralCount: 0,
+        availableDays: [],
+      });
+    });
+    toast({ title: `${results.length} doctors have been added to your directory.` });
+  };
+
   const resetSearch = () => {
       setSearchTerm('');
       setIsLoading(false);
@@ -67,17 +91,26 @@ export function SpecialtySearchDialog({ open, onOpenChange }: SpecialtySearchDia
         </DialogHeader>
         
         {results || isLoading ? (
-            <div className="flex-grow overflow-y-auto">
-                 <h3 className="text-lg font-semibold mb-4">Results for "{currentSpecialty}"</h3>
+            <>
+              <ScrollArea className="flex-grow overflow-auto -mx-6 px-6">
+                 <h3 className="text-lg font-semibold mb-4 text-center">Results for "{currentSpecialty}"</h3>
                 {isLoading && <AILoader />}
                 {results && (
-                    <ScrollArea className="flex-grow overflow-auto">
-                        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                            {results.map((doc, i) => <SuggestedDoctorCard key={i} doctor={doc} />)}
-                        </div>
-                    </ScrollArea>
+                    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                        {results.length > 0 ? results.map((doc, i) => <SuggestedDoctorCard key={i} doctor={doc} />)
+                        : <p className="col-span-full text-center text-muted-foreground">{t('common.noResults')}</p>}
+                    </div>
                 )}
-            </div>
+              </ScrollArea>
+               {results && results.length > 0 && (
+                <div className="pt-4 border-t">
+                    <Button onClick={handleAddAll} className="w-full">
+                        <PlusCircle className="mr-2 h-4 w-4" />
+                        Add All Results to My Directory
+                    </Button>
+                </div>
+            )}
+            </>
         ) : (
             <>
             <Input
@@ -86,7 +119,7 @@ export function SpecialtySearchDialog({ open, onOpenChange }: SpecialtySearchDia
               onChange={e => setSearchTerm(e.target.value)}
               className="mb-4"
             />
-            <ScrollArea className="flex-grow">
+            <ScrollArea className="flex-grow -mx-6 px-6">
               <ul className="space-y-1">
                 {filteredSpecialties.map(specialty => (
                   <li key={specialty}>
