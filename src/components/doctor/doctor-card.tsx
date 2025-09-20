@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import Image from 'next/image';
 import {
   Star,
   Plus,
@@ -25,7 +24,6 @@ import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { ConfirmationDialog } from '@/components/confirmation-dialog';
 import { DoctorFormDialog } from './doctor-form-dialog';
-import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { cn } from '@/lib/utils';
 
 const WEEK_DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -36,7 +34,6 @@ export function DoctorCard({ doctor }: { doctor: Doctor }) {
   const { toast } = useToast();
   const [isEditing, setEditing] = useState(false);
 
-  const placeholderImg = PlaceHolderImages.find(img => img.id === 'doctor-placeholder');
   const commission = doctor.referralCount * 100;
 
   const handleReferralChange = (amount: number) => {
@@ -73,22 +70,12 @@ export function DoctorCard({ doctor }: { doctor: Doctor }) {
     <>
       <Card className={cn("flex flex-col", doctor.isPartner && "border-primary shadow-lg")}>
         <CardHeader className="p-4">
-          <div className="relative mb-2">
-            <Image
-              src={doctor.clinicCardImageUrl || placeholderImg?.imageUrl || ''}
-              alt={doctor.name}
-              data-ai-hint={placeholderImg?.imageHint}
-              width={400}
-              height={200}
-              className="rounded-lg object-cover aspect-[2/1] bg-muted"
-            />
-            {doctor.isPartner && (
-              <Badge className="absolute top-2 right-2 bg-primary">
+          {doctor.isPartner && (
+              <Badge className="w-fit bg-primary">
                 <Star className="mr-1 h-3 w-3" />
                 {t('doctorCard.partner')}
               </Badge>
             )}
-          </div>
           <CardTitle className="font-headline text-xl">{doctor.name}</CardTitle>
           <CardDescription>{doctor.specialty}</CardDescription>
         </CardHeader>
