@@ -32,10 +32,6 @@ export function Header() {
               <PlusCircle className="h-4 w-4" />
               <span className="hidden md:inline">{t('header.addDoctor')}</span>
             </Button>
-             <Button variant="outline" size="sm" className="gap-1" onClick={() => setPartnerDashboardOpen(true)}>
-              <Users className="h-4 w-4" />
-              <span className="hidden md:inline">{t('header.partnerDashboard')}</span>
-            </Button>
           </div>
 
           {/* Centered App Name */}
@@ -68,6 +64,9 @@ export function Header() {
             <div className="flex items-center gap-2">
               <span>{t('header.totalPartners')}:</span>
               <span className="font-bold text-foreground">{partnerCount}</span>
+               <Button variant="outline" size="xs" className="gap-1" onClick={() => setPartnerDashboardOpen(true)}>
+                <Users className="h-3 w-3" />
+              </Button>
             </div>
             <Button
               variant={filterPartners ? 'secondary' : 'outline'}
