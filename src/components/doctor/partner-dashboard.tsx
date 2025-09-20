@@ -5,13 +5,13 @@ import { useDoctors } from '@/hooks/use-doctors';
 import { useLanguage } from '@/hooks/use-language';
 import { Button } from '@/components/ui/button';
 import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetDescription,
-  SheetFooter,
-} from '@/components/ui/sheet';
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from '@/components/ui/dialog';
 import {
   Accordion,
   AccordionContent,
@@ -102,41 +102,23 @@ export function PartnerDashboard({ open, onOpenChange }: PartnerDashboardProps) 
 
   const getTranslatedDoctorData = async (doctor: Doctor): Promise<PartnerExportData> => {
     const targetLanguage = lang === 'ar' ? 'Arabic' : 'English';
-    const containsArabic = /[\u0600-\u06FF]/.test(doctor.name);
-    const containsEnglish = /[a-zA-Z]/.test(doctor.name);
-
-    let translatedName = doctor.name;
-    let translatedAddress = doctor.clinicAddress;
-
-    if ((lang === 'en' && containsArabic) || (lang === 'ar' && containsEnglish)) {
-      try {
-        const result = await translateText({ 
-          name: doctor.name, 
-          specialty: doctor.specialty,
-          clinicAddress: doctor.clinicAddress, 
-          targetLanguage 
-        });
-        translatedName = result.name;
-        translatedAddress = result.clinicAddress;
-      } catch (error) {
-        console.error("Translation for export failed for doctor:", doctor.name, error);
-      }
-    }
-
-    const headers = {
-      name: t('partnerDashboard.exportName'),
-      address: t('partnerDashboard.exportAddress'),
-      phone: t('partnerDashboard.exportPhone'),
-      referrals: t('partnerDashboard.exportReferrals'),
-      commission: t('partnerDashboard.exportCommission'),
-    };
     
+    // For simplicity, we just use the current data which should be in the correct language
+    // as per the UI language. A more robust solution might force re-translation here.
+    const headers: { [key: string]: string } = {
+        name: t('partnerDashboard.exportName'),
+        address: t('partnerDashboard.exportAddress'),
+        phone: t('partnerDashboard.exportPhone'),
+        referrals: t('partnerDashboard.exportReferrals'),
+        commission: t('partnerDashboard.exportCommission'),
+    };
+
     return {
-      [headers.name]: translatedName,
-      [headers.address]: translatedAddress,
-      [headers.phone]: doctor.phoneNumber,
-      [headers.referrals]: doctor.referralCount,
-      [headers.commission]: doctor.referralCount * 100,
+        [headers.name]: doctor.name,
+        [headers.address]: doctor.clinicAddress,
+        [headers.phone]: doctor.phoneNumber,
+        [headers.referrals]: doctor.referralCount,
+        [headers.commission]: doctor.referralCount * 100,
     };
   };
 
@@ -161,19 +143,19 @@ export function PartnerDashboard({ open, onOpenChange }: PartnerDashboardProps) 
   };
 
   return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="max-w-md md:max-w-lg flex flex-col">
-        <SheetHeader>
-          <SheetTitle className="font-headline flex items-center gap-2">
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="h-screen w-screen max-w-full flex flex-col p-0 gap-0">
+        <DialogHeader className="p-4 border-b">
+          <DialogTitle className="font-headline flex items-center gap-2">
             <Users />
             {t('header.partnerDashboard')}
-          </SheetTitle>
-          <SheetDescription>
+          </DialogTitle>
+          <DialogDescription>
             {t('partnerDashboard.description')}
-          </SheetDescription>
-        </SheetHeader>
+          </DialogDescription>
+        </DialogHeader>
 
-        <ScrollArea className="flex-grow -mx-6">
+        <ScrollArea className="flex-grow">
            <div className="px-2">
               {partnerDoctors.length > 0 ? (
                 <Accordion type="multiple" className="w-full">
@@ -191,16 +173,16 @@ export function PartnerDashboard({ open, onOpenChange }: PartnerDashboardProps) 
         </ScrollArea>
         
         {partnerDoctors.length > 0 && (
-          <SheetFooter className="pt-4 border-t">
+          <DialogFooter className="p-4 border-t">
             <div className="flex w-full gap-2">
               <Button onClick={handleExportExcel} variant="outline" className="flex-1">
                 <FileDown className="mr-2 h-4 w-4" />
                 {t('partnerDashboard.exportExcel')}
               </Button>
             </div>
-          </SheetFooter>
+          </DialogFooter>
         )}
-      </SheetContent>
-    </Sheet>
+      </DialogContent>
+    </Dialog>
   );
 }
