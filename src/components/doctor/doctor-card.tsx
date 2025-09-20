@@ -24,7 +24,7 @@ import { Badge } from '@/components/ui/badge';
 import { ConfirmationDialog } from '@/components/confirmation-dialog';
 import { DoctorFormDialog } from './doctor-form-dialog';
 import { cn } from '@/lib/utils';
-import { Logo } from '../logo';
+import { StethoscopeLogo } from '../stethoscope-logo';
 
 const WEEK_DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
@@ -70,7 +70,7 @@ export function DoctorCard({ doctor }: { doctor: Doctor }) {
     <>
       <Card className={cn("flex flex-col relative overflow-hidden", doctor.isPartner && "border-primary shadow-lg")}>
         <div className="absolute inset-0 flex items-center justify-center -z-10">
-          <Logo className="w-48 h-48 text-muted/20" />
+          <StethoscopeLogo className="w-48 h-48 text-muted/20" />
         </div>
         <CardHeader className="p-4">
           {doctor.isPartner && (
