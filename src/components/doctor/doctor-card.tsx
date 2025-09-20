@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Star,
   Plus,
@@ -27,14 +27,62 @@ import { ConfirmationDialog } from '@/components/confirmation-dialog';
 import { DoctorFormDialog } from './doctor-form-dialog';
 import { cn } from '@/lib/utils';
 import { StethoscopeLogo } from '../stethoscope-logo';
+import { translateText } from '@/ai/flows/translation-flow';
+import { Skeleton } from '../ui/skeleton';
 
 const WEEK_DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+type TranslatedDetails = {
+    name: string;
+    specialty: string;
+    clinicAddress: string;
+};
 
 export function DoctorCard({ doctor }: { doctor: Doctor }) {
   const { updateDoctor, deleteDoctor } = useDoctors();
   const { t, lang } = useLanguage();
   const { toast } = useToast();
   const [isEditing, setEditing] = useState(false);
+  const [translatedDetails, setTranslatedDetails] = useState<TranslatedDetails | null>(null);
+  const [isTranslating, setIsTranslating] = useState(false);
+
+  useEffect(() => {
+    const translateDetails = async () => {
+      if (lang === 'ar') {
+        setIsTranslating(true);
+        try {
+          const [nameRes, specialtyRes, addressRes] = await Promise.all([
+            translateText({ text: doctor.name, targetLanguage: 'Arabic' }),
+            translateText({ text: doctor.specialty, targetLanguage: 'Arabic' }),
+            translateText({ text: doctor.clinicAddress, targetLanguage: 'Arabic' })
+          ]);
+          setTranslatedDetails({
+            name: nameRes.translation,
+            specialty: specialtyRes.translation,
+            clinicAddress: addressRes.translation,
+          });
+        } catch (error) {
+          console.error("Translation failed", error);
+          // Fallback to original if translation fails
+          setTranslatedDetails({
+            name: doctor.name,
+            specialty: doctor.specialty,
+            clinicAddress: doctor.clinicAddress
+          });
+        } finally {
+          setIsTranslating(false);
+        }
+      } else {
+        setTranslatedDetails(null);
+      }
+    };
+
+    translateDetails();
+  }, [lang, doctor]);
+
+  const displayName = lang === 'ar' ? (translatedDetails?.name || doctor.name) : doctor.name;
+  const displaySpecialty = lang === 'ar' ? (translatedDetails?.specialty || doctor.specialty) : doctor.specialty;
+  const displayAddress = lang === 'ar' ? (translatedDetails?.clinicAddress || doctor.clinicAddress) : doctor.clinicAddress;
 
   const commission = doctor.referralCount * 100;
 
@@ -90,8 +138,17 @@ export function DoctorCard({ doctor }: { doctor: Doctor }) {
                 {doctor.isPartner ? <ToggleRight className="text-primary" /> : <ToggleLeft />}
             </Button>
           </div>
-          <CardTitle className="font-headline text-xl">{doctor.name}</CardTitle>
-          <CardDescription>{doctor.specialty}</CardDescription>
+          {isTranslating && lang === 'ar' ? (
+              <div className="space-y-2">
+                  <Skeleton className="h-7 w-3/4" />
+                  <Skeleton className="h-4 w-1/2" />
+              </div>
+          ) : (
+            <>
+                <CardTitle className="font-headline text-xl">{displayName}</CardTitle>
+                <CardDescription>{displaySpecialty}</CardDescription>
+            </>
+          )}
         </CardHeader>
 
         <CardContent className="p-4 flex-grow space-y-3 text-sm">
@@ -123,12 +180,16 @@ export function DoctorCard({ doctor }: { doctor: Doctor }) {
           <div className="space-y-2">
             <p className="flex items-start gap-2">
                 <Phone className="h-4 w-4 mt-0.5 shrink-0" /> 
-                <a href={`tel:${doctor.phoneNumber}`} className="hover:underline">{doctor.phoneNumber}</a>
+                <a href={`tel:${doctor.phoneNumber}`} className="hover:underline" dir="ltr">{doctor.phoneNumber}</a>
             </p>
-            <p className="flex items-start gap-2">
-                <MapPin className="h-4 w-4 mt-0.5 shrink-0" />
-                <span>{doctor.clinicAddress}</span>
-            </p>
+            {isTranslating && lang === 'ar' ? (
+                <Skeleton className="h-4 w-full" />
+            ) : (
+                <p className="flex items-start gap-2">
+                    <MapPin className="h-4 w-4 mt-0.5 shrink-0" />
+                    <span>{displayAddress}</span>
+                </p>
+            )}
           </div>
           
            <div className="space-y-2">
