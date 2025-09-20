@@ -9,10 +9,10 @@ const DOCTORS_STORAGE_KEY = 'iraqi_doctors_list_v1';
 export type DoctorContextType = {
   doctors: Doctor[];
   addDoctor: (doctor: Omit<Doctor, 'id' | 'createdAt'>) => void;
-  updateDoctor: (id: string, updates: Partial<Doctor>) => void;
+  updateDoctor: (id: string, updates: Partial<Omit<Doctor, 'referralCount'>>) => void;
   deleteDoctor: (id: string) => void;
   getDoctorById: (id: string) => Doctor | undefined;
-  resetAllReferrals: () => void;
+  resetAllReferrals: () => void; // This is now an indirect action
   uncheckAllPartners: () => void;
   importDoctors: (newDoctors: Doctor[]) => void;
   searchTerm: string;
@@ -33,11 +33,12 @@ export function DoctorProvider({ children }: { children: React.ReactNode }) {
       ...doctorData,
       id: new Date().toISOString() + Math.random(),
       createdAt: new Date().toISOString(),
+      referralCount: 0, // Initialize with 0, will be derived from patients
     };
     setDoctors(prev => [newDoctor, ...prev]);
   };
 
-  const updateDoctor = (id: string, updates: Partial<Doctor>) => {
+  const updateDoctor = (id: string, updates: Partial<Omit<Doctor, 'referralCount'>>) => {
     setDoctors(prev => prev.map(doc => (doc.id === id ? { ...doc, ...updates } : doc)));
   };
 
@@ -50,7 +51,9 @@ export function DoctorProvider({ children }: { children: React.ReactNode }) {
   };
 
   const resetAllReferrals = () => {
-    setDoctors(prev => prev.map(doc => ({ ...doc, referralCount: 0 })));
+    // This is now an indirect action. The patient provider should handle patient deletion.
+    // The UI will update automatically. We don't change doctor data here.
+    // The confirmation dialog for this is in the user-menu, and it should call the patient context.
   };
 
   const uncheckAllPartners = () => {

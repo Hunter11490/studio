@@ -19,12 +19,13 @@ import {
   AccordionTrigger,
 } from '@/components/ui/accordion';
 import { Badge } from '@/components/ui/badge';
-import { Minus, Plus, Users, FileDown, X } from 'lucide-react';
+import { Users, FileDown, X } from 'lucide-react';
 import { ScrollArea } from '../ui/scroll-area';
 import type { Doctor } from '@/types';
 import { translateText } from '@/ai/flows/translation-flow';
 import { exportToExcel } from '@/lib/excel';
 import { useToast } from '@/hooks/use-toast';
+import { usePatients } from '@/hooks/use-patients';
 
 type PartnerDashboardProps = {
   open: boolean;
@@ -36,13 +37,12 @@ type PartnerExportData = {
 };
 
 function PartnerDoctorItem({ doctor }: { doctor: Doctor }) {
-  const { updateDoctor } = useDoctors();
+  const { getPatientsByDoctor } = usePatients();
   const { t } = useLanguage();
 
-  const handleReferralChange = (doctorId: string, currentCount: number, amount: number) => {
-    const newCount = Math.max(0, currentCount + amount);
-    updateDoctor(doctorId, { referralCount: newCount });
-  };
+  const patients = getPatientsByDoctor(doctor.id);
+  const referralCount = patients.length;
+  const commission = referralCount * 100;
 
   return (
     <AccordionItem value={doctor.id}>
@@ -50,7 +50,7 @@ function PartnerDoctorItem({ doctor }: { doctor: Doctor }) {
         <div className="flex flex-1 items-center justify-between gap-2">
           <span className="font-semibold truncate">{doctor.name}</span>
           <Badge variant="secondary" className="whitespace-nowrap">
-            {t('doctorCard.referrals')}: {doctor.referralCount}
+            {t('doctorCard.referrals')}: {referralCount}
           </Badge>
         </div>
       </AccordionTrigger>
@@ -59,30 +59,8 @@ function PartnerDoctorItem({ doctor }: { doctor: Doctor }) {
           <div className="flex items-center justify-between">
             <span className="text-sm text-muted-foreground">{t('doctorCard.commission')}:</span>
             <span className="font-semibold text-accent">
-              {(doctor.referralCount * 100).toLocaleString()} {t('doctorCard.usd')}
+              {commission.toLocaleString()} {t('doctorCard.usd')}
             </span>
-          </div>
-          <div className="flex items-center justify-between">
-            <span className="text-sm text-muted-foreground">{t('partnerDashboard.editReferrals')}:</span>
-            <div className="flex items-center gap-2">
-              <Button
-                size="icon"
-                variant="outline"
-                className="h-7 w-7"
-                onClick={() => handleReferralChange(doctor.id, doctor.referralCount, -1)}
-              >
-                <Minus className="h-4 w-4" />
-              </Button>
-              <span className="font-bold w-5 text-center">{doctor.referralCount}</span>
-              <Button
-                size="icon"
-                variant="outline"
-                className="h-7 w-7"
-                onClick={() => handleReferralChange(doctor.id, doctor.referralCount, 1)}
-              >
-                <Plus className="h-4 w-4" />
-              </Button>
-            </div>
           </div>
         </div>
       </AccordionContent>
@@ -92,15 +70,24 @@ function PartnerDoctorItem({ doctor }: { doctor: Doctor }) {
 
 export function PartnerDashboard({ open, onOpenChange }: PartnerDashboardProps) {
   const { doctors } = useDoctors();
+  const { getPatientsByDoctor } = usePatients();
   const { t, lang } = useLanguage();
   const { toast } = useToast();
 
   const partnerDoctors = useMemo(() => {
-    return doctors.filter(d => d.isPartner).sort((a, b) => b.referralCount - a.referralCount);
-  }, [doctors]);
+    return doctors
+      .filter(d => d.isPartner)
+      .sort((a, b) => {
+        const countA = getPatientsByDoctor(a.id).length;
+        const countB = getPatientsByDoctor(b.id).length;
+        return countB - countA;
+      });
+  }, [doctors, getPatientsByDoctor]);
 
   const getTranslatedDoctorData = async (doctor: Doctor): Promise<PartnerExportData> => {
     const targetLanguage = lang === 'ar' ? 'Arabic' : 'English';
+    const referralCount = getPatientsByDoctor(doctor.id).length;
+
     let translatedData = { name: doctor.name, specialty: doctor.specialty, clinicAddress: doctor.clinicAddress };
     
     try {
@@ -122,8 +109,8 @@ export function PartnerDashboard({ open, onOpenChange }: PartnerDashboardProps) 
         [headers.name]: translatedData.name,
         [headers.address]: translatedData.clinicAddress,
         [headers.phone]: doctor.phoneNumber,
-        [headers.referrals]: doctor.referralCount,
-        [headers.commission]: doctor.referralCount * 100,
+        [headers.referrals]: referralCount,
+        [headers.commission]: referralCount * 100,
     };
   };
 

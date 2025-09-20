@@ -13,6 +13,7 @@ export type PatientContextType = {
   updatePatient: (id: string, updates: Partial<Patient>) => void;
   deletePatient: (id: string) => void;
   deletePatientsByDoctor: (doctorId: string) => void;
+  deleteAllPatients: () => void; // New function for resetting referrals
 };
 
 export const PatientContext = createContext<PatientContextType | null>(null);
@@ -44,6 +45,10 @@ export function PatientProvider({ children }: { children: React.ReactNode }) {
     setPatients(prev => prev.filter(p => p.referringDoctorId !== doctorId));
   };
 
+  const deleteAllPatients = () => {
+    setPatients([]);
+  };
+
   const value = useMemo(() => ({
     patients,
     getPatientsByDoctor,
@@ -51,6 +56,7 @@ export function PatientProvider({ children }: { children: React.ReactNode }) {
     updatePatient,
     deletePatient,
     deletePatientsByDoctor,
+    deleteAllPatients,
   }), [patients, setPatients]);
 
   return <PatientContext.Provider value={value}>{children}</PatientContext.Provider>;

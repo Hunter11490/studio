@@ -36,18 +36,15 @@ const WEEK_DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
 export function DoctorCard({ doctor }: { doctor: Doctor }) {
   const { updateDoctor, deleteDoctor } = useDoctors();
-  const { deletePatientsByDoctor } = usePatients();
+  const { getPatientsByDoctor, deletePatientsByDoctor } = usePatients();
   const { t, lang } = useLanguage();
   const { toast } = useToast();
   const [isEditing, setEditing] = useState(false);
   const [isPatientManagerOpen, setPatientManagerOpen] = useState(false);
-
-  const commission = doctor.referralCount * 100;
-
-  const handleReferralChange = (amount: number) => {
-    const newCount = Math.max(0, doctor.referralCount + amount);
-    updateDoctor(doctor.id, { referralCount: newCount });
-  };
+  
+  const patients = getPatientsByDoctor(doctor.id);
+  const referralCount = patients.length;
+  const commission = referralCount * 100;
 
   const handleSetLocation = () => {
     if (!navigator.geolocation) {
@@ -116,13 +113,7 @@ export function DoctorCard({ doctor }: { doctor: Doctor }) {
               <span>{t('doctorCard.referrals')}</span>
             </div>
             <div className="flex items-center gap-2">
-              <Button size="icon" variant="outline" className="h-6 w-6" onClick={() => handleReferralChange(-1)}>
-                <Minus className="h-4 w-4" />
-              </Button>
-              <span className="font-bold w-4 text-center">{doctor.referralCount}</span>
-              <Button size="icon" variant="outline" className="h-6 w-6" onClick={() => handleReferralChange(1)}>
-                <Plus className="h-4 w-4" />
-              </Button>
+              <span className="font-bold w-4 text-center">{referralCount}</span>
             </div>
           </div>
 

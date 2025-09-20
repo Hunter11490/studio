@@ -67,7 +67,14 @@ export function DoctorFormDialog({ open, onOpenChange, doctorToEdit }: DoctorFor
       });
       setImagePreview(doctorToEdit.clinicCardImageUrl);
     } else {
-      form.reset();
+      form.reset({
+        name: '',
+        specialty: '',
+        phoneNumber: '',
+        clinicAddress: '',
+        clinicCardImageUrl: '',
+        isPartner: false,
+      });
       setImagePreview(null);
     }
   }, [doctorToEdit, open, form]);
@@ -88,9 +95,10 @@ export function DoctorFormDialog({ open, onOpenChange, doctorToEdit }: DoctorFor
   const onSubmit = (values: z.infer<typeof formSchema>) => {
     const doctorData = {
       ...values,
-      // These are not in the form, so we preserve them if editing
-      mapLocation: doctorToEdit?.mapLocation || '',
+      // This property is now managed by the number of patients.
+      // We set it to the existing value to avoid overwriting it if we change logic later.
       referralCount: doctorToEdit?.referralCount || 0,
+      mapLocation: doctorToEdit?.mapLocation || '',
       availableDays: doctorToEdit?.availableDays || [],
     };
 

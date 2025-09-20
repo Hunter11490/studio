@@ -43,6 +43,7 @@ import { translateText } from '@/ai/flows/translation-flow';
 import { Doctor } from '@/types';
 import { InternetSearchDialog } from '../ai/internet-search-dialog';
 import { AllPatientsDialog } from '../patient/all-patients-dialog';
+import { usePatients } from '@/hooks/use-patients';
 
 type DoctorExportData = {
   [key: string]: string | number | boolean;
@@ -53,6 +54,7 @@ export function UserMenu() {
   const { lang, setLang, t } = useLanguage();
   const { theme, setTheme } = useTheme();
   const { doctors, resetAllReferrals, uncheckAllPartners, importDoctors } = useDoctors();
+  const { getPatientsByDoctor } = usePatients();
   const { toast } = useToast();
 
   const [isMenuOpen, setMenuOpen] = useState(false);
@@ -64,6 +66,7 @@ export function UserMenu() {
 
   const getTranslatedDoctorData = async (doctor: Doctor): Promise<DoctorExportData> => {
     const targetLanguage = lang === 'ar' ? 'Arabic' : 'English';
+    const referralCount = getPatientsByDoctor(doctor.id).length;
     const headers = {
         name: lang === 'ar' ? 'الاسم' : 'Name',
         specialty: lang === 'ar' ? 'التخصص' : 'Specialty',
@@ -92,8 +95,8 @@ export function UserMenu() {
       [headers.phoneNumber]: doctor.phoneNumber,
       [headers.mapLocation]: doctor.mapLocation,
       [headers.isPartner]: doctor.isPartner,
-      [headers.referralCount]: doctor.referralCount,
-      [headers.commission]: doctor.referralCount * 100,
+      [headers.referralCount]: referralCount,
+      [headers.commission]: referralCount * 100,
       [headers.availableDays]: doctor.availableDays.join(', '),
     };
   };
@@ -102,7 +105,7 @@ export function UserMenu() {
     try {
       let doctorsToExport = doctors;
       if (filtered) {
-        doctorsToExport = doctors.filter(doc => doc.isPartner && doc.referralCount > 0);
+        doctorsToExport = doctors.filter(doc => doc.isPartner && getPatientsByDoctor(doc.id).length > 0);
         if (doctorsToExport.length === 0) {
           toast({ title: t('toasts.exportNoData'), description: t('toasts.exportNoDataDesc') });
           return;
@@ -144,6 +147,12 @@ export function UserMenu() {
         toast({ title: t('toasts.locationError'), variant: 'destructive' });
       });
     }
+  }
+  
+  const handleResetReferrals = () => {
+      // This is now an indirect operation: delete all patients.
+      // The function in the provider needs to be updated.
+      resetAllReferrals();
   }
 
   const MenuItem = ({ icon, label, onClick, destructive = false }: { icon: React.ReactNode, label: string, onClick?: () => void, destructive?: boolean }) => (
@@ -189,7 +198,7 @@ export function UserMenu() {
                    <ConfirmationDialog
                       title={t('dialogs.resetReferralsTitle')}
                       description={t('dialogs.resetReferralsDesc')}
-                      onConfirm={resetAllReferrals}
+                      onConfirm={handleResetReferrals}
                       trigger={<MenuItem icon={<RotateCcw className="mr-2 h-4 w-4" />} label={t('userMenu.resetAllReferrals')} destructive />}
                   />
                   <ConfirmationDialog
