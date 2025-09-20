@@ -8,6 +8,7 @@ export const translations: Translations = {
       signup: 'Sign Up',
       username: 'Username',
       password: 'Password',
+      email: 'Email',
       phoneNumber: 'Phone Number (Optional)',
       loginCta: 'Log into your account',
       signupCta: 'Create a new account',
@@ -17,7 +18,7 @@ export const translations: Translations = {
       signupSuccessTitle: 'Account Created',
       signupSuccessDesc: 'You can now log in.',
       signupFailedTitle: 'Signup Failed',
-      signupFailedDesc: 'A user with this username already exists.',
+      signupFailedDesc: 'A user with this username or email already exists.',
     },
     header: {
       searchPlaceholder: 'Search by name, specialty, address...',
@@ -149,6 +150,7 @@ export const translations: Translations = {
       signup: 'إنشاء حساب',
       username: 'اسم المستخدم',
       password: 'كلمة المرور',
+      email: 'البريد الإلكتروني',
       phoneNumber: 'رقم الهاتف (اختياري)',
       loginCta: 'سجل الدخول إلى حسابك',
       signupCta: 'إنشاء حساب جديد',
@@ -158,7 +160,7 @@ export const translations: Translations = {
       signupSuccessTitle: 'تم إنشاء الحساب',
       signupSuccessDesc: 'يمكنك الآن تسجيل الدخول.',
       signupFailedTitle: 'فشل في إنشاء الحساب',
-      signupFailedDesc: 'يوجد مستخدم بهذا الاسم بالفعل.',
+      signupFailedDesc: 'يوجد مستخدم بهذا الاسم أو البريد الإلكتروني بالفعل.',
     },
     header: {
       searchPlaceholder: 'ابحث بالاسم، التخصص، العنوان...',

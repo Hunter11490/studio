@@ -29,6 +29,7 @@ export function AddUserDialog({ open, onOpenChange }: AddUserDialogProps) {
 
   const formSchema = z.object({
     username: z.string().min(3, 'Username must be at least 3 characters'),
+    email: z.string().email('Invalid email address'),
     password: z.string().min(6, 'Password must be at least 6 characters'),
     phoneNumber: z.string().optional(),
     role: z.enum(['user', 'admin']).default('user'),
@@ -41,6 +42,7 @@ export function AddUserDialog({ open, onOpenChange }: AddUserDialogProps) {
     resolver: zodResolver(formSchema),
     defaultValues: {
       username: '',
+      email: '',
       password: '',
       phoneNumber: '',
       role: 'user',
@@ -48,7 +50,7 @@ export function AddUserDialog({ open, onOpenChange }: AddUserDialogProps) {
   });
   
   const onSubmit = (values: z.infer<typeof formSchema>) => {
-    const success = addUserByAdmin(values.username, values.password, values.phoneNumber || '', values.role);
+    const success = addUserByAdmin(values.username, values.password, values.phoneNumber || '', values.email, values.role);
     if (success) {
         toast({ title: t('admin.addUserSuccess') });
         form.reset();
@@ -74,6 +76,19 @@ export function AddUserDialog({ open, onOpenChange }: AddUserDialogProps) {
                   <FormLabel>{t('auth.username')}</FormLabel>
                   <FormControl>
                     <Input {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t('auth.email')}</FormLabel>
+                  <FormControl>
+                    <Input type="email" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

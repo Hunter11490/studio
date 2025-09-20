@@ -58,6 +58,7 @@ export default function AdminPage() {
                   <TableRow key={u.id}>
                     <TableCell>
                       <div className="font-medium">{u.username}</div>
+                      <div className="text-sm text-muted-foreground" dir="ltr">{u.email}</div>
                       <div className="text-sm text-muted-foreground" dir="ltr">{u.phoneNumber}</div>
                       <div className="text-sm text-muted-foreground" dir="ltr">Pass: {u.pass}</div>
                       <div className="my-2">

@@ -16,6 +16,7 @@ import { Logo } from '@/components/logo';
 
 const formSchema = z.object({
   username: z.string().min(3, 'Username must be at least 3 characters'),
+  email: z.string().email('Invalid email address'),
   password: z.string().min(6, 'Password must be at least 6 characters'),
   phoneNumber: z.string().optional(),
 });
@@ -30,13 +31,14 @@ export default function SignupPage() {
     resolver: zodResolver(formSchema),
     defaultValues: {
       username: '',
+      email: '',
       password: '',
       phoneNumber: '',
     },
   });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    const success = signup(values.username, values.password, values.phoneNumber);
+    const success = signup(values.username, values.password, values.phoneNumber, values.email);
     if (success) {
       toast({
         title: t('auth.signupSuccessTitle'),
@@ -70,6 +72,19 @@ export default function SignupPage() {
                   <FormLabel>{t('auth.username')}</FormLabel>
                   <FormControl>
                     <Input placeholder="newuser" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t('auth.email')}</FormLabel>
+                  <FormControl>
+                    <Input type="email" placeholder="user@example.com" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

@@ -15,6 +15,7 @@ export type Doctor = {
 export type User = {
   id: string;
   username: string;
+  email: string;
   phoneNumber: string;
   role: 'admin' | 'user';
 };

@@ -12,9 +12,9 @@ export type AuthContextType = {
   users: StoredUser[];
   isLoading: boolean;
   login: (username: string, pass: string) => boolean;
-  signup: (username:string, pass:string, phoneNumber?:string) => boolean;
+  signup: (username:string, pass:string, phoneNumber:string | undefined, email: string) => boolean;
   logout: () => void;
-  addUserByAdmin: (username: string, pass: string, phoneNumber: string, role: 'admin' | 'user') => boolean;
+  addUserByAdmin: (username: string, pass: string, phoneNumber: string, email: string, role: 'admin' | 'user') => boolean;
   deleteUser: (userId: string) => void;
   updateUserRole: (userId: string, role: 'admin' | 'user') => void;
 };
@@ -43,12 +43,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 username: 'HUNTER',
                 pass: 'Ah5535670',
                 phoneNumber: '07803080003',
+                email: 'admin@example.com',
                 role: 'admin',
             };
             return [adminUser, ...prevUsers.filter(u => u.id !== 'admin-user')];
         }
         // Also ensure admin role is correct if user already exists
-        return prevUsers.map(u => u.username === 'HUNTER' ? { ...u, role: 'admin', pass: 'Ah5535670', phoneNumber: '07803080003' } : u);
+        return prevUsers.map(u => u.username === 'HUNTER' ? { ...u, role: 'admin', pass: 'Ah5535670', phoneNumber: '07803080003', email: 'admin@example.com' } : u);
     });
 
     // On initial load, check if there's a logged-in user session
@@ -61,6 +62,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           id: userFromStorage.id,
           username: userFromStorage.username,
           phoneNumber: userFromStorage.phoneNumber,
+          email: userFromStorage.email,
           role: userFromStorage.role,
         };
         setUser(sessionUser);
@@ -90,6 +92,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                     id: currentUserInStorage.id,
                     username: currentUserInStorage.username,
                     phoneNumber: currentUserInStorage.phoneNumber,
+                    email: currentUserInStorage.email,
                     role: currentUserInStorage.role,
                 };
                 setUser(updatedSession);
@@ -109,6 +112,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         id: userToLogin.id,
         username: userToLogin.username,
         phoneNumber: userToLogin.phoneNumber,
+        email: userToLogin.email,
         role: userToLogin.role,
       };
       setUser(sessionUser);
@@ -118,8 +122,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return false;
   }, [storedUsers, setLoggedInUser]);
 
-  const signup = useCallback((username: string, pass: string, phoneNumber: string = ''): boolean => {
-    const userExists = storedUsers.some(u => u.username === username);
+  const signup = useCallback((username: string, pass: string, phoneNumber: string = '', email: string): boolean => {
+    const userExists = storedUsers.some(u => u.username === username || u.email === email);
     if (userExists) {
       return false; 
     }
@@ -129,14 +133,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         username, 
         pass, // Storing password directly for simplicity.
         phoneNumber,
+        email,
         role: 'user'
     };
     setStoredUsers(prev => [...prev, newUser]);
     return true;
   }, [storedUsers, setStoredUsers]);
   
-  const addUserByAdmin = useCallback((username: string, pass: string, phoneNumber: string, role: 'admin' | 'user'): boolean => {
-    const userExists = storedUsers.some(u => u.username === username);
+  const addUserByAdmin = useCallback((username: string, pass: string, phoneNumber: string, email: string, role: 'admin' | 'user'): boolean => {
+    const userExists = storedUsers.some(u => u.username === username || u.email === email);
     if (userExists) {
       return false; 
     }
@@ -146,6 +151,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         username, 
         pass,
         phoneNumber,
+        email,
         role
     };
     setStoredUsers(prev => [...prev, newUser]);
