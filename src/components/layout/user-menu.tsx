@@ -116,12 +116,30 @@ export function UserMenu() {
           <ScrollArea className="h-auto max-h-[60vh] pr-3">
             <div className="space-y-1 pl-1">
               {user.role === 'admin' && (
-                  <DropdownMenuItem asChild>
-                    <Link href="/admin">
-                      <Shield className="mr-2 h-4 w-4" />
-                      <span>{t('header.adminDashboard')}</span>
-                    </Link>
-                  </DropdownMenuItem>
+                <>
+                  <DropdownMenuGroup>
+                    <DropdownMenuLabel>Admin</DropdownMenuLabel>
+                    <DropdownMenuItem asChild>
+                      <Link href="/admin">
+                        <Shield className="mr-2 h-4 w-4" />
+                        <span>{t('header.adminDashboard')}</span>
+                      </Link>
+                    </DropdownMenuItem>
+                     <ConfirmationDialog
+                        title={t('dialogs.resetReferralsTitle')}
+                        description={t('dialogs.resetReferralsDesc')}
+                        onConfirm={resetAllReferrals}
+                        trigger={<DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-destructive hover:!text-destructive focus:!text-destructive"><RotateCcw className="mr-2 h-4 w-4" /><span>{t('userMenu.resetAllReferrals')}</span></DropdownMenuItem>}
+                    />
+                    <ConfirmationDialog
+                        title={t('dialogs.uncheckPartnersTitle')}
+                        description={t('dialogs.uncheckPartnersDesc')}
+                        onConfirm={uncheckAllPartners}
+                        trigger={<DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-destructive hover:!text-destructive focus:!text-destructive"><StarOff className="mr-2 h-4 w-4" /><span>{t('userMenu.uncheckAllPartners')}</span></DropdownMenuItem>}
+                    />
+                  </DropdownMenuGroup>
+                  <DropdownMenuSeparator />
+                </>
               )}
               <DropdownMenuGroup>
                 <div className="relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none">
@@ -182,22 +200,6 @@ export function UserMenu() {
                 <DropdownMenuItem onClick={handleSearchOnMap}><Map className="mr-2 h-4 w-4" /><span>{t('userMenu.searchOnMap')}</span></DropdownMenuItem>
                 <DropdownMenuItem onClick={handleExport}><FileDown className="mr-2 h-4 w-4" /><span>{t('userMenu.exportToExcel')}</span></DropdownMenuItem>
                 <DropdownMenuItem onClick={openImportDialog}><FileUp className="mr-2 h-4 w-4" /><span>{t('userMenu.importFromExcel')}</span></DropdownMenuItem>
-              </DropdownMenuGroup>
-              <DropdownMenuSeparator />
-              <DropdownMenuGroup>
-                <DropdownMenuLabel>{t('userMenu.management')}</DropdownMenuLabel>
-                <ConfirmationDialog
-                    title={t('dialogs.resetReferralsTitle')}
-                    description={t('dialogs.resetReferralsDesc')}
-                    onConfirm={resetAllReferrals}
-                    trigger={<DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-destructive hover:!text-destructive focus:!text-destructive"><RotateCcw className="mr-2 h-4 w-4" /><span>{t('userMenu.resetAllReferrals')}</span></DropdownMenuItem>}
-                />
-                <ConfirmationDialog
-                    title={t('dialogs.uncheckPartnersTitle')}
-                    description={t('dialogs.uncheckPartnersDesc')}
-                    onConfirm={uncheckAllPartners}
-                    trigger={<DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-destructive hover:!text-destructive focus:!text-destructive"><StarOff className="mr-2 h-4 w-4" /><span>{t('userMenu.uncheckAllPartners')}</span></DropdownMenuItem>}
-                />
               </DropdownMenuGroup>
             </div>
           </ScrollArea>
