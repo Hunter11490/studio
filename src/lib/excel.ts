@@ -2,36 +2,27 @@ import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
 import { Doctor } from '@/types';
 
-type DoctorExport = {
-  'الاسم': string;
-  'التخصص': string;
-  'رقم الهاتف': string;
-  'عنوان العيادة': string;
-  'رابط الخريطة': string;
-  'شريك': boolean;
-  'عدد الإحالات': number;
-  'العمولة': number;
-  'أيام التواجد': string;
-};
+type GenericExport = {
+  [key: string]: string | number | boolean;
+}
 
-export const exportToExcel = (data: DoctorExport[], fileName:string) => {
+export const exportToExcel = (data: GenericExport[], fileName:string) => {
   const worksheet = XLSX.utils.json_to_sheet(data);
   const workbook = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(workbook, worksheet, 'الأطباء');
+  XLSX.utils.book_append_sheet(workbook, worksheet, 'Data');
 
-  // Set column widths
-  const columnWidths = [
-    { wch: 30 }, // الاسم
-    { wch: 20 }, // التخصص
-    { wch: 15 }, // رقم الهاتف
-    { wch: 40 }, // عنوان العيادة
-    { wch: 30 }, // رابط الخريطة
-    { wch: 10 }, // شريك
-    { wch: 10 }, // عدد الإحالات
-    { wch: 12 }, // العمولة
-    { wch: 25 }, // أيام التواجد
-  ];
-  worksheet['!cols'] = columnWidths;
+  // Auto-calculate column widths
+  if (data.length > 0) {
+    const headers = Object.keys(data[0]);
+    const columnWidths = headers.map(header => {
+      const maxLength = Math.max(
+        header.length,
+        ...data.map(row => String(row[header] ?? '').length)
+      );
+      return { wch: maxLength + 2 }; // +2 for padding
+    });
+    worksheet['!cols'] = columnWidths;
+  }
 
   const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
   const blob = new Blob([excelBuffer], { type: 'application/octet-stream' });

@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState, useEffect } from 'react';
+import { useMemo, useState, useEffect, useRef } from 'react';
 import { useDoctors } from '@/hooks/use-doctors';
 import { useLanguage } from '@/hooks/use-language';
 import { Button } from '@/components/ui/button';
@@ -10,6 +10,7 @@ import {
   SheetHeader,
   SheetTitle,
   SheetDescription,
+  SheetFooter,
 } from '@/components/ui/sheet';
 import {
   Accordion,
@@ -18,11 +19,14 @@ import {
   AccordionTrigger,
 } from '@/components/ui/accordion';
 import { Badge } from '@/components/ui/badge';
-import { Minus, Plus, Users } from 'lucide-react';
+import { Minus, Plus, Users, FileDown, Printer } from 'lucide-react';
 import { ScrollArea } from '../ui/scroll-area';
-import type { Doctor } from '@/types';
+import type { Doctor, Translations } from '@/types';
 import { translateText } from '@/ai/flows/translation-flow';
 import { Skeleton } from '../ui/skeleton';
+import { exportToExcel } from '@/lib/excel';
+import { useToast } from '@/hooks/use-toast';
+import { useReactToPrint } from 'react-to-print';
 
 type PartnerDashboardProps = {
   open: boolean;
@@ -32,6 +36,11 @@ type PartnerDashboardProps = {
 type TranslatedDetails = {
     name: string;
 };
+
+type PartnerExportData = {
+  [key: string]: string | number;
+};
+
 
 function PartnerDoctorItem({ doctor }: { doctor: Doctor }) {
   const { updateDoctor } = useDoctors();
@@ -135,11 +144,79 @@ function PartnerDoctorItem({ doctor }: { doctor: Doctor }) {
 
 export function PartnerDashboard({ open, onOpenChange }: PartnerDashboardProps) {
   const { doctors } = useDoctors();
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
+  const { toast } = useToast();
+  const printRef = useRef(null);
 
   const partnerDoctors = useMemo(() => {
     return doctors.filter(d => d.isPartner).sort((a, b) => b.referralCount - a.referralCount);
   }, [doctors]);
+
+  const handlePrint = useReactToPrint({
+    content: () => printRef.current,
+    documentTitle: t('partnerDashboard.exportFileName'),
+  });
+
+  const getTranslatedDoctorData = async (doctor: Doctor): Promise<PartnerExportData> => {
+    const targetLanguage = lang === 'ar' ? 'Arabic' : 'English';
+    const containsArabic = /[\u0600-\u06FF]/.test(doctor.name);
+    const containsEnglish = /[a-zA-Z]/.test(doctor.name);
+
+    let translatedName = doctor.name;
+    let translatedAddress = doctor.clinicAddress;
+
+    if ((lang === 'en' && containsArabic) || (lang === 'ar' && containsEnglish)) {
+      try {
+        const result = await translateText({ 
+          name: doctor.name, 
+          specialty: doctor.specialty,
+          clinicAddress: doctor.clinicAddress, 
+          targetLanguage 
+        });
+        translatedName = result.name;
+        translatedAddress = result.clinicAddress;
+      } catch (error) {
+        console.error("Translation for export failed for doctor:", doctor.name, error);
+      }
+    }
+
+    const headers = {
+      name: t('partnerDashboard.exportName'),
+      address: t('partnerDashboard.exportAddress'),
+      phone: t('partnerDashboard.exportPhone'),
+      referrals: t('partnerDashboard.exportReferrals'),
+      commission: t('partnerDashboard.exportCommission'),
+    };
+    
+    return {
+      [headers.name]: translatedName,
+      [headers.address]: translatedAddress,
+      [headers.phone]: doctor.phoneNumber,
+      [headers.referrals]: doctor.referralCount,
+      [headers.commission]: doctor.referralCount * 100,
+    };
+  };
+
+  const handleExport = async () => {
+    if (partnerDoctors.length === 0) {
+      toast({ title: t('partnerDashboard.noPartners') });
+      return;
+    }
+    try {
+      toast({title: t('toasts.exporting'), description: t('toasts.exportingDesc')});
+
+      const translatedData = await Promise.all(partnerDoctors.map(doc => getTranslatedDoctorData(doc)));
+      
+      const fileName = `${t('partnerDashboard.exportFileName')}_${new Date().toISOString().split('T')[0]}.xlsx`;
+
+      exportToExcel(translatedData, fileName);
+      toast({ title: t('toasts.exportSuccess') });
+    } catch (error) {
+      console.error(error);
+      toast({ title: t('toasts.exportError'), variant: 'destructive' });
+    }
+  };
+
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -154,7 +231,7 @@ export function PartnerDashboard({ open, onOpenChange }: PartnerDashboardProps) 
           </SheetDescription>
         </SheetHeader>
 
-        <ScrollArea className="flex-grow -mx-6 px-2">
+        <ScrollArea ref={printRef} className="flex-grow -mx-6 px-2">
           {partnerDoctors.length > 0 ? (
             <Accordion type="multiple" className="w-full">
               {partnerDoctors.map(doctor => (
@@ -168,6 +245,20 @@ export function PartnerDashboard({ open, onOpenChange }: PartnerDashboardProps) 
              </div>
           )}
         </ScrollArea>
+        {partnerDoctors.length > 0 && (
+          <SheetFooter className="pt-4 border-t">
+            <div className="flex w-full gap-2">
+              <Button onClick={handleExport} variant="outline" className="flex-1">
+                <FileDown className="mr-2 h-4 w-4" />
+                {t('partnerDashboard.export')}
+              </Button>
+              <Button onClick={handlePrint} variant="outline" className="flex-1">
+                <Printer className="mr-2 h-4 w-4" />
+                {t('partnerDashboard.print')}
+              </Button>
+            </div>
+          </SheetFooter>
+        )}
       </SheetContent>
     </Sheet>
   );
