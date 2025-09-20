@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import Link from 'next/link';
 import {
   BrainCircuit,
   CircleUser,
@@ -18,26 +17,15 @@ import {
   StarOff,
   Info,
   Shield,
-  SlidersHorizontal
+  SlidersHorizontal,
+  ChevronRight,
+  X
 } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
 import { useLanguage } from '@/hooks/use-language';
 import { useTheme } from '@/components/providers/theme-provider';
 import { useDoctors } from '@/hooks/use-doctors';
 import { Button } from '@/components/ui/button';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuPortal,
-  DropdownMenuSeparator,
-  DropdownMenuSub,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
 import { Label } from '../ui/label';
 import { ConfirmationDialog } from '@/components/confirmation-dialog';
@@ -49,8 +37,9 @@ import { ChatDialog } from '@/components/ai/chat-dialog';
 import { exportToExcel } from '@/lib/excel';
 import { useToast } from '@/hooks/use-toast';
 import { ScrollArea } from '../ui/scroll-area';
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '../ui/sheet';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetClose } from '../ui/sheet';
 import { AdminPanel } from '../admin/admin-panel';
+import { Separator } from '../ui/separator';
 
 export function UserMenu() {
   const { user, logout } = useAuth();
@@ -59,6 +48,7 @@ export function UserMenu() {
   const { doctors, resetAllReferrals, uncheckAllPartners, importDoctors } = useDoctors();
   const { toast } = useToast();
 
+  const [isMenuOpen, setMenuOpen] = useState(false);
   const [isAboutOpen, setAboutOpen] = useState(false);
   const [isSpecialtySearchOpen, setSpecialtySearchOpen] = useState(false);
   const [isCitySearchOpen, setCitySearchOpen] = useState(false);
@@ -97,120 +87,120 @@ export function UserMenu() {
     }
   }
 
+  const MenuItem = ({ icon, label, onClick, destructive = false }: { icon: React.ReactNode, label: string, onClick?: () => void, destructive?: boolean }) => (
+    <Button
+      variant="ghost"
+      className={`w-full justify-start h-10 ${destructive ? 'text-destructive hover:text-destructive' : ''}`}
+      onClick={() => {
+        if (onClick) onClick();
+        setMenuOpen(false);
+      }}
+    >
+      {icon}
+      <span>{label}</span>
+      {!onClick && <ChevronRight className="h-4 w-4 ml-auto" />}
+    </Button>
+  );
+
   if (!user) return null;
 
   return (
     <>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
+      <Sheet open={isMenuOpen} onOpenChange={setMenuOpen}>
+        <SheetTrigger asChild>
           <Button variant="secondary" size="icon" className="rounded-full">
             <CircleUser className="h-5 w-5" />
             <span className="sr-only">Toggle user menu</span>
           </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent className="w-64" align="end" forceMount>
-          <DropdownMenuLabel className="font-normal">
-            <div className="flex flex-col space-y-1">
-              <p className="text-sm font-medium leading-none">{t('userMenu.greeting')},</p>
-              <p className="text-xs leading-none text-muted-foreground">{user.username}</p>
-            </div>
-          </DropdownMenuLabel>
-          <DropdownMenuSeparator />
-          <ScrollArea className="h-auto max-h-[60vh] pr-3">
-            <div className="space-y-1 pl-1">
-              {user.role === 'admin' && (
+        </SheetTrigger>
+        <SheetContent className="w-full sm:max-w-xs p-0 flex flex-col">
+          <SheetHeader className="p-4 border-b">
+            <SheetTitle className="font-normal">
+              <div className="flex flex-col space-y-1">
+                <p className="text-sm font-medium leading-none">{t('userMenu.greeting')},</p>
+                <p className="text-xs leading-none text-muted-foreground">{user.username}</p>
+              </div>
+            </SheetTitle>
+          </SheetHeader>
+          <ScrollArea className="flex-grow">
+            <div className="p-2 space-y-1">
+                {user.role === 'admin' && (
                 <>
-                  <DropdownMenuGroup>
-                    <DropdownMenuLabel>{t('userMenu.management')}</DropdownMenuLabel>
-                     <ConfirmationDialog
-                        title={t('dialogs.resetReferralsTitle')}
-                        description={t('dialogs.resetReferralsDesc')}
-                        onConfirm={resetAllReferrals}
-                        trigger={<DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-destructive hover:!text-destructive focus:!text-destructive"><RotateCcw className="mr-2 h-4 w-4" /><span>{t('userMenu.resetAllReferrals')}</span></DropdownMenuItem>}
-                    />
-                    <ConfirmationDialog
-                        title={t('dialogs.uncheckPartnersTitle')}
-                        description={t('dialogs.uncheckPartnersDesc')}
-                        onConfirm={uncheckAllPartners}
-                        trigger={<DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-destructive hover:!text-destructive focus:!text-destructive"><StarOff className="mr-2 h-4 w-4" /><span>{t('userMenu.uncheckAllPartners')}</span></DropdownMenuItem>}
-                    />
-                  </DropdownMenuGroup>
-                  <DropdownMenuSeparator />
+                  <div className="px-2 py-1.5 text-sm font-semibold">{t('userMenu.management')}</div>
+                   <ConfirmationDialog
+                      title={t('dialogs.resetReferralsTitle')}
+                      description={t('dialogs.resetReferralsDesc')}
+                      onConfirm={resetAllReferrals}
+                      trigger={<MenuItem icon={<RotateCcw className="mr-2 h-4 w-4" />} label={t('userMenu.resetAllReferrals')} destructive />}
+                  />
+                  <ConfirmationDialog
+                      title={t('dialogs.uncheckPartnersTitle')}
+                      description={t('dialogs.uncheckPartnersDesc')}
+                      onConfirm={uncheckAllPartners}
+                      trigger={<MenuItem icon={<StarOff className="mr-2 h-4 w-4" />} label={t('userMenu.uncheckAllPartners')} destructive />}
+                  />
+                  <MenuItem icon={<Shield className="mr-2 h-4 w-4" />} label={t('header.adminDashboard')} onClick={() => { setAdminPanelOpen(true); setMenuOpen(false); }} />
+                  <Separator className="my-2" />
                 </>
               )}
-              <DropdownMenuGroup>
-                <div className="relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none">
-                  <div className="space-y-2">
-                    <Label><Languages className="inline-block mr-2 h-4 w-4" />{t('userMenu.changeLanguage')}</Label>
-                    <RadioGroup value={lang} onValueChange={(value) => setLang(value as 'en' | 'ar')} className="flex gap-4">
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="en" id="lang-en-dd" />
-                        <Label htmlFor="lang-en-dd">{t('userMenu.english')}</Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="ar" id="lang-ar-dd" />
-                        <Label htmlFor="lang-ar-dd">{t('userMenu.arabic')}</Label>
-                      </div>
-                    </RadioGroup>
-                  </div>
-                </div>
-              </DropdownMenuGroup>
-              <DropdownMenuSeparator />
-              <DropdownMenuGroup>
-                 <div className="relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none">
-                  <div className="space-y-2">
-                    <Label className="flex items-center">
-                      <div className="relative mr-2 h-[1.2rem] w-[1.2rem]">
-                        <Sun className="h-full w-full rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-                        <Moon className="absolute top-0 left-0 h-full w-full rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-                      </div>
-                      <span>{t('userMenu.toggleTheme')}</span>
+              
+              <div className="px-2 py-1.5 text-sm font-semibold">{t('userMenu.aiTools')}</div>
+              <MenuItem icon={<Globe className="mr-2 h-4 w-4" />} label={t('userMenu.searchBySpecialty')} onClick={() => { setSpecialtySearchOpen(true); setMenuOpen(false); }} />
+              <MenuItem icon={<Map className="mr-2 h-4 w-4" />} label={t('userMenu.searchByCity')} onClick={() => { setCitySearchOpen(true); setMenuOpen(false); }} />
+              <MenuItem icon={<BrainCircuit className="mr-2 h-4 w-4" />} label={t('userMenu.searchNearby')} onClick={() => { setNearbySearchOpen(true); setMenuOpen(false); }} />
+              <MenuItem icon={<BrainCircuit className="mr-2 h-4 w-4" />} label={t('userMenu.aiChat')} onClick={() => { setChatOpen(true); setMenuOpen(false); }} />
+              <Separator className="my-2" />
+
+              <div className="px-2 py-1.5 text-sm font-semibold">{t('userMenu.dataActions')}</div>
+              <MenuItem icon={<Map className="mr-2 h-4 w-4" />} label={t('userMenu.searchOnMap')} onClick={handleSearchOnMap} />
+              <MenuItem icon={<FileDown className="mr-2 h-4 w-4" />} label={t('userMenu.exportToExcel')} onClick={handleExport} />
+              <MenuItem icon={<FileUp className="mr-2 h-4 w-4" />} label={t('userMenu.importFromExcel')} onClick={openImportDialog} />
+              <Separator className="my-2" />
+
+              <div className="p-2 space-y-2">
+                <Label><Languages className="inline-block mr-2 h-4 w-4" />{t('userMenu.changeLanguage')}</Label>
+                <RadioGroup value={lang} onValueChange={(value) => setLang(value as 'en' | 'ar')} className="grid grid-cols-2 gap-2">
+                  <div>
+                    <RadioGroupItem value="en" id="lang-en-sheet" className="peer sr-only" />
+                    <Label htmlFor="lang-en-sheet" className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary">
+                      {t('userMenu.english')}
                     </Label>
-                     <RadioGroup value={theme} onValueChange={(value) => setTheme(value as 'light' | 'dark' | 'system')} className="flex gap-4">
-                        <div className="flex items-center space-x-2">
-                            <RadioGroupItem value="light" id="theme-light-dd" />
-                            <Label htmlFor="theme-light-dd">{t('userMenu.light')}</Label>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                            <RadioGroupItem value="dark" id="theme-dark-dd" />
-                            <Label htmlFor="theme-dark-dd">{t('userMenu.dark')}</Label>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                            <RadioGroupItem value="system" id="theme-system-dd" />
-                            <Label htmlFor="theme-system-dd">{t('userMenu.system')}</Label>
-                        </div>
-                    </RadioGroup>
                   </div>
-                 </div>
-              </DropdownMenuGroup>
-              <DropdownMenuSeparator />
-              <DropdownMenuGroup>
-                <DropdownMenuLabel>{t('userMenu.aiTools')}</DropdownMenuLabel>
-                <DropdownMenuItem onClick={() => setSpecialtySearchOpen(true)}><Globe className="mr-2 h-4 w-4" /><span>{t('userMenu.searchBySpecialty')}</span></DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setCitySearchOpen(true)}><Map className="mr-2 h-4 w-4" /><span>{t('userMenu.searchByCity')}</span></DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setNearbySearchOpen(true)}><BrainCircuit className="mr-2 h-4 w-4" /><span>{t('userMenu.searchNearby')}</span></DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setChatOpen(true)}><BrainCircuit className="mr-2 h-4 w-4" /><span>{t('userMenu.aiChat')}</span></DropdownMenuItem>
-              </DropdownMenuGroup>
-              <DropdownMenuSeparator />
-              <DropdownMenuGroup>
-                <DropdownMenuLabel>{t('userMenu.dataActions')}</DropdownMenuLabel>
-                <DropdownMenuItem onClick={handleSearchOnMap}><Map className="mr-2 h-4 w-4" /><span>{t('userMenu.searchOnMap')}</span></DropdownMenuItem>
-                <DropdownMenuItem onClick={handleExport}><FileDown className="mr-2 h-4 w-4" /><span>{t('userMenu.exportToExcel')}</span></DropdownMenuItem>
-                <DropdownMenuItem onClick={openImportDialog}><FileUp className="mr-2 h-4 w-4" /><span>{t('userMenu.importFromExcel')}</span></DropdownMenuItem>
-              </DropdownMenuGroup>
+                  <div>
+                    <RadioGroupItem value="ar" id="lang-ar-sheet" className="peer sr-only" />
+                    <Label htmlFor="lang-ar-sheet" className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary">
+                      {t('userMenu.arabic')}
+                    </Label>
+                  </div>
+                </RadioGroup>
+              </div>
+
+               <div className="p-2 space-y-2">
+                <Label className="flex items-center"><Sun className="h-4 w-4 mr-2 dark:hidden"/><Moon className="h-4 w-4 mr-2 hidden dark:inline-block"/>{t('userMenu.toggleTheme')}</Label>
+                 <RadioGroup value={theme} onValueChange={(value) => setTheme(value as 'light' | 'dark' | 'system')} className="grid grid-cols-3 gap-2">
+                    <div>
+                      <RadioGroupItem value="light" id="theme-light-sheet" className="peer sr-only" />
+                      <Label htmlFor="theme-light-sheet" className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-3 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary">{t('userMenu.light')}</Label>
+                    </div>
+                     <div>
+                      <RadioGroupItem value="dark" id="theme-dark-sheet" className="peer sr-only" />
+                      <Label htmlFor="theme-dark-sheet" className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-3 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary">{t('userMenu.dark')}</Label>
+                    </div>
+                     <div>
+                      <RadioGroupItem value="system" id="theme-system-sheet" className="peer sr-only" />
+                      <Label htmlFor="theme-system-sheet" className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-3 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary">{t('userMenu.system')}</Label>
+                    </div>
+                </RadioGroup>
+              </div>
+
             </div>
           </ScrollArea>
-          <DropdownMenuSeparator />
-            {user.role === 'admin' && (
-                <DropdownMenuItem onClick={() => setAdminPanelOpen(true)}>
-                    <Shield className="mr-2 h-4 w-4" />
-                    <span>{t('header.adminDashboard')}</span>
-                </DropdownMenuItem>
-            )}
-          <DropdownMenuItem onClick={() => setAboutOpen(true)}><Info className="mr-2 h-4 w-4" /><span>{t('userMenu.about')}</span></DropdownMenuItem>
-          <DropdownMenuItem onClick={logout}><LogOut className="mr-2 h-4 w-4" /><span>{t('auth.logout')}</span></DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+           <div className="p-2 border-t mt-auto">
+             <MenuItem icon={<Info className="mr-2 h-4 w-4" />} label={t('userMenu.about')} onClick={() => { setAboutOpen(true); setMenuOpen(false); }} />
+             <MenuItem icon={<LogOut className="mr-2 h-4 w-4" />} label={t('auth.logout')} onClick={logout} />
+           </div>
+        </SheetContent>
+      </Sheet>
 
       {/* Hidden file input for import */}
       <input
