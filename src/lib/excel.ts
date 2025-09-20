@@ -2,36 +2,46 @@ import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
 import { Doctor } from '@/types';
 
-type DoctorExport = Omit<Doctor, 'id' | 'createdAt' | 'clinicCardImageUrl' | 'availableDays'> & {
-  availableDays: string;
+type DoctorExport = {
+  'الاسم': string;
+  'التخصص': string;
+  'رقم الهاتف': string;
+  'عنوان العيادة': string;
+  'رابط الخريطة': string;
+  'شريك': boolean;
+  'عدد الإحالات': number;
+  'العمولة': number;
+  'أيام التواجد': string;
 };
 
 export const exportToExcel = (data: Doctor[], fileName: string) => {
   const simplifiedData: DoctorExport[] = data.map(doc => ({
-    name: doc.name,
-    specialty: doc.specialty,
-    phoneNumber: doc.phoneNumber,
-    clinicAddress: doc.clinicAddress,
-    mapLocation: doc.mapLocation,
-    isPartner: doc.isPartner,
-    referralCount: doc.referralCount,
-    availableDays: doc.availableDays.join(', '),
+    'الاسم': doc.name,
+    'التخصص': doc.specialty,
+    'رقم الهاتف': doc.phoneNumber,
+    'عنوان العيادة': doc.clinicAddress,
+    'رابط الخريطة': doc.mapLocation,
+    'شريك': doc.isPartner,
+    'عدد الإحالات': doc.referralCount,
+    'العمولة': doc.referralCount * 100,
+    'أيام التواجد': doc.availableDays.join(', '),
   }));
 
   const worksheet = XLSX.utils.json_to_sheet(simplifiedData);
   const workbook = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(workbook, worksheet, 'Doctors');
+  XLSX.utils.book_append_sheet(workbook, worksheet, 'الأطباء');
 
   // Set column widths
   const columnWidths = [
-    { wch: 30 }, // name
-    { wch: 20 }, // specialty
-    { wch: 15 }, // phoneNumber
-    { wch: 40 }, // clinicAddress
-    { wch: 30 }, // mapLocation
-    { wch: 10 }, // isPartner
-    { wch: 10 }, // referralCount
-    { wch: 25 }, // availableDays
+    { wch: 30 }, // الاسم
+    { wch: 20 }, // التخصص
+    { wch: 15 }, // رقم الهاتف
+    { wch: 40 }, // عنوان العيادة
+    { wch: 30 }, // رابط الخريطة
+    { wch: 10 }, // شريك
+    { wch: 10 }, // عدد الإحالات
+    { wch: 12 }, // العمولة
+    { wch: 25 }, // أيام التواجد
   ];
   worksheet['!cols'] = columnWidths;
 
@@ -52,14 +62,14 @@ export const importFromExcel = (file: File): Promise<Partial<Doctor>[]> => {
         const json: any[] = XLSX.utils.sheet_to_json(worksheet);
         
         const doctors: Partial<Doctor>[] = json.map(row => ({
-          name: row.name || '',
-          specialty: row.specialty || '',
-          phoneNumber: String(row.phoneNumber || ''),
-          clinicAddress: row.clinicAddress || '',
-          mapLocation: row.mapLocation || '',
-          isPartner: row.isPartner === true || String(row.isPartner).toLowerCase() === 'true',
-          referralCount: Number(row.referralCount) || 0,
-          availableDays: typeof row.availableDays === 'string' ? row.availableDays.split(',').map(d => d.trim()) : [],
+          name: row['الاسم'] || row.name || '',
+          specialty: row['التخصص'] || row.specialty || '',
+          phoneNumber: String(row['رقم الهاتف'] || row.phoneNumber || ''),
+          clinicAddress: row['عنوان العيادة'] || row.clinicAddress || '',
+          mapLocation: row['رابط الخريطة'] || row.mapLocation || '',
+          isPartner: row['شريك'] === true || String(row.isPartner).toLowerCase() === 'true',
+          referralCount: Number(row['عدد الإحالات'] || row.referralCount) || 0,
+          availableDays: typeof row['أيام التواجد'] === 'string' ? row['أيام التواجد'].split(',').map(d => d.trim()) : (typeof row.availableDays === 'string' ? row.availableDays.split(',').map(d => d.trim()) : []),
         }));
         
         resolve(doctors.filter(d => d.name));
