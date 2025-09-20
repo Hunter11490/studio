@@ -20,59 +20,41 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-30 flex h-auto flex-col gap-2 border-b bg-background px-4 py-2 md:px-6">
-      <div className="flex items-center gap-4">
-        {/* Logo and App Name */}
+      <div className="flex items-center justify-between gap-4">
+        {/* Logo and left-aligned items */}
         <div className="flex items-center gap-2">
           <Logo className="h-8 w-8 text-primary" />
-          <h1 className="text-lg font-semibold tracking-tight">{t('appName')}</h1>
-        </div>
-
-        {/* Main Actions */}
-        <div className="flex flex-1 items-center justify-end gap-2 md:justify-center">
-           <div className="hidden flex-1 items-center gap-4 md:flex">
-             <div className="relative flex-1 md:grow-0">
-                <Input
-                  type="search"
-                  placeholder={t('header.searchPlaceholder')}
-                  className="w-full rounded-lg bg-secondary pl-8 md:w-[200px] lg:w-[320px]"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
-            </div>
-            <Button
-                variant={filterPartners ? 'secondary' : 'outline'}
-                size="sm"
-                onClick={() => setFilterPartners(!filterPartners)}
-                className="gap-1"
-            >
-                <SlidersHorizontal className="h-4 w-4" />
-                <span className="hidden md:inline">{t('header.filterPartners')}</span>
-            </Button>
-            <DoctorFormDialog open={isAddDoctorOpen} onOpenChange={setAddDoctorOpen}>
+           <DoctorFormDialog open={isAddDoctorOpen} onOpenChange={setAddDoctorOpen}>
               <Button size="sm" className="gap-1" onClick={() => setAddDoctorOpen(true)}>
                 <PlusCircle className="h-4 w-4" />
                 <span className="hidden md:inline">{t('header.addDoctor')}</span>
               </Button>
             </DoctorFormDialog>
-           </div>
         </div>
 
-        {/* User Menu */}
+        {/* Centered App Name */}
+        <div className="absolute left-1/2 -translate-x-1/2">
+            <h1 className="text-lg font-semibold tracking-tight whitespace-nowrap">{t('appName')}</h1>
+        </div>
+
+        {/* User Menu and right-aligned items */}
         <div className="flex items-center gap-4">
           <UserMenu />
         </div>
       </div>
 
-      {/* Search and stats for mobile */}
-      <div className="flex flex-col gap-2 md:hidden">
-        <Input
-            type="search"
-            placeholder={t('header.searchPlaceholder')}
-            className="w-full rounded-lg bg-secondary pl-8"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-        />
-        <div className="flex items-center justify-between text-xs text-muted-foreground">
+      {/* Search and stats for all screen sizes */}
+      <div className="flex flex-col items-center gap-2">
+         <div className="w-full lg:w-[320px] relative">
+             <Input
+                type="search"
+                placeholder={t('header.searchPlaceholder')}
+                className="w-full rounded-lg bg-secondary pl-8"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+            />
+         </div>
+        <div className="flex items-center justify-center gap-4 text-xs text-muted-foreground">
             <div className="flex items-center gap-2">
               <span>{t('header.totalDoctors')}:</span>
               <span className="font-bold text-foreground">{doctors.length}</span>
@@ -81,22 +63,17 @@ export function Header() {
               <span>{t('header.totalPartners')}:</span>
               <span className="font-bold text-foreground">{partnerCount}</span>
             </div>
+             <Button
+                variant={filterPartners ? 'secondary' : 'outline'}
+                size="sm"
+                onClick={() => setFilterPartners(!filterPartners)}
+                className="gap-1 h-7"
+            >
+                <SlidersHorizontal className="h-4 w-4" />
+                <span className="hidden md:inline">{t('header.filterPartners')}</span>
+            </Button>
         </div>
       </div>
-
-      {/* Stats for desktop (under search) */}
-       <div className="hidden md:flex items-center justify-center text-xs text-muted-foreground -mt-1">
-            <div className="flex items-center gap-4" style={{ maxWidth: '320px' }}>
-                 <div className="flex items-center gap-2">
-                    <span>{t('header.totalDoctors')}:</span>
-                    <span className="font-bold text-foreground">{doctors.length}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                    <span>{t('header.totalPartners')}:</span>
-                    <span className="font-bold text-foreground">{partnerCount}</span>
-                </div>
-            </div>
-        </div>
     </header>
   );
 }
