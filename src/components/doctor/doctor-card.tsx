@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Image from 'next/image';
 import {
   Star,
   Plus,
@@ -26,7 +27,6 @@ import { Badge } from '@/components/ui/badge';
 import { ConfirmationDialog } from '@/components/confirmation-dialog';
 import { DoctorFormDialog } from './doctor-form-dialog';
 import { cn } from '@/lib/utils';
-import { StethoscopeLogo } from '../stethoscope-logo';
 import { translateText } from '@/ai/flows/translation-flow';
 import { Skeleton } from '../ui/skeleton';
 
@@ -49,11 +49,12 @@ export function DoctorCard({ doctor }: { doctor: Doctor }) {
   useEffect(() => {
     const translateDetails = async () => {
       const targetLanguage = lang === 'ar' ? 'Arabic' : 'English';
-      // Only translate if the target language is different from the source's assumed language (English)
-      // or if there's no original text (which is not the case here).
-      // A more robust solution would be to detect the source language.
-      // For now, we translate always unless we are in 'en' and there are no previous translations.
-      if (lang === 'en' && !translatedDetails) {
+      
+      if (lang === 'en' && doctor.name.match(/[\u0600-\u06FF]/) === null) {
+          setTranslatedDetails(null);
+          return;
+      }
+      if (lang === 'ar' && doctor.name.match(/[a-zA-Z]/) === null) {
           setTranslatedDetails(null);
           return;
       }
@@ -129,8 +130,14 @@ export function DoctorCard({ doctor }: { doctor: Doctor }) {
   return (
     <>
       <Card className={cn("flex flex-col relative overflow-hidden", doctor.isPartner && "border-primary shadow-lg")}>
-        <div className="absolute inset-0 flex items-center justify-center -z-10">
-          <StethoscopeLogo className="w-48 h-48 text-muted/20" />
+        <div className="absolute inset-0 -z-10">
+            <Image
+                src="https://picsum.photos/seed/medicalbg/400/600"
+                alt="Medical background"
+                fill
+                className="object-cover opacity-10 blur-sm"
+                data-ai-hint="medical background"
+            />
         </div>
         <CardHeader className="p-4">
           <div className="flex items-center justify-between">
