@@ -118,7 +118,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [storedUsers, setLoggedInUser]);
 
   const signup = useCallback((username: string, pass: string, phoneNumber: string = '', email: string): boolean => {
-    const userExists = storedUsers.some(u => u.username === username || u.email === email);
+    const userExists = storedUsers.some(u => 
+        u.email === email || (phoneNumber && u.phoneNumber && u.phoneNumber === phoneNumber)
+    );
     if (userExists) {
       return false; 
     }
@@ -136,7 +138,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [storedUsers, setStoredUsers]);
   
   const addUserByAdmin = useCallback((username: string, pass: string, phoneNumber: string, email: string, role: 'admin' | 'user'): boolean => {
-    const userExists = storedUsers.some(u => u.username === username || u.email === email);
+    const userExists = storedUsers.some(u => 
+        u.email === email || (phoneNumber && u.phoneNumber && u.phoneNumber === phoneNumber)
+    );
     if (userExists) {
       return false; 
     }
@@ -154,7 +158,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [storedUsers, setStoredUsers]);
   
   const deleteUser = useCallback((userId: string) => {
-    setStoredUsers(prev => prev.filter(u => u.id !== userId && u.id !== 'admin-user'));
+    setStoredUsers(prev => prev.filter(u => u.id !== userId && u.username !== 'HUNTER'));
   }, [setStoredUsers]);
 
   const updateUserRole = useCallback((userId: string, role: 'admin' | 'user') => {
@@ -163,11 +167,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   
   const updateUser = useCallback((userId: string, updates: Partial<Omit<StoredUser, 'id'>>): boolean => {
     // Check if new username or email already exists for another user
-    if (updates.username || updates.email) {
+    if (updates.email || (updates.phoneNumber && updates.phoneNumber.trim() !== '')) {
       const userExists = storedUsers.some(u => 
         u.id !== userId && (
-          (updates.username && u.username === updates.username) || 
-          (updates.email && u.email === updates.email)
+          (updates.email && u.email === updates.email) || 
+          (updates.phoneNumber && u.phoneNumber && u.phoneNumber === updates.phoneNumber)
         )
       );
       if (userExists) {
