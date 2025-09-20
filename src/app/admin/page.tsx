@@ -59,16 +59,10 @@ export default function AdminPage() {
               <TableBody>
                 {users.map((u) => (
                   <TableRow key={u.id}>
-                    <TableCell>{u.username}</TableCell>
-                    <TableCell dir="ltr">{u.phoneNumber}</TableCell>
                     <TableCell>
-                      <Badge variant={u.role === 'admin' ? 'default' : 'secondary'}>
-                        {u.role}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-right">
+                      <div className="font-medium">{u.username}</div>
                        {u.username !== 'HUNTER' && (
-                        <div className="flex justify-end gap-2">
+                        <div className="flex items-center gap-2 mt-2">
                             {u.role !== 'admin' ? (
                                 <Button variant="outline" size="xs" onClick={() => updateUserRole(u.id, 'admin')}>
                                     <Shield className="mr-1 h-3 w-3" />
@@ -92,6 +86,14 @@ export default function AdminPage() {
                             />
                         </div>
                        )}
+                    </TableCell>
+                    <TableCell dir="ltr">{u.phoneNumber}</TableCell>
+                    <TableCell>
+                      <Badge variant={u.role === 'admin' ? 'default' : 'secondary'}>
+                        {u.role}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-right">
                     </TableCell>
                   </TableRow>
                 ))}
