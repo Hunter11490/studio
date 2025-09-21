@@ -135,7 +135,7 @@ export const translations: Translations = {
       doctorAddedTitle: 'Doctor Added',
       doctorAddedDesc: 'has been added to your local list.',
       allDoctorsAddedTitle: 'All Doctors Added',
-      allDoctorsAddedDesc: 'doctors have been added to your local list.',
+      allDoctorsAddedDesc: '{count} doctors have been added to your local list.',
     },
     common: {
       loading: 'Loading...',
@@ -337,7 +337,7 @@ export const translations: Translations = {
       doctorAddedTitle: 'تمت إضافة الطبيب',
       doctorAddedDesc: 'تمت إضافته إلى قائمتك المحلية.',
       allDoctorsAddedTitle: 'تمت إضافة جميع الأطباء',
-      allDoctorsAddedDesc: 'تمت إضافة الأطباء إلى قائمتك المحلية.',
+      allDoctorsAddedDesc: 'تمت إضافة {count} أطباء إلى قائمتك المحلية.',
     },
     common: {
       loading: 'جار التحميل...',

@@ -31,7 +31,7 @@ const formSchema = z.object({
 
 export function InternetSearchDialog({ open, onOpenChange, initialSearchQuery }: InternetSearchDialogProps) {
   const { t } = useLanguage();
-  const { addDoctor } = useDoctors();
+  const { addDoctor, addMultipleDoctors } = useDoctors();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [results, setResults] = useState<SuggestedDoctor[]>([]);
@@ -88,10 +88,23 @@ export function InternetSearchDialog({ open, onOpenChange, initialSearchQuery }:
   };
 
   const handleAddAll = () => {
-    results.forEach(doc => handleAddDoctor(doc));
+    const newDoctors: Omit<Doctor, 'id' | 'createdAt'>[] = results.map(doctor => ({
+      name: doctor.name,
+      specialty: doctor.specialty,
+      phoneNumber: doctor.phoneNumber,
+      clinicAddress: doctor.address,
+      mapLocation: '',
+      clinicCardImageUrl: '',
+      isPartner: false,
+      referralCount: 0,
+      availableDays: [],
+    }));
+
+    addMultipleDoctors(newDoctors);
+
     toast({
         title: t('toasts.allDoctorsAddedTitle'),
-        description: `${results.length} ${t('toasts.allDoctorsAddedDesc')}`,
+        description: t('toasts.allDoctorsAddedDesc', {count: results.length}),
     });
   };
 

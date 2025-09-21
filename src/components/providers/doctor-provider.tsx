@@ -15,6 +15,7 @@ const initialDoctors: Doctor[] = [];
 export type DoctorContextType = {
   doctors: Doctor[];
   addDoctor: (doctor: Omit<Doctor, 'id' | 'createdAt'>) => void;
+  addMultipleDoctors: (doctors: Omit<Doctor, 'id' | 'createdAt'>[]) => void;
   updateDoctor: (id: string, updates: Partial<Doctor>) => void;
   deleteDoctor: (id: string) => void;
   getDoctorById: (id: string) => Doctor | undefined;
@@ -56,6 +57,23 @@ export function DoctorProvider({ children }: { children: React.ReactNode }) {
     };
     setDoctors(prev => [newDoctor, ...prev]);
   };
+  
+  const addMultipleDoctors = (doctorsData: Omit<Doctor, 'id' | 'createdAt'>[]) => {
+    const newDoctors: Doctor[] = doctorsData.map((doctorData, index) => ({
+      ...doctorData,
+      id: new Date().toISOString() + Math.random() + index,
+      createdAt: new Date().toISOString(),
+      referralCount: doctorData.referralCount || 0,
+      referralNotes: Array(doctorData.referralCount || 0).fill(null).map(() => ({
+        patientName: '',
+        referralDate: '',
+        testType: '',
+        patientAge: '',
+        chronicDiseases: '',
+      })),
+    }));
+    setDoctors(prev => [...newDoctors, ...prev]);
+  };
 
   const updateDoctor = (id: string, updates: Partial<Doctor>) => {
     setDoctors(prev => prev.map(doc => (doc.id === id ? { ...doc, ...updates } : doc)));
@@ -85,6 +103,7 @@ export function DoctorProvider({ children }: { children: React.ReactNode }) {
   const value = useMemo(() => ({
     doctors,
     addDoctor,
+    addMultipleDoctors,
     updateDoctor,
     deleteDoctor,
     getDoctorById,
