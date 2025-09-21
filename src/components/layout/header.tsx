@@ -80,12 +80,15 @@ export function Header() {
 
       const updatedDoctors: Doctor[] = doctors.map((originalDoctor, index) => {
         const translatedInfo = translationResult.doctors[index];
-        return {
-          ...originalDoctor,
-          name: translatedInfo.name,
-          specialty: translatedInfo.specialty,
-          clinicAddress: translatedInfo.clinicAddress,
-        };
+        if (translatedInfo) {
+          return {
+            ...originalDoctor,
+            name: translatedInfo.name,
+            specialty: translatedInfo.specialty,
+            clinicAddress: translatedInfo.clinicAddress,
+          };
+        }
+        return originalDoctor; // Return original if translation for this specific one failed for some reason
       });
 
       updateMultipleDoctors(updatedDoctors);
