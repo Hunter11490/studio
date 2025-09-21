@@ -5,3 +5,6 @@ runConfig:
   # Increase this value if you'd like to automatically spin up
   # more instances in response to increased traffic.
   maxInstances: 1
+  # Set the request timeout to 1 hour to allow for long-running AI searches.
+  timeoutSeconds: 3600
+
