@@ -2,7 +2,7 @@ import type { Translations } from '@/types';
 
 export const translations: Translations = {
   en: {
-    appName: 'Iraq Hospitals & Centers System',
+    appName: 'Spirit of Iraq',
     auth: {
       login: 'Login',
       signup: 'Sign Up',
@@ -97,7 +97,7 @@ export const translations: Translations = {
       uncheckPartnersDesc: 'This will remove the partner status from ALL doctors. This action cannot be undone.',
       deleteDoctorTitle: 'Delete Doctor?',
       deleteDoctorDesc: 'Are you sure you want to delete this doctor? This action cannot be undone.',
-      aboutTitle: 'About Iraq Hospitals & Centers System',
+      aboutTitle: 'About Spirit of Iraq',
       aboutDesc: 'Crafted with care to streamline your professional life, enabling you to manage your doctor directory with ease and efficiency.',
       contactOwner: 'To inquire or make suggestions, contact the project owner:',
       chatTitle: 'AI Medical Assistant',
@@ -190,7 +190,7 @@ export const translations: Translations = {
     },
   },
   ar: {
-    appName: 'نظام مستشفيات ومراكز العراق',
+    appName: 'روح العراق',
     auth: {
       login: 'تسجيل الدخول',
       signup: 'إنشاء حساب',
@@ -285,7 +285,7 @@ export const translations: Translations = {
       uncheckPartnersDesc: 'سيؤدي هذا إلى إزالة حالة الشريك من جميع الأطباء. لا يمكن التراجع عن هذا الإجراء.',
       deleteDoctorTitle: 'حذف الطبيب؟',
       deleteDoctorDesc: 'هل أنت متأكد من أنك تريد حذف هذا الطبيب؟ لا يمكن التراجع عن هذا الإجراء.',
-      aboutTitle: 'حول نظام مستشفيات ومراكز العراق',
+      aboutTitle: 'حول روح العراق',
       aboutDesc: 'صُنع بعناية لتبسيط حياتك المهنية، مما يتيح لك إدارة دليل الأطباء الخاص بك بسهولة وكفاءة.',
       contactOwner: 'للاستفسار أو تقديم اقتراحات، تواصل مع صاحب المشروع:',
       chatTitle: 'مساعد طبي بالذكاء الاصطناعي',
@@ -361,7 +361,7 @@ export const translations: Translations = {
     referralNotes: {
       title: "ملاحظات حالات الإحالة",
       description: "ملاحظات للحالات المحالة من الدكتور {name}",
-      caseLabel: "الحالة رقم #{index}",
+      caseLabel: "الحالة رقم {index}",
       save: "حفظ الملاحظات",
       noCases: "لا توجد إحالات لعرضها. قم بزيادة عدد الإحالات لإضافة ملاحظات.",
       patientName: "اسم المريض",
