@@ -4,7 +4,9 @@ import { createContext, useState, useMemo } from 'react';
 import { useLocalStorage } from '@/hooks/use-local-storage';
 import { Doctor } from '@/types';
 
-const DOCTORS_STORAGE_KEY = 'iraqi_doctors_list_v1';
+const DOCTORS_STORAGE_KEY = 'iraqi_doctors_list_v2';
+const VIEW_MODE_STORAGE_KEY = 'iraqi_doctors_view_mode_v1';
+
 
 export type DoctorContextType = {
   doctors: Doctor[];
@@ -19,6 +21,8 @@ export type DoctorContextType = {
   setSearchTerm: (term: string) => void;
   filterPartners: boolean;
   setFilterPartners: (filter: boolean) => void;
+  viewMode: 'grid' | 'list';
+  setViewMode: (mode: 'grid' | 'list') => void;
 };
 
 export const DoctorContext = createContext<DoctorContextType | null>(null);
@@ -27,6 +31,7 @@ export function DoctorProvider({ children }: { children: React.ReactNode }) {
   const [doctors, setDoctors] = useLocalStorage<Doctor[]>(DOCTORS_STORAGE_KEY, []);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterPartners, setFilterPartners] = useState(false);
+  const [viewMode, setViewMode] = useLocalStorage<'grid' | 'list'>(VIEW_MODE_STORAGE_KEY, 'grid');
 
   const addDoctor = (doctorData: Omit<Doctor, 'id' | 'createdAt'>) => {
     const newDoctor: Doctor = {
@@ -34,7 +39,13 @@ export function DoctorProvider({ children }: { children: React.ReactNode }) {
       id: new Date().toISOString() + Math.random(),
       createdAt: new Date().toISOString(),
       referralCount: doctorData.referralCount || 0,
-      referralNotes: Array(doctorData.referralCount || 0).fill(''),
+      referralNotes: Array(doctorData.referralCount || 0).fill(null).map(() => ({
+        patientName: '',
+        referralDate: '',
+        testType: '',
+        patientAge: '',
+        chronicDiseases: '',
+      })),
     };
     setDoctors(prev => [newDoctor, ...prev]);
   };
@@ -77,7 +88,9 @@ export function DoctorProvider({ children }: { children: React.ReactNode }) {
     setSearchTerm,
     filterPartners,
     setFilterPartners,
-  }), [doctors, searchTerm, filterPartners, setDoctors]);
+    viewMode,
+    setViewMode,
+  }), [doctors, searchTerm, filterPartners, viewMode, setDoctors, setViewMode]);
 
   return <DoctorContext.Provider value={value}>{children}</DoctorContext.Provider>;
 }

@@ -29,6 +29,8 @@ export const translations: Translations = {
       totalPartners: 'Total Partners',
       adminDashboard: 'Admin Dashboard',
       partnerDashboard: 'Partner Dashboard',
+      gridView: 'Grid View',
+      listView: 'List View',
     },
     doctorCard: {
       partner: 'Partner',
@@ -42,13 +44,13 @@ export const translations: Translations = {
       delete: 'Delete',
       availability: 'Availability',
       days: {
+        Sat: 'Sat',
         Sun: 'Sun',
         Mon: 'Mon',
         Tue: 'Tue',
         Wed: 'Wed',
         Thu: 'Thu',
         Fri: 'Fri',
-        Sat: 'Sat',
       },
       notSet: 'Not Set',
       viewCases: 'View Referral Cases',
@@ -189,6 +191,11 @@ export const translations: Translations = {
       exportExcel: "Export to Excel",
       noCasesToExport: "There are no cases to export.",
     },
+    doctorList: {
+      name: 'Name',
+      specialty: 'Specialty',
+      actions: 'Actions',
+    }
   },
   ar: {
     appName: 'روح العراق',
@@ -218,6 +225,8 @@ export const translations: Translations = {
       totalPartners: 'مجموع الشركاء',
       adminDashboard: 'لوحة تحكم المسؤول',
       partnerDashboard: 'لوحة الشركاء',
+      gridView: 'عرض شبكي',
+      listView: 'عرض قائمة',
     },
     doctorCard: {
       partner: 'شريك',
@@ -231,13 +240,13 @@ export const translations: Translations = {
       delete: 'حذف',
       availability: 'التواجد',
       days: {
+        Sat: 'سبت',
         Sun: 'أحد',
         Mon: 'إثنين',
         Tue: 'ثلاثاء',
         Wed: 'أربعاء',
         Thu: 'خميس',
         Fri: 'جمعة',
-        Sat: 'سبت',
       },
       notSet: 'لم يحدد',
       viewCases: 'عرض حالات الإحالة',
@@ -378,5 +387,10 @@ export const translations: Translations = {
       exportExcel: "تصدير إلى Excel",
       noCasesToExport: "لا توجد حالات لتصديرها.",
     },
+    doctorList: {
+      name: 'الاسم',
+      specialty: 'التخصص',
+      actions: 'الإجراءات',
+    }
   },
 };

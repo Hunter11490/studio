@@ -3,11 +3,12 @@
 import { useMemo } from 'react';
 import { useDoctors } from '@/hooks/use-doctors';
 import { DoctorGrid } from '@/components/doctor/doctor-grid';
+import { DoctorList } from '@/components/doctor/doctor-list';
 import { useLanguage } from '@/hooks/use-language';
 import { Frown } from 'lucide-react';
 
 export default function DashboardPage() {
-  const { doctors, searchTerm, filterPartners } = useDoctors();
+  const { doctors, searchTerm, filterPartners, viewMode } = useDoctors();
   const { t } = useLanguage();
 
   const filteredDoctors = useMemo(() => {
@@ -51,5 +52,7 @@ export default function DashboardPage() {
     )
   }
 
-  return <DoctorGrid doctors={filteredDoctors} />;
+  return viewMode === 'grid' 
+    ? <DoctorGrid doctors={filteredDoctors} />
+    : <DoctorList doctors={filteredDoctors} />;
 }
