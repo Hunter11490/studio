@@ -8,13 +8,14 @@ import { useLanguage } from '@/hooks/use-language';
 import { useDoctors } from '@/hooks/use-doctors';
 import { useToast } from '@/hooks/use-toast';
 import { searchInternetForDoctors, InternetSearchOutput } from '@/ai/flows/internet-search-flow';
+import { translateText } from '@/ai/flows/translation-flow';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetFooter } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { AILoader } from './ai-loader';
 import { ScrollArea } from '../ui/scroll-area';
-import { Search, Plus, ListPlus, UserSearch } from 'lucide-react';
+import { Search, Plus, ListPlus, UserSearch, Loader2 } from 'lucide-react';
 import { Doctor } from '@/types';
 
 type InternetSearchDialogProps = {
@@ -30,10 +31,11 @@ const formSchema = z.object({
 });
 
 export function InternetSearchDialog({ open, onOpenChange, initialSearchQuery }: InternetSearchDialogProps) {
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
   const { addDoctor, addMultipleDoctors } = useDoctors();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
+  const [isAdding, setIsAdding] = useState<string | boolean>(false); // 'all' or doctor index
   const [results, setResults] = useState<SuggestedDoctor[]>([]);
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -61,19 +63,40 @@ export function InternetSearchDialog({ open, onOpenChange, initialSearchQuery }:
 
   useEffect(() => {
     // If an initial search query is provided and the dialog is opened, run the search automatically.
-    if (open && initialSearchQuery && results.length === 0) {
+    if (open && initialSearchQuery && results.length === 0 && !isLoading) {
       form.setValue('query', initialSearchQuery);
       handleSearch({ query: initialSearchQuery });
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, initialSearchQuery]);
 
 
-  const handleAddDoctor = (doctor: SuggestedDoctor) => {
+  const getTranslatedDoctor = async (doctor: SuggestedDoctor) => {
+    const targetLanguage = lang === 'ar' ? 'Arabic' : 'English';
+    try {
+        const translated = await translateText({
+            name: doctor.name,
+            specialty: doctor.specialty,
+            clinicAddress: doctor.address,
+            targetLanguage,
+        });
+        return { ...doctor, name: translated.name, specialty: translated.specialty, address: translated.clinicAddress };
+    } catch (e) {
+        console.error("Translation failed for", doctor.name, e);
+        // Return original doctor if translation fails
+        return doctor; 
+    }
+  }
+
+  const handleAddDoctor = async (doctor: SuggestedDoctor, index: number) => {
+    setIsAdding(index.toString());
+    const translatedDoctor = await getTranslatedDoctor(doctor);
+    
     const newDoctor: Omit<Doctor, 'id' | 'createdAt'> = {
-      name: doctor.name,
-      specialty: doctor.specialty,
-      phoneNumber: doctor.phoneNumber,
-      clinicAddress: doctor.address,
+      name: translatedDoctor.name,
+      specialty: translatedDoctor.specialty,
+      phoneNumber: translatedDoctor.phoneNumber,
+      clinicAddress: translatedDoctor.address,
       mapLocation: '',
       clinicCardImageUrl: '',
       isPartner: false,
@@ -83,12 +106,17 @@ export function InternetSearchDialog({ open, onOpenChange, initialSearchQuery }:
     addDoctor(newDoctor);
     toast({
         title: t('toasts.doctorAddedTitle'),
-        description: `${doctor.name} ${t('toasts.doctorAddedDesc')}`,
+        description: `${translatedDoctor.name} ${t('toasts.doctorAddedDesc')}`,
     });
+    setIsAdding(false);
   };
 
-  const handleAddAll = () => {
-    const newDoctors: Omit<Doctor, 'id' | 'createdAt'>[] = results.map(doctor => ({
+  const handleAddAll = async () => {
+    setIsAdding('all');
+    
+    const translatedDoctors = await Promise.all(results.map(doc => getTranslatedDoctor(doc)));
+
+    const newDoctors: Omit<Doctor, 'id' | 'createdAt'>[] = translatedDoctors.map(doctor => ({
       name: doctor.name,
       specialty: doctor.specialty,
       phoneNumber: doctor.phoneNumber,
@@ -106,6 +134,7 @@ export function InternetSearchDialog({ open, onOpenChange, initialSearchQuery }:
         title: t('toasts.allDoctorsAddedTitle'),
         description: t('toasts.allDoctorsAddedDesc', {count: results.length}),
     });
+    setIsAdding(false);
   };
 
   return (
@@ -135,15 +164,15 @@ export function InternetSearchDialog({ open, onOpenChange, initialSearchQuery }:
                       <Input
                         placeholder={t('dialogs.internetSearchPlaceholder')}
                         {...field}
-                        disabled={isLoading}
+                        disabled={isLoading || !!isAdding}
                       />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-              <Button type="submit" disabled={isLoading} className="gap-2">
-                <Search className="h-4 w-4" />
+              <Button type="submit" disabled={isLoading || !!isAdding} className="gap-2">
+                {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
                 {t('common.search', { defaultValue: 'Search' })}
               </Button>
             </form>
@@ -162,8 +191,12 @@ export function InternetSearchDialog({ open, onOpenChange, initialSearchQuery }:
                     <p className="text-sm">{doctor.address}</p>
                     <p className="text-sm" dir="ltr">{doctor.phoneNumber}</p>
                   </div>
-                  <Button size="sm" variant="outline" onClick={() => handleAddDoctor(doctor)}>
-                    <Plus className="mr-2 h-4 w-4" />
+                  <Button size="sm" variant="outline" onClick={() => handleAddDoctor(doctor, index)} disabled={!!isAdding}>
+                    {isAdding === index.toString() ? (
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    ) : (
+                        <Plus className="mr-2 h-4 w-4" />
+                    )}
                     {t('common.add')}
                   </Button>
                 </div>
@@ -177,10 +210,14 @@ export function InternetSearchDialog({ open, onOpenChange, initialSearchQuery }:
            )}
         </ScrollArea>
 
-        {results.length > 0 && (
+        {results.length > 0 && !isLoading && (
           <SheetFooter className="p-4 border-t bg-background">
-            <Button onClick={handleAddAll} className="w-full" disabled={isLoading}>
-                <ListPlus className="mr-2 h-4 w-4"/>
+            <Button onClick={handleAddAll} className="w-full" disabled={!!isAdding}>
+                {isAdding === 'all' ? (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin"/>
+                ) : (
+                    <ListPlus className="mr-2 h-4 w-4"/>
+                )}
                 {t('dialogs.addAllResults', { count: results.length })}
             </Button>
           </SheetFooter>
