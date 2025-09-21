@@ -39,15 +39,6 @@ export function DoctorProvider({ children }: { children: React.ReactNode }) {
   const [viewMode, setViewMode] = useLocalStorage<'grid' | 'list'>(VIEW_MODE_STORAGE_KEY, 'grid');
   const [sortOption, setSortOption] = useLocalStorage<SortOption>(SORT_OPTION_STORAGE_KEY, 'createdAt');
 
-  useEffect(() => {
-    // If doctors list is empty (e.g., first load or after admin login reset),
-    // populate it with mock data.
-    if (doctors.length === 0) {
-      setDoctors(MOCK_DOCTORS);
-    }
-  }, []); // Run only on initial mount of the provider
-
-
   const addDoctor = (doctorData: Omit<Doctor, 'id' | 'createdAt'>) => {
     const newDoctor: Doctor = {
       ...doctorData,
