@@ -36,7 +36,10 @@ export const translations: Translations = {
         name: 'Name',
         date: 'Date Added',
         address: 'Address',
-      }
+      },
+      translateAll: 'Translate All Cards',
+      enterFullscreen: 'Enter Fullscreen',
+      exitFullscreen: 'Exit Fullscreen',
     },
     doctorCard: {
       partner: 'Partner',
@@ -136,6 +139,10 @@ export const translations: Translations = {
       doctorAddedDesc: 'has been added to your local list.',
       allDoctorsAddedTitle: 'All Doctors Added',
       allDoctorsAddedDesc: '{count} doctors have been added to your local list.',
+      translatingTitle: 'Translating all cards...',
+      translationSuccessTitle: 'Translation Complete',
+      translationErrorTitle: 'Translation Failed',
+      noDoctorsToTranslate: 'There are no doctors to translate.',
     },
     common: {
       loading: 'Loading...',
@@ -238,7 +245,10 @@ export const translations: Translations = {
         name: 'الاسم',
         date: 'تاريخ الإضافة',
         address: 'العنوان',
-      }
+      },
+      translateAll: 'ترجمة كل البطاقات',
+      enterFullscreen: 'الدخول لوضع ملء الشاشة',
+      exitFullscreen: 'الخروج من وضع ملء الشاشة',
     },
     doctorCard: {
       partner: 'شريك',
@@ -338,6 +348,10 @@ export const translations: Translations = {
       doctorAddedDesc: 'تمت إضافته إلى قائمتك المحلية.',
       allDoctorsAddedTitle: 'تمت إضافة جميع الأطباء',
       allDoctorsAddedDesc: 'تمت إضافة {count} أطباء إلى قائمتك المحلية.',
+      translatingTitle: 'جاري ترجمة جميع البطاقات...',
+      translationSuccessTitle: 'اكتملت الترجمة',
+      translationErrorTitle: 'فشلت الترجمة',
+      noDoctorsToTranslate: 'لا يوجد أطباء لترجمتهم.',
     },
     common: {
       loading: 'جار التحميل...',

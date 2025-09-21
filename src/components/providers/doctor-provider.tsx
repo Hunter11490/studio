@@ -17,6 +17,7 @@ export type DoctorContextType = {
   addDoctor: (doctor: Omit<Doctor, 'id' | 'createdAt'>) => void;
   addMultipleDoctors: (doctors: Omit<Doctor, 'id' | 'createdAt'>[]) => void;
   updateDoctor: (id: string, updates: Partial<Doctor>) => void;
+  updateMultipleDoctors: (updatedDoctors: Doctor[]) => void;
   deleteDoctor: (id: string) => void;
   getDoctorById: (id: string) => Doctor | undefined;
   importDoctors: (newDoctors: Doctor[]) => void;
@@ -79,6 +80,11 @@ export function DoctorProvider({ children }: { children: React.ReactNode }) {
     setDoctors(prev => prev.map(doc => (doc.id === id ? { ...doc, ...updates } : doc)));
   };
 
+  const updateMultipleDoctors = (updatedDoctors: Doctor[]) => {
+    const updatedDoctorMap = new Map(updatedDoctors.map(d => [d.id, d]));
+    setDoctors(prev => prev.map(doc => updatedDoctorMap.get(doc.id) || doc));
+  };
+
   const deleteDoctor = (id: string) => {
     setDoctors(prev => prev.filter(doc => doc.id !== id));
   };
@@ -105,6 +111,7 @@ export function DoctorProvider({ children }: { children: React.ReactNode }) {
     addDoctor,
     addMultipleDoctors,
     updateDoctor,
+    updateMultipleDoctors,
     deleteDoctor,
     getDoctorById,
     importDoctors,

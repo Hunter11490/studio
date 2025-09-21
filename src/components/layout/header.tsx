@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { PlusCircle, Users, SlidersHorizontal, LayoutGrid, List, ArrowUpDown, Maximize, Minimize } from 'lucide-react';
+import { PlusCircle, Users, SlidersHorizontal, LayoutGrid, List, ArrowUpDown, Maximize, Minimize, Languages, Loader2 } from 'lucide-react';
 import { useLanguage } from '@/hooks/use-language';
 import { useDoctors } from '@/hooks/use-doctors';
 import { useAuth } from '@/hooks/use-auth';
@@ -15,11 +15,14 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/
 import { DropdownMenu, DropdownMenuContent, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuSeparator, DropdownMenuTrigger } from '../ui/dropdown-menu';
 import { SortOption } from '@/components/providers/doctor-provider';
 import { useToast } from '@/hooks/use-toast';
+import { translateText, DoctorInfo } from '@/ai/flows/translation-flow';
+import { Doctor } from '@/types';
 
 export function Header() {
-  const { t } = useLanguage();
+  const { lang, t } = useLanguage();
   const { 
     doctors, 
+    updateMultipleDoctors,
     searchTerm, 
     setSearchTerm, 
     filterPartners, 
@@ -33,6 +36,7 @@ export function Header() {
   const [isAddDoctorOpen, setAddDoctorOpen] = useState(false);
   const [isPartnerDashboardOpen, setPartnerDashboardOpen] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [isTranslating, setIsTranslating] = useState(false);
   const { toast } = useToast();
 
   const handleFullscreenToggle = async () => {
@@ -51,6 +55,48 @@ export function Header() {
         description: 'Fullscreen mode is not supported by your browser or was denied.',
         variant: 'destructive',
       });
+    }
+  };
+
+  const handleTranslateAll = async () => {
+    if (!doctors.length) {
+      toast({ title: t('toasts.noDoctorsToTranslate') });
+      return;
+    }
+    setIsTranslating(true);
+    toast({ title: t('toasts.translatingTitle') });
+    try {
+      const targetLanguage = lang === 'en' ? 'Arabic' : 'English';
+      const doctorsToTranslate: DoctorInfo[] = doctors.map(d => ({
+        name: d.name,
+        specialty: d.specialty,
+        clinicAddress: d.clinicAddress,
+      }));
+
+      const translationResult = await translateText({
+        doctors: doctorsToTranslate,
+        targetLanguage,
+      });
+
+      const updatedDoctors: Doctor[] = doctors.map((originalDoctor, index) => {
+        const translatedInfo = translationResult.doctors[index];
+        return {
+          ...originalDoctor,
+          name: translatedInfo.name,
+          specialty: translatedInfo.specialty,
+          clinicAddress: translatedInfo.clinicAddress,
+        };
+      });
+
+      updateMultipleDoctors(updatedDoctors);
+
+      toast({ title: t('toasts.translationSuccessTitle') });
+
+    } catch (error) {
+      console.error("Translation failed", error);
+      toast({ title: t('toasts.translationErrorTitle'), variant: 'destructive' });
+    } finally {
+      setIsTranslating(false);
     }
   };
 
@@ -109,6 +155,20 @@ export function Header() {
             {/* Controls */}
             <div className="flex items-center gap-1 rounded-md border p-0.5 bg-secondary">
                <TooltipProvider>
+                 <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="xs"
+                      onClick={handleTranslateAll}
+                      className="h-6 w-6 p-1"
+                      disabled={isTranslating}
+                    >
+                      {isTranslating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Languages className="h-4 w-4" />}
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent><p>{t('header.translateAll')}</p></TooltipContent>
+                </Tooltip>
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <Button
@@ -120,7 +180,7 @@ export function Header() {
                       {isFullscreen ? <Minimize className="h-4 w-4" /> : <Maximize className="h-4 w-4" />}
                     </Button>
                   </TooltipTrigger>
-                  <TooltipContent><p>{isFullscreen ? "Exit Fullscreen" : "Enter Fullscreen"}</p></TooltipContent>
+                  <TooltipContent><p>{isFullscreen ? t('header.exitFullscreen') : t('header.enterFullscreen')}</p></TooltipContent>
                 </Tooltip>
               </TooltipProvider>
 
