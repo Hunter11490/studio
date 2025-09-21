@@ -81,8 +81,7 @@ export function DoctorProvider({ children }: { children: React.ReactNode }) {
   };
 
   const updateMultipleDoctors = (updatedDoctors: Doctor[]) => {
-    const updatedDoctorMap = new Map(updatedDoctors.map(d => [d.id, d]));
-    setDoctors(prev => prev.map(doc => updatedDoctorMap.get(doc.id) || doc));
+    setDoctors(updatedDoctors);
   };
 
   const deleteDoctor = (id: string) => {
