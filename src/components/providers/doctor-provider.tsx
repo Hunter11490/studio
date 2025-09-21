@@ -82,9 +82,10 @@ export function DoctorProvider({ children }: { children: React.ReactNode }) {
   };
 
   const updateMultipleDoctors = (updatedDoctors: Doctor[]) => {
-    // This function now directly sets the new array.
-    // This is more reliable for forcing re-renders with new data.
-    setDoctors(updatedDoctors);
+    setDoctors(prevDoctors => {
+      const updatedDoctorMap = new Map(updatedDoctors.map(d => [d.id, d]));
+      return prevDoctors.map(doc => updatedDoctorMap.get(doc.id) || doc);
+    });
   };
 
   const deleteDoctor = (id: string) => {

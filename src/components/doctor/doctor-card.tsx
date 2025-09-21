@@ -177,7 +177,6 @@ export function DoctorCard({ doctor }: { doctor: Doctor }) {
                 {doctor.isLoading ? (
                     <div className="space-y-1.5">
                         <Skeleton className="h-5 w-40" />
-                        <Skeleton className="h-5 w-32" />
                     </div>
                 ) : (
                     <span>{doctor.clinicAddress}</span>

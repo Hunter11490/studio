@@ -19,7 +19,7 @@ import { translateText, DoctorInfo } from '@/ai/flows/translation-flow';
 import { Doctor } from '@/types';
 
 export function Header() {
-  const { lang, t } = useLanguage();
+  const { lang, t, setLang } = useLanguage();
   const { 
     doctors, 
     updateMultipleDoctors,
@@ -40,21 +40,12 @@ export function Header() {
   const { toast } = useToast();
 
   const handleFullscreenToggle = async () => {
-    const elem = document.documentElement;
-    try {
-      if (!document.fullscreenElement) {
-        await elem.requestFullscreen();
-        setIsFullscreen(true);
-      } else {
-        await document.exitFullscreen();
-        setIsFullscreen(false);
-      }
-    } catch (err: any) {
-      toast({
-        title: 'Error',
-        description: 'Fullscreen mode is not supported by your browser or was denied.',
-        variant: 'destructive',
-      });
+    if (!document.fullscreenElement) {
+      await document.documentElement.requestFullscreen();
+      setIsFullscreen(true);
+    } else {
+      await document.exitFullscreen();
+      setIsFullscreen(false);
     }
   };
 
@@ -86,19 +77,19 @@ export function Header() {
 
       const updatedDoctors: Doctor[] = doctors.map((originalDoctor, index) => {
         const translatedInfo = translationResult.doctors[index];
-        if (translatedInfo) {
-          return {
-            ...originalDoctor,
-            name: translatedInfo.name,
-            specialty: translatedInfo.specialty,
-            clinicAddress: translatedInfo.clinicAddress,
-            isLoading: false,
-          };
-        }
-        return { ...originalDoctor, isLoading: false };
+        return {
+          ...originalDoctor,
+          name: translatedInfo?.name || originalDoctor.name,
+          specialty: translatedInfo?.specialty || originalDoctor.specialty,
+          clinicAddress: translatedInfo?.clinicAddress || originalDoctor.clinicAddress,
+          isLoading: false,
+        };
       });
       
       updateMultipleDoctors(updatedDoctors);
+
+      // Switch language to reflect the translation
+      setLang(targetLanguage.toLowerCase().startsWith('ar') ? 'ar' : 'en');
 
       toast({ title: t('toasts.translationSuccessTitle') });
 
