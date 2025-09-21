@@ -116,13 +116,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUser(sessionUser);
       setLoggedInUser(sessionUser);
 
-      // If admin logs in, reset the doctors list to mock data
       if (userToLogin.username === 'HUNTER') {
         window.localStorage.removeItem(DOCTORS_STORAGE_KEY);
-        // This will cause DoctorProvider to reload with mock data on the next page load.
-        // To make it instant, we might need a more complex state management or force a reload.
-        // For now, we'll just remove it and it will be fresh on next visit to dashboard.
-        window.location.reload(); // Force reload to re-initialize doctor provider
+        window.location.reload(); 
       }
 
       return true;
@@ -219,5 +215,3 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
-
-    
