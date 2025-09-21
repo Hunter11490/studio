@@ -36,14 +36,13 @@ const WEEK_DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
 export function DoctorCard({ doctor }: { doctor: Doctor }) {
   const { updateDoctor, deleteDoctor } = useDoctors();
-  const { getPatientsByDoctor, deletePatientsByDoctor } = usePatients();
+  const { deletePatientsByDoctor } = usePatients();
   const { t, lang } = useLanguage();
   const { toast } = useToast();
   const [isEditing, setEditing] = useState(false);
   const [isPatientManagerOpen, setPatientManagerOpen] = useState(false);
-  
-  const patients = getPatientsByDoctor(doctor.id);
-  const referralCount = patients.length;
+
+  const referralCount = doctor.referralCount;
   const commission = referralCount * 100;
 
   const handleSetLocation = () => {
@@ -73,6 +72,11 @@ export function DoctorCard({ doctor }: { doctor: Doctor }) {
 
   const handlePartnerToggle = () => {
     updateDoctor(doctor.id, { isPartner: !doctor.isPartner });
+  };
+
+  const handleReferralChange = (amount: number) => {
+    const newCount = Math.max(0, referralCount + amount);
+    updateDoctor(doctor.id, { referralCount: newCount });
   };
   
   const handleDeleteDoctor = () => {
@@ -113,7 +117,13 @@ export function DoctorCard({ doctor }: { doctor: Doctor }) {
               <span>{t('doctorCard.referrals')}</span>
             </div>
             <div className="flex items-center gap-2">
+              <Button size="icon" variant="ghost" className="h-6 w-6" onClick={() => handleReferralChange(-1)}>
+                <Minus className="h-4 w-4" />
+              </Button>
               <span className="font-bold w-4 text-center">{referralCount}</span>
+              <Button size="icon" variant="ghost" className="h-6 w-6" onClick={() => handleReferralChange(1)}>
+                <Plus className="h-4 w-4" />
+              </Button>
             </div>
           </div>
 

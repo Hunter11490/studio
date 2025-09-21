@@ -95,8 +95,6 @@ export function DoctorFormDialog({ open, onOpenChange, doctorToEdit }: DoctorFor
   const onSubmit = (values: z.infer<typeof formSchema>) => {
     const doctorData = {
       ...values,
-      // This property is now managed by the number of patients.
-      // We set it to the existing value to avoid overwriting it if we change logic later.
       referralCount: doctorToEdit?.referralCount || 0,
       mapLocation: doctorToEdit?.mapLocation || '',
       availableDays: doctorToEdit?.availableDays || [],

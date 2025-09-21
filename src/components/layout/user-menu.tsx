@@ -53,8 +53,8 @@ export function UserMenu() {
   const { user, logout } = useAuth();
   const { lang, setLang, t } = useLanguage();
   const { theme, setTheme } = useTheme();
-  const { doctors, resetAllReferrals, uncheckAllPartners, importDoctors } = useDoctors();
-  const { getPatientsByDoctor } = usePatients();
+  const { doctors, uncheckAllPartners, importDoctors } = useDoctors();
+  const { deleteAllPatients } = usePatients();
   const { toast } = useToast();
 
   const [isMenuOpen, setMenuOpen] = useState(false);
@@ -66,7 +66,7 @@ export function UserMenu() {
 
   const getTranslatedDoctorData = async (doctor: Doctor): Promise<DoctorExportData> => {
     const targetLanguage = lang === 'ar' ? 'Arabic' : 'English';
-    const referralCount = getPatientsByDoctor(doctor.id).length;
+    const referralCount = doctor.referralCount;
     const headers = {
         name: lang === 'ar' ? 'الاسم' : 'Name',
         specialty: lang === 'ar' ? 'التخصص' : 'Specialty',
@@ -105,7 +105,7 @@ export function UserMenu() {
     try {
       let doctorsToExport = doctors;
       if (filtered) {
-        doctorsToExport = doctors.filter(doc => doc.isPartner && getPatientsByDoctor(doc.id).length > 0);
+        doctorsToExport = doctors.filter(doc => doc.isPartner && doc.referralCount > 0);
         if (doctorsToExport.length === 0) {
           toast({ title: t('toasts.exportNoData'), description: t('toasts.exportNoDataDesc') });
           return;
@@ -151,8 +151,7 @@ export function UserMenu() {
   
   const handleResetReferrals = () => {
       // This is now an indirect operation: delete all patients.
-      // The function in the provider needs to be updated.
-      resetAllReferrals();
+      deleteAllPatients();
   }
 
   const MenuItem = ({ icon, label, onClick, destructive = false }: { icon: React.ReactNode, label: string, onClick?: () => void, destructive?: boolean }) => (

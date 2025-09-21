@@ -19,7 +19,7 @@ import {
   AccordionTrigger,
 } from '@/components/ui/accordion';
 import { Badge } from '@/components/ui/badge';
-import { Users, FileDown, X } from 'lucide-react';
+import { Users, FileDown, X, Plus, Minus } from 'lucide-react';
 import { ScrollArea } from '../ui/scroll-area';
 import type { Doctor } from '@/types';
 import { translateText } from '@/ai/flows/translation-flow';
@@ -37,12 +37,15 @@ type PartnerExportData = {
 };
 
 function PartnerDoctorItem({ doctor }: { doctor: Doctor }) {
-  const { getPatientsByDoctor } = usePatients();
   const { t } = useLanguage();
+  const { updateDoctor } = useDoctors();
 
-  const patients = getPatientsByDoctor(doctor.id);
-  const referralCount = patients.length;
-  const commission = referralCount * 100;
+  const handleReferralChange = (amount: number) => {
+    const newCount = Math.max(0, doctor.referralCount + amount);
+    updateDoctor(doctor.id, { referralCount: newCount });
+  };
+  
+  const commission = doctor.referralCount * 100;
 
   return (
     <AccordionItem value={doctor.id}>
@@ -50,12 +53,24 @@ function PartnerDoctorItem({ doctor }: { doctor: Doctor }) {
         <div className="flex flex-1 items-center justify-between gap-2">
           <span className="font-semibold truncate">{doctor.name}</span>
           <Badge variant="secondary" className="whitespace-nowrap">
-            {t('doctorCard.referrals')}: {referralCount}
+            {t('doctorCard.referrals')}: {doctor.referralCount}
           </Badge>
         </div>
       </AccordionTrigger>
       <AccordionContent className="px-4">
         <div className="space-y-3 pt-2">
+           <div className="flex items-center justify-between">
+             <span className="text-sm text-muted-foreground">{t('partnerDashboard.editReferrals')}:</span>
+            <div className="flex items-center gap-2">
+              <Button size="icon" variant="ghost" className="h-6 w-6" onClick={() => handleReferralChange(-1)}>
+                <Minus className="h-4 w-4" />
+              </Button>
+              <span className="font-bold w-4 text-center">{doctor.referralCount}</span>
+              <Button size="icon" variant="ghost" className="h-6 w-6" onClick={() => handleReferralChange(1)}>
+                <Plus className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
           <div className="flex items-center justify-between">
             <span className="text-sm text-muted-foreground">{t('doctorCard.commission')}:</span>
             <span className="font-semibold text-accent">
@@ -69,7 +84,7 @@ function PartnerDoctorItem({ doctor }: { doctor: Doctor }) {
 }
 
 export function PartnerDashboard({ open, onOpenChange }: PartnerDashboardProps) {
-  const { doctors } = useDoctors();
+  const { doctors, updateDoctor } = useDoctors();
   const { getPatientsByDoctor } = usePatients();
   const { t, lang } = useLanguage();
   const { toast } = useToast();
@@ -78,15 +93,13 @@ export function PartnerDashboard({ open, onOpenChange }: PartnerDashboardProps) 
     return doctors
       .filter(d => d.isPartner)
       .sort((a, b) => {
-        const countA = getPatientsByDoctor(a.id).length;
-        const countB = getPatientsByDoctor(b.id).length;
-        return countB - countA;
+        return b.referralCount - a.referralCount;
       });
-  }, [doctors, getPatientsByDoctor]);
+  }, [doctors]);
 
   const getTranslatedDoctorData = async (doctor: Doctor): Promise<PartnerExportData> => {
     const targetLanguage = lang === 'ar' ? 'Arabic' : 'English';
-    const referralCount = getPatientsByDoctor(doctor.id).length;
+    const referralCount = doctor.referralCount;
 
     let translatedData = { name: doctor.name, specialty: doctor.specialty, clinicAddress: doctor.clinicAddress };
     
@@ -164,7 +177,7 @@ export function PartnerDashboard({ open, onOpenChange }: PartnerDashboardProps) 
             </div>
         </ScrollArea>
         
-        <DialogFooter className="p-4 border-t">
+        <DialogFooter className="p-4 border-t bg-background">
           <div className="flex w-full gap-2">
             <Button onClick={() => onOpenChange(false)} variant="secondary" className="flex-1">
               <X className="mr-2 h-4 w-4" />
