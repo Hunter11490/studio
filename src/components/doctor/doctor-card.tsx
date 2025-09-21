@@ -40,6 +40,10 @@ export function DoctorCard({ doctor }: { doctor: Doctor }) {
 
   const referralCount = doctor.referralCount || 0;
   const commission = referralCount * 100;
+  
+  const handlePartnerToggle = () => {
+    updateDoctor(doctor.id, { isPartner: !doctor.isPartner });
+  };
 
   const handleSetLocation = () => {
     if (!navigator.geolocation) {
@@ -67,10 +71,6 @@ export function DoctorCard({ doctor }: { doctor: Doctor }) {
     updateDoctor(doctor.id, { availableDays: newDays });
   };
 
-  const handlePartnerToggle = () => {
-    updateDoctor(doctor.id, { isPartner: !doctor.isPartner });
-  };
-
   const handleReferralChange = (amount: number) => {
     const newCount = Math.max(0, referralCount + amount);
     const newNotes = [...(doctor.referralNotes || [])];
@@ -94,9 +94,9 @@ export function DoctorCard({ doctor }: { doctor: Doctor }) {
     <>
       <Card className="flex flex-col overflow-hidden relative">
         <Image
-          src="https://picsum.photos/seed/flowers/400/600"
-          alt="Flower bouquet watermark"
-          data-ai-hint="flower bouquet"
+          src="https://picsum.photos/seed/flower/400/600"
+          alt="Flower watermark"
+          data-ai-hint="flower"
           fill
           className="object-cover opacity-5 dark:opacity-10"
         />
