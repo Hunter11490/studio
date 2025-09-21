@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { PlusCircle, Users, SlidersHorizontal, LayoutGrid, List, ArrowUpDown, ScreenShare, X } from 'lucide-react';
+import { PlusCircle, Users, SlidersHorizontal, LayoutGrid, List, ArrowUpDown, Maximize, Minimize } from 'lucide-react';
 import { useLanguage } from '@/hooks/use-language';
 import { useDoctors } from '@/hooks/use-doctors';
 import { useAuth } from '@/hooks/use-auth';
@@ -35,35 +35,20 @@ export function Header() {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const { toast } = useToast();
 
-  const handleFullscreen = async () => {
+  const handleFullscreenToggle = async () => {
     const elem = document.documentElement;
     try {
       if (!document.fullscreenElement) {
         await elem.requestFullscreen();
-        await screen.orientation.lock('landscape');
         setIsFullscreen(true);
+      } else {
+        await document.exitFullscreen();
+        setIsFullscreen(false);
       }
     } catch (err: any) {
       toast({
         title: 'Error',
-        description: err.message,
-        variant: 'destructive',
-      });
-    }
-  };
-
-  const handleExitFullscreen = async () => {
-    try {
-      if (document.fullscreenElement) {
-        await document.exitFullscreen();
-        // The orientation will likely reset automatically, but unlocking is good practice.
-        screen.orientation.unlock();
-        setIsFullscreen(false);
-      }
-    } catch (err: any) {
-       toast({
-        title: 'Error',
-        description: err.message,
+        description: 'Fullscreen mode is not supported by your browser or was denied.',
         variant: 'destructive',
       });
     }
@@ -129,13 +114,13 @@ export function Header() {
                     <Button
                       variant="ghost"
                       size="xs"
-                      onClick={handleFullscreen}
+                      onClick={handleFullscreenToggle}
                       className="h-6 w-6 p-1"
                     >
-                      <ScreenShare className="h-4 w-4" />
+                      {isFullscreen ? <Minimize className="h-4 w-4" /> : <Maximize className="h-4 w-4" />}
                     </Button>
                   </TooltipTrigger>
-                  <TooltipContent><p>Enter Landscape Mode</p></TooltipContent>
+                  <TooltipContent><p>{isFullscreen ? "Exit Fullscreen" : "Enter Fullscreen"}</p></TooltipContent>
                 </Tooltip>
               </TooltipProvider>
 
@@ -203,18 +188,6 @@ export function Header() {
       </header>
       <DoctorFormDialog open={isAddDoctorOpen} onOpenChange={setAddDoctorOpen} />
       <PartnerDashboard open={isPartnerDashboardOpen} onOpenChange={setPartnerDashboardOpen} />
-
-      {isFullscreen && (
-        <Button
-          variant="secondary"
-          size="icon"
-          onClick={handleExitFullscreen}
-          className="fixed top-4 right-4 z-50 rounded-full h-10 w-10"
-        >
-          <X className="h-5 w-5" />
-          <span className="sr-only">Exit Fullscreen</span>
-        </Button>
-      )}
     </>
   );
 }
