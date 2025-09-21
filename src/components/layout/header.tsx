@@ -63,8 +63,14 @@ export function Header() {
       toast({ title: t('toasts.noDoctorsToTranslate') });
       return;
     }
+
     setIsTranslating(true);
     toast({ title: t('toasts.translatingTitle') });
+    
+    // Set loading state for cards
+    const loadingDoctors = doctors.map(d => ({ ...d, isLoading: true }));
+    updateMultipleDoctors(loadingDoctors);
+
     try {
       const targetLanguage = lang === 'en' ? 'Arabic' : 'English';
       const doctorsToTranslate: DoctorInfo[] = doctors.map(d => ({
@@ -86,11 +92,12 @@ export function Header() {
             name: translatedInfo.name,
             specialty: translatedInfo.specialty,
             clinicAddress: translatedInfo.clinicAddress,
+            isLoading: false,
           };
         }
-        return originalDoctor; // Return original if translation for this specific one failed for some reason
+        return { ...originalDoctor, isLoading: false };
       });
-
+      
       updateMultipleDoctors(updatedDoctors);
 
       toast({ title: t('toasts.translationSuccessTitle') });
@@ -98,6 +105,9 @@ export function Header() {
     } catch (error) {
       console.error("Translation failed", error);
       toast({ title: t('toasts.translationErrorTitle'), variant: 'destructive' });
+      // Reset loading state on error
+      const resetDoctors = doctors.map(d => ({ ...d, isLoading: false }));
+      updateMultipleDoctors(resetDoctors);
     } finally {
       setIsTranslating(false);
     }

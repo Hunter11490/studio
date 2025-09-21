@@ -19,6 +19,7 @@ export type Doctor = {
   referralNotes?: ReferralCase[];
   availableDays: string[]; // e.g., ['Sun', 'Mon']
   createdAt: string; // ISO date string
+  isLoading?: boolean;
 };
 
 export type User = {

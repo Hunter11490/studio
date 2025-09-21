@@ -30,6 +30,7 @@ import { cn } from '@/lib/utils';
 import { StethoscopeLogo } from '../stethoscope-logo';
 import { ReferralNotesDialog } from './referral-notes-dialog';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
+import { Skeleton } from '../ui/skeleton';
 
 
 const WEEK_DAYS = ['Sat', 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
@@ -116,7 +117,9 @@ export function DoctorCard({ doctor }: { doctor: Doctor }) {
           </div>
           
             <div className="flex items-center gap-2">
-              <CardTitle className="font-headline text-xl">{doctor.name}</CardTitle>
+              <CardTitle className="font-headline text-xl">
+                 {doctor.isLoading ? <Skeleton className="h-7 w-48" /> : doctor.name}
+              </CardTitle>
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
@@ -130,7 +133,9 @@ export function DoctorCard({ doctor }: { doctor: Doctor }) {
                   </Tooltip>
                 </TooltipProvider>
             </div>
-            <CardDescription>{doctor.specialty}</CardDescription>
+             <CardDescription>
+                {doctor.isLoading ? <Skeleton className="h-5 w-32 mt-1" /> : doctor.specialty}
+            </CardDescription>
           
         </CardHeader>
 
@@ -163,11 +168,20 @@ export function DoctorCard({ doctor }: { doctor: Doctor }) {
           <div className="space-y-2">
             <p className="flex items-start gap-2">
                 <Phone className="h-4 w-4 mt-0.5 shrink-0" /> 
-                <a href={`tel:${doctor.phoneNumber}`} className="hover:underline" dir="ltr">{doctor.phoneNumber}</a>
+                 {doctor.isLoading ? <Skeleton className="h-5 w-24" /> : (
+                    <a href={`tel:${doctor.phoneNumber}`} className="hover:underline" dir="ltr">{doctor.phoneNumber}</a>
+                )}
             </p>
             <p className="flex items-start gap-2">
                 <MapPin className="h-4 w-4 mt-0.5 shrink-0" />
-                <span>{doctor.clinicAddress}</span>
+                {doctor.isLoading ? (
+                    <div className="space-y-1.5">
+                        <Skeleton className="h-5 w-40" />
+                        <Skeleton className="h-5 w-32" />
+                    </div>
+                ) : (
+                    <span>{doctor.clinicAddress}</span>
+                )}
             </p>
           </div>
           

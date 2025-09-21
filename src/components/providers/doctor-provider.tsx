@@ -31,6 +31,7 @@ export type DoctorContextType = {
   setViewMode: (mode: 'grid' | 'list') => void;
   sortOption: SortOption;
   setSortOption: (option: SortOption) => void;
+  isLoading?: boolean;
 };
 
 export const DoctorContext = createContext<DoctorContextType | null>(null);
@@ -81,7 +82,7 @@ export function DoctorProvider({ children }: { children: React.ReactNode }) {
   };
 
   const updateMultipleDoctors = (updatedDoctors: Doctor[]) => {
-    setDoctors(updatedDoctors);
+    setDoctors(updatedDoctors.map(d => ({ ...d, isLoading: false })));
   };
 
   const deleteDoctor = (id: string) => {
