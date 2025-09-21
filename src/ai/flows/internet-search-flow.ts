@@ -44,10 +44,10 @@ const internetSearchFlow = ai.defineFlow(
       output: {schema: InternetSearchOutputSchema},
       prompt: `You are an expert medical directory assistant for Iraq. Your task is to find real doctors based on the user's query.
 
-Search for doctors in Iraq based on the following query: {{{query}}}
+Perform a deep and comprehensive search for doctors in Iraq across multiple sources, including Google Search, Facebook, and other social media platforms, based on the following query: {{{query}}}
 
 Return a list of doctors you find. For each doctor, provide their name, specialty, phone number, and a detailed address.
-If you cannot find a specific piece of information, leave it as an empty string. Return at least 5 results if possible.`,
+If you cannot find a specific piece of information, leave it as an empty string. Return at least 15 results if possible, aiming for the maximum number of accurate results you can find.`,
     });
     
     const { output } = await prompt(input);
