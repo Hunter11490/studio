@@ -1,16 +1,26 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, useEffect, useState } from 'react';
 import { useDoctors } from '@/hooks/use-doctors';
 import { DoctorGrid } from '@/components/doctor/doctor-grid';
 import { DoctorList } from '@/components/doctor/doctor-list';
 import { useLanguage } from '@/hooks/use-language';
-import { Frown } from 'lucide-react';
+import { Frown, UserSearch } from 'lucide-react';
 import { Doctor } from '@/types';
+import { Button } from '@/components/ui/button';
+import { InternetSearchDialog } from '@/components/ai/internet-search-dialog';
 
 export default function DashboardPage() {
   const { doctors, searchTerm, filterPartners, viewMode, sortOption } = useDoctors();
   const { t } = useLanguage();
+  const [isSearchOpen, setSearchOpen] = useState(false);
+
+  useEffect(() => {
+    // If there are no doctors, automatically open the internet search dialog.
+    if (doctors.length === 0) {
+      setSearchOpen(true);
+    }
+  }, [doctors.length]);
 
   const filteredAndSortedDoctors = useMemo(() => {
     
@@ -45,14 +55,26 @@ export default function DashboardPage() {
 
   if (doctors.length === 0) {
      return (
+        <>
         <div className="flex flex-1 items-center justify-center rounded-lg border border-dashed shadow-sm">
-          <div className="flex flex-col items-center gap-1 text-center">
+          <div className="flex flex-col items-center gap-2 text-center">
+            <UserSearch className="h-16 w-16 text-muted-foreground" />
             <h3 className="text-2xl font-bold tracking-tight">{t('common.noResults')}</h3>
             <p className="text-sm text-muted-foreground">
-              {t('header.addDoctor')} to get started.
+              {t('header.addDoctor')} أو استخدم البحث بالذكاء الاصطناعي للبدء.
             </p>
+             <Button onClick={() => setSearchOpen(true)} className="mt-4">
+              <UserSearch className="mr-2 h-4 w-4" />
+              {t('dialogs.internetSearchTitle')}
+            </Button>
           </div>
         </div>
+        <InternetSearchDialog 
+            open={isSearchOpen} 
+            onOpenChange={setSearchOpen} 
+            initialSearchQuery="أطباء في بغداد"
+        />
+        </>
       )
   }
 

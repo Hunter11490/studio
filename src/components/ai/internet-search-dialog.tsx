@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -20,6 +20,7 @@ import { Doctor } from '@/types';
 type InternetSearchDialogProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  initialSearchQuery?: string;
 };
 
 type SuggestedDoctor = InternetSearchOutput['doctors'][0];
@@ -28,7 +29,7 @@ const formSchema = z.object({
   query: z.string().min(3, 'Search query must be at least 3 characters.'),
 });
 
-export function InternetSearchDialog({ open, onOpenChange }: InternetSearchDialogProps) {
+export function InternetSearchDialog({ open, onOpenChange, initialSearchQuery }: InternetSearchDialogProps) {
   const { t } = useLanguage();
   const { addDoctor } = useDoctors();
   const { toast } = useToast();
@@ -37,7 +38,7 @@ export function InternetSearchDialog({ open, onOpenChange }: InternetSearchDialo
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: { query: '' },
+    defaultValues: { query: initialSearchQuery || '' },
   });
 
   const handleSearch = async (values: z.infer<typeof formSchema>) => {
@@ -57,6 +58,15 @@ export function InternetSearchDialog({ open, onOpenChange }: InternetSearchDialo
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    // If an initial search query is provided and the dialog is opened, run the search automatically.
+    if (open && initialSearchQuery && results.length === 0) {
+      form.setValue('query', initialSearchQuery);
+      handleSearch({ query: initialSearchQuery });
+    }
+  }, [open, initialSearchQuery]);
+
 
   const handleAddDoctor = (doctor: SuggestedDoctor) => {
     const newDoctor: Omit<Doctor, 'id' | 'createdAt'> = {
@@ -147,6 +157,11 @@ export function InternetSearchDialog({ open, onOpenChange }: InternetSearchDialo
               ))}
             </div>
           )}
+           {!isLoading && results.length === 0 && (
+             <div className="flex h-full items-center justify-center text-muted-foreground">
+                <p>No results found for this search.</p>
+             </div>
+           )}
         </ScrollArea>
 
         {results.length > 0 && (
