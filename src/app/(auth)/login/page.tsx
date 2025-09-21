@@ -13,6 +13,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { Logo } from '@/components/logo';
+import { Loader2 } from 'lucide-react';
 
 const formSchema = z.object({
   username: z.string().min(1, 'Username is required'),
@@ -33,7 +34,12 @@ export default function LoginPage() {
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
+  const { isSubmitting } = form.formState;
+
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    // Simulate network delay
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
     const success = login(values.username, values.password);
     if (success) {
       router.replace('/dashboard');
@@ -83,7 +89,8 @@ export default function LoginPage() {
                 </FormItem>
               )}
             />
-            <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>
+            <Button type="submit" className="w-full" disabled={isSubmitting}>
+              {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               {t('auth.login')}
             </Button>
           </form>
