@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { PlusCircle, Users, SlidersHorizontal, LayoutGrid, List, ArrowUpDown } from 'lucide-react';
+import { PlusCircle, Users, SlidersHorizontal, LayoutGrid, List, ArrowUpDown, ScreenShare, X } from 'lucide-react';
 import { useLanguage } from '@/hooks/use-language';
 import { useDoctors } from '@/hooks/use-doctors';
 import { useAuth } from '@/hooks/use-auth';
@@ -14,6 +14,7 @@ import { PartnerDashboard } from '../doctor/partner-dashboard';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuSeparator, DropdownMenuTrigger } from '../ui/dropdown-menu';
 import { SortOption } from '@/components/providers/doctor-provider';
+import { useToast } from '@/hooks/use-toast';
 
 export function Header() {
   const { t } = useLanguage();
@@ -31,6 +32,43 @@ export function Header() {
   const { user } = useAuth();
   const [isAddDoctorOpen, setAddDoctorOpen] = useState(false);
   const [isPartnerDashboardOpen, setPartnerDashboardOpen] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const { toast } = useToast();
+
+  const handleFullscreen = async () => {
+    const elem = document.documentElement;
+    try {
+      if (!document.fullscreenElement) {
+        await elem.requestFullscreen();
+        await screen.orientation.lock('landscape');
+        setIsFullscreen(true);
+      }
+    } catch (err: any) {
+      toast({
+        title: 'Error',
+        description: err.message,
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const handleExitFullscreen = async () => {
+    try {
+      if (document.fullscreenElement) {
+        await document.exitFullscreen();
+        // The orientation will likely reset automatically, but unlocking is good practice.
+        screen.orientation.unlock();
+        setIsFullscreen(false);
+      }
+    } catch (err: any) {
+       toast({
+        title: 'Error',
+        description: err.message,
+        variant: 'destructive',
+      });
+    }
+  };
+
 
   const partnerCount = doctors.filter(d => d.isPartner).length;
 
@@ -85,6 +123,22 @@ export function Header() {
             
             {/* Controls */}
             <div className="flex items-center gap-1 rounded-md border p-0.5 bg-secondary">
+               <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="xs"
+                      onClick={handleFullscreen}
+                      className="h-6 w-6 p-1"
+                    >
+                      <ScreenShare className="h-4 w-4" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent><p>Enter Landscape Mode</p></TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+
               <DropdownMenu>
                 <TooltipProvider>
                   <Tooltip>
@@ -149,6 +203,18 @@ export function Header() {
       </header>
       <DoctorFormDialog open={isAddDoctorOpen} onOpenChange={setAddDoctorOpen} />
       <PartnerDashboard open={isPartnerDashboardOpen} onOpenChange={setPartnerDashboardOpen} />
+
+      {isFullscreen && (
+        <Button
+          variant="secondary"
+          size="icon"
+          onClick={handleExitFullscreen}
+          className="fixed top-4 right-4 z-50 rounded-full h-10 w-10"
+        >
+          <X className="h-5 w-5" />
+          <span className="sr-only">Exit Fullscreen</span>
+        </Button>
+      )}
     </>
   );
 }
