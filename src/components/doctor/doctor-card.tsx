@@ -42,7 +42,7 @@ export function DoctorCard({ doctor }: { doctor: Doctor }) {
   const [isEditing, setEditing] = useState(false);
   const [isReferralSheetOpen, setReferralSheetOpen] = useState(false);
 
-  const referralCount = doctor.referralCount;
+  const referralCount = doctor.referralCount || 0;
   const commission = referralCount * 100;
 
   const handleSetLocation = () => {
@@ -64,9 +64,10 @@ export function DoctorCard({ doctor }: { doctor: Doctor }) {
   };
   
   const handleAvailabilityToggle = (day: string) => {
-    const newDays = doctor.availableDays.includes(day)
-      ? doctor.availableDays.filter(d => d !== day)
-      : [...doctor.availableDays, day];
+    const currentDays = doctor.availableDays || [];
+    const newDays = currentDays.includes(day)
+      ? currentDays.filter(d => d !== day)
+      : [...currentDays, day];
     updateDoctor(doctor.id, { availableDays: newDays });
   };
 
@@ -192,7 +193,7 @@ export function DoctorCard({ doctor }: { doctor: Doctor }) {
                 <Button
                   key={day}
                   size="sm"
-                  variant={doctor.availableDays.includes(day) ? 'default' : 'outline'}
+                  variant={(doctor.availableDays || []).includes(day) ? 'default' : 'outline'}
                   onClick={() => handleAvailabilityToggle(day)}
                   className="h-7 px-2.5"
                 >
