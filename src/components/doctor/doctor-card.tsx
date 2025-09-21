@@ -18,7 +18,7 @@ import { Doctor } from '@/types';
 import { useDoctors } from '@/hooks/use-doctors';
 import { useLanguage } from '@/hooks/use-language';
 import { useToast } from '@/hooks/use-toast';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
@@ -26,7 +26,7 @@ import { ConfirmationDialog } from '@/components/confirmation-dialog';
 import { DoctorFormDialog } from './doctor-form-dialog';
 import { ReferralNotesDialog } from './referral-notes-dialog';
 import { Skeleton } from '../ui/skeleton';
-import { Tooltip, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 
 
@@ -117,7 +117,7 @@ export function DoctorCard({ doctor }: { doctor: Doctor }) {
               {doctor.isLoading ? (
                 <Skeleton className="h-5 w-32 mt-1" />
               ) : (
-                <p className="text-sm text-muted-foreground">{doctor.specialty}</p>
+                <div className="text-sm text-muted-foreground">{doctor.specialty}</div>
               )}
             </div>
              <TooltipProvider>
@@ -176,7 +176,7 @@ export function DoctorCard({ doctor }: { doctor: Doctor }) {
                 ) : (
                     <div className="flex items-start gap-3">
                         <MapPin className="h-4 w-4 mt-0.5 shrink-0 text-muted-foreground" />
-                        <p>{doctor.clinicAddress}</p>
+                        <div>{doctor.clinicAddress}</div>
                     </div>
                 )}
              </div>
@@ -235,5 +235,3 @@ export function DoctorCard({ doctor }: { doctor: Doctor }) {
     </>
   );
 }
-
-    
