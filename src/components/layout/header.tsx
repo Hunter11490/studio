@@ -88,9 +88,6 @@ export function Header() {
       
       updateMultipleDoctors(updatedDoctors);
 
-      // Switch language to reflect the translation
-      setLang(targetLanguage.toLowerCase().startsWith('ar') ? 'ar' : 'en');
-
       toast({ title: t('toasts.translationSuccessTitle') });
 
     } catch (error) {
