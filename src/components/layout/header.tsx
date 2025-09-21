@@ -34,9 +34,10 @@ export function Header() {
             </Button>
           </div>
 
-          {/* Centered App Name */}
-          <div className="absolute left-1/2 -translate-x-1/2">
+          {/* Centered App Name & Subtitle */}
+          <div className="absolute left-1/2 -translate-x-1/2 flex flex-col items-center">
             <h1 className="text-lg font-semibold tracking-tight whitespace-nowrap">{t('appName')}</h1>
+            <p className="text-[9px] text-muted-foreground whitespace-nowrap -mt-1">{t('appSubtitle')}</p>
           </div>
 
           {/* User Menu and right-aligned items */}

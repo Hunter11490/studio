@@ -3,6 +3,7 @@ import type { Translations } from '@/types';
 export const translations: Translations = {
   en: {
     appName: 'Spirit of Iraq',
+    appSubtitle: 'For Managing Centers and Hospitals',
     auth: {
       login: 'Login',
       signup: 'Sign Up',
@@ -191,6 +192,7 @@ export const translations: Translations = {
   },
   ar: {
     appName: 'روح العراق',
+    appSubtitle: 'لادارة المراكز والمستشفيات',
     auth: {
       login: 'تسجيل الدخول',
       signup: 'إنشاء حساب',
@@ -285,7 +287,7 @@ export const translations: Translations = {
       uncheckPartnersDesc: 'سيؤدي هذا إلى إزالة حالة الشريك من جميع الأطباء. لا يمكن التراجع عن هذا الإجراء.',
       deleteDoctorTitle: 'حذف الطبيب؟',
       deleteDoctorDesc: 'هل أنت متأكد من أنك تريد حذف هذا الطبيب؟ لا يمكن التراجع عن هذا الإجراء.',
-      aboutTitle: 'حول روح العراق',
+      aboutTitle: 'عن روح العراق',
       aboutDesc: 'صُنع بعناية لتبسيط حياتك المهنية، مما يتيح لك إدارة دليل الأطباء الخاص بك بسهولة وكفاءة.',
       contactOwner: 'للاستفسار أو تقديم اقتراحات، تواصل مع صاحب المشروع:',
       chatTitle: 'مساعد طبي بالذكاء الاصطناعي',
