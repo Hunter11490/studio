@@ -15,8 +15,10 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Save, X, PlusCircle, MinusCircle } from 'lucide-react';
+import { Save, X, PlusCircle, MinusCircle, FileDown } from 'lucide-react';
 import { Label } from '../ui/label';
+import { exportToExcel } from '@/lib/excel';
+import { useToast } from '@/hooks/use-toast';
 
 type ReferralNotesDialogProps = {
   open: boolean;
@@ -24,9 +26,14 @@ type ReferralNotesDialogProps = {
   doctor: Doctor;
 };
 
+type CaseExportData = {
+  [key: string]: string;
+}
+
 export function ReferralNotesDialog({ open, onOpenChange, doctor }: ReferralNotesDialogProps) {
   const { updateDoctor } = useDoctors();
   const { t } = useLanguage();
+  const { toast } = useToast();
   const [cases, setCases] = useState<ReferralCase[]>([]);
 
   useEffect(() => {
@@ -66,6 +73,36 @@ export function ReferralNotesDialog({ open, onOpenChange, doctor }: ReferralNote
   const handleSave = () => {
     updateDoctor(doctor.id, { referralNotes: cases, referralCount: cases.length });
     onOpenChange(false);
+  };
+
+  const handleExport = () => {
+    if (cases.length === 0) {
+      toast({
+        title: t('referralNotes.noCasesToExport'),
+        variant: 'destructive'
+      });
+      return;
+    }
+    
+    const headers = {
+      patientName: t('referralNotes.patientName'),
+      referralDate: t('referralNotes.referralDate'),
+      testType: t('referralNotes.testType'),
+      patientAge: t('referralNotes.patientAge'),
+      chronicDiseases: t('referralNotes.chronicDiseases'),
+    }
+
+    const dataToExport = cases.map(c => ({
+      [headers.patientName]: c.patientName,
+      [headers.referralDate]: c.referralDate,
+      [headers.testType]: c.testType,
+      [headers.patientAge]: c.patientAge,
+      [headers.chronicDiseases]: c.chronicDiseases,
+    }));
+    
+    const fileName = `${doctor.name}_Referrals_${new Date().toISOString().split('T')[0]}.xlsx`;
+    exportToExcel(dataToExport, fileName);
+    toast({ title: t('toasts.exportSuccess') });
   };
 
   return (
@@ -154,15 +191,21 @@ export function ReferralNotesDialog({ open, onOpenChange, doctor }: ReferralNote
         </ScrollArea>
 
         <DialogFooter className="p-4 border-t bg-background">
-          <div className="flex w-full gap-2">
-            <Button onClick={() => onOpenChange(false)} variant="secondary" className="flex-1">
-              <X className="mr-2 h-4 w-4" />
-              {t('common.close')}
+          <div className="flex w-full flex-col sm:flex-row gap-2">
+             <Button onClick={handleExport} variant="outline" className="flex-1" disabled={cases.length === 0}>
+                <FileDown className="mr-2 h-4 w-4" />
+                {t('referralNotes.exportExcel')}
             </Button>
-            <Button onClick={handleSave} className="flex-1">
-              <Save className="mr-2 h-4 w-4" />
-              {t('referralNotes.save')}
-            </Button>
+            <div className="flex w-full sm:w-auto gap-2">
+                <Button onClick={() => onOpenChange(false)} variant="secondary" className="flex-1">
+                    <X className="mr-2 h-4 w-4" />
+                    {t('common.close')}
+                </Button>
+                <Button onClick={handleSave} className="flex-1">
+                    <Save className="mr-2 h-4 w-4" />
+                    {t('referralNotes.save')}
+                </Button>
+            </div>
           </div>
         </DialogFooter>
       </DialogContent>

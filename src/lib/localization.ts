@@ -184,6 +184,8 @@ export const translations: Translations = {
       manageCases: "Manage Cases",
       addCase: "Add Case",
       removeCase: "Remove Last Case",
+      exportExcel: "Export to Excel",
+      noCasesToExport: "There are no cases to export.",
     },
   },
   ar: {
@@ -369,6 +371,8 @@ export const translations: Translations = {
       manageCases: "إدارة الحالات",
       addCase: "إضافة حالة",
       removeCase: "حذف آخر حالة",
+      exportExcel: "تصدير إلى Excel",
+      noCasesToExport: "لا توجد حالات لتصديرها.",
     },
   },
 };
