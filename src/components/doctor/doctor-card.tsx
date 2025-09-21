@@ -14,6 +14,7 @@ import {
   CalendarDays,
   ToggleLeft,
   ToggleRight,
+  ClipboardList,
 } from 'lucide-react';
 import { Doctor, ReferralCase } from '@/types';
 import { useDoctors } from '@/hooks/use-doctors';
@@ -28,6 +29,7 @@ import { DoctorFormDialog } from './doctor-form-dialog';
 import { cn } from '@/lib/utils';
 import { StethoscopeLogo } from '../stethoscope-logo';
 import { ReferralNotesDialog } from './referral-notes-dialog';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
 
 
 const WEEK_DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -113,15 +115,22 @@ export function DoctorCard({ doctor }: { doctor: Doctor }) {
             </Button>
           </div>
           
-            <>
-              <CardTitle
-                className="font-headline text-xl cursor-pointer hover:underline"
-                onClick={() => setReferralSheetOpen(true)}
-              >
-                {doctor.name}
-              </CardTitle>
-                <CardDescription>{doctor.specialty}</CardDescription>
-            </>
+            <div className="flex items-center gap-2">
+              <CardTitle className="font-headline text-xl">{doctor.name}</CardTitle>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setReferralSheetOpen(true)}>
+                        <ClipboardList className="h-5 w-5" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>{t('doctorCard.viewCases')}</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+            </div>
+            <CardDescription>{doctor.specialty}</CardDescription>
           
         </CardHeader>
 

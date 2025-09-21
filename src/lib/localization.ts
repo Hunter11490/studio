@@ -50,6 +50,7 @@ export const translations: Translations = {
         Sat: 'Sat',
       },
       notSet: 'Not Set',
+      viewCases: 'View Referral Cases',
     },
     doctorForm: {
       addTitle: 'Add New Doctor',
@@ -237,6 +238,7 @@ export const translations: Translations = {
         Sat: 'سبت',
       },
       notSet: 'لم يحدد',
+      viewCases: 'عرض حالات الإحالة',
     },
     doctorForm: {
       addTitle: 'إضافة طبيب جديد',
