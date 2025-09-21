@@ -74,25 +74,21 @@ export function DoctorCard({ doctor }: { doctor: Doctor }) {
   const handleReferralChange = (amount: number) => {
     const newCount = Math.max(0, referralCount + amount);
     const newNotes = [...(doctor.referralNotes || [])];
-
+    
+    // Ensure notes array matches the new count
     if (newCount > newNotes.length) {
-      // Add new empty case objects
-      for (let i = 0; i < newCount - newNotes.length; i++) {
-        newNotes.push({
-          patientName: '',
-          referralDate: '',
-          testType: '',
-          patientAge: '',
-          chronicDiseases: '',
-        });
-      }
+        // Add new empty case objects if count increases
+        for (let i = newNotes.length; i < newCount; i++) {
+            newNotes.push({ patientName: '', referralDate: '', testType: '', patientAge: '', chronicDiseases: '' });
+        }
     } else {
-      // Remove cases from the end
-      newNotes.length = newCount;
+        // Truncate notes array if count decreases
+        newNotes.length = newCount;
     }
 
     updateDoctor(doctor.id, { referralCount: newCount, referralNotes: newNotes });
-  };
+};
+
   
   const handleDeleteDoctor = () => {
       deleteDoctor(doctor.id);

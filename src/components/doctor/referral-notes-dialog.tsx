@@ -15,9 +15,8 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Save, X } from 'lucide-react';
+import { Save, X, PlusCircle, MinusCircle } from 'lucide-react';
 import { Label } from '../ui/label';
-import { Separator } from '../ui/separator';
 
 type ReferralNotesDialogProps = {
   open: boolean;
@@ -53,9 +52,19 @@ export function ReferralNotesDialog({ open, onOpenChange, doctor }: ReferralNote
     newCases[index][field] = value;
     setCases(newCases);
   };
+  
+  const handleAddCase = () => {
+    setCases(prev => [...prev, { patientName: '', referralDate: '', testType: '', patientAge: '', chronicDiseases: '' }]);
+  };
+  
+  const handleRemoveCase = () => {
+    if (cases.length > 0) {
+      setCases(prev => prev.slice(0, -1));
+    }
+  };
 
   const handleSave = () => {
-    updateDoctor(doctor.id, { referralNotes: cases });
+    updateDoctor(doctor.id, { referralNotes: cases, referralCount: cases.length });
     onOpenChange(false);
   };
 
@@ -66,6 +75,20 @@ export function ReferralNotesDialog({ open, onOpenChange, doctor }: ReferralNote
           <DialogTitle className="font-headline">{t('referralNotes.title')}</DialogTitle>
           <DialogDescription>{t('referralNotes.description', { name: doctor.name })}</DialogDescription>
         </DialogHeader>
+
+         <div className="p-4 border-b flex items-center justify-between gap-2">
+            <h3 className="text-sm font-medium">{t('referralNotes.manageCases')}</h3>
+            <div className="flex items-center gap-2">
+                <Button variant="outline" size="sm" onClick={handleRemoveCase} disabled={cases.length === 0}>
+                    <MinusCircle className="h-4 w-4" />
+                    <span className="ml-2 hidden sm:inline">{t('referralNotes.removeCase')}</span>
+                </Button>
+                <Button variant="default" size="sm" onClick={handleAddCase}>
+                    <PlusCircle className="h-4 w-4" />
+                    <span className="ml-2 hidden sm:inline">{t('referralNotes.addCase')}</span>
+                </Button>
+            </div>
+         </div>
 
         <ScrollArea className="flex-grow p-4">
           <div className="space-y-6">

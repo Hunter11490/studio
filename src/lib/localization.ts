@@ -180,7 +180,10 @@ export const translations: Translations = {
       testType: "Test Type",
       patientAge: "Patient Age",
       chronicDiseases: "Chronic Diseases",
-      chronicDiseasesPlaceholder: "e.g., Diabetes, Hypertension"
+      chronicDiseasesPlaceholder: "e.g., Diabetes, Hypertension",
+      manageCases: "Manage Cases",
+      addCase: "Add Case",
+      removeCase: "Remove Last Case",
     },
   },
   ar: {
@@ -362,7 +365,10 @@ export const translations: Translations = {
       testType: "نوع الفحص",
       patientAge: "عمر المريض",
       chronicDiseases: "الأمراض المزمنة",
-      chronicDiseasesPlaceholder: "مثال: سكري، ضغط الدم"
+      chronicDiseasesPlaceholder: "مثال: سكري، ضغط الدم",
+      manageCases: "إدارة الحالات",
+      addCase: "إضافة حالة",
+      removeCase: "حذف آخر حالة",
     },
   },
 };
