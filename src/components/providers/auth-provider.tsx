@@ -3,6 +3,7 @@
 import { createContext, useState, useEffect, useMemo, useCallback } from 'react';
 import { useLocalStorage } from '@/hooks/use-local-storage';
 import type { User, StoredUser } from '@/types';
+import { DOCTORS_STORAGE_KEY } from './doctor-provider';
 
 // In a real offline-first app, this might involve more complex client-side hashing
 // For this prototype, we'll keep it simple.
@@ -44,9 +45,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     setIsLoading(true);
 
-    // Initialize with only the admin user
-    setStoredUsers([adminUser]);
-
     // On initial load, check if there's a logged-in user session
     if (loggedInUser) {
       // Re-verify user from the potentially updated storedUsers
@@ -68,6 +66,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       } else {
         setLoggedInUser(null); // Clear invalid session
       }
+    } else {
+        // If no one is logged in, ensure admin user exists.
+        if (!storedUsers.find(u => u.username === 'HUNTER')) {
+             setStoredUsers(prev => [adminUser, ...prev.filter(u => u.username !== 'HUNTER')]);
+        }
     }
     
     setIsLoading(false);
@@ -112,6 +115,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       };
       setUser(sessionUser);
       setLoggedInUser(sessionUser);
+
+      // If admin logs in, reset the doctors list to mock data
+      if (userToLogin.username === 'HUNTER') {
+        window.localStorage.removeItem(DOCTORS_STORAGE_KEY);
+        // This will cause DoctorProvider to reload with mock data on the next page load.
+        // To make it instant, we might need a more complex state management or force a reload.
+        // For now, we'll just remove it and it will be fresh on next visit to dashboard.
+        window.location.reload(); // Force reload to re-initialize doctor provider
+      }
+
       return true;
     }
     return false;
@@ -206,3 +219,5 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
+
+    

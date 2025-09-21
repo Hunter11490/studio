@@ -5,7 +5,7 @@ import { useLocalStorage } from '@/hooks/use-local-storage';
 import { Doctor } from '@/types';
 import { MOCK_DOCTORS } from '@/lib/mock-doctors';
 
-const DOCTORS_STORAGE_KEY = 'iraqi_doctors_list_v2';
+export const DOCTORS_STORAGE_KEY = 'iraqi_doctors_list_v2';
 const VIEW_MODE_STORAGE_KEY = 'iraqi_doctors_view_mode_v1';
 
 
@@ -95,3 +95,5 @@ export function DoctorProvider({ children }: { children: React.ReactNode }) {
 
   return <DoctorContext.Provider value={value}>{children}</DoctorContext.Provider>;
 }
+
+    
