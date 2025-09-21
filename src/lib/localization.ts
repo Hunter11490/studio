@@ -170,12 +170,17 @@ export const translations: Translations = {
       exportCommission: 'Commission (USD)',
     },
     referralNotes: {
-      title: "Referral Notes",
+      title: "Referral Case Notes",
       description: "Notes for cases referred by {name}",
       caseLabel: "Case #{index}",
-      placeholder: "Enter note for this case...",
       save: "Save Notes",
-      noCases: "No referrals to show. Increase the referral count to add notes."
+      noCases: "No referrals to show. Increase the referral count to add notes.",
+      patientName: "Patient Name",
+      referralDate: "Referral Date",
+      testType: "Test Type",
+      patientAge: "Patient Age",
+      chronicDiseases: "Chronic Diseases",
+      chronicDiseasesPlaceholder: "e.g., Diabetes, Hypertension"
     },
   },
   ar: {
@@ -347,12 +352,17 @@ export const translations: Translations = {
       exportCommission: 'العمولة (دولار)',
     },
     referralNotes: {
-      title: "ملاحظات الإحالة",
-      description: "ملاحظات للحالات المحالة من {name}",
+      title: "ملاحظات حالات الإحالة",
+      description: "ملاحظات للحالات المحالة من الدكتور {name}",
       caseLabel: "الحالة رقم #{index}",
-      placeholder: "أدخل ملاحظة لهذه الحالة...",
       save: "حفظ الملاحظات",
-      noCases: "لا توجد إحالات لعرضها. قم بزيادة عدد الإحالات لإضافة ملاحظات."
+      noCases: "لا توجد إحالات لعرضها. قم بزيادة عدد الإحالات لإضافة ملاحظات.",
+      patientName: "اسم المريض",
+      referralDate: "تاريخ التحويل",
+      testType: "نوع الفحص",
+      patientAge: "عمر المريض",
+      chronicDiseases: "الأمراض المزمنة",
+      chronicDiseasesPlaceholder: "مثال: سكري، ضغط الدم"
     },
   },
 };

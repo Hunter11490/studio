@@ -1,3 +1,11 @@
+export type ReferralCase = {
+  patientName: string;
+  referralDate: string;
+  testType: string;
+  patientAge: string;
+  chronicDiseases: string;
+};
+
 export type Doctor = {
   id: string;
   name: string;
@@ -8,7 +16,7 @@ export type Doctor = {
   clinicCardImageUrl: string; // Data URL
   isPartner: boolean;
   referralCount: number;
-  referralNotes?: string[];
+  referralNotes?: ReferralCase[];
   availableDays: string[]; // e.g., ['Sun', 'Mon']
   createdAt: string; // ISO date string
 };

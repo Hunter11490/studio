@@ -15,7 +15,7 @@ import {
   ToggleLeft,
   ToggleRight,
 } from 'lucide-react';
-import { Doctor } from '@/types';
+import { Doctor, ReferralCase } from '@/types';
 import { useDoctors } from '@/hooks/use-doctors';
 import { useLanguage } from '@/hooks/use-language';
 import { useToast } from '@/hooks/use-toast';
@@ -73,13 +73,21 @@ export function DoctorCard({ doctor }: { doctor: Doctor }) {
 
   const handleReferralChange = (amount: number) => {
     const newCount = Math.max(0, referralCount + amount);
-    // When referrals are added, add empty note slots. When removed, slice the notes array.
     const newNotes = [...(doctor.referralNotes || [])];
+
     if (newCount > newNotes.length) {
-      for(let i=0; i < newCount - newNotes.length; i++) {
-        newNotes.push('');
+      // Add new empty case objects
+      for (let i = 0; i < newCount - newNotes.length; i++) {
+        newNotes.push({
+          patientName: '',
+          referralDate: '',
+          testType: '',
+          patientAge: '',
+          chronicDiseases: '',
+        });
       }
     } else {
+      // Remove cases from the end
       newNotes.length = newCount;
     }
 
