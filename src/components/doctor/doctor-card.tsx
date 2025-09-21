@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import Image from 'next/image';
 import {
   Star,
   Plus,
@@ -111,14 +110,16 @@ export function DoctorCard({ doctor }: { doctor: Doctor }) {
               </AvatarFallback>
             </Avatar>
             <div className="grid gap-1">
-              <CardTitle className="font-headline text-xl">
-                 {doctor.isLoading ? <Skeleton className="h-7 w-48" /> : doctor.name}
-              </CardTitle>
-              {doctor.isLoading ? (
-                <Skeleton className="h-5 w-32 mt-1" />
-              ) : (
-                <div className="text-sm text-muted-foreground">{doctor.specialty}</div>
-              )}
+                <CardTitle className="font-headline text-xl">
+                    {doctor.isLoading ? <Skeleton className="h-7 w-48" /> : doctor.name}
+                </CardTitle>
+                <div className="text-sm text-muted-foreground">
+                    {doctor.isLoading ? (
+                    <Skeleton className="h-5 w-32 mt-1" />
+                    ) : (
+                    doctor.specialty
+                    )}
+                </div>
             </div>
              <TooltipProvider>
                   <Tooltip>
@@ -163,22 +164,14 @@ export function DoctorCard({ doctor }: { doctor: Doctor }) {
           {/* Contact & Availability */}
           <div className="space-y-4">
              <div className="space-y-2">
-                {doctor.isLoading ? (
-                    <Skeleton className="h-5 w-3/4" />
-                ) : (
-                    <div className="flex items-start gap-3">
-                        <Phone className="h-4 w-4 mt-0.5 shrink-0 text-muted-foreground" /> 
-                        <a href={`tel:${doctor.phoneNumber}`} className="hover:underline" dir="ltr">{doctor.phoneNumber}</a>
-                    </div>
-                )}
-                {doctor.isLoading ? (
-                    <Skeleton className="h-5 w-full" />
-                ) : (
-                    <div className="flex items-start gap-3">
-                        <MapPin className="h-4 w-4 mt-0.5 shrink-0 text-muted-foreground" />
-                        <div>{doctor.clinicAddress}</div>
-                    </div>
-                )}
+                <div className="flex items-start gap-3">
+                    <Phone className="h-4 w-4 mt-0.5 shrink-0 text-muted-foreground" /> 
+                    {doctor.isLoading ? <Skeleton className="h-5 w-24" /> : <a href={`tel:${doctor.phoneNumber}`} className="hover:underline" dir="ltr">{doctor.phoneNumber}</a>}
+                </div>
+                <div className="flex items-start gap-3">
+                    <MapPin className="h-4 w-4 mt-0.5 shrink-0 text-muted-foreground" />
+                    {doctor.isLoading ? <Skeleton className="h-5 w-full" /> : <div>{doctor.clinicAddress}</div>}
+                </div>
              </div>
             <Separator/>
             <div className="space-y-3">
@@ -216,13 +209,16 @@ export function DoctorCard({ doctor }: { doctor: Doctor }) {
              <Button variant="secondary" size="sm" className="flex-1" onClick={() => setEditing(true)}>
                 <Pencil className="mr-2 h-4 w-4" /> {t('doctorCard.edit')}
             </Button>
-            <ConfirmationDialog
-                trigger={<Button variant="destructive" size="sm" className="flex-1"><Trash2 className="mr-2 h-4 w-4" /> {t('doctorCard.delete')}</Button>}
+            <Button variant={doctor.isPartner ? "default" : "secondary"} size="sm" className="flex-1" onClick={handlePartnerToggle}>
+                <Star className="mr-2 h-4 w-4" /> {t('doctorCard.partner')}
+            </Button>
+          </div>
+          <ConfirmationDialog
+                trigger={<Button variant="destructive" size="sm" className="w-full"><Trash2 className="mr-2 h-4 w-4" /> {t('doctorCard.delete')}</Button>}
                 title={t('dialogs.deleteDoctorTitle')}
                 description={`${t('dialogs.deleteDoctorDesc')} (${doctor.name})`}
                 onConfirm={handleDeleteDoctor}
             />
-          </div>
         </CardFooter>
       </Card>
       
