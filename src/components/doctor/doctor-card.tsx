@@ -27,7 +27,6 @@ import { Badge } from '@/components/ui/badge';
 import { ConfirmationDialog } from '@/components/confirmation-dialog';
 import { DoctorFormDialog } from './doctor-form-dialog';
 import { cn } from '@/lib/utils';
-import { StethoscopeLogo } from '../stethoscope-logo';
 import { ReferralNotesDialog } from './referral-notes-dialog';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
 import { Skeleton } from '../ui/skeleton';
@@ -79,14 +78,11 @@ export function DoctorCard({ doctor }: { doctor: Doctor }) {
     const newCount = Math.max(0, referralCount + amount);
     const newNotes = [...(doctor.referralNotes || [])];
     
-    // Ensure notes array matches the new count
     if (newCount > newNotes.length) {
-        // Add new empty case objects if count increases
         for (let i = newNotes.length; i < newCount; i++) {
             newNotes.push({ patientName: '', referralDate: '', testType: '', patientAge: '', chronicDiseases: '' });
         }
     } else {
-        // Truncate notes array if count decreases
         newNotes.length = newCount;
     }
 
@@ -100,27 +96,24 @@ export function DoctorCard({ doctor }: { doctor: Doctor }) {
 
   return (
     <>
-      <Card className={cn("flex flex-col relative overflow-hidden", doctor.isPartner && "border-primary shadow-lg")}>
-        <div className="absolute inset-0 flex items-center justify-center -z-10 opacity-5">
-            <StethoscopeLogo className="h-48 w-48 text-muted-foreground" />
-        </div>
+      <Card className={cn("flex flex-col", doctor.isPartner && "border-primary shadow-lg")}>
         <CardHeader className="p-4">
-          <div className="flex items-center justify-between">
-            {doctor.isPartner ? (
-              <Badge className="w-fit bg-primary">
-                <Star className="mr-1 h-3 w-3" />
-                {t('doctorCard.partner')}
-              </Badge>
-            ) : <div />}
-            <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground" onClick={handlePartnerToggle}>
-                {doctor.isPartner ? <ToggleRight className="text-primary" /> : <ToggleLeft />}
-            </Button>
-          </div>
-          
-            <div className="flex items-center gap-2">
-              <CardTitle className="font-headline text-xl">
+          <div className="flex items-start justify-between gap-2">
+            <div>
+              <CardTitle className="font-headline text-xl mb-1">
                  {doctor.isLoading ? <Skeleton className="h-7 w-48" /> : doctor.name}
               </CardTitle>
+              <CardDescription>
+                  {doctor.isLoading ? <Skeleton className="h-5 w-32 mt-1" /> : doctor.specialty}
+              </CardDescription>
+            </div>
+            <div className='flex flex-col items-end gap-2'>
+                {doctor.isPartner && (
+                  <Badge className="bg-primary">
+                    <Star className="mr-1 h-3 w-3" />
+                    {t('doctorCard.partner')}
+                  </Badge>
+                )}
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
@@ -134,57 +127,56 @@ export function DoctorCard({ doctor }: { doctor: Doctor }) {
                   </Tooltip>
                 </TooltipProvider>
             </div>
-             <CardDescription>
-                {doctor.isLoading ? <Skeleton className="h-5 w-32 mt-1" /> : doctor.specialty}
-            </CardDescription>
-          
+          </div>
         </CardHeader>
 
-        <CardContent className="p-4 flex-grow space-y-3 text-sm">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2 text-muted-foreground">
-              <BadgePercent className="h-4 w-4" />
-              <span>{t('doctorCard.referrals')}</span>
+        <CardContent className="p-4 flex-grow space-y-4 text-sm">
+          {/* Referrals Section */}
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <BadgePercent className="h-4 w-4" />
+                <span>{t('doctorCard.referrals')}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Button size="icon" variant="outline" className="h-6 w-6 rounded-full" onClick={() => handleReferralChange(-1)}>
+                  <Minus className="h-4 w-4" />
+                </Button>
+                <span className="font-bold w-4 text-center text-base">{referralCount}</span>
+                <Button size="icon" variant="outline" className="h-6 w-6 rounded-full" onClick={() => handleReferralChange(1)}>
+                  <Plus className="h-4 w-4" />
+                </Button>
+              </div>
             </div>
-            <div className="flex items-center gap-2">
-              <Button size="icon" variant="ghost" className="h-6 w-6" onClick={() => handleReferralChange(-1)}>
-                <Minus className="h-4 w-4" />
-              </Button>
-              <span className="font-bold w-4 text-center">{referralCount}</span>
-              <Button size="icon" variant="ghost" className="h-6 w-6" onClick={() => handleReferralChange(1)}>
-                <Plus className="h-4 w-4" />
-              </Button>
+            <div className="flex items-center justify-between">
+              <span className="text-muted-foreground">{t('doctorCard.commission')}</span>
+              <span className="font-semibold text-accent">{commission.toLocaleString()} {t('doctorCard.usd')}</span>
             </div>
-          </div>
-
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2 text-muted-foreground">
-                <span>{t('doctorCard.commission')}</span>
-            </div>
-            <span className="font-semibold text-accent">{commission.toLocaleString()} {t('doctorCard.usd')}</span>
           </div>
 
           <Separator />
           
-          <div className="space-y-2">
-            <div className="flex items-start gap-2">
-                <Phone className="h-4 w-4 mt-0.5 shrink-0" /> 
+          {/* Contact Info Section */}
+          <div className="space-y-3">
+            <div className="flex items-start gap-3">
+                <Phone className="h-4 w-4 mt-0.5 shrink-0 text-muted-foreground" /> 
                 {doctor.isLoading ? <Skeleton className="h-5 w-24" /> : (
                   <a href={`tel:${doctor.phoneNumber}`} className="hover:underline" dir="ltr">{doctor.phoneNumber}</a>
                 )}
             </div>
-            <div className="flex items-start gap-2">
-                <MapPin className="h-4 w-4 mt-0.5 shrink-0" />
+            <div className="flex items-start gap-3">
+                <MapPin className="h-4 w-4 mt-0.5 shrink-0 text-muted-foreground" />
                 {doctor.isLoading ? (
                   <Skeleton className="h-5 w-40" />
                 ) : (
-                  <span>{doctor.clinicAddress}</span>
+                  <p>{doctor.clinicAddress}</p>
                 )}
             </div>
           </div>
           
-           <div className="space-y-2">
-            <div className="flex items-center gap-2 font-medium">
+           {/* Availability Section */}
+           <div className="space-y-3">
+            <div className="flex items-center gap-2 font-medium text-muted-foreground">
               <CalendarDays className="h-4 w-4" />
               <span>{t('doctorCard.availability')}</span>
             </div>
@@ -205,21 +197,24 @@ export function DoctorCard({ doctor }: { doctor: Doctor }) {
 
         </CardContent>
 
-        <CardFooter className="p-4 flex-col gap-2 items-stretch">
-          <div className="flex gap-2">
+        <CardFooter className="p-2 border-t flex flex-col gap-2">
+          <div className="flex w-full gap-2">
             <Button variant="outline" size="sm" className="flex-1" onClick={() => window.open(doctor.mapLocation, '_blank')} disabled={!doctor.mapLocation}>
-              <MapPin className="mr-1 h-4 w-4" /> {t('doctorCard.map')}
+              <MapPin className="mr-1" /> {t('doctorCard.map')}
             </Button>
             <Button variant="outline" size="sm" className="flex-1" onClick={handleSetLocation}>
               {t('doctorCard.setMyLocation')}
             </Button>
+             <Button variant="ghost" size="icon" className="h-9 w-9 text-muted-foreground" onClick={handlePartnerToggle}>
+                {doctor.isPartner ? <ToggleRight className="text-primary" /> : <ToggleLeft />}
+            </Button>
           </div>
-          <div className="flex gap-2">
+          <div className="flex w-full gap-2">
              <Button variant="secondary" size="sm" className="flex-1" onClick={() => setEditing(true)}>
-                <Pencil className="mr-1 h-4 w-4" /> {t('doctorCard.edit')}
+                <Pencil className="mr-1" /> {t('doctorCard.edit')}
             </Button>
             <ConfirmationDialog
-                trigger={<Button variant="destructive" size="sm" className="flex-1"><Trash2 className="mr-1 h-4 w-4" /> {t('doctorCard.delete')}</Button>}
+                trigger={<Button variant="destructive" size="sm" className="flex-1"><Trash2 className="mr-1" /> {t('doctorCard.delete')}</Button>}
                 title={t('dialogs.deleteDoctorTitle')}
                 description={`${t('dialogs.deleteDoctorDesc')} (${doctor.name})`}
                 onConfirm={handleDeleteDoctor}
