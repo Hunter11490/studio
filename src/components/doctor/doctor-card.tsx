@@ -26,7 +26,7 @@ import { DoctorFormDialog } from './doctor-form-dialog';
 import { ReferralNotesDialog } from './referral-notes-dialog';
 import { Skeleton } from '../ui/skeleton';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
-import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
+import { StethoscopeLogo } from '../stethoscope-logo';
 
 
 const WEEK_DAYS = ['Sat', 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
@@ -92,23 +92,10 @@ export function DoctorCard({ doctor }: { doctor: Doctor }) {
 
   return (
     <>
-      <Card className="flex flex-col">
-        <CardHeader className="p-4 relative">
-          {doctor.isPartner && (
-            <div className="absolute top-2 right-2">
-              <Badge>
-                <Star className="mr-1 h-3 w-3" />
-                {t('doctorCard.partner')}
-              </Badge>
-            </div>
-          )}
-          <div className="flex items-center gap-3">
-            <Avatar className="h-16 w-16">
-              <AvatarImage src={doctor.clinicCardImageUrl || ''} alt={doctor.name} />
-              <AvatarFallback>
-                {doctor.name.substring(0, 2)}
-              </AvatarFallback>
-            </Avatar>
+      <Card className="flex flex-col overflow-hidden relative">
+        <StethoscopeLogo className="absolute -top-4 -right-4 w-32 h-32 text-primary/5 dark:text-primary/10 opacity-50 transform-gpu" />
+        <CardHeader className="p-4 relative z-10">
+          <div className="flex items-start justify-between">
             <div className="grid gap-1">
                 <CardTitle className="font-headline text-xl">
                     {doctor.isLoading ? <Skeleton className="h-7 w-48" /> : doctor.name}
@@ -121,24 +108,32 @@ export function DoctorCard({ doctor }: { doctor: Doctor }) {
                     )}
                 </div>
             </div>
-             <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button variant="ghost" size="icon" className="h-8 w-8 ml-auto" onClick={() => setReferralSheetOpen(true)}>
-                        <ClipboardList className="h-5 w-5" />
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>{t('doctorCard.viewCases')}</p>
-                    </TooltipContent>
-                  </Tooltip>
-            </TooltipProvider>
+            <div className="flex items-center gap-2">
+              {doctor.isPartner && (
+                <Badge>
+                  <Star className="mr-1 h-3 w-3" />
+                  {t('doctorCard.partner')}
+                </Badge>
+              )}
+               <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setReferralSheetOpen(true)}>
+                          <ClipboardList className="h-5 w-5" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>{t('doctorCard.viewCases')}</p>
+                      </TooltipContent>
+                    </Tooltip>
+              </TooltipProvider>
+            </div>
           </div>
         </CardHeader>
 
-        <CardContent className="p-4 flex-grow space-y-4 text-sm">
+        <CardContent className="p-4 flex-grow space-y-4 text-sm z-10">
           {/* Referrals Section */}
-          <div className="space-y-2 rounded-lg border p-3">
+          <div className="space-y-2 rounded-lg border p-3 bg-background/50 backdrop-blur-sm">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2 text-muted-foreground">
                 <BadgePercent className="h-4 w-4" />
@@ -196,7 +191,7 @@ export function DoctorCard({ doctor }: { doctor: Doctor }) {
           </div>
         </CardContent>
 
-        <CardFooter className="p-2 border-t flex flex-col gap-2">
+        <CardFooter className="p-2 border-t flex flex-col gap-2 z-10 bg-background/50 backdrop-blur-sm">
           <div className="flex w-full gap-2">
             <Button variant="outline" size="sm" className="flex-1" onClick={() => window.open(doctor.mapLocation, '_blank')} disabled={!doctor.mapLocation}>
               <MapPin className="mr-2 h-4 w-4" /> {t('doctorCard.map')}
