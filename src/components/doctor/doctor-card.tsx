@@ -94,7 +94,7 @@ export function DoctorCard({ doctor }: { doctor: Doctor }) {
     <>
       <Card className="flex flex-col overflow-hidden relative">
         <Image
-          src="https://picsum.photos/seed/ishtar-gate/400/600"
+          src="https://picsum.photos/seed/babylon/400/600"
           alt="Ishtar Gate Watermark"
           data-ai-hint="ishtar gate"
           fill
