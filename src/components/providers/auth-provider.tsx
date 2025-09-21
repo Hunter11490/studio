@@ -116,7 +116,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUser(sessionUser);
       setLoggedInUser(sessionUser);
 
-      if (userToLogin.username === 'HUNTER') {
+      if (userToLogin.username === 'HUNTER' && typeof window !== 'undefined') {
         window.localStorage.removeItem(DOCTORS_STORAGE_KEY);
         window.location.reload(); 
       }

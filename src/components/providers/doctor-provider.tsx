@@ -3,12 +3,26 @@
 import { createContext, useState, useMemo, useEffect } from 'react';
 import { useLocalStorage } from '@/hooks/use-local-storage';
 import { Doctor } from '@/types';
+import { MOCK_DOCTORS } from '@/lib/mock-doctors';
 
 export const DOCTORS_STORAGE_KEY = 'iraqi_doctors_list_v3';
 const VIEW_MODE_STORAGE_KEY = 'iraqi_doctors_view_mode_v1';
 const SORT_OPTION_STORAGE_KEY = 'iraqi_doctors_sort_option_v1';
 
 export type SortOption = 'name' | 'createdAt' | 'address';
+
+const initialDoctors: Doctor[] = MOCK_DOCTORS.map((doc, index) => ({
+  ...doc,
+  id: `mock-${index}-${new Date().getTime()}`,
+  createdAt: new Date(new Date().getTime() - index * 1000 * 60 * 60).toISOString(), // Stagger creation time
+  referralNotes: Array(doc.referralCount || 0).fill(null).map(() => ({
+      patientName: '',
+      referralDate: '',
+      testType: '',
+      patientAge: '',
+      chronicDiseases: '',
+  })),
+}));
 
 export type DoctorContextType = {
   doctors: Doctor[];
@@ -32,11 +46,19 @@ export type DoctorContextType = {
 export const DoctorContext = createContext<DoctorContextType | null>(null);
 
 export function DoctorProvider({ children }: { children: React.ReactNode }) {
-  const [doctors, setDoctors] = useLocalStorage<Doctor[]>(DOCTORS_STORAGE_KEY, []);
+  const [doctors, setDoctors] = useLocalStorage<Doctor[]>(DOCTORS_STORAGE_KEY, initialDoctors);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterPartners, setFilterPartners] = useState(false);
   const [viewMode, setViewMode] = useLocalStorage<'grid' | 'list'>(VIEW_MODE_STORAGE_KEY, 'grid');
   const [sortOption, setSortOption] = useLocalStorage<SortOption>(SORT_OPTION_STORAGE_KEY, 'createdAt');
+
+  useEffect(() => {
+    // If the storage is empty for some reason, initialize it with mock data.
+    // This happens if the user clears their local storage.
+    if (doctors.length === 0) {
+      setDoctors(initialDoctors);
+    }
+  }, [doctors, setDoctors]);
 
   const addDoctor = (doctorData: Omit<Doctor, 'id' | 'createdAt'>) => {
     const newDoctor: Doctor = {
