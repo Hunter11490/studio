@@ -12,17 +12,6 @@ export type Doctor = {
   createdAt: string; // ISO date string
 };
 
-export type Patient = {
-  id: string;
-  name: string;
-  phoneNumber: string;
-  referringDoctorId: string;
-  referralDate: string; // ISO date string
-  visitDate: string | null; // ISO date string
-  status: 'Pending' | 'Visited' | 'Canceled';
-  notes: string;
-};
-
 export type User = {
   id: string;
   username: string;

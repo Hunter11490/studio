@@ -14,6 +14,7 @@ export type DoctorContextType = {
   getDoctorById: (id: string) => Doctor | undefined;
   importDoctors: (newDoctors: Doctor[]) => void;
   uncheckAllPartners: () => void;
+  resetAllReferrals: () => void;
   searchTerm: string;
   setSearchTerm: (term: string) => void;
   filterPartners: boolean;
@@ -53,6 +54,10 @@ export function DoctorProvider({ children }: { children: React.ReactNode }) {
     setDoctors(prev => prev.map(doc => ({ ...doc, isPartner: false })));
   };
 
+  const resetAllReferrals = () => {
+    setDoctors(prev => prev.map(doc => ({ ...doc, referralCount: 0 })));
+  };
+
   const importDoctors = (newDoctors: Doctor[]) => {
     // A simple merge, could be more sophisticated (e.g., check for duplicates)
     setDoctors(prev => [...newDoctors, ...prev]);
@@ -66,6 +71,7 @@ export function DoctorProvider({ children }: { children: React.ReactNode }) {
     getDoctorById,
     importDoctors,
     uncheckAllPartners,
+    resetAllReferrals,
     searchTerm,
     setSearchTerm,
     filterPartners,

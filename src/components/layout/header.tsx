@@ -11,12 +11,10 @@ import { Logo } from '@/components/logo';
 import { UserMenu } from './user-menu';
 import { DoctorFormDialog } from '@/components/doctor/doctor-form-dialog';
 import { PartnerDashboard } from '../doctor/partner-dashboard';
-import { usePatients } from '@/hooks/use-patients';
 
 export function Header() {
   const { t } = useLanguage();
   const { doctors, searchTerm, setSearchTerm, filterPartners, setFilterPartners } = useDoctors();
-  const { patients } = usePatients();
   const { user } = useAuth();
   const [isAddDoctorOpen, setAddDoctorOpen] = useState(false);
   const [isPartnerDashboardOpen, setPartnerDashboardOpen] = useState(false);

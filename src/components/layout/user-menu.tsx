@@ -42,8 +42,6 @@ import { Separator } from '../ui/separator';
 import { translateText } from '@/ai/flows/translation-flow';
 import { Doctor } from '@/types';
 import { InternetSearchDialog } from '../ai/internet-search-dialog';
-import { AllPatientsDialog } from '../patient/all-patients-dialog';
-import { usePatients } from '@/hooks/use-patients';
 
 type DoctorExportData = {
   [key: string]: string | number | boolean;
@@ -53,8 +51,7 @@ export function UserMenu() {
   const { user, logout } = useAuth();
   const { lang, setLang, t } = useLanguage();
   const { theme, setTheme } = useTheme();
-  const { doctors, uncheckAllPartners, importDoctors } = useDoctors();
-  const { deleteAllPatients } = usePatients();
+  const { doctors, uncheckAllPartners, resetAllReferrals, importDoctors } = useDoctors();
   const { toast } = useToast();
 
   const [isMenuOpen, setMenuOpen] = useState(false);
@@ -62,7 +59,6 @@ export function UserMenu() {
   const [isChatOpen, setChatOpen] = useState(false);
   const [isInternetSearchOpen, setInternetSearchOpen] = useState(false);
   const [isAdminPanelOpen, setAdminPanelOpen] = useState(false);
-  const [isAllPatientsOpen, setAllPatientsOpen] = useState(false);
 
   const getTranslatedDoctorData = async (doctor: Doctor): Promise<DoctorExportData> => {
     const targetLanguage = lang === 'ar' ? 'Arabic' : 'English';
@@ -148,11 +144,6 @@ export function UserMenu() {
       });
     }
   }
-  
-  const handleResetReferrals = () => {
-      // This is now an indirect operation: delete all patients.
-      deleteAllPatients();
-  }
 
   const MenuItem = ({ icon, label, onClick, destructive = false }: { icon: React.ReactNode, label: string, onClick?: () => void, destructive?: boolean }) => (
     <Button
@@ -194,10 +185,10 @@ export function UserMenu() {
                 {user.role === 'admin' && (
                 <>
                   <div className="px-2 py-1.5 text-sm font-semibold">{t('userMenu.management')}</div>
-                   <ConfirmationDialog
+                  <ConfirmationDialog
                       title={t('dialogs.resetReferralsTitle')}
                       description={t('dialogs.resetReferralsDesc')}
-                      onConfirm={handleResetReferrals}
+                      onConfirm={resetAllReferrals}
                       trigger={<MenuItem icon={<RotateCcw className="mr-2 h-4 w-4" />} label={t('userMenu.resetAllReferrals')} destructive />}
                   />
                   <ConfirmationDialog
@@ -210,10 +201,6 @@ export function UserMenu() {
                   <Separator className="my-2" />
                 </>
               )}
-              
-              <div className="px-2 py-1.5 text-sm font-semibold">{t('userMenu.programs')}</div>
-              <MenuItem icon={<Users className="mr-2 h-4 w-4" />} label={t('userMenu.patientManagement')} onClick={() => { setAllPatientsOpen(true); setMenuOpen(false); }} />
-              <Separator className="my-2" />
               
               <div className="px-2 py-1.5 text-sm font-semibold">{t('userMenu.aiTools')}</div>
               <MenuItem icon={<BrainCircuit className="mr-2 h-4 w-4" />} label={t('userMenu.aiChat')} onClick={() => { setChatOpen(true); setMenuOpen(false); }} />
@@ -285,7 +272,6 @@ export function UserMenu() {
       <AboutDialog open={isAboutOpen} onOpenChange={setAboutOpen} />
       <ChatDialog open={isChatOpen} onOpenChange={setChatOpen} />
       <InternetSearchDialog open={isInternetSearchOpen} onOpenChange={setInternetSearchOpen} />
-      <AllPatientsDialog open={isAllPatientsOpen} onOpenChange={setAllPatientsOpen} />
 
       
       {/* Admin Panel Sheet */}

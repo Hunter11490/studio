@@ -14,7 +14,6 @@ import {
   CalendarDays,
   ToggleLeft,
   ToggleRight,
-  Users,
 } from 'lucide-react';
 import { Doctor } from '@/types';
 import { useDoctors } from '@/hooks/use-doctors';
@@ -28,19 +27,15 @@ import { ConfirmationDialog } from '@/components/confirmation-dialog';
 import { DoctorFormDialog } from './doctor-form-dialog';
 import { cn } from '@/lib/utils';
 import { StethoscopeLogo } from '../stethoscope-logo';
-import { PatientManagementDialog } from '../patient/patient-management-dialog';
-import { usePatients } from '@/hooks/use-patients';
 
 
 const WEEK_DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
 export function DoctorCard({ doctor }: { doctor: Doctor }) {
   const { updateDoctor, deleteDoctor } = useDoctors();
-  const { deletePatientsByDoctor } = usePatients();
   const { t, lang } = useLanguage();
   const { toast } = useToast();
   const [isEditing, setEditing] = useState(false);
-  const [isPatientManagerOpen, setPatientManagerOpen] = useState(false);
 
   const referralCount = doctor.referralCount;
   const commission = referralCount * 100;
@@ -81,7 +76,6 @@ export function DoctorCard({ doctor }: { doctor: Doctor }) {
   
   const handleDeleteDoctor = () => {
       deleteDoctor(doctor.id);
-      deletePatientsByDoctor(doctor.id);
   }
 
   return (
@@ -170,10 +164,6 @@ export function DoctorCard({ doctor }: { doctor: Doctor }) {
         </CardContent>
 
         <CardFooter className="p-4 flex-col gap-2 items-stretch">
-            <Button variant="outline" size="sm" onClick={() => setPatientManagerOpen(true)}>
-                <Users className="mr-1 h-4 w-4" />
-                {t('doctorCard.patients')}
-            </Button>
           <div className="flex gap-2">
             <Button variant="outline" size="sm" className="flex-1" onClick={() => window.open(doctor.mapLocation, '_blank')} disabled={!doctor.mapLocation}>
               <MapPin className="mr-1 h-4 w-4" /> {t('doctorCard.map')}
@@ -197,7 +187,6 @@ export function DoctorCard({ doctor }: { doctor: Doctor }) {
       </Card>
       
       <DoctorFormDialog open={isEditing} onOpenChange={setEditing} doctorToEdit={doctor} />
-      <PatientManagementDialog open={isPatientManagerOpen} onOpenChange={setPatientManagerOpen} doctor={doctor} />
     </>
   );
 }

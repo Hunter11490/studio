@@ -25,7 +25,6 @@ import type { Doctor } from '@/types';
 import { translateText } from '@/ai/flows/translation-flow';
 import { exportToExcel } from '@/lib/excel';
 import { useToast } from '@/hooks/use-toast';
-import { usePatients } from '@/hooks/use-patients';
 
 type PartnerDashboardProps = {
   open: boolean;
@@ -85,7 +84,6 @@ function PartnerDoctorItem({ doctor }: { doctor: Doctor }) {
 
 export function PartnerDashboard({ open, onOpenChange }: PartnerDashboardProps) {
   const { doctors, updateDoctor } = useDoctors();
-  const { getPatientsByDoctor } = usePatients();
   const { t, lang } = useLanguage();
   const { toast } = useToast();
 

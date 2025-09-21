@@ -3,7 +3,7 @@
 import { useContext } from 'react';
 import { DoctorContext, DoctorContextType } from '@/components/providers/doctor-provider';
 
-export const useDoctors = (): Omit<DoctorContextType, 'resetAllReferrals'> => {
+export const useDoctors = (): DoctorContextType => {
   const context = useContext(DoctorContext);
   if (!context) {
     throw new Error('useDoctors must be used within a DoctorProvider');
