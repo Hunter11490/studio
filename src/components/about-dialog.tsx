@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -23,8 +24,33 @@ export function AboutDialog({ open, onOpenChange }: AboutDialogProps) {
   
   const projectOwner = users.find(u => u.username === 'HUNTER') as StoredUser | undefined;
 
+  useEffect(() => {
+    if (open) {
+      // Push a new state to the history when the dialog opens
+      window.history.pushState({ dialog: 'about' }, '');
+
+      const handlePopState = (event: PopStateEvent) => {
+        // If the state we pushed is popped (e.g., by back button), close the dialog
+        if (event.state?.dialog === 'about') {
+          onOpenChange(false);
+        }
+      };
+      
+      window.addEventListener('popstate', handlePopState);
+      return () => window.removeEventListener('popstate', handlePopState);
+    }
+  }, [open, onOpenChange]);
+
+  const handleOpenChange = (isOpen: boolean) => {
+    // If we're closing and the current history state is our dialog state, go back
+    if (!isOpen && window.history.state?.dialog === 'about') {
+      window.history.back();
+    }
+    onOpenChange(isOpen);
+  };
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader className="items-center text-center">
             <Logo className="h-16 w-16 text-primary mb-2" />

@@ -43,6 +43,26 @@ export function InternetSearchDialog({ open, onOpenChange, initialSearchQuery }:
     defaultValues: { query: initialSearchQuery || '' },
   });
 
+  useEffect(() => {
+    if (open) {
+      window.history.pushState({ sheet: 'internetSearch' }, '');
+      const handlePopState = (event: PopStateEvent) => {
+        if (event.state?.sheet === 'internetSearch') {
+          onOpenChange(false);
+        }
+      };
+      window.addEventListener('popstate', handlePopState);
+      return () => window.removeEventListener('popstate', handlePopState);
+    }
+  }, [open, onOpenChange]);
+
+  const handleOpenChange = (isOpen: boolean) => {
+    if (!isOpen && window.history.state?.sheet === 'internetSearch') {
+      window.history.back();
+    }
+    onOpenChange(isOpen);
+  };
+
   const handleSearch = async (values: z.infer<typeof formSchema>) => {
     setIsLoading(true);
     setResults([]);
@@ -151,11 +171,11 @@ export function InternetSearchDialog({ open, onOpenChange, initialSearchQuery }:
     });
     setResults([]);
     setIsAdding(false);
-    onOpenChange(false);
+    handleOpenChange(false);
   };
 
   return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
+    <Sheet open={open} onOpenChange={handleOpenChange}>
       <SheetContent side="bottom" className="h-screen w-screen max-w-full flex flex-col p-0 gap-0">
         <SheetHeader className="p-4 border-b">
           <SheetTitle className="font-headline flex items-center gap-2">

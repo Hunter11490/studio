@@ -54,6 +54,26 @@ export function DoctorFormDialog({ open, onOpenChange, doctorToEdit }: DoctorFor
       isPartner: false,
     },
   });
+  
+  useEffect(() => {
+    if (open) {
+      window.history.pushState({ dialog: 'doctorForm' }, '');
+      const handlePopState = (event: PopStateEvent) => {
+        if (event.state?.dialog === 'doctorForm') {
+          onOpenChange(false);
+        }
+      };
+      window.addEventListener('popstate', handlePopState);
+      return () => window.removeEventListener('popstate', handlePopState);
+    }
+  }, [open, onOpenChange]);
+
+  const handleOpenChange = (isOpen: boolean) => {
+    if (!isOpen && window.history.state?.dialog === 'doctorForm') {
+      window.history.back();
+    }
+    onOpenChange(isOpen);
+  };
 
   useEffect(() => {
     if (doctorToEdit) {
@@ -106,11 +126,11 @@ export function DoctorFormDialog({ open, onOpenChange, doctorToEdit }: DoctorFor
     } else {
       addDoctor(doctorData);
     }
-    onOpenChange(false);
+    handleOpenChange(false);
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-md flex flex-col h-full sm:h-auto">
         <DialogHeader>
           <DialogTitle className="font-headline">
@@ -212,7 +232,7 @@ export function DoctorFormDialog({ open, onOpenChange, doctorToEdit }: DoctorFor
               </div>
             </ScrollArea>
             <DialogFooter className="mt-4 pt-4 border-t">
-              <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+              <Button type="button" variant="outline" onClick={() => handleOpenChange(false)}>
                 {t('doctorForm.cancel')}
               </Button>
               <Button type="submit">{t('doctorForm.save')}</Button>

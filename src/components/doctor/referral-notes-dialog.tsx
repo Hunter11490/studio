@@ -54,6 +54,26 @@ export function ReferralNotesDialog({ open, onOpenChange, doctor }: ReferralNote
     }
   }, [open, doctor]);
 
+  useEffect(() => {
+    if (open) {
+      window.history.pushState({ dialog: 'referralNotes' }, '');
+      const handlePopState = (event: PopStateEvent) => {
+        if (event.state?.dialog === 'referralNotes') {
+          onOpenChange(false);
+        }
+      };
+      window.addEventListener('popstate', handlePopState);
+      return () => window.removeEventListener('popstate', handlePopState);
+    }
+  }, [open, onOpenChange]);
+
+  const handleOpenChange = (isOpen: boolean) => {
+    if (!isOpen && window.history.state?.dialog === 'referralNotes') {
+      window.history.back();
+    }
+    onOpenChange(isOpen);
+  };
+
   const handleCaseChange = (index: number, field: keyof ReferralCase, value: string) => {
     const newCases = [...cases];
     newCases[index][field] = value;
@@ -72,7 +92,7 @@ export function ReferralNotesDialog({ open, onOpenChange, doctor }: ReferralNote
 
   const handleSave = () => {
     updateDoctor(doctor.id, { referralNotes: cases, referralCount: cases.length });
-    onOpenChange(false);
+    handleOpenChange(false);
   };
 
   const handleExport = () => {
@@ -106,7 +126,7 @@ export function ReferralNotesDialog({ open, onOpenChange, doctor }: ReferralNote
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="h-screen w-screen max-w-full flex flex-col p-0 gap-0">
         <DialogHeader className="p-4 border-b">
           <DialogTitle className="font-headline">{t('referralNotes.title')}</DialogTitle>
@@ -197,7 +217,7 @@ export function ReferralNotesDialog({ open, onOpenChange, doctor }: ReferralNote
                 {t('referralNotes.exportExcel')}
             </Button>
             <div className="flex w-full sm:w-auto gap-2">
-                <Button onClick={() => onOpenChange(false)} variant="secondary" className="flex-1">
+                <Button onClick={() => handleOpenChange(false)} variant="secondary" className="flex-1">
                     <X className="mr-2 h-4 w-4" />
                     {t('common.close')}
                 </Button>

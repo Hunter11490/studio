@@ -52,6 +52,26 @@ export function ChatDialog({ open, onOpenChange }: ChatDialogProps) {
     }
   }, [messages]);
 
+  useEffect(() => {
+    if (open) {
+      window.history.pushState({ dialog: 'chat' }, '');
+      const handlePopState = (event: PopStateEvent) => {
+        if (event.state?.dialog === 'chat') {
+          onOpenChange(false);
+        }
+      };
+      window.addEventListener('popstate', handlePopState);
+      return () => window.removeEventListener('popstate', handlePopState);
+    }
+  }, [open, onOpenChange]);
+
+  const handleOpenChange = (isOpen: boolean) => {
+    if (!isOpen && window.history.state?.dialog === 'chat') {
+      window.history.back();
+    }
+    onOpenChange(isOpen);
+  };
+
 
   const handleSend = async () => {
     if (!input.trim()) return;
@@ -75,7 +95,7 @@ export function ChatDialog({ open, onOpenChange }: ChatDialogProps) {
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="max-w-lg h-[70vh] flex flex-col">
         <DialogHeader>
           <DialogTitle className="font-headline">{t('dialogs.chatTitle')}</DialogTitle>

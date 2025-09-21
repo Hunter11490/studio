@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   BrainCircuit,
   CircleUser,
@@ -59,6 +59,48 @@ export function UserMenu() {
   const [isChatOpen, setChatOpen] = useState(false);
   const [isInternetSearchOpen, setInternetSearchOpen] = useState(false);
   const [isAdminPanelOpen, setAdminPanelOpen] = useState(false);
+  
+  useEffect(() => {
+    // This effect is to handle the back button for the main user menu sheet
+    if (isMenuOpen) {
+      window.history.pushState({ sheet: 'userMenu' }, '');
+      const handlePopState = (event: PopStateEvent) => {
+        if (event.state?.sheet === 'userMenu') {
+          setMenuOpen(false);
+        }
+      };
+      window.addEventListener('popstate', handlePopState);
+      return () => window.removeEventListener('popstate', handlePopState);
+    }
+  }, [isMenuOpen]);
+
+  const handleMenuOpenChange = (isOpen: boolean) => {
+    if (!isOpen && window.history.state?.sheet === 'userMenu') {
+      window.history.back();
+    }
+    setMenuOpen(isOpen);
+  };
+  
+    // This effect handles the back button for the Admin Panel sheet
+  useEffect(() => {
+    if (isAdminPanelOpen) {
+      window.history.pushState({ sheet: 'adminPanel' }, '');
+      const handlePopState = (event: PopStateEvent) => {
+        if (event.state?.sheet === 'adminPanel') {
+          setAdminPanelOpen(false);
+        }
+      };
+      window.addEventListener('popstate', handlePopState);
+      return () => window.removeEventListener('popstate', handlePopState);
+    }
+  }, [isAdminPanelOpen]);
+
+  const handleAdminPanelOpenChange = (isOpen: boolean) => {
+    if (!isOpen && window.history.state?.sheet === 'adminPanel') {
+      window.history.back();
+    }
+    setAdminPanelOpen(isOpen);
+  };
 
   const getTranslatedDoctorData = async (doctor: Doctor): Promise<DoctorExportData> => {
     const targetLanguage = lang === 'ar' ? 'Arabic' : 'English';
@@ -78,8 +120,10 @@ export function UserMenu() {
     let translatedData = { name: doctor.name, specialty: doctor.specialty, clinicAddress: doctor.clinicAddress };
     
     try {
-        const result = await translateText({ name: doctor.name, specialty: doctor.specialty, clinicAddress: doctor.clinicAddress, targetLanguage });
-        translatedData = result;
+        const result = await translateText({ doctors: [{ name: doctor.name, specialty: doctor.specialty, clinicAddress: doctor.clinicAddress }], targetLanguage: 'Arabic' });
+        if(result.doctors.length > 0) {
+            translatedData = result.doctors[0];
+        }
     } catch (error) {
         console.error("Translation failed for", doctor.name, "falling back to original.");
     }
@@ -151,7 +195,7 @@ export function UserMenu() {
       className={`w-full justify-start h-10 ${destructive ? 'text-destructive hover:text-destructive' : ''}`}
       onClick={() => {
         if (onClick) onClick();
-        setMenuOpen(false);
+        handleMenuOpenChange(false);
       }}
     >
       {icon}
@@ -164,7 +208,7 @@ export function UserMenu() {
 
   return (
     <>
-      <Sheet open={isMenuOpen} onOpenChange={setMenuOpen}>
+      <Sheet open={isMenuOpen} onOpenChange={handleMenuOpenChange}>
         <SheetTrigger asChild>
           <Button variant="secondary" size="icon" className="rounded-full">
             <CircleUser className="h-5 w-5" />
@@ -197,14 +241,14 @@ export function UserMenu() {
                       onConfirm={uncheckAllPartners}
                       trigger={<MenuItem icon={<StarOff className="mr-2 h-4 w-4" />} label={t('userMenu.uncheckAllPartners')} destructive />}
                   />
-                  <MenuItem icon={<Shield className="mr-2 h-4 w-4" />} label={t('header.adminDashboard')} onClick={() => { setAdminPanelOpen(true); setMenuOpen(false); }} />
+                  <MenuItem icon={<Shield className="mr-2 h-4 w-4" />} label={t('header.adminDashboard')} onClick={() => { setAdminPanelOpen(true); handleMenuOpenChange(false); }} />
                   <Separator className="my-2" />
                 </>
               )}
               
               <div className="px-2 py-1.5 text-sm font-semibold">{t('userMenu.aiTools')}</div>
-              <MenuItem icon={<BrainCircuit className="mr-2 h-4 w-4" />} label={t('userMenu.aiChat')} onClick={() => { setChatOpen(true); setMenuOpen(false); }} />
-              <MenuItem icon={<UserSearch className="mr-2 h-4 w-4" />} label={t('userMenu.internetSearch')} onClick={() => { setInternetSearchOpen(true); setMenuOpen(false); }} />
+              <MenuItem icon={<BrainCircuit className="mr-2 h-4 w-4" />} label={t('userMenu.aiChat')} onClick={() => { setChatOpen(true); handleMenuOpenChange(false); }} />
+              <MenuItem icon={<UserSearch className="mr-2 h-4 w-4" />} label={t('userMenu.internetSearch')} onClick={() => { setInternetSearchOpen(true); handleMenuOpenChange(false); }} />
               <Separator className="my-2" />
 
               <div className="px-2 py-1.5 text-sm font-semibold">{t('userMenu.dataActions')}</div>
@@ -253,7 +297,7 @@ export function UserMenu() {
             </div>
           </ScrollArea>
            <div className="p-2 border-t mt-auto">
-             <MenuItem icon={<Info className="mr-2 h-4 w-4" />} label={t('userMenu.about')} onClick={() => { setAboutOpen(true); setMenuOpen(false); }} />
+             <MenuItem icon={<Info className="mr-2 h-4 w-4" />} label={t('userMenu.about')} onClick={() => { setAboutOpen(true); handleMenuOpenChange(false); }} />
              <MenuItem icon={<LogOut className="mr-2 h-4 w-4" />} label={t('auth.logout')} onClick={logout} />
            </div>
         </SheetContent>
@@ -276,7 +320,7 @@ export function UserMenu() {
       
       {/* Admin Panel Sheet */}
       {user.role === 'admin' && (
-        <Sheet open={isAdminPanelOpen} onOpenChange={setAdminPanelOpen}>
+        <Sheet open={isAdminPanelOpen} onOpenChange={handleAdminPanelOpenChange}>
             <SheetContent className="w-full sm:max-w-3xl overflow-y-auto">
                 <SheetHeader>
                     <SheetTitle>{t('admin.dashboardTitle')}</SheetTitle>
