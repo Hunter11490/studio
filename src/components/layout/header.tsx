@@ -19,7 +19,7 @@ import { translateText, DoctorInfo } from '@/ai/flows/translation-flow';
 import { Doctor } from '@/types';
 
 export function Header() {
-  const { lang, t, setLang } = useLanguage();
+  const { lang, t } = useLanguage();
   const { 
     doctors, 
     updateMultipleDoctors,
@@ -82,7 +82,7 @@ export function Header() {
           name: translatedInfo?.name || originalDoctor.name,
           specialty: translatedInfo?.specialty || originalDoctor.specialty,
           clinicAddress: translatedInfo?.clinicAddress || originalDoctor.clinicAddress,
-          isLoading: false,
+          isLoading: false, // Make sure to turn off loading state
         };
       });
       

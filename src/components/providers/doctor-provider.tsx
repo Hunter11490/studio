@@ -31,7 +31,6 @@ export type DoctorContextType = {
   setViewMode: (mode: 'grid' | 'list') => void;
   sortOption: SortOption;
   setSortOption: (option: SortOption) => void;
-  isLoading?: boolean;
 };
 
 export const DoctorContext = createContext<DoctorContextType | null>(null);
@@ -82,10 +81,8 @@ export function DoctorProvider({ children }: { children: React.ReactNode }) {
   };
 
   const updateMultipleDoctors = (updatedDoctors: Doctor[]) => {
-    setDoctors(prevDoctors => {
-      const updatedDoctorMap = new Map(updatedDoctors.map(d => [d.id, d]));
-      return prevDoctors.map(doc => updatedDoctorMap.get(doc.id) || doc);
-    });
+    // Recreate the array to ensure state update is recognized.
+    setDoctors([...updatedDoctors]);
   };
 
   const deleteDoctor = (id: string) => {
