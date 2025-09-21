@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 import {
   Star,
   Plus,
@@ -26,7 +27,6 @@ import { DoctorFormDialog } from './doctor-form-dialog';
 import { ReferralNotesDialog } from './referral-notes-dialog';
 import { Skeleton } from '../ui/skeleton';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
-import { StethoscopeLogo } from '../stethoscope-logo';
 
 
 const WEEK_DAYS = ['Sat', 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
@@ -93,7 +93,13 @@ export function DoctorCard({ doctor }: { doctor: Doctor }) {
   return (
     <>
       <Card className="flex flex-col overflow-hidden relative">
-        <StethoscopeLogo className="absolute -top-4 -right-4 w-32 h-32 text-primary/5 dark:text-primary/10 opacity-50 transform-gpu" />
+        <Image
+          src="https://picsum.photos/seed/ishtar-gate/400/600"
+          alt="Ishtar Gate Watermark"
+          data-ai-hint="ishtar gate"
+          fill
+          className="object-cover opacity-5 dark:opacity-10"
+        />
         <CardHeader className="p-4 relative z-10">
           <div className="flex items-start justify-between">
             <div className="grid gap-1">
