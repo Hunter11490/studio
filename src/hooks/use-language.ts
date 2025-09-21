@@ -1,6 +1,6 @@
 'use client';
 
-import { useContext } from 'react';
+import { useContext, useCallback } from 'react';
 import { LanguageProviderContext, LanguageProviderState } from '@/components/providers/language-provider';
 
 export const useLanguage = (): LanguageProviderState => {
@@ -10,5 +10,20 @@ export const useLanguage = (): LanguageProviderState => {
     throw new Error('useLanguage must be used within a LanguageProvider');
   }
 
-  return context;
+  const { t: originalT } = context;
+
+  const t = useCallback(
+    (key: string, replacements?: Record<string, string | number>): string => {
+      let translation = originalT(key);
+      if (replacements) {
+        Object.keys(replacements).forEach(rKey => {
+          translation = translation.replace(`{${rKey}}`, String(replacements[rKey]));
+        });
+      }
+      return translation;
+    },
+    [originalT]
+  );
+  
+  return { ...context, t };
 };

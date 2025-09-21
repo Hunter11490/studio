@@ -12,7 +12,7 @@ export type LanguageProviderState = {
   lang: Language;
   setLang: (lang: Language) => void;
   dir: Direction;
-  t: (key: string) => string;
+  t: (key: string, replacements?: Record<string, string | number>) => string;
 };
 
 export const LanguageProviderContext = createContext<LanguageProviderState | undefined>(undefined);
@@ -29,7 +29,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   }, [lang]);
 
   const t = useCallback(
-    (key: string): string => {
+    (key: string, replacements?: Record<string, string | number>): string => {
       const keys = key.split('.');
       let result: string | Translation = translations[lang];
       for (const k of keys) {
@@ -39,12 +39,23 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
           return key; // Return the key itself if not found
         }
       }
-      return typeof result === 'string' ? result : key;
+      
+      let translation = typeof result === 'string' ? result : key;
+
+      if (replacements) {
+        Object.keys(replacements).forEach(rKey => {
+          // Use a regex to replace all occurrences of {key}
+          const regex = new RegExp(`{${rKey}}`, 'g');
+          translation = translation.replace(regex, String(replacements[rKey]));
+        });
+      }
+
+      return translation;
     },
     [lang]
   );
 
-  const value = {
+  const value: LanguageProviderState = {
     lang,
     setLang,
     dir,
