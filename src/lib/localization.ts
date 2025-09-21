@@ -165,9 +165,17 @@ export const translations: Translations = {
       exportFileName: 'Partner_Doctors_Report',
       exportName: 'Name',
       exportAddress: 'Address',
-exportPhone: 'Phone',
+      exportPhone: 'Phone',
       exportReferrals: 'Referrals',
       exportCommission: 'Commission (USD)',
+    },
+    referralNotes: {
+      title: "Referral Notes",
+      description: "Notes for cases referred by {name}",
+      caseLabel: "Case #{index}",
+      placeholder: "Enter note for this case...",
+      save: "Save Notes",
+      noCases: "No referrals to show. Increase the referral count to add notes."
     },
   },
   ar: {
@@ -337,6 +345,14 @@ exportPhone: 'Phone',
       exportPhone: 'الهاتف',
       exportReferrals: 'الإحالات',
       exportCommission: 'العمولة (دولار)',
+    },
+    referralNotes: {
+      title: "ملاحظات الإحالة",
+      description: "ملاحظات للحالات المحالة من {name}",
+      caseLabel: "الحالة رقم #{index}",
+      placeholder: "أدخل ملاحظة لهذه الحالة...",
+      save: "حفظ الملاحظات",
+      noCases: "لا توجد إحالات لعرضها. قم بزيادة عدد الإحالات لإضافة ملاحظات."
     },
   },
 };

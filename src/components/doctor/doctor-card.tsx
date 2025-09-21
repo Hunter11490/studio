@@ -27,6 +27,7 @@ import { ConfirmationDialog } from '@/components/confirmation-dialog';
 import { DoctorFormDialog } from './doctor-form-dialog';
 import { cn } from '@/lib/utils';
 import { StethoscopeLogo } from '../stethoscope-logo';
+import { ReferralNotesDialog } from './referral-notes-dialog';
 
 
 const WEEK_DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -36,6 +37,7 @@ export function DoctorCard({ doctor }: { doctor: Doctor }) {
   const { t, lang } = useLanguage();
   const { toast } = useToast();
   const [isEditing, setEditing] = useState(false);
+  const [isReferralSheetOpen, setReferralSheetOpen] = useState(false);
 
   const referralCount = doctor.referralCount;
   const commission = referralCount * 100;
@@ -71,7 +73,17 @@ export function DoctorCard({ doctor }: { doctor: Doctor }) {
 
   const handleReferralChange = (amount: number) => {
     const newCount = Math.max(0, referralCount + amount);
-    updateDoctor(doctor.id, { referralCount: newCount });
+    // When referrals are added, add empty note slots. When removed, slice the notes array.
+    const newNotes = [...(doctor.referralNotes || [])];
+    if (newCount > newNotes.length) {
+      for(let i=0; i < newCount - newNotes.length; i++) {
+        newNotes.push('');
+      }
+    } else {
+      newNotes.length = newCount;
+    }
+
+    updateDoctor(doctor.id, { referralCount: newCount, referralNotes: newNotes });
   };
   
   const handleDeleteDoctor = () => {
@@ -98,7 +110,12 @@ export function DoctorCard({ doctor }: { doctor: Doctor }) {
           </div>
           
             <>
-                <CardTitle className="font-headline text-xl">{doctor.name}</CardTitle>
+              <CardTitle
+                className="font-headline text-xl cursor-pointer hover:underline"
+                onClick={() => setReferralSheetOpen(true)}
+              >
+                {doctor.name}
+              </CardTitle>
                 <CardDescription>{doctor.specialty}</CardDescription>
             </>
           
@@ -187,6 +204,11 @@ export function DoctorCard({ doctor }: { doctor: Doctor }) {
       </Card>
       
       <DoctorFormDialog open={isEditing} onOpenChange={setEditing} doctorToEdit={doctor} />
+      <ReferralNotesDialog 
+        open={isReferralSheetOpen}
+        onOpenChange={setReferralSheetOpen}
+        doctor={doctor}
+      />
     </>
   );
 }

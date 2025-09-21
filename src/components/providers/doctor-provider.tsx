@@ -34,6 +34,7 @@ export function DoctorProvider({ children }: { children: React.ReactNode }) {
       id: new Date().toISOString() + Math.random(),
       createdAt: new Date().toISOString(),
       referralCount: doctorData.referralCount || 0,
+      referralNotes: Array(doctorData.referralCount || 0).fill(''),
     };
     setDoctors(prev => [newDoctor, ...prev]);
   };
@@ -55,7 +56,7 @@ export function DoctorProvider({ children }: { children: React.ReactNode }) {
   };
 
   const resetAllReferrals = () => {
-    setDoctors(prev => prev.map(doc => ({ ...doc, referralCount: 0 })));
+    setDoctors(prev => prev.map(doc => ({ ...doc, referralCount: 0, referralNotes: [] })));
   };
 
   const importDoctors = (newDoctors: Doctor[]) => {

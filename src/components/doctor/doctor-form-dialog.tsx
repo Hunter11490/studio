@@ -96,6 +96,7 @@ export function DoctorFormDialog({ open, onOpenChange, doctorToEdit }: DoctorFor
     const doctorData = {
       ...values,
       referralCount: doctorToEdit?.referralCount || 0,
+      referralNotes: doctorToEdit?.referralNotes || [],
       mapLocation: doctorToEdit?.mapLocation || '',
       availableDays: doctorToEdit?.availableDays || [],
     };

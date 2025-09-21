@@ -8,6 +8,7 @@ export type Doctor = {
   clinicCardImageUrl: string; // Data URL
   isPartner: boolean;
   referralCount: number;
+  referralNotes?: string[];
   availableDays: string[]; // e.g., ['Sun', 'Mon']
   createdAt: string; // ISO date string
 };
