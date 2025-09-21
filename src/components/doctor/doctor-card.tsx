@@ -167,7 +167,7 @@ export function DoctorCard({ doctor }: { doctor: Doctor }) {
              <div className="space-y-2">
                 <div className="flex items-start gap-3">
                     <Phone className="h-4 w-4 mt-0.5 shrink-0 text-muted-foreground" /> 
-                    {doctor.isLoading ? <Skeleton className="h-5 w-24" /> : <a href={`tel:${doctor.phoneNumber}`} className="hover:underline" dir="ltr">{doctor.phoneNumber}</a>}
+                    {doctor.isLoading ? <Skeleton className="h-5 w-24" /> : <a href={`tel:${doctor.phoneNumber}`} className="hover:underline text-primary" dir="ltr">{doctor.phoneNumber}</a>}
                 </div>
                 <div className="flex items-start gap-3">
                     <MapPin className="h-4 w-4 mt-0.5 shrink-0 text-muted-foreground" />
