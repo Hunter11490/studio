@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useState, useMemo } from 'react';
+import { createContext, useState, useMemo, useEffect } from 'react';
 import { useLocalStorage } from '@/hooks/use-local-storage';
 import { Doctor } from '@/types';
 import { MOCK_DOCTORS } from '@/lib/mock-doctors';
@@ -29,10 +29,19 @@ export type DoctorContextType = {
 export const DoctorContext = createContext<DoctorContextType | null>(null);
 
 export function DoctorProvider({ children }: { children: React.ReactNode }) {
-  const [doctors, setDoctors] = useLocalStorage<Doctor[]>(DOCTORS_STORAGE_KEY, MOCK_DOCTORS);
+  const [doctors, setDoctors] = useLocalStorage<Doctor[]>(DOCTORS_STORAGE_KEY, []);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterPartners, setFilterPartners] = useState(false);
   const [viewMode, setViewMode] = useLocalStorage<'grid' | 'list'>(VIEW_MODE_STORAGE_KEY, 'grid');
+
+  useEffect(() => {
+    // If doctors list is empty (e.g., first load or after admin login reset),
+    // populate it with mock data.
+    if (doctors.length === 0) {
+      setDoctors(MOCK_DOCTORS);
+    }
+  }, []); // Run only on initial mount of the provider
+
 
   const addDoctor = (doctorData: Omit<Doctor, 'id' | 'createdAt'>) => {
     const newDoctor: Doctor = {
@@ -95,5 +104,3 @@ export function DoctorProvider({ children }: { children: React.ReactNode }) {
 
   return <DoctorContext.Provider value={value}>{children}</DoctorContext.Provider>;
 }
-
-    
