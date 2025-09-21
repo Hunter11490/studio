@@ -166,13 +166,13 @@ export function DoctorCard({ doctor }: { doctor: Doctor }) {
           <Separator />
           
           <div className="space-y-2">
-            <p className="flex items-start gap-2">
+            <div className="flex items-start gap-2">
                 <Phone className="h-4 w-4 mt-0.5 shrink-0" /> 
                  {doctor.isLoading ? <Skeleton className="h-5 w-24" /> : (
                     <a href={`tel:${doctor.phoneNumber}`} className="hover:underline" dir="ltr">{doctor.phoneNumber}</a>
                 )}
-            </p>
-            <p className="flex items-start gap-2">
+            </div>
+            <div className="flex items-start gap-2">
                 <MapPin className="h-4 w-4 mt-0.5 shrink-0" />
                 {doctor.isLoading ? (
                     <div className="space-y-1.5">
@@ -182,7 +182,7 @@ export function DoctorCard({ doctor }: { doctor: Doctor }) {
                 ) : (
                     <span>{doctor.clinicAddress}</span>
                 )}
-            </p>
+            </div>
           </div>
           
            <div className="space-y-2">
