@@ -3,6 +3,7 @@
 import { createContext, useState, useMemo } from 'react';
 import { useLocalStorage } from '@/hooks/use-local-storage';
 import { Doctor } from '@/types';
+import { MOCK_DOCTORS } from '@/lib/mock-doctors';
 
 const DOCTORS_STORAGE_KEY = 'iraqi_doctors_list_v2';
 const VIEW_MODE_STORAGE_KEY = 'iraqi_doctors_view_mode_v1';
@@ -28,7 +29,7 @@ export type DoctorContextType = {
 export const DoctorContext = createContext<DoctorContextType | null>(null);
 
 export function DoctorProvider({ children }: { children: React.ReactNode }) {
-  const [doctors, setDoctors] = useLocalStorage<Doctor[]>(DOCTORS_STORAGE_KEY, []);
+  const [doctors, setDoctors] = useLocalStorage<Doctor[]>(DOCTORS_STORAGE_KEY, MOCK_DOCTORS);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterPartners, setFilterPartners] = useState(false);
   const [viewMode, setViewMode] = useLocalStorage<'grid' | 'list'>(VIEW_MODE_STORAGE_KEY, 'grid');
