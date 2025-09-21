@@ -4,7 +4,7 @@ import { createContext, useState, useMemo, useEffect } from 'react';
 import { useLocalStorage } from '@/hooks/use-local-storage';
 import { Doctor } from '@/types';
 
-export const DOCTORS_STORAGE_KEY = 'iraqi_doctors_list_v3';
+export const DOCTORS_STORAGE_KEY = 'iraqi_doctors_list_v3_cleared';
 const VIEW_MODE_STORAGE_KEY = 'iraqi_doctors_view_mode_v1';
 const SORT_OPTION_STORAGE_KEY = 'iraqi_doctors_sort_option_v1';
 
