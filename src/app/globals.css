@@ -67,6 +67,12 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply text-foreground;
+    background-color: hsl(var(--background));
+    background-image: linear-gradient(to bottom right, hsl(var(--background)), hsl(var(--primary) / 0.1));
+  }
+
+  .dark body {
+    background-image: linear-gradient(to bottom right, hsl(var(--background)), hsl(var(--primary) / 0.15));
   }
 }
