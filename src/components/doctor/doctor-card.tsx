@@ -94,16 +94,16 @@ export function DoctorCard({ doctor }: { doctor: Doctor }) {
     <>
       <Card className="flex flex-col overflow-hidden relative">
         <Image
-          src="https://picsum.photos/seed/flower/400/600"
-          alt="Flower watermark"
-          data-ai-hint="flower"
+          src="https://picsum.photos/seed/rose/400/600"
+          alt="Rose watermark"
+          data-ai-hint="rose"
           fill
           className="object-cover opacity-5 dark:opacity-10"
         />
         <CardHeader className="p-4 relative z-10">
           <div className="flex items-start justify-between">
             <div className="grid gap-1">
-                <CardTitle className="font-headline text-xl">
+                <CardTitle className="font-headline text-xl text-primary">
                     {doctor.isLoading ? <Skeleton className="h-7 w-48" /> : doctor.name}
                 </CardTitle>
                 <div className="text-sm text-muted-foreground">
