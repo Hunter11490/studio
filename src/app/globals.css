@@ -23,6 +23,10 @@
     --accent-foreground: 0 0% 100%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
+    --warning: 45 90% 55%; /* Yellow for Edit */
+    --warning-foreground: 45 90% 5%;
+    --success: 140 70% 40%; /* Green for Map */
+    --success-foreground: 140 70% 5%;
     --border: 220 15% 90%; /* Slightly more visible border */
     --input: 220 15% 90%;
     --ring: 215 80% 55%;
@@ -51,6 +55,10 @@
     --accent-foreground: 224 71% 4%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
+    --warning: 45 80% 50%;
+    --warning-foreground: 45 80% 5%;
+    --success: 140 80% 40%;
+    --success-foreground: 140 80% 5%;
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
     --ring: 180 90% 45%;

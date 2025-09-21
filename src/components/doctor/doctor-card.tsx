@@ -199,15 +199,15 @@ export function DoctorCard({ doctor }: { doctor: Doctor }) {
 
         <CardFooter className="p-2 border-t flex flex-col gap-2 z-10 bg-background/50 backdrop-blur-sm">
           <div className="flex w-full gap-2">
-            <Button variant="outline" size="sm" className="flex-1" onClick={() => window.open(doctor.mapLocation, '_blank')} disabled={!doctor.mapLocation}>
+            <Button variant="success" size="sm" className="flex-1" onClick={() => window.open(doctor.mapLocation, '_blank')} disabled={!doctor.mapLocation}>
               <MapPin className="mr-2 h-4 w-4" /> {t('doctorCard.map')}
             </Button>
-            <Button variant="outline" size="sm" className="flex-1" onClick={handleSetLocation}>
+            <Button variant={doctor.mapLocation ? "success" : "destructive"} size="sm" className="flex-1" onClick={handleSetLocation}>
               {t('doctorCard.setMyLocation')}
             </Button>
           </div>
           <div className="flex w-full gap-2">
-             <Button variant="secondary" size="sm" className="flex-1" onClick={() => setEditing(true)}>
+             <Button variant="warning" size="sm" className="flex-1" onClick={() => setEditing(true)}>
                 <Pencil className="mr-2 h-4 w-4" /> {t('doctorCard.edit')}
             </Button>
             <Button variant={doctor.isPartner ? "default" : "secondary"} size="sm" className="flex-1" onClick={handlePartnerToggle}>
