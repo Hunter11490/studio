@@ -7,7 +7,9 @@ import { MOCK_DOCTORS } from '@/lib/mock-doctors';
 
 export const DOCTORS_STORAGE_KEY = 'iraqi_doctors_list_v2';
 const VIEW_MODE_STORAGE_KEY = 'iraqi_doctors_view_mode_v1';
+const SORT_OPTION_STORAGE_KEY = 'iraqi_doctors_sort_option_v1';
 
+export type SortOption = 'name' | 'createdAt' | 'address';
 
 export type DoctorContextType = {
   doctors: Doctor[];
@@ -24,6 +26,8 @@ export type DoctorContextType = {
   setFilterPartners: (filter: boolean) => void;
   viewMode: 'grid' | 'list';
   setViewMode: (mode: 'grid' | 'list') => void;
+  sortOption: SortOption;
+  setSortOption: (option: SortOption) => void;
 };
 
 export const DoctorContext = createContext<DoctorContextType | null>(null);
@@ -33,6 +37,7 @@ export function DoctorProvider({ children }: { children: React.ReactNode }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterPartners, setFilterPartners] = useState(false);
   const [viewMode, setViewMode] = useLocalStorage<'grid' | 'list'>(VIEW_MODE_STORAGE_KEY, 'grid');
+  const [sortOption, setSortOption] = useLocalStorage<SortOption>(SORT_OPTION_STORAGE_KEY, 'createdAt');
 
   useEffect(() => {
     // If doctors list is empty (e.g., first load or after admin login reset),
@@ -100,7 +105,9 @@ export function DoctorProvider({ children }: { children: React.ReactNode }) {
     setFilterPartners,
     viewMode,
     setViewMode,
-  }), [doctors, searchTerm, filterPartners, viewMode, setDoctors, setViewMode]);
+    sortOption,
+    setSortOption,
+  }), [doctors, searchTerm, filterPartners, viewMode, sortOption, setDoctors, setViewMode, setSortOption]);
 
   return <DoctorContext.Provider value={value}>{children}</DoctorContext.Provider>;
 }

@@ -31,6 +31,12 @@ export const translations: Translations = {
       partnerDashboard: 'Partner Dashboard',
       gridView: 'Grid View',
       listView: 'List View',
+      sortBy: 'Sort by',
+      sort: {
+        name: 'Name',
+        date: 'Date Added',
+        address: 'Address',
+      }
     },
     doctorCard: {
       partner: 'Partner',
@@ -227,6 +233,12 @@ export const translations: Translations = {
       partnerDashboard: 'لوحة الشركاء',
       gridView: 'عرض شبكي',
       listView: 'عرض قائمة',
+      sortBy: 'فرز حسب',
+      sort: {
+        name: 'الاسم',
+        date: 'تاريخ الإضافة',
+        address: 'العنوان',
+      }
     },
     doctorCard: {
       partner: 'شريك',

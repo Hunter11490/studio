@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { PlusCircle, Users, SlidersHorizontal, LayoutGrid, List } from 'lucide-react';
+import { PlusCircle, Users, SlidersHorizontal, LayoutGrid, List, ArrowUpDown } from 'lucide-react';
 import { useLanguage } from '@/hooks/use-language';
 import { useDoctors } from '@/hooks/use-doctors';
 import { useAuth } from '@/hooks/use-auth';
@@ -12,11 +12,22 @@ import { UserMenu } from './user-menu';
 import { DoctorFormDialog } from '@/components/doctor/doctor-form-dialog';
 import { PartnerDashboard } from '../doctor/partner-dashboard';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
-import { cn } from '@/lib/utils';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuSeparator, DropdownMenuTrigger } from '../ui/dropdown-menu';
+import { SortOption } from '@/components/providers/doctor-provider';
 
 export function Header() {
   const { t } = useLanguage();
-  const { doctors, searchTerm, setSearchTerm, filterPartners, setFilterPartners, viewMode, setViewMode } = useDoctors();
+  const { 
+    doctors, 
+    searchTerm, 
+    setSearchTerm, 
+    filterPartners, 
+    setFilterPartners, 
+    viewMode, 
+    setViewMode,
+    sortOption,
+    setSortOption
+  } = useDoctors();
   const { user } = useAuth();
   const [isAddDoctorOpen, setAddDoctorOpen] = useState(false);
   const [isPartnerDashboardOpen, setPartnerDashboardOpen] = useState(false);
@@ -59,7 +70,7 @@ export function Header() {
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
-          <div className="flex items-center justify-center gap-4 text-xs text-muted-foreground">
+          <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
             <div className="flex items-center gap-2">
               <span>{t('header.totalDoctors')}:</span>
               <span className="font-bold text-foreground">{doctors.length}</span>
@@ -71,34 +82,67 @@ export function Header() {
                 <Users className="h-3 w-3" />
               </Button>
             </div>
-            <Button
-              variant={filterPartners ? 'secondary' : 'outline'}
-              size="sm"
-              onClick={() => setFilterPartners(!filterPartners)}
-              className="gap-1 h-7"
-            >
-              <SlidersHorizontal className="h-4 w-4" />
-              <span className="hidden md:inline">{t('header.filterPartners')}</span>
-            </Button>
-             <div className="flex items-center rounded-md border p-0.5 bg-secondary">
+            
+            {/* Controls */}
+            <div className="flex items-center gap-1 rounded-md border p-0.5 bg-secondary">
+              <DropdownMenu>
                 <TooltipProvider>
-                    <Tooltip>
-                        <TooltipTrigger asChild>
-                            <Button variant={viewMode === 'grid' ? 'default' : 'ghost'} size="xs" className="h-6 w-6 p-1" onClick={() => setViewMode('grid')}>
-                                <LayoutGrid className="h-4 w-4" />
-                            </Button>
-                        </TooltipTrigger>
-                        <TooltipContent><p>{t('header.gridView')}</p></TooltipContent>
-                    </Tooltip>
-                    <Tooltip>
-                        <TooltipTrigger asChild>
-                             <Button variant={viewMode === 'list' ? 'default' : 'ghost'} size="xs" className="h-6 w-6 p-1" onClick={() => setViewMode('list')}>
-                                <List className="h-4 w-4" />
-                            </Button>
-                        </TooltipTrigger>
-                        <TooltipContent><p>{t('header.listView')}</p></TooltipContent>
-                    </Tooltip>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="xs" className="h-6 w-6 p-1">
+                          <ArrowUpDown className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                    </TooltipTrigger>
+                    <TooltipContent><p>{t('header.sortBy')}</p></TooltipContent>
+                  </Tooltip>
                 </TooltipProvider>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuRadioGroup value={sortOption} onValueChange={(value) => setSortOption(value as SortOption)}>
+                    <DropdownMenuRadioItem value="name">{t('header.sort.name')}</DropdownMenuRadioItem>
+                    <DropdownMenuRadioItem value="createdAt">{t('header.sort.date')}</DropdownMenuRadioItem>
+                    <DropdownMenuRadioItem value="address">{t('header.sort.address')}</DropdownMenuRadioItem>
+                  </DropdownMenuRadioGroup>
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+              <TooltipProvider>
+                 <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant={filterPartners ? 'default' : 'ghost'}
+                        size="xs"
+                        onClick={() => setFilterPartners(!filterPartners)}
+                        className="h-6 w-6 p-1"
+                      >
+                        <SlidersHorizontal className="h-4 w-4" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent><p>{t('header.filterPartners')}</p></TooltipContent>
+                  </Tooltip>
+              </TooltipProvider>
+              
+              <DropdownMenuSeparator orientation="vertical" className="h-5 bg-border mx-1" />
+
+              <TooltipProvider>
+                  <Tooltip>
+                      <TooltipTrigger asChild>
+                          <Button variant={viewMode === 'grid' ? 'default' : 'ghost'} size="xs" className="h-6 w-6 p-1" onClick={() => setViewMode('grid')}>
+                              <LayoutGrid className="h-4 w-4" />
+                          </Button>
+                      </TooltipTrigger>
+                      <TooltipContent><p>{t('header.gridView')}</p></TooltipContent>
+                  </Tooltip>
+                  <Tooltip>
+                      <TooltipTrigger asChild>
+                            <Button variant={viewMode === 'list' ? 'default' : 'ghost'} size="xs" className="h-6 w-6 p-1" onClick={() => setViewMode('list')}>
+                              <List className="h-4 w-4" />
+                          </Button>
+                      </TooltipTrigger>
+                      <TooltipContent><p>{t('header.listView')}</p></TooltipContent>
+                  </Tooltip>
+              </TooltipProvider>
             </div>
           </div>
         </div>

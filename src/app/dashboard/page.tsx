@@ -6,13 +6,28 @@ import { DoctorGrid } from '@/components/doctor/doctor-grid';
 import { DoctorList } from '@/components/doctor/doctor-list';
 import { useLanguage } from '@/hooks/use-language';
 import { Frown } from 'lucide-react';
+import { Doctor } from '@/types';
 
 export default function DashboardPage() {
-  const { doctors, searchTerm, filterPartners, viewMode } = useDoctors();
+  const { doctors, searchTerm, filterPartners, viewMode, sortOption } = useDoctors();
   const { t } = useLanguage();
 
-  const filteredDoctors = useMemo(() => {
-    return doctors
+  const filteredAndSortedDoctors = useMemo(() => {
+    
+    const sorted = [...doctors].sort((a: Doctor, b: Doctor) => {
+      switch (sortOption) {
+        case 'name':
+          return a.name.localeCompare(b.name);
+        case 'createdAt':
+          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+        case 'address':
+          return a.clinicAddress.localeCompare(b.clinicAddress);
+        default:
+          return 0;
+      }
+    });
+
+    return sorted
       .filter(doctor => {
         if (!filterPartners) return true;
         return doctor.isPartner;
@@ -26,7 +41,7 @@ export default function DashboardPage() {
           doctor.clinicAddress.toLowerCase().includes(lowercasedTerm)
         );
       });
-  }, [doctors, searchTerm, filterPartners]);
+  }, [doctors, searchTerm, filterPartners, sortOption]);
 
   if (doctors.length === 0) {
      return (
@@ -41,7 +56,7 @@ export default function DashboardPage() {
       )
   }
 
-  if (filteredDoctors.length === 0) {
+  if (filteredAndSortedDoctors.length === 0) {
     return (
         <div className="flex flex-1 items-center justify-center">
              <div className="flex flex-col items-center gap-2 text-center text-muted-foreground">
@@ -53,6 +68,6 @@ export default function DashboardPage() {
   }
 
   return viewMode === 'grid' 
-    ? <DoctorGrid doctors={filteredDoctors} />
-    : <DoctorList doctors={filteredDoctors} />;
+    ? <DoctorGrid doctors={filteredAndSortedDoctors} />
+    : <DoctorList doctors={filteredAndSortedDoctors} />;
 }
