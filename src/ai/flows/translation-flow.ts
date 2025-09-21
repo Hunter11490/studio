@@ -51,13 +51,13 @@ const translationFlow = ai.defineFlow(
       name: 'translationPrompt',
       input: {schema: TranslateTextInputSchema},
       output: {schema: TranslateTextOutputSchema},
-      prompt: `Translate the following JSON array of doctor information into {{{targetLanguage}}}. 
-Return only the translated JSON object containing the 'doctors' array. Do not alter the structure.
+      prompt: `Translate the text fields (name, specialty, clinicAddress) for each JSON object in the 'doctors' array into {{{targetLanguage}}}.
+Preserve the JSON structure and keys. Return only the translated JSON object.
 
 Input:
 {{{json doctors}}}
 
-Provide only the translated JSON object.`,
+Your response must be only the translated JSON object.`,
     });
     
     const {output} = await prompt(input);

@@ -92,7 +92,7 @@ export function InternetSearchDialog({ open, onOpenChange, initialSearchQuery }:
 
 
  const translateDoctors = async (doctorsToTranslate: SuggestedDoctor[]): Promise<DoctorInfo[]> => {
-    // Always translate to Arabic as requested
+    // Always translate to Arabic as requested by user.
     const targetLanguage = 'Arabic';
     try {
         const doctorsInfo: DoctorInfo[] = doctorsToTranslate.map(d => ({
