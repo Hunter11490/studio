@@ -8,7 +8,7 @@ import { useLanguage } from '@/hooks/use-language';
 import { useDoctors } from '@/hooks/use-doctors';
 import { useToast } from '@/hooks/use-toast';
 import { searchInternetForDoctors, InternetSearchOutput } from '@/ai/flows/internet-search-flow';
-import { translateText } from '@/ai/flows/translation-flow';
+import { translateText, DoctorInfo } from '@/ai/flows/translation-flow';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetFooter } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
@@ -32,7 +32,7 @@ const formSchema = z.object({
 
 export function InternetSearchDialog({ open, onOpenChange, initialSearchQuery }: InternetSearchDialogProps) {
   const { t, lang } = useLanguage();
-  const { addDoctor, addMultipleDoctors } = useDoctors();
+  const { addMultipleDoctors } = useDoctors();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [isAdding, setIsAdding] = useState<string | boolean>(false); // 'all' or doctor index
@@ -71,62 +71,76 @@ export function InternetSearchDialog({ open, onOpenChange, initialSearchQuery }:
   }, [open, initialSearchQuery]);
 
 
-  const getTranslatedDoctor = async (doctor: SuggestedDoctor) => {
+ const translateDoctors = async (doctorsToTranslate: SuggestedDoctor[]): Promise<DoctorInfo[]> => {
     const targetLanguage = lang === 'ar' ? 'Arabic' : 'English';
     try {
-        const translated = await translateText({
-            name: doctor.name,
-            specialty: doctor.specialty,
-            clinicAddress: doctor.address,
+        const doctorsInfo: DoctorInfo[] = doctorsToTranslate.map(d => ({
+            name: d.name,
+            specialty: d.specialty,
+            clinicAddress: d.address
+        }));
+
+        const response = await translateText({
+            doctors: doctorsInfo,
             targetLanguage,
         });
-        return { ...doctor, name: translated.name, specialty: translated.specialty, address: translated.clinicAddress };
+
+        return response.doctors;
     } catch (e) {
-        console.error("Translation failed for", doctor.name, e);
-        // Return original doctor if translation fails
-        return doctor; 
+        console.error("Batch translation failed", e);
+        // Fallback to original if batch fails
+        return doctorsToTranslate.map(d => ({
+            name: d.name,
+            specialty: d.specialty,
+            clinicAddress: d.address
+        }));
     }
   }
 
   const handleAddDoctor = async (doctor: SuggestedDoctor, index: number) => {
     setIsAdding(index.toString());
-    const translatedDoctor = await getTranslatedDoctor(doctor);
-    
+    const translatedDocs = await translateDoctors([doctor]);
+    const translatedDoctor = translatedDocs[0];
+
     const newDoctor: Omit<Doctor, 'id' | 'createdAt'> = {
       name: translatedDoctor.name,
       specialty: translatedDoctor.specialty,
-      phoneNumber: translatedDoctor.phoneNumber,
-      clinicAddress: translatedDoctor.address,
+      phoneNumber: doctor.phoneNumber,
+      clinicAddress: translatedDoctor.clinicAddress,
       mapLocation: '',
       clinicCardImageUrl: '',
       isPartner: false,
       referralCount: 0,
       availableDays: [],
     };
-    addDoctor(newDoctor);
+    addMultipleDoctors([newDoctor]);
     toast({
         title: t('toasts.doctorAddedTitle'),
         description: `${translatedDoctor.name} ${t('toasts.doctorAddedDesc')}`,
     });
+    setResults(prev => prev.filter((_, i) => i !== index));
     setIsAdding(false);
   };
 
   const handleAddAll = async () => {
     setIsAdding('all');
     
-    const translatedDoctors = await Promise.all(results.map(doc => getTranslatedDoctor(doc)));
-
-    const newDoctors: Omit<Doctor, 'id' | 'createdAt'>[] = translatedDoctors.map(doctor => ({
-      name: doctor.name,
-      specialty: doctor.specialty,
-      phoneNumber: doctor.phoneNumber,
-      clinicAddress: doctor.address,
-      mapLocation: '',
-      clinicCardImageUrl: '',
-      isPartner: false,
-      referralCount: 0,
-      availableDays: [],
-    }));
+    const translatedDocs = await translateDoctors(results);
+    
+    const newDoctors: Omit<Doctor, 'id' | 'createdAt'>[] = results.map((originalDoctor, index) => {
+      const translatedInfo = translatedDocs[index] || { name: originalDoctor.name, specialty: originalDoctor.specialty, clinicAddress: originalDoctor.address };
+      return {
+        name: translatedInfo.name,
+        specialty: translatedInfo.specialty,
+        phoneNumber: originalDoctor.phoneNumber,
+        clinicAddress: translatedInfo.clinicAddress,
+        mapLocation: '',
+        clinicCardImageUrl: '',
+        isPartner: false,
+        referralCount: 0,
+        availableDays: [],
+      };
+    });
 
     addMultipleDoctors(newDoctors);
 
@@ -134,7 +148,9 @@ export function InternetSearchDialog({ open, onOpenChange, initialSearchQuery }:
         title: t('toasts.allDoctorsAddedTitle'),
         description: t('toasts.allDoctorsAddedDesc', {count: results.length}),
     });
+    setResults([]);
     setIsAdding(false);
+    onOpenChange(false);
   };
 
   return (

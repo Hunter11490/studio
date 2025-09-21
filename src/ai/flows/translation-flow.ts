@@ -11,18 +11,23 @@
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
-const TranslateTextInputSchema = z.object({
+
+const DoctorInfoSchema = z.object({
   name: z.string().describe('The name to translate.'),
   specialty: z.string().describe('The specialty to translate.'),
   clinicAddress: z.string().describe('The clinic address to translate.'),
+});
+export type DoctorInfo = z.infer<typeof DoctorInfoSchema>;
+
+
+const TranslateTextInputSchema = z.object({
+  doctors: z.array(DoctorInfoSchema).describe('An array of doctor information to translate.'),
   targetLanguage: z.string().describe('The target language to translate to (e.g., "Arabic", "English").'),
 });
 export type TranslateTextInput = z.infer<typeof TranslateTextInputSchema>;
 
 const TranslateTextOutputSchema = z.object({
-    name: z.string().describe('The translated name.'),
-    specialty: z.string().describe('The translated specialty.'),
-    clinicAddress: z.string().describe('The translated clinic address.'),
+    doctors: z.array(DoctorInfoSchema).describe('The translated array of doctor information.'),
 });
 export type TranslateTextOutput = z.infer<typeof TranslateTextOutputSchema>;
 
@@ -37,22 +42,20 @@ const translationFlow = ai.defineFlow(
     outputSchema: TranslateTextOutputSchema,
   },
   async input => {
-    // Avoid translating if the text is simple
-    if (!input.name || input.name.trim().length < 2) {
-        return { name: input.name, specialty: input.specialty, clinicAddress: input.clinicAddress };
+    // Avoid translating if there's nothing to translate
+    if (!input.doctors || input.doctors.length === 0) {
+        return { doctors: [] };
     }
     
     const prompt = ai.definePrompt({
       name: 'translationPrompt',
       input: {schema: TranslateTextInputSchema},
       output: {schema: TranslateTextOutputSchema},
-      prompt: `Translate the following JSON values to {{{targetLanguage}}}. Return only the translated JSON object.
+      prompt: `Translate the following JSON array of doctor information into {{{targetLanguage}}}. 
+Return only the translated JSON object containing the 'doctors' array. Do not alter the structure.
 
-{
-  "name": "{{{name}}}",
-  "specialty": "{{{specialty}}}",
-  "clinicAddress": "{{{clinicAddress}}}"
-}
+Input:
+{{{json doctors}}}
 
 Provide only the translated JSON object.`,
     });
