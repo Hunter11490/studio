@@ -32,7 +32,7 @@ import { ReferralNotesDialog } from './referral-notes-dialog';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
 
 
-const WEEK_DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+const WEEK_DAYS = ['Sat', 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
 
 export function DoctorCard({ doctor }: { doctor: Doctor }) {
   const { updateDoctor, deleteDoctor } = useDoctors();
