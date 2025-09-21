@@ -4,7 +4,7 @@ import { AppProvider } from '@/components/providers/app-provider';
 import { Toaster } from '@/components/ui/toaster';
 
 export const metadata: Metadata = {
-  title: 'My Iraqi Doctors',
+  title: 'Iraq Hospitals & Centers System',
   description: 'A directory for medical representatives in Iraq.',
 };
 
