@@ -10,7 +10,6 @@ import {
   Pencil,
   Trash2,
   BadgePercent,
-  CalendarDays,
   ClipboardList,
   MoreVertical,
   Map as MapIcon,
@@ -23,11 +22,9 @@ import { useToast } from '@/hooks/use-toast';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { Badge } from '@/components/ui/badge';
 import { ConfirmationDialog } from '@/components/confirmation-dialog';
 import { DoctorFormDialog } from './doctor-form-dialog';
 import { ReferralNotesDialog } from './referral-notes-dialog';
-import { Skeleton } from '../ui/skeleton';
 import { cn } from '@/lib/utils';
 import {
   DropdownMenu,
@@ -67,7 +64,7 @@ export function DoctorCard({ doctor }: { doctor: Doctor }) {
       () => {
         toast({ title: t('toasts.locationError'), description: 'Please enable location permissions.', variant: 'destructive' });
       },
-      { timeout: 10000, enableHighAccuracy: true } // Add a 10-second timeout and high accuracy
+      { timeout: 10000, enableHighAccuracy: true }
     );
   };
   
@@ -93,13 +90,15 @@ export function DoctorCard({ doctor }: { doctor: Doctor }) {
     <>
       <Card className={cn(
           "flex flex-col overflow-hidden transition-all duration-300",
-          doctor.isPartner && "border-primary/50 shadow-lg shadow-primary/10"
+          doctor.isPartner && "border-primary/50 shadow-lg shadow-primary/10 animate-glow"
         )}>
         <CardHeader className="p-4">
           <div className="flex items-start justify-between gap-4">
             <div className="flex-grow">
                 <CardTitle className="font-headline text-xl text-primary flex items-center gap-2">
-                    {doctor.isPartner && <Star className="h-5 w-5 fill-primary text-primary" />}
+                    <Button variant="ghost" size="icon" onClick={handlePartnerToggle} className="h-7 w-7 text-primary hover:text-primary">
+                        {doctor.isPartner ? <Star className="h-5 w-5 fill-current" /> : <Star className="h-5 w-5" />}
+                    </Button>
                     <span>{doctor.name}</span>
                 </CardTitle>
                 <p className="text-sm text-muted-foreground mt-1">{doctor.specialty}</p>
@@ -118,11 +117,6 @@ export function DoctorCard({ doctor }: { doctor: Doctor }) {
                 <DropdownMenuItem onClick={() => window.open(doctor.mapLocation, '_blank')} disabled={!doctor.mapLocation}>
                   <MapIcon className="mr-2 h-4 w-4" />
                   <span>{t('doctorCard.map')}</span>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handlePartnerToggle}>
-                  {doctor.isPartner ? <StarOff className="mr-2 h-4 w-4" /> : <Star className="mr-2 h-4 w-4" />}
-                  <span>{doctor.isPartner ? t('userMenu.uncheckAllPartners') : t('doctorCard.partner')}</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
