@@ -120,6 +120,10 @@ export const translations: Translations = {
       internetSearchPlaceholder: 'e.g., "Cardiologist in Baghdad", "Dr. Ali phone number"...',
       internetSearching: 'AI is searching the internet for doctors...',
       addAllResults: 'Add all {count} results',
+      noResultsFoundTitle: 'No Results Found',
+      noResultsFoundDesc: 'Try a different or more general search query.',
+      internetSearchReadyTitle: 'AI is Ready to Search',
+      internetSearchReadyDesc: 'Enter a query above to search for doctors across the web.',
     },
     toasts: {
       offline: 'You are now offline. Some features may be unavailable.',
@@ -150,6 +154,7 @@ export const translations: Translations = {
       add: 'Add',
       search: 'Search',
       close: 'Close',
+      notAvailable: 'N/A',
     },
      admin: {
       dashboardTitle: 'Admin Dashboard',
@@ -340,6 +345,10 @@ export const translations: Translations = {
       internetSearchPlaceholder: 'مثال: "طبيب قلب في بغداد"، "رقم هاتف دكتور علي"...',
       internetSearching: 'يقوم الذكاء الاصطناعي بالبحث في الإنترنت عن الأطباء...',
       addAllResults: 'إضافة كل النتائج ({count})',
+      noResultsFoundTitle: 'لم يتم العثور على نتائج',
+      noResultsFoundDesc: 'حاول استخدام كلمات بحث مختلفة أو أكثر عمومية.',
+      internetSearchReadyTitle: 'الذكاء الاصطناعي جاهز للبحث',
+      internetSearchReadyDesc: 'أدخل استعلامًا أعلاه للبحث عن الأطباء عبر الويب.',
     },
     toasts: {
       offline: 'أنت غير متصل بالإنترنت. بعض الميزات قد لا تكون متاحة.',
@@ -370,6 +379,7 @@ export const translations: Translations = {
       add: 'إضافة',
       search: 'بحث',
       close: 'إغلاق',
+      notAvailable: 'غير متوفر',
     },
     admin: {
       dashboardTitle: 'لوحة تحكم المسؤول',
