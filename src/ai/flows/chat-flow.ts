@@ -9,6 +9,7 @@
  */
 
 import {ai} from '@/ai/genkit';
+import { googleAI } from '@genkit-ai/googleai';
 import {z} from 'genkit';
 
 const ChatInputSchema = z.object({
@@ -36,6 +37,7 @@ const chatFlow = ai.defineFlow(
       name: 'chatPrompt',
       input: {schema: ChatInputSchema},
       output: {schema: ChatOutputSchema},
+      model: googleAI.model('gemini-pro'),
       prompt: `You are a medical assistant helping medical representatives by answering questions from doctors. Use your knowledge to provide accurate and helpful answers.\n\nQuestion: {{{question}}}`,
     });
 
