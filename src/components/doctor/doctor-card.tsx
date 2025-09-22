@@ -13,7 +13,6 @@ import {
   ClipboardList,
   MoreVertical,
   Map as MapIcon,
-  StarOff,
 } from 'lucide-react';
 import { Doctor } from '@/types';
 import { useDoctors } from '@/hooks/use-doctors';
@@ -30,10 +29,8 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-
 
 export function DoctorCard({ doctor }: { doctor: Doctor }) {
   const { updateDoctor, deleteDoctor } = useDoctors();
@@ -124,7 +121,6 @@ export function DoctorCard({ doctor }: { doctor: Doctor }) {
         </CardHeader>
 
         <CardContent className="p-4 pt-0 flex-grow space-y-4 text-sm">
-          {/* Referrals Section */}
           <div className="space-y-2 rounded-lg border p-3 bg-secondary/50">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2 text-muted-foreground">
@@ -148,7 +144,6 @@ export function DoctorCard({ doctor }: { doctor: Doctor }) {
             </div>
           </div>
           
-          {/* Contact Info */}
            <div className="space-y-2 text-xs">
               <div className="flex items-center gap-3">
                   <Phone className="h-3 w-3 shrink-0 text-muted-foreground" /> 
