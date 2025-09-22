@@ -3,6 +3,8 @@
 import { createContext, useState, useEffect, useMemo, useCallback } from 'react';
 import { useLocalStorage } from '@/hooks/use-local-storage';
 import type { User, StoredUser } from '@/types';
+import { useRouter } from 'next/navigation';
+
 
 export type AuthContextType = {
   user: User | null;
@@ -40,76 +42,38 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const router = useRouter();
+
 
   useEffect(() => {
     setIsLoading(true);
-
     if (loggedInUser) {
+      // Find the user's latest data from the full user list
       const userFromStorage = storedUsers.find(u => u.id === loggedInUser.id);
       if (userFromStorage) {
-        // If user is banned or pending, log them out from the session.
-        if (userFromStorage.status === 'banned' || userFromStorage.status === 'pending') {
-          setUser(null);
-          setLoggedInUser(null);
-        } else {
-          const sessionUser: User = {
+         setUser({
             id: userFromStorage.id,
             username: userFromStorage.username,
             phoneNumber: userFromStorage.phoneNumber,
             email: userFromStorage.email,
             role: userFromStorage.role,
             status: userFromStorage.status,
-          };
-          setUser(sessionUser);
-           // Sync local storage if session is out of date
-          if (JSON.stringify(loggedInUser) !== JSON.stringify(sessionUser)) {
-            setLoggedInUser(sessionUser);
-          }
-        }
+          });
       } else {
-        // User in session not found in storage, log them out.
+        // If the logged-in user is not in the user list, they've been deleted.
         setUser(null);
         setLoggedInUser(null);
       }
     } else {
-      setUser(null);
-      // Ensure admin user exists
-      if (!storedUsers.find(u => u.username === 'HUNTER')) {
+        setUser(null);
+         if (!storedUsers.find(u => u.username === 'HUNTER')) {
            setStoredUsers(prev => [adminUser, ...prev.filter(u => u.username !== 'HUNTER')]);
       }
     }
-    
     setIsLoading(false);
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [loggedInUser, storedUsers]);
   
-  // This effect reacts to changes in the storedUsers list (e.g., from admin actions)
-  useEffect(() => {
-    if (user) {
-      const currentUserInStorage = storedUsers.find(u => u.id === user.id);
-      
-      // If user is not found anymore, or their status is now banned/pending, log them out.
-      if (!currentUserInStorage || currentUserInStorage.status === 'banned' || currentUserInStorage.status === 'pending') {
-        setUser(null);
-        setLoggedInUser(null);
-      } else {
-        // If user data has changed (e.g. role update), update the session state.
-        const updatedSession: User = {
-          id: currentUserInStorage.id,
-          username: currentUserInStorage.username,
-          phoneNumber: currentUserInStorage.phoneNumber,
-          email: currentUserInStorage.email,
-          role: currentUserInStorage.role,
-          status: currentUserInStorage.status,
-        };
-        if (JSON.stringify(user) !== JSON.stringify(updatedSession)) {
-          setUser(updatedSession);
-          setLoggedInUser(updatedSession);
-        }
-      }
-    }
-  }, [storedUsers, user, setLoggedInUser]);
-
 
   const login = useCallback((username: string, pass: string): boolean => {
     const userToLogin = storedUsers.find(
@@ -125,12 +89,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         role: userToLogin.role,
         status: userToLogin.status,
       };
-      // Instead of setting user directly, set loggedInUser which triggers the useEffect
       setLoggedInUser(sessionUser);
-      // If user is not pending or banned, also set the active user state
-      if (sessionUser.status === 'active') {
-        setUser(sessionUser);
-      }
       return true;
     }
     return false;

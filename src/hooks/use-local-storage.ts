@@ -18,12 +18,13 @@ export function useLocalStorage<T>(key: string | null, initialValue: T): [T, (va
     }
   }, [initialValue, key]);
 
-  const [storedValue, setStoredValue] = useState<T>(readValue);
+  const [storedValue, setStoredValue] = useState<T>(initialValue);
 
   // This effect will re-read the value from localStorage when the key changes.
   useEffect(() => {
     setStoredValue(readValue());
-  }, [key, readValue]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [key]);
   
   const setValue = (value: T | ((val: T) => T)) => {
     if (key === null) {
