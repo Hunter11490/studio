@@ -3,6 +3,7 @@
 import { useContext, useCallback, useState, useEffect } from 'react';
 import { LanguageProviderContext, LanguageProviderState } from '@/components/providers/language-provider';
 import { quotes } from '@/lib/quotes';
+import { translations } from '@/lib/localization';
 
 type QuoteResult = {
   quote: string;
