@@ -214,7 +214,7 @@ export function DoctorCard({ doctor }: { doctor: Doctor }) {
              <Button variant="warning" size="sm" className="flex-1" onClick={() => setEditing(true)}>
                 <Pencil className="mr-2 h-4 w-4" /> {t('doctorCard.edit')}
             </Button>
-            <Button variant={doctor.isPartner ? "default" : "secondary"} size="sm" className="flex-1" onClick={handlePartnerToggle}>
+            <Button variant={doctor.isPartner ? 'default' : 'secondary'} size="sm" className="flex-1" onClick={handlePartnerToggle}>
                 <Star className="mr-2 h-4 w-4" /> {t('doctorCard.partner')}
             </Button>
           </div>
