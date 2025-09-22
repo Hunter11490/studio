@@ -94,9 +94,9 @@ export function DoctorCard({ doctor }: { doctor: Doctor }) {
     <>
       <Card className="flex flex-col overflow-hidden relative">
         <Image
-          src="https://picsum.photos/seed/rose/400/600"
-          alt="Rose watermark"
-          data-ai-hint="rose"
+          src="https://picsum.photos/seed/tahrir square/600/400"
+          alt="Tahrir Square monument watermark"
+          data-ai-hint="tahrir square"
           fill
           className="object-cover opacity-5 dark:opacity-10"
         />
