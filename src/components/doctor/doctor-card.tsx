@@ -60,7 +60,8 @@ export function DoctorCard({ doctor }: { doctor: Doctor }) {
       },
       () => {
         toast({ title: t('toasts.locationError'), description: 'Please enable location permissions.', variant: 'destructive' });
-      }
+      },
+      { timeout: 10000 } // Add a 10-second timeout
     );
   };
   
