@@ -9,8 +9,9 @@ runConfig:
   timeoutSeconds: 3600
 
 # Required for Genkit to be able to access the Google AI API
-secretEnv:
-  - secret: GEMINI_API_KEY
-    availability:
-      - BUILD
-      - RUNTIME
+# Temporarily commented out to resolve provisioning issues.
+# secretEnv:
+#   - secret: GEMINI_API_KEY
+#     availability:
+#       - BUILD
+#       - RUNTIME
