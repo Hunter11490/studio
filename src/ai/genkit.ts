@@ -1,6 +1,8 @@
+'use server';
+
 import {genkit} from 'genkit';
 import {googleAI} from '@genkit-ai/googleai';
-import {googleCloud} from '@genkit-ai/google-cloud';
+import * as gc from '@genkit-ai/google-cloud';
 
 // Load environment variables from .env file
 import { config } from 'dotenv';
@@ -11,7 +13,7 @@ export const ai = genkit({
     googleAI({
       apiKey: process.env.GEMINI_API_KEY,
     }),
-    googleCloud(),
+    gc.googleCloud(),
   ],
   logLevel: 'debug',
   enableTracingAndMetrics: true,
