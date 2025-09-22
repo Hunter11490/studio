@@ -235,7 +235,7 @@ export function UserMenu() {
     <>
       <Sheet open={isMenuOpen} onOpenChange={handleMenuOpenChange}>
         <SheetTrigger asChild>
-          <Button variant="secondary" size="icon" className="rounded-full">
+          <Button variant="secondary" size="icon" className="rounded-full animate-pulse-glow">
             <CircleUser className="h-5 w-5" />
             <span className="sr-only">Toggle user menu</span>
           </Button>
