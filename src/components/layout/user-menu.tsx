@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import {
   BrainCircuit,
   CircleUser,
@@ -47,6 +48,7 @@ import { IRAQI_GOVERNORATES } from '@/lib/constants';
 
 export function UserMenu() {
   const { user, logout } = useAuth();
+  const router = useRouter();
   const { lang, setLang, t } = useLanguage();
   const { theme, setTheme } = useTheme();
   const { doctors, uncheckAllPartners, resetAllReferrals, importDoctors } = useDoctors();
@@ -147,6 +149,10 @@ export function UserMenu() {
     handleMenuOpenChange(false);
   };
 
+  const handleLogout = () => {
+    logout(router);
+    handleMenuOpenChange(false);
+  }
 
   const handleSearchOnMap = () => {
     if (navigator.geolocation) {
@@ -281,7 +287,7 @@ export function UserMenu() {
           </ScrollArea>
            <div className="p-2 border-t mt-auto">
              <MenuItem icon={<Info className="mr-2 h-4 w-4" />} label={t('userMenu.about')} onClick={() => { setAboutOpen(true); handleMenuOpenChange(false); }} />
-             <MenuItem icon={<LogOut className="mr-2 h-4 w-4" />} label={t('auth.logout')} onClick={() => { logout(); handleMenuOpenChange(false); }} />
+             <MenuItem icon={<LogOut className="mr-2 h-4 w-4" />} label={t('auth.logout')} onClick={handleLogout} />
            </div>
         </SheetContent>
       </Sheet>
@@ -291,7 +297,7 @@ export function UserMenu() {
         type="file"
         id="import-data-input"
         className="hidden"
-        accept=".data"
+        accept=".data, .json"
         onChange={handleImport}
       />
       
