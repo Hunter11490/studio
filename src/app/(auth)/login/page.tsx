@@ -16,6 +16,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Logo } from '@/components/logo';
 import { Loader2 } from 'lucide-react';
 import { AuthLoader } from '@/components/auth-loader';
+import { UserStatus } from '@/types';
 
 const formSchema = z.object({
   username: z.string().min(1, 'Username is required'),
@@ -24,7 +25,7 @@ const formSchema = z.object({
 
 export default function LoginPage() {
   const router = useRouter();
-  const { user, login, isLoading } = useAuth();
+  const { user, users, login, isLoading } = useAuth();
   const { t } = useLanguage();
   const { toast } = useToast();
 
@@ -51,7 +52,19 @@ export default function LoginPage() {
     
     const success = login(values.username, values.password);
     if (success) {
-      router.replace('/dashboard');
+      const loggedInUser = users.find(u => u.username === values.username);
+      if (loggedInUser?.status === 'active') {
+        router.replace('/dashboard');
+      } else if (loggedInUser?.status === 'pending') {
+        router.replace('/dashboard'); // Dashboard layout will handle the redirect
+      } else {
+         toast({
+          title: t('admin.status.deactivated'),
+          description: t('admin.bannedDesc'),
+          variant: 'destructive',
+        });
+        form.reset();
+      }
     } else {
       toast({
         title: 'Login Failed',

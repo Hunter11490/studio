@@ -38,10 +38,9 @@ import { ChatDialog } from '@/components/ai/chat-dialog';
 import { exportDataFile, importDataFile } from '@/lib/data-import-export';
 import { useToast } from '@/hooks/use-toast';
 import { ScrollArea } from '../ui/scroll-area';
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetClose } from '../ui/sheet';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '../ui/sheet';
 import { AdminPanel } from '../admin/admin-panel';
 import { Separator } from '../ui/separator';
-import { Doctor } from '@/types';
 import { InternetSearchDialog } from '../ai/internet-search-dialog';
 import { IRAQI_GOVERNORATES } from '@/lib/constants';
 
