@@ -2,7 +2,7 @@ import type { Translations } from '@/types';
 
 export const translations: Translations = {
   en: {
-    appName: 'Spirit of Iraq',
+    appName: 'Spirit',
     appSubtitle: 'For Managing Centers and Hospitals',
     auth: {
       login: 'Login',
@@ -109,7 +109,7 @@ export const translations: Translations = {
       uncheckPartnersDesc: 'This will remove the partner status from ALL doctors. This action cannot be undone.',
       deleteDoctorTitle: 'Delete Doctor?',
       deleteDoctorDesc: 'Are you sure you want to delete this doctor? This action cannot be undone.',
-      aboutTitle: 'About Spirit of Iraq',
+      aboutTitle: 'About Spirit',
       aboutDesc: 'Crafted with care to streamline your professional life, enabling you to manage your doctor directory with ease and efficiency.',
       contactOwner: 'To inquire or make suggestions, contact the project owner:',
       chatTitle: 'AI Medical Assistant',
@@ -211,7 +211,7 @@ export const translations: Translations = {
     }
   },
   ar: {
-    appName: 'روح العراق',
+    appName: 'روح',
     appSubtitle: 'لادارة المراكز والمستشفيات',
     auth: {
       login: 'تسجيل الدخول',
@@ -318,7 +318,7 @@ export const translations: Translations = {
       uncheckPartnersDesc: 'سيؤدي هذا إلى إزالة حالة الشريك من جميع الأطباء. لا يمكن التراجع عن هذا الإجراء.',
       deleteDoctorTitle: 'حذف الطبيب؟',
       deleteDoctorDesc: 'هل أنت متأكد من أنك تريد حذف هذا الطبيب؟ لا يمكن التراجع عن هذا الإجراء.',
-      aboutTitle: 'عن روح العراق',
+      aboutTitle: 'عن روح',
       aboutDesc: 'صُنع بعناية لتبسيط حياتك المهنية، مما يتيح لك إدارة دليل الأطباء الخاص بك بسهولة وكفاءة.',
       contactOwner: 'للاستفسار أو تقديم اقتراحات، تواصل مع صاحب المشروع:',
       chatTitle: 'مساعد طبي بالذكاء الاصطناعي',
