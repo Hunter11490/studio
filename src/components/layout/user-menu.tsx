@@ -34,7 +34,7 @@ import { Label } from '../ui/label';
 import { ConfirmationDialog } from '@/components/confirmation-dialog';
 import { AboutDialog } from '@/components/about-dialog';
 import { ChatDialog } from '@/components/ai/chat-dialog';
-import { exportToExcel } from '@/lib/excel';
+import { exportToExcel, importFromExcel } from '@/lib/excel';
 import { useToast } from '@/hooks/use-toast';
 import { ScrollArea } from '../ui/scroll-area';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetClose } from '../ui/sheet';
@@ -145,24 +145,13 @@ export function UserMenu() {
     };
   };
 
-  const handleExport = async (filtered = false) => {
+  const handleExport = async () => {
     try {
-      let doctorsToExport = doctors;
-      if (filtered) {
-        doctorsToExport = doctors.filter(doc => doc.isPartner && doc.referralCount > 0);
-        if (doctorsToExport.length === 0) {
-          toast({ title: t('toasts.exportNoData'), description: t('toasts.exportNoDataDesc') });
-          return;
-        }
-      }
-      
       toast({title: t('toasts.exporting'), description: t('toasts.exportingDesc')});
 
-      const translatedData = await Promise.all(doctorsToExport.map(doc => getTranslatedDoctorData(doc)));
+      const translatedData = await Promise.all(doctors.map(doc => getTranslatedDoctorData(doc)));
       
-      const fileName = filtered 
-        ? `Active_Partners_${new Date().toISOString().split('T')[0]}.xlsx`
-        : `Iraqi_Doctors_${new Date().toISOString().split('T')[0]}.xlsx`;
+      const fileName = `Iraqi_Doctors_${new Date().toISOString().split('T')[0]}.xlsx`;
 
       exportToExcel(translatedData, fileName);
       toast({ title: t('toasts.exportSuccess') });
@@ -173,8 +162,19 @@ export function UserMenu() {
   };
 
   const handleImport = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    toast({ title: "Import functionality is under development." });
-    event.target.value = ''; // Reset file input
+    const file = event.target.files?.[0];
+    if (file) {
+      try {
+        const imported = await importFromExcel(file);
+        importDoctors(imported as Doctor[]);
+        toast({ title: t('toasts.importSuccess') });
+      } catch (error) {
+        console.error(error);
+        toast({ title: t('toasts.importError'), variant: 'destructive' });
+      } finally {
+        event.target.value = ''; // Reset file input
+      }
+    }
   };
 
   const openImportDialog = () => {
@@ -255,10 +255,9 @@ export function UserMenu() {
                 <>
                   <div className="px-2 py-1.5 text-sm font-semibold">{t('userMenu.management')}</div>
                   <MenuItem icon={<Shield className="mr-2 h-4 w-4" />} label={t('header.adminDashboard')} onClick={() => { setAdminPanelOpen(true); handleMenuOpenChange(false); }} />
-                  <Separator className="my-2" />
                 </>
               )}
-              
+
               <div className="px-2 py-1.5 text-sm font-semibold">{t('userMenu.aiTools')}</div>
               <MenuItem icon={<BrainCircuit className="mr-2 h-4 w-4" />} label={t('userMenu.aiChat')} onClick={() => { setChatOpen(true); handleMenuOpenChange(false); }} />
               <MenuItem icon={<UserSearch className="mr-2 h-4 w-4" />} label={t('userMenu.internetSearch')} onClick={() => { setInternetSearchOpen(true); handleMenuOpenChange(false); }} />
@@ -267,8 +266,7 @@ export function UserMenu() {
 
               <div className="px-2 py-1.5 text-sm font-semibold">{t('userMenu.dataActions')}</div>
               <MenuItem icon={<Map className="mr-2 h-4 w-4" />} label={t('userMenu.searchOnMap')} onClick={() => { handleSearchOnMap(); handleMenuOpenChange(false); }} />
-              <MenuItem icon={<FileDown className="mr-2 h-4 w-4" />} label={t('userMenu.exportToExcel')} onClick={() => { handleExport(false); handleMenuOpenChange(false); }} />
-              <MenuItem icon={<Users className="mr-2 h-4 w-4" />} label={t('userMenu.exportActivePartners')} onClick={() => { handleExport(true); handleMenuOpenChange(false); }} />
+              <MenuItem icon={<FileDown className="mr-2 h-4 w-4" />} label={t('userMenu.exportToExcel')} onClick={() => { handleExport(); handleMenuOpenChange(false); }} />
               <MenuItem icon={<FileUp className="mr-2 h-4 w-4" />} label={t('userMenu.importFromExcel')} onClick={() => { openImportDialog(); handleMenuOpenChange(false); }} />
               
               <ConfirmationDialog
