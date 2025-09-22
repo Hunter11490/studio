@@ -2,3 +2,6 @@ runConfig:
   minInstances: 0
 managedTraffic:
   allowVpcIngress: private-ranges-only
+secretEnv:
+  - secret: GEMINI_API_KEY
+    env: GEMINI_API_KEY

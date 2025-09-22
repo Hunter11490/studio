@@ -1,15 +1,15 @@
+'use server';
+/**
+ * @fileOverview Initializes and configures the Genkit AI instance.
+ */
 import {genkit} from 'genkit';
 import {googleAI} from '@genkit-ai/googleai';
-import { config } from 'dotenv';
-config();
+import {googleCloud} from '@genkit-ai/google-cloud';
 
 export const ai = genkit({
   plugins: [
-    googleAI({
-      // Using the provided key directly as a temporary measure to solve deployment issues.
-      apiKey: 'AIzaSyByMm6mT-smSDfaAiFiDYJggNShP294XNE',
-    }),
-    // googleCloud(), // Temporarily removed to resolve startup error.
+    googleAI(),
+    googleCloud(),
   ],
   logLevel: 'debug',
   enableTracingAndMetrics: true,
