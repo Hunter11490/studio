@@ -150,7 +150,7 @@ export function UserMenu() {
   };
 
   const handleLogout = () => {
-    logout(router);
+    logout();
     handleMenuOpenChange(false);
   }
 
