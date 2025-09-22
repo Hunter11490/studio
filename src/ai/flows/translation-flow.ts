@@ -42,11 +42,6 @@ const translationFlow = ai.defineFlow(
     outputSchema: TranslateTextOutputSchema,
   },
   async input => {
-    // Avoid translating if there's nothing to translate
-    if (!input.doctors || input.doctors.length === 0) {
-        return { doctors: [] };
-    }
-    
     const prompt = ai.definePrompt({
       name: 'translationPrompt',
       input: {schema: TranslateTextInputSchema},
