@@ -117,9 +117,9 @@ export function DoctorProvider({ children }: { children: React.ReactNode }) {
   };
 
   const importDoctors = (newDoctors: Doctor[]) => {
-    const existingIds = new Set(doctors.map(d => d.id));
-    const trulyNewDoctors = newDoctors.filter(d => !existingIds.has(d.id));
-    setDoctors(prev => [...prev, ...trulyNewDoctors]);
+    // Replace the current list with the imported list.
+    // This makes import a "restore" operation.
+    setDoctors(newDoctors);
   };
 
   const value = useMemo(() => ({
