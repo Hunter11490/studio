@@ -189,20 +189,31 @@ export function UserMenu() {
     }
   }
 
-  const MenuItem = ({ icon, label, onClick, destructive = false }: { icon: React.ReactNode, label: string, onClick?: () => void, destructive?: boolean }) => (
-    <Button
-      variant="ghost"
-      className={`w-full justify-start h-10 ${destructive ? 'text-destructive hover:text-destructive' : ''}`}
-      onClick={() => {
-        if (onClick) onClick();
-        handleMenuOpenChange(false);
-      }}
-    >
-      {icon}
-      <span>{label}</span>
-      {!onClick && <ChevronRight className="h-4 w-4 ml-auto" />}
-    </Button>
-  );
+  const MenuItem = ({ icon, label, onClick, destructive = false, trigger: TriggerComp }: { icon: React.ReactNode, label: string, onClick?: () => void, destructive?: boolean, trigger?: React.ReactNode }) => {
+    const button = (
+        <Button
+          variant="ghost"
+          className={`w-full justify-start h-10 ${destructive ? 'text-destructive hover:text-destructive' : ''}`}
+          onClick={() => {
+            if (onClick) {
+                onClick();
+                handleMenuOpenChange(false);
+            }
+          }}
+        >
+          {icon}
+          <span>{label}</span>
+          {!onClick && <ChevronRight className="h-4 w-4 ml-auto" />}
+        </Button>
+    );
+
+    if (TriggerComp) {
+        // If a trigger is provided (for ConfirmationDialog), wrap it.
+        return React.cloneElement(TriggerComp as React.ReactElement, { children: button });
+    }
+    
+    return button;
+  };
 
   if (!user) return null;
 
@@ -229,18 +240,6 @@ export function UserMenu() {
                 {user.role === 'admin' && (
                 <>
                   <div className="px-2 py-1.5 text-sm font-semibold">{t('userMenu.management')}</div>
-                  <ConfirmationDialog
-                      title={t('dialogs.resetReferralsTitle')}
-                      description={t('dialogs.resetReferralsDesc')}
-                      onConfirm={resetAllReferrals}
-                      trigger={<MenuItem icon={<RotateCcw className="mr-2 h-4 w-4" />} label={t('userMenu.resetAllReferrals')} destructive />}
-                  />
-                  <ConfirmationDialog
-                      title={t('dialogs.uncheckPartnersTitle')}
-                      description={t('dialogs.uncheckPartnersDesc')}
-                      onConfirm={uncheckAllPartners}
-                      trigger={<MenuItem icon={<StarOff className="mr-2 h-4 w-4" />} label={t('userMenu.uncheckAllPartners')} destructive />}
-                  />
                   <MenuItem icon={<Shield className="mr-2 h-4 w-4" />} label={t('header.adminDashboard')} onClick={() => { setAdminPanelOpen(true); handleMenuOpenChange(false); }} />
                   <Separator className="my-2" />
                 </>
@@ -256,6 +255,20 @@ export function UserMenu() {
               <MenuItem icon={<FileDown className="mr-2 h-4 w-4" />} label={t('userMenu.exportToExcel')} onClick={() => handleExport(false)} />
               <MenuItem icon={<Users className="mr-2 h-4 w-4" />} label={t('userMenu.exportActivePartners')} onClick={() => handleExport(true)} />
               <MenuItem icon={<FileUp className="mr-2 h-4 w-4" />} label={t('userMenu.importFromExcel')} onClick={openImportDialog} />
+
+              <ConfirmationDialog
+                  title={t('dialogs.resetReferralsTitle')}
+                  description={t('dialogs.resetReferralsDesc')}
+                  onConfirm={resetAllReferrals}
+                  trigger={<MenuItem icon={<RotateCcw className="mr-2 h-4 w-4" />} label={t('userMenu.resetAllReferrals')} destructive />}
+              />
+              <ConfirmationDialog
+                  title={t('dialogs.uncheckPartnersTitle')}
+                  description={t('dialogs.uncheckPartnersDesc')}
+                  onConfirm={uncheckAllPartners}
+                  trigger={<MenuItem icon={<StarOff className="mr-2 h-4 w-4" />} label={t('userMenu.uncheckAllPartners')} destructive />}
+              />
+
               <Separator className="my-2" />
 
               <div className="p-2 space-y-2">
