@@ -206,7 +206,7 @@ export function DoctorCard({ doctor }: { doctor: Doctor }) {
             <Button variant="success" size="sm" className="flex-1" onClick={() => window.open(doctor.mapLocation, '_blank')} disabled={!doctor.mapLocation}>
               <MapPin className="mr-2 h-4 w-4" /> {t('doctorCard.map')}
             </Button>
-            <Button variant={doctor.mapLocation ? "success" : "destructive"} size="sm" className="flex-1" onClick={handleSetLocation}>
+            <Button variant={doctor.mapLocation ? "success" : "default"} size="sm" className="flex-1" onClick={handleSetLocation}>
               {t('doctorCard.setMyLocation')}
             </Button>
           </div>
