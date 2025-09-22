@@ -203,7 +203,7 @@ export function PartnerDashboard({ open, onOpenChange }: PartnerDashboardProps) 
           <div className="flex w-full gap-2">
             <Button onClick={() => handleOpenChange(false)} variant="secondary" className="flex-1">
               <X className="mr-2 h-4 w-4" />
-              {t('partnerDashboard.close')}
+              {t('common.close')}
             </Button>
             {partnerDoctors.length > 0 && (
               <Button onClick={handleExportExcel} variant="outline" className="flex-1">

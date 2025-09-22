@@ -76,7 +76,6 @@ export function AdminPanel() {
                         <div className="font-medium">{u.username}</div>
                         <div className="text-sm text-muted-foreground" dir="ltr">{u.email}</div>
                         <div className="text-sm text-muted-foreground" dir="ltr">{u.phoneNumber}</div>
-                        <div className="text-sm text-muted-foreground" dir="ltr">Pass: {u.pass}</div>
                         <div className="my-2 flex flex-wrap gap-1">
                             <Badge variant={u.role === 'admin' ? 'default' : 'secondary'}>
                                 {u.role}
