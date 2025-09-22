@@ -47,7 +47,7 @@ const internetSearchFlow = ai.defineFlow(
 Perform a deep and comprehensive search for doctors in Iraq across multiple sources, including Google Search, Facebook, and other social media platforms, based on the following query: {{{query}}}
 
 Return a list of doctors you find. For each doctor, provide their name, specialty, phone number, and a detailed address.
-If you cannot find a specific piece of information, leave it as an empty string. Return at least 50 results if possible, aiming for the maximum number of accurate results you can find.`,
+If you cannot find a specific piece of information, leave it as an empty string. Return at least 100 results if possible, aiming for the maximum number of accurate results you can find.`,
     });
     
     const { output } = await prompt(input);

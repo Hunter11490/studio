@@ -1,7 +1,9 @@
 export const IRAQI_GOVERNORATES = {
     "Al Anbar": ["Ramadi", "Fallujah", "Al-Qa'im", "Hit", "Haditha"],
     "Babylon": ["Hillah", "Musayyib", "Hashimiyah", "Mahawil"],
-    "Baghdad": ["Karkh", "Rusafa", "Sadr City", "Adhamiyah", "Mansour", "Karrada"],
+    "Baghdad": [
+        "Adhamiyah", "Karkh", "Karrada", "Kadhimiya", "Mansour", "Sadr City", "Rusafa", "9 Nissan", "Al-Rashid", "Al-Taji", "Al-Mada'in", "Abu Ghraib", "Mahmoudiya", "Al-Tarmia", "Al-Hurriya", "Al-Sha'ab", "Al-Bayaa", "Al-Dora", "Al-Amiriyah", "Al-Ghazaliyah", "Al-Jihad", "Al-Saydiya", "Al-Yarmouk", "Zayouna", "Palestine Street"
+    ],
     "Basra": ["Basra City", "Al-Zubair", "Al-Qurnah", "Abu Al-Khaseeb", "Faw"],
     "Dhi Qar": ["Nasiriyah", "Al-Rifai", "Shatrah", "Suq al-Shuyukh"],
     "Al-Qadisiyyah": ["Diwaniyah", "Afaq", "Hamza", "Shamiya"],

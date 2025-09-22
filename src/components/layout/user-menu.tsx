@@ -22,6 +22,7 @@ import {
   X,
   Users,
   UserSearch,
+  Zap,
 } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
 import { useLanguage } from '@/hooks/use-language';
@@ -42,6 +43,7 @@ import { Separator } from '../ui/separator';
 import { translateText } from '@/ai/flows/translation-flow';
 import { Doctor } from '@/types';
 import { InternetSearchDialog } from '../ai/internet-search-dialog';
+import { IRAQI_GOVERNORATES } from '@/lib/constants';
 
 type DoctorExportData = {
   [key: string]: string | number | boolean;
@@ -58,6 +60,8 @@ export function UserMenu() {
   const [isAboutOpen, setAboutOpen] = useState(false);
   const [isChatOpen, setChatOpen] = useState(false);
   const [isInternetSearchOpen, setInternetSearchOpen] = useState(false);
+  const [isQuickAddOpen, setQuickAddOpen] = useState(false);
+  const [quickAddQuery, setQuickAddQuery] = useState('');
   const [isAdminPanelOpen, setAdminPanelOpen] = useState(false);
   
   useEffect(() => {
@@ -176,6 +180,16 @@ export function UserMenu() {
   const openImportDialog = () => {
     document.getElementById('import-excel-input')?.click();
   };
+  
+  const handleQuickAdd = () => {
+    const baghdadAreas = IRAQI_GOVERNORATES["Baghdad"];
+    const randomArea = baghdadAreas[Math.floor(Math.random() * baghdadAreas.length)];
+    const query = `أطباء في ${randomArea}`;
+    setQuickAddQuery(query);
+    setQuickAddOpen(true);
+    handleMenuOpenChange(false);
+  };
+
 
   const handleSearchOnMap = () => {
     if (navigator.geolocation) {
@@ -197,7 +211,7 @@ export function UserMenu() {
           onClick={() => {
             if (onClick) {
                 onClick();
-                handleMenuOpenChange(false);
+                // handleMenuOpenChange(false); // Let the click handler decide if it should close
             }
           }}
         >
@@ -248,24 +262,25 @@ export function UserMenu() {
               <div className="px-2 py-1.5 text-sm font-semibold">{t('userMenu.aiTools')}</div>
               <MenuItem icon={<BrainCircuit className="mr-2 h-4 w-4" />} label={t('userMenu.aiChat')} onClick={() => { setChatOpen(true); handleMenuOpenChange(false); }} />
               <MenuItem icon={<UserSearch className="mr-2 h-4 w-4" />} label={t('userMenu.internetSearch')} onClick={() => { setInternetSearchOpen(true); handleMenuOpenChange(false); }} />
+              <MenuItem icon={<Zap className="mr-2 h-4 w-4" />} label={t('userMenu.quickAdd')} onClick={handleQuickAdd} />
               <Separator className="my-2" />
 
               <div className="px-2 py-1.5 text-sm font-semibold">{t('userMenu.dataActions')}</div>
-              <MenuItem icon={<Map className="mr-2 h-4 w-4" />} label={t('userMenu.searchOnMap')} onClick={handleSearchOnMap} />
-              <MenuItem icon={<FileDown className="mr-2 h-4 w-4" />} label={t('userMenu.exportToExcel')} onClick={() => handleExport(false)} />
-              <MenuItem icon={<Users className="mr-2 h-4 w-4" />} label={t('userMenu.exportActivePartners')} onClick={() => handleExport(true)} />
-              <MenuItem icon={<FileUp className="mr-2 h-4 w-4" />} label={t('userMenu.importFromExcel')} onClick={openImportDialog} />
-
+              <MenuItem icon={<Map className="mr-2 h-4 w-4" />} label={t('userMenu.searchOnMap')} onClick={() => { handleSearchOnMap(); handleMenuOpenChange(false); }} />
+              <MenuItem icon={<FileDown className="mr-2 h-4 w-4" />} label={t('userMenu.exportToExcel')} onClick={() => { handleExport(false); handleMenuOpenChange(false); }} />
+              <MenuItem icon={<Users className="mr-2 h-4 w-4" />} label={t('userMenu.exportActivePartners')} onClick={() => { handleExport(true); handleMenuOpenChange(false); }} />
+              <MenuItem icon={<FileUp className="mr-2 h-4 w-4" />} label={t('userMenu.importFromExcel')} onClick={() => { openImportDialog(); handleMenuOpenChange(false); }} />
+              
               <ConfirmationDialog
                   title={t('dialogs.resetReferralsTitle')}
                   description={t('dialogs.resetReferralsDesc')}
-                  onConfirm={resetAllReferrals}
+                  onConfirm={() => { resetAllReferrals(); handleMenuOpenChange(false); }}
                   trigger={<MenuItem icon={<RotateCcw className="mr-2 h-4 w-4" />} label={t('userMenu.resetAllReferrals')} destructive />}
               />
               <ConfirmationDialog
                   title={t('dialogs.uncheckPartnersTitle')}
                   description={t('dialogs.uncheckPartnersDesc')}
-                  onConfirm={uncheckAllPartners}
+                  onConfirm={() => { uncheckAllPartners(); handleMenuOpenChange(false); }}
                   trigger={<MenuItem icon={<StarOff className="mr-2 h-4 w-4" />} label={t('userMenu.uncheckAllPartners')} destructive />}
               />
 
@@ -311,7 +326,7 @@ export function UserMenu() {
           </ScrollArea>
            <div className="p-2 border-t mt-auto">
              <MenuItem icon={<Info className="mr-2 h-4 w-4" />} label={t('userMenu.about')} onClick={() => { setAboutOpen(true); handleMenuOpenChange(false); }} />
-             <MenuItem icon={<LogOut className="mr-2 h-4 w-4" />} label={t('auth.logout')} onClick={logout} />
+             <MenuItem icon={<LogOut className="mr-2 h-4 w-4" />} label={t('auth.logout')} onClick={() => { logout(); handleMenuOpenChange(false); }} />
            </div>
         </SheetContent>
       </Sheet>
@@ -329,6 +344,11 @@ export function UserMenu() {
       <AboutDialog open={isAboutOpen} onOpenChange={setAboutOpen} />
       <ChatDialog open={isChatOpen} onOpenChange={setChatOpen} />
       <InternetSearchDialog open={isInternetSearchOpen} onOpenChange={setInternetSearchOpen} />
+      <InternetSearchDialog 
+        open={isQuickAddOpen} 
+        onOpenChange={setQuickAddOpen} 
+        initialSearchQuery={quickAddQuery}
+      />
 
       
       {/* Admin Panel Sheet */}
