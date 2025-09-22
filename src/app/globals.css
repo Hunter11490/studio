@@ -114,60 +114,49 @@
     animation: pulse-glow 2.5s infinite;
   }
   
-  .windy-landscape {
+  .neon-background {
     position: absolute;
     inset: 0;
     overflow: hidden;
-    background: linear-gradient(to bottom, #87CEEB 0%, #B2EBF2 100%);
-    display: flex;
-    align-items: flex-end;
-    justify-content: center;
+    background: #000;
   }
 
-  .windy-landscape::before {
+  .neon-light {
+    position: absolute;
+    width: 2px;
+    background: linear-gradient(to bottom, transparent, currentColor);
+    animation: move-light 10s linear infinite;
+  }
+
+  .neon-light::before {
     content: '';
     position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 30%;
-    background: #66BB6A;
-    border-top: 5px solid #4CAF50;
-    border-radius: 50% 50% 0 0 / 100% 100% 0 0;
-  }
-  
-  @keyframes sway {
-    0%, 100% { transform: rotate(-1deg); }
-    50% { transform: rotate(2deg); }
-  }
-
-  .tree {
-    position: relative;
-    width: 10px;
-    height: 50px;
-    background: #5D4037; /* Trunk color */
-    border-radius: 5px 5px 0 0;
-    transform-origin: bottom center;
-    animation: sway 5s ease-in-out infinite;
-    margin: 0 20px;
-    bottom: 28%;
-  }
-
-  .tree::before { /* Leaves */
-    content: '';
-    position: absolute;
-    top: -25px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 40px;
-    height: 40px;
-    background: #388E3C;
+    bottom: 100%;
+    left: -1px;
+    width: 3px;
+    height: 3px;
     border-radius: 50%;
-    box-shadow: 0 -15px 0 #4CAF50, 10px -8px 0 #66BB6A, -10px -8px 0 #4CAF50;
+    background-color: currentColor;
+    box-shadow: 0 0 10px currentColor, 0 0 20px currentColor, 0 0 30px currentColor;
   }
   
-  .tree:nth-child(1) { height: 60px; animation-duration: 6s; }
-  .tree:nth-child(2) { height: 45px; animation-duration: 4.5s; animation-delay: 0.5s; }
-  .tree:nth-child(3) { height: 70px; animation-duration: 7s; animation-delay: 1s; }
-  .tree:nth-child(4) { height: 55px; animation-duration: 5.5s; animation-delay: 0.2s; }
+  .neon-light.blue { color: hsl(var(--primary)); }
+  .neon-light.pink { color: #ff00ff; animation-delay: -2s; animation-duration: 12s;}
+  .neon-light.green { color: hsl(var(--accent)); animation-delay: -5s; animation-duration: 8s;}
+  .neon-light.yellow { color: hsl(var(--warning)); animation-delay: -7s; animation-duration: 15s;}
+
+
+  @keyframes move-light {
+    0% {
+      transform: translate(var(--start-x), -100%);
+      height: 0;
+    }
+    50% {
+      height: 100vh;
+    }
+    100% {
+      transform: translate(var(--end-x), 100%);
+      height: 0;
+    }
+  }
 }

@@ -18,12 +18,12 @@ type AboutDialogProps = {
   onOpenChange: (open: boolean) => void;
 };
 
-const WindyLandscape = () => (
-  <div className="windy-landscape">
-    <div className="tree"></div>
-    <div className="tree"></div>
-    <div className="tree"></div>
-    <div className="tree"></div>
+const NeonLightsBackground = () => (
+  <div className="neon-background">
+    <div className="neon-light blue" style={{ '--start-x': '10vw', '--end-x': '30vw' } as React.CSSProperties}></div>
+    <div className="neon-light pink" style={{ '--start-x': '90vw', '--end-x': '70vw' } as React.CSSProperties}></div>
+    <div className="neon-light green" style={{ '--start-x': '50vw', '--end-x': '40vw' } as React.CSSProperties}></div>
+    <div className="neon-light yellow" style={{ '--start-x': '30vw', '--end-x': '80vw' } as React.CSSProperties}></div>
   </div>
 );
 
@@ -71,18 +71,18 @@ export function AboutDialog({ open, onOpenChange }: AboutDialogProps) {
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="sm:max-w-md bg-card border-none shadow-2xl shadow-primary/50 text-foreground overflow-hidden">
-        <WindyLandscape />
-        <div className="relative z-10 backdrop-blur-sm p-6 rounded-lg bg-white/30 dark:bg-black/30">
+      <DialogContent className="sm:max-w-md bg-transparent border-none shadow-2xl shadow-primary/50 text-white overflow-hidden">
+        <NeonLightsBackground />
+        <div className="relative z-10 backdrop-blur-sm p-6 rounded-lg bg-black/50">
           <DialogHeader className="items-center text-center">
               <Logo className="h-16 w-16 text-primary mb-2 animate-pulse-glow" />
-            <DialogTitle className="font-headline text-2xl text-foreground">{t('dialogs.aboutTitle')}</DialogTitle>
-            <DialogDescription className="text-center pt-2 text-foreground/80">
+            <DialogTitle className="font-headline text-2xl text-white">{t('dialogs.aboutTitle')}</DialogTitle>
+            <DialogDescription className="text-center pt-2 text-white/80">
               {t('dialogs.aboutDesc')}
             </DialogDescription>
           </DialogHeader>
           {projectOwner && (
-            <div className="pt-4 text-center text-sm text-foreground/70">
+            <div className="pt-4 text-center text-sm text-white/70">
               <p className="font-semibold">{t('dialogs.contactOwner')}</p>
               <p dir="ltr">{projectOwner.email}</p>
               <p dir="ltr">{projectOwner.phoneNumber}</p>
