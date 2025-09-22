@@ -28,11 +28,8 @@ export const exportDataFile = (doctors: Doctor[], fileName: string) => {
 
 export const importDataFile = (file: File): Promise<Doctor[]> => {
   return new Promise((resolve, reject) => {
-    if (file.name.endsWith('.xlsx')) {
-        return reject(new Error("Old .xlsx backup files are no longer supported. Please use an encrypted .spirit backup file."));
-    }
     if (!file.name.endsWith('.spirit')) {
-        return reject(new Error("Invalid file type. Please select a .spirit backup file."));
+      return reject(new Error("Invalid file type. Please select a .spirit backup file."));
     }
       
     const reader = new FileReader();
