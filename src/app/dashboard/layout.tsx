@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/use-auth';
 import { Header } from '@/components/layout/header';
 import { AuthLoader } from '@/components/auth-loader';
+import { BannedUser } from '@/components/banned-user';
+
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const { user } = useAuth();
@@ -15,6 +17,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       router.replace('/login');
     }
   }, [user, router]);
+  
+  if (user?.isBanned) {
+    return <BannedUser />;
+  }
 
   if (!user) {
     return <AuthLoader />;

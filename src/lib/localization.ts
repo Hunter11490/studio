@@ -171,6 +171,11 @@ export const translations: Translations = {
       confirmPassword: 'Confirm Password',
       addUserSuccess: 'User added successfully',
       addUserError: 'Failed to add user',
+      banUser: 'Ban User',
+      unbanUser: 'Unban User',
+      banned: 'Banned',
+      bannedTitle: 'Account Banned',
+      bannedDesc: 'Your account has been banned by an administrator. Please contact support for more information.',
     },
     partnerDashboard: {
       description: 'A quick overview of your partner doctors and their referrals.',
@@ -379,6 +384,11 @@ export const translations: Translations = {
       confirmPassword: 'تأكيد كلمة المرور',
       addUserSuccess: 'تمت إضافة المستخدم بنجاح',
       addUserError: 'فشل في إضافة المستخدم',
+      banUser: 'حظر المستخدم',
+      unbanUser: 'إلغاء حظر المستخدم',
+      banned: 'محظور',
+      bannedTitle: 'الحساب محظور',
+      bannedDesc: 'تم حظر حسابك من قبل المسؤول. يرجى التواصل مع الدعم لمزيد من المعلومات.',
     },
     partnerDashboard: {
       description: 'نظرة سريعة على الأطباء الشركاء وإحالاتهم.',

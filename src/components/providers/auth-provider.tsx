@@ -18,6 +18,7 @@ export type AuthContextType = {
   addUserByAdmin: (username: string, pass: string, phoneNumber: string, email: string, role: 'admin' | 'user') => boolean;
   deleteUser: (userId: string) => void;
   updateUserRole: (userId: string, role: 'admin' | 'user') => void;
+  toggleBanUser: (userId: string) => void;
   updateUser: (userId: string, updates: Partial<Omit<StoredUser, 'id'>>) => boolean;
 };
 
@@ -33,6 +34,7 @@ const adminUser: StoredUser = {
   phoneNumber: '07803080003',
   email: 'im.a.hunter.one@gmail.com',
   role: 'admin',
+  isBanned: false,
 };
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -45,56 +47,52 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     setIsLoading(true);
 
-    // On initial load, check if there's a logged-in user session
     if (loggedInUser) {
-      // Re-verify user from the potentially updated storedUsers
       const userFromStorage = storedUsers.find(u => u.id === loggedInUser.id);
       if (userFromStorage) {
-        // Ensure the session user has the correct role from storage
         const sessionUser: User = {
           id: userFromStorage.id,
           username: userFromStorage.username,
           phoneNumber: userFromStorage.phoneNumber,
           email: userFromStorage.email,
           role: userFromStorage.role,
+          isBanned: userFromStorage.isBanned || false,
         };
         setUser(sessionUser);
-        // Update session storage if role was incorrect
-        if (loggedInUser.role !== sessionUser.role) {
+        if (loggedInUser.role !== sessionUser.role || loggedInUser.isBanned !== sessionUser.isBanned) {
           setLoggedInUser(sessionUser);
         }
       } else {
-        setLoggedInUser(null); // Clear invalid session
+        setLoggedInUser(null);
       }
     } else {
-        // If no one is logged in, ensure admin user exists.
         if (!storedUsers.find(u => u.username === 'HUNTER')) {
              setStoredUsers(prev => [adminUser, ...prev.filter(u => u.username !== 'HUNTER')]);
         }
     }
     
     setIsLoading(false);
-  }, []); // Run only once on mount
+  }, []);
   
     useEffect(() => {
-        // This effect ensures that any change in storedUsers (e.g. by admin)
-        // is reflected in the currently logged-in user's state.
         if (user) {
             const currentUserInStorage = storedUsers.find(u => u.id === user.id);
             if (!currentUserInStorage) {
-                // User was deleted, log them out.
                 logout();
-            } else if (currentUserInStorage.role !== user.role) {
-                // User role was changed, update session.
+            } else {
                 const updatedSession: User = {
                     id: currentUserInStorage.id,
                     username: currentUserInStorage.username,
                     phoneNumber: currentUserInStorage.phoneNumber,
                     email: currentUserInStorage.email,
                     role: currentUserInStorage.role,
+                    isBanned: currentUserInStorage.isBanned || false,
                 };
-                setUser(updatedSession);
-                setLoggedInUser(updatedSession);
+                // Check if any relevant property has changed
+                if (JSON.stringify(user) !== JSON.stringify(updatedSession)) {
+                    setUser(updatedSession);
+                    setLoggedInUser(updatedSession);
+                }
             }
         }
     }, [storedUsers, user, setLoggedInUser]);
@@ -106,12 +104,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     );
 
     if (userToLogin) {
+      if (userToLogin.isBanned) {
+        // Still create a temporary session so the banned screen can be shown
+        const bannedSession: User = {
+          id: userToLogin.id,
+          username: userToLogin.username,
+          email: userToLogin.email,
+          phoneNumber: userToLogin.phoneNumber,
+          role: userToLogin.role,
+          isBanned: true,
+        };
+        setUser(bannedSession);
+        setLoggedInUser(bannedSession);
+        return true; // Login "succeeds" to show banned screen
+      }
+      
       const sessionUser: User = {
         id: userToLogin.id,
         username: userToLogin.username,
         phoneNumber: userToLogin.phoneNumber,
         email: userToLogin.email,
         role: userToLogin.role,
+        isBanned: userToLogin.isBanned || false,
       };
       setUser(sessionUser);
       setLoggedInUser(sessionUser);
@@ -132,10 +146,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const newUser: StoredUser = { 
         id: new Date().toISOString(),
         username, 
-        pass, // Storing password directly for simplicity.
+        pass,
         phoneNumber,
         email,
-        role: 'user'
+        role: 'user',
+        isBanned: false,
     };
     setStoredUsers(prev => [...prev, newUser]);
     return true;
@@ -155,7 +170,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         pass,
         phoneNumber,
         email,
-        role
+        role,
+        isBanned: false,
     };
     setStoredUsers(prev => [...prev, newUser]);
     return true;
@@ -168,9 +184,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const updateUserRole = useCallback((userId: string, role: 'admin' | 'user') => {
     setStoredUsers(prev => prev.map(u => u.id === userId ? { ...u, role } : u));
   }, [setStoredUsers]);
+
+  const toggleBanUser = useCallback((userId: string) => {
+    setStoredUsers(prev => prev.map(u => 
+      u.id === userId ? { ...u, isBanned: !u.isBanned } : u
+    ));
+  }, [setStoredUsers]);
   
   const updateUser = useCallback((userId: string, updates: Partial<Omit<StoredUser, 'id'>>): boolean => {
-    // Check if new username or email already exists for another user
     if (updates.email || (updates.phoneNumber && updates.phoneNumber.trim() !== '')) {
       const userExists = storedUsers.some(u => 
         u.id !== userId && (
@@ -205,8 +226,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     addUserByAdmin,
     deleteUser,
     updateUserRole,
+    toggleBanUser,
     updateUser,
-  }), [user, storedUsers, isLoading, login, signup, logout, addUserByAdmin, deleteUser, updateUserRole, updateUser]);
+  }), [user, storedUsers, isLoading, login, signup, logout, addUserByAdmin, deleteUser, updateUserRole, toggleBanUser, updateUser]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

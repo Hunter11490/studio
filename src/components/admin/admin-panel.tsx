@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useAuth } from '@/hooks/use-auth';
 import { useLanguage } from '@/hooks/use-language';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
@@ -14,7 +14,7 @@ import {
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { PlusCircle, Shield, ShieldOff, Trash2, Pencil } from 'lucide-react';
+import { PlusCircle, Shield, ShieldOff, Trash2, Pencil, Ban } from 'lucide-react';
 import { ConfirmationDialog } from '@/components/confirmation-dialog';
 import { AddUserDialog } from '@/components/admin/add-user-dialog';
 import { EditUserDialog } from '@/components/admin/edit-user-dialog';
@@ -22,7 +22,7 @@ import type { StoredUser } from '@/types';
 import { ScrollArea } from '../ui/scroll-area';
 
 export function AdminPanel() {
-  const { users, deleteUser, updateUserRole } = useAuth();
+  const { users, deleteUser, updateUserRole, toggleBanUser } = useAuth();
   const { t } = useLanguage();
   const [isAddUserDialogOpen, setAddUserDialogOpen] = useState(false);
   const [isEditUserDialogOpen, setEditUserDialogOpen] = useState(false);
@@ -56,16 +56,27 @@ export function AdminPanel() {
                         <div className="text-sm text-muted-foreground" dir="ltr">{u.email}</div>
                         <div className="text-sm text-muted-foreground" dir="ltr">{u.phoneNumber}</div>
                         <div className="text-sm text-muted-foreground" dir="ltr">Pass: {u.pass}</div>
-                        <div className="my-2">
+                        <div className="my-2 flex flex-wrap gap-1">
                             <Badge variant={u.role === 'admin' ? 'default' : 'secondary'}>
-                            {u.role}
+                                {u.role}
                             </Badge>
+                             {u.isBanned && (
+                                <Badge variant="destructive">{t('admin.banned')}</Badge>
+                            )}
                         </div>
                         {u.username !== 'HUNTER' && (
-                            <div className="flex items-center gap-2 mt-2">
+                            <div className="flex items-center gap-2 mt-2 flex-wrap">
                                 <Button variant="outline" size="xs" onClick={() => handleEditClick(u)}>
                                     <Pencil className="mr-1 h-3 w-3" />
                                     {t('doctorCard.edit')}
+                                </Button>
+                                 <Button 
+                                    variant={u.isBanned ? "default" : "destructive"} 
+                                    size="xs" 
+                                    onClick={() => toggleBanUser(u.id)}
+                                >
+                                    <Ban className="mr-1 h-3 w-3" />
+                                    {u.isBanned ? t('admin.unbanUser') : t('admin.banUser')}
                                 </Button>
                                 {u.role !== 'admin' ? (
                                     <Button variant="outline" size="xs" onClick={() => updateUserRole(u.id, 'admin')}>

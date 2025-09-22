@@ -34,6 +34,7 @@ export type User = {
   email: string;
   phoneNumber: string;
   role: 'admin' | 'user';
+  isBanned?: boolean;
 };
 
 export type StoredUser = User & {
