@@ -1,9 +1,14 @@
 import {genkit} from 'genkit';
 import {googleAI} from '@genkit-ai/googleai';
+import {googleCloud} from '@genkit-ai/google-cloud';
 
-// @ts-nocheck
-// Temporarily disabled to allow for initial deployment without GEMINI_API_KEY secret.
-export const ai = {}; /*genkit({
-  plugins: [googleAI()],
-  model: 'googleai/gemini-2.5-flash',
-});*/
+export const ai = genkit({
+  plugins: [
+    googleAI({
+      apiKey: process.env.GEMINI_API_KEY,
+    }),
+    googleCloud(),
+  ],
+  logLevel: 'debug',
+  enableTracingAndMetrics: true,
+});
