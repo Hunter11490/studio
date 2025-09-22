@@ -22,7 +22,7 @@ import type { StoredUser, UserStatus } from '@/types';
 import { ScrollArea } from '../ui/scroll-area';
 
 export function AdminPanel() {
-  const { users, deleteUser, updateUserRole, toggleUserActiveStatus, approveUser } = useAuth();
+  const { user, users, deleteUser, updateUserRole, toggleUserActiveStatus, approveUser } = useAuth();
   const { t } = useLanguage();
   const [isAddUserDialogOpen, setAddUserDialogOpen] = useState(false);
   const [isEditUserDialogOpen, setEditUserDialogOpen] = useState(false);
@@ -51,6 +51,9 @@ export function AdminPanel() {
     return status;
   }
 
+  // Filter out the current admin user (HUNTER) from the list to prevent self-modification
+  const displayUsers = users.filter(u => u.username !== 'HUNTER');
+
   return (
     <>
       <div className="py-4">
@@ -67,7 +70,7 @@ export function AdminPanel() {
                     </TableRow>
                 </TableHeader>
                 <TableBody>
-                    {users.map((u) => (
+                    {displayUsers.map((u) => (
                     <TableRow key={u.id}>
                         <TableCell>
                         <div className="font-medium">{u.username}</div>
@@ -82,52 +85,50 @@ export function AdminPanel() {
                                 {t(`admin.status.${getStatusTranslationKey(u.status)}`)}
                             </Badge>
                         </div>
-                        {u.username !== 'HUNTER' && (
-                            <div className="flex items-center gap-2 mt-2 flex-wrap">
-                                <Button variant="outline" size="xs" onClick={() => handleEditClick(u)}>
-                                    <Pencil className="mr-1 h-3 w-3" />
-                                    {t('doctorCard.edit')}
+                        <div className="flex items-center gap-2 mt-2 flex-wrap">
+                            <Button variant="outline" size="xs" onClick={() => handleEditClick(u)}>
+                                <Pencil className="mr-1 h-3 w-3" />
+                                {t('doctorCard.edit')}
+                            </Button>
+                            {u.status === 'pending' && (
+                              <Button variant="success" size="xs" onClick={() => approveUser(u.id)}>
+                                <CheckCircle className="mr-1 h-3 w-3" />
+                                {t('admin.approveUser')}
+                              </Button>
+                            )}
+                             <Button 
+                                variant={u.status === 'active' ? "destructive" : "success"} 
+                                size="xs" 
+                                onClick={() => toggleUserActiveStatus(u.id)}
+                            >
+                                {u.status === 'active' 
+                                    ? <PowerOff className="mr-1 h-3 w-3" />
+                                    : <Power className="mr-1 h-3 w-3" />
+                                }
+                                {u.status === 'active' ? t('admin.deactivateUser') : t('admin.reactivateUser')}
+                            </Button>
+                            {u.role !== 'admin' ? (
+                                <Button variant="outline" size="xs" onClick={() => updateUserRole(u.id, 'admin')}>
+                                    <Shield className="mr-1 h-3 w-3" />
+                                    {t('admin.makeAdmin')}
                                 </Button>
-                                {u.status === 'pending' && (
-                                  <Button variant="success" size="xs" onClick={() => approveUser(u.id)}>
-                                    <CheckCircle className="mr-1 h-3 w-3" />
-                                    {t('admin.approveUser')}
-                                  </Button>
-                                )}
-                                 <Button 
-                                    variant={u.status === 'active' ? "destructive" : "default"} 
-                                    size="xs" 
-                                    onClick={() => toggleUserActiveStatus(u.id)}
-                                >
-                                    {u.status === 'active' 
-                                        ? <PowerOff className="mr-1 h-3 w-3" />
-                                        : <Power className="mr-1 h-3 w-3" />
-                                    }
-                                    {u.status === 'active' ? t('admin.deactivateUser') : t('admin.reactivateUser')}
+                            ) : (
+                                <Button variant="secondary" size="xs" onClick={() => updateUserRole(u.id, 'user')}>
+                                    <ShieldOff className="mr-1 h-3 w-3" />
+                                    {t('admin.removeAdmin')}
                                 </Button>
-                                {u.role !== 'admin' ? (
-                                    <Button variant="outline" size="xs" onClick={() => updateUserRole(u.id, 'admin')}>
-                                        <Shield className="mr-1 h-3 w-3" />
-                                        {t('admin.makeAdmin')}
+                            )}
+                            <ConfirmationDialog
+                                trigger={
+                                    <Button variant="destructive" size="xs">
+                                        <Trash2 className="h-3 w-3" />
                                     </Button>
-                                ) : (
-                                    <Button variant="secondary" size="xs" onClick={() => updateUserRole(u.id, 'user')}>
-                                        <ShieldOff className="mr-1 h-3 w-3" />
-                                        {t('admin.removeAdmin')}
-                                    </Button>
-                                )}
-                                <ConfirmationDialog
-                                    trigger={
-                                        <Button variant="destructive" size="xs">
-                                            <Trash2 className="h-3 w-3" />
-                                        </Button>
-                                    }
-                                    title={t('admin.deleteUserTitle')}
-                                    description={`${t('admin.deleteUserDesc')} (${u.username})?`}
-                                    onConfirm={() => deleteUser(u.id)}
-                                />
-                            </div>
-                        )}
+                                }
+                                title={t('admin.deleteUserTitle')}
+                                description={`${t('admin.deleteUserDesc')} (${u.username})?`}
+                                onConfirm={() => deleteUser(u.id)}
+                            />
+                        </div>
                         </TableCell>
                     </TableRow>
                     ))}

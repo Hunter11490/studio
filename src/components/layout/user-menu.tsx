@@ -111,7 +111,7 @@ export function UserMenu() {
     }
     try {
       toast({title: t('toasts.exporting'), description: t('toasts.exportingDesc')});
-      const fileName = `Spirit_Backup_${new Date().toISOString().split('T')[0]}.data`;
+      const fileName = `Spirit_Backup_${new Date().toISOString().split('T')[0]}`;
       exportDataFile(doctors, fileName);
       toast({ title: t('toasts.exportSuccess') });
     } catch (error) {
@@ -129,9 +129,10 @@ export function UserMenu() {
         toast({ title: t('toasts.importSuccess') });
       } catch (error) {
         console.error(error);
-        toast({ title: t('toasts.importError'), variant: 'destructive' });
+        toast({ title: t('toasts.importError'), variant: 'destructive', description: (error as Error).message });
       } finally {
-        event.target.value = ''; // Reset file input
+        // Reset file input to allow re-uploading the same file
+        event.target.value = ''; 
       }
     }
   };
@@ -152,7 +153,6 @@ export function UserMenu() {
   const handleLogout = () => {
     logout();
     router.replace('/login');
-    handleMenuOpenChange(false);
   }
 
   const handleSearchOnMap = () => {
@@ -175,7 +175,6 @@ export function UserMenu() {
           onClick={() => {
             if (onClick) {
                 onClick();
-                // handleMenuOpenChange(false); // Let the click handler decide if it should close
             }
           }}
         >
@@ -186,7 +185,6 @@ export function UserMenu() {
     );
 
     if (TriggerComp) {
-        // If a trigger is provided (for ConfirmationDialog), wrap it.
         return React.cloneElement(TriggerComp as React.ReactElement, { children: button });
     }
     
@@ -298,7 +296,7 @@ export function UserMenu() {
         type="file"
         id="import-data-input"
         className="hidden"
-        accept=".data, .json"
+        accept=".xlsx, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         onChange={handleImport}
       />
       
