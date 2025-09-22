@@ -29,7 +29,7 @@ export function AuthLoader() {
       <div className="mt-8 text-center max-w-md min-h-[6rem]">
         {isClient ? (
           <>
-            <blockquote className="text-lg italic text-foreground">
+            <blockquote className="text-lg italic text-foreground animate-glow">
               &ldquo;{quote.quote}&rdquo;
             </blockquote>
             <cite className="mt-2 block text-sm text-muted-foreground">&ndash; {quote.author}</cite>
