@@ -8,19 +8,14 @@ import { useLanguage } from '@/hooks/use-language';
 import { Frown, UserSearch } from 'lucide-react';
 import { Doctor } from '@/types';
 import { Button } from '@/components/ui/button';
-import { InternetSearchDialog } from '@/components/ai/internet-search-dialog';
+import { DoctorFormDialog } from '@/components/doctor/doctor-form-dialog';
+
 
 export default function DashboardPage() {
   const { doctors, searchTerm, filterPartners, viewMode, sortOption } = useDoctors();
   const { t } = useLanguage();
-  const [isSearchOpen, setSearchOpen] = useState(false);
+  const [isAddDoctorOpen, setAddDoctorOpen] = useState(false);
 
-  useEffect(() => {
-    // If there are no doctors, automatically open the internet search dialog.
-    if (doctors.length === 0) {
-      setSearchOpen(true);
-    }
-  }, [doctors.length]);
 
   const filteredAndSortedDoctors = useMemo(() => {
     
@@ -61,19 +56,14 @@ export default function DashboardPage() {
             <UserSearch className="h-16 w-16 text-muted-foreground" />
             <h3 className="text-2xl font-bold tracking-tight">{t('common.noResults')}</h3>
             <p className="text-sm text-muted-foreground">
-              {t('header.addDoctor')} أو استخدم البحث بالذكاء الاصطناعي للبدء.
+              {t('header.addDoctor')} لبدء استخدام التطبيق.
             </p>
-             <Button onClick={() => setSearchOpen(true)} className="mt-4">
-              <UserSearch className="mr-2 h-4 w-4" />
-              {t('dialogs.internetSearchTitle')}
+             <Button onClick={() => setAddDoctorOpen(true)} className="mt-4">
+              {t('header.addDoctor')}
             </Button>
           </div>
         </div>
-        <InternetSearchDialog 
-            open={isSearchOpen} 
-            onOpenChange={setSearchOpen} 
-            initialSearchQuery="أطباء في بغداد"
-        />
+        <DoctorFormDialog open={isAddDoctorOpen} onOpenChange={setAddDoctorOpen} />
         </>
       )
   }
