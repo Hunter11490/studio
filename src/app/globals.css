@@ -7,28 +7,28 @@
 
 @layer base {
   :root {
-    --background: 220 20% 98%; /* Lighter, cleaner off-white with a hint of blue */
-    --foreground: 222 47% 11%;
+    --background: 210 40% 98%;
+    --foreground: 222.2 84% 4.9%;
     --card: 0 0% 100%;
-    --card-foreground: 222 47% 11%;
+    --card-foreground: 222.2 84% 4.9%;
     --popover: 0 0% 100%;
-    --popover-foreground: 222 47% 11%;
-    --primary: 215 80% 55%; /* A slightly deeper, more professional blue */
+    --popover-foreground: 222.2 84% 4.9%;
+    --primary: 205 90% 40%; /* Professional Sky Blue */
     --primary-foreground: 210 40% 98%;
-    --secondary: 220 15% 96%; /* Softer gray */
-    --secondary-foreground: 222 47% 11%;
-    --muted: 220 15% 96%;
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 215.4 16.3% 46.9%;
+    --muted: 210 40% 96.1%;
     --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 160 70% 40%; /* Calming Mint Green */
+    --accent: 150 70% 45%; /* Calming Mint Green */
     --accent-foreground: 0 0% 100%;
     --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
-    --warning: 45 90% 55%; /* Yellow for Edit */
+    --destructive-foreground: 210 40% 98%;
+    --warning: 45 90% 55%; /* Golden Yellow for Edit */
     --warning-foreground: 45 90% 5%;
-    --success: 140 70% 40%; /* Green for Map */
-    --success-foreground: 140 70% 5%;
-    --border: 220 15% 90%; /* Slightly more visible border */
-    --input: 220 15% 90%;
+    --success: 140 75% 40%; /* Vibrant Green for Success */
+    --success-foreground: 140 75% 5%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
     --ring: 215 80% 55%;
     --radius: 0.5rem;
     --chart-1: 12 76% 61%;
