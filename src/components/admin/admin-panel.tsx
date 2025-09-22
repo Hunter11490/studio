@@ -14,7 +14,7 @@ import {
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { PlusCircle, Shield, ShieldOff, Trash2, Pencil, Ban, CheckCircle } from 'lucide-react';
+import { PlusCircle, Shield, ShieldOff, Trash2, Pencil, Ban, CheckCircle, PowerOff, Power } from 'lucide-react';
 import { ConfirmationDialog } from '@/components/confirmation-dialog';
 import { AddUserDialog } from '@/components/admin/add-user-dialog';
 import { EditUserDialog } from '@/components/admin/edit-user-dialog';
@@ -40,11 +40,17 @@ export function AdminPanel() {
       case 'pending':
         return 'warning';
       case 'banned':
+      case 'deactivated':
         return 'destructive';
       default:
         return 'secondary';
     }
   };
+  
+  const getStatusTranslationKey = (status: UserStatus) => {
+    if (status === 'banned') return 'deactivated';
+    return status;
+  }
 
   return (
     <>
@@ -74,7 +80,7 @@ export function AdminPanel() {
                                 {u.role}
                             </Badge>
                             <Badge variant={getStatusBadgeVariant(u.status)}>
-                                {t(`admin.status.${u.status}`)}
+                                {t(`admin.status.${getStatusTranslationKey(u.status)}`)}
                             </Badge>
                         </div>
                         {u.username !== 'HUNTER' && (
@@ -94,8 +100,11 @@ export function AdminPanel() {
                                     size="xs" 
                                     onClick={() => toggleBanUser(u.id)}
                                 >
-                                    <Ban className="mr-1 h-3 w-3" />
-                                    {u.status === 'banned' ? t('admin.unbanUser') : t('admin.banUser')}
+                                    {u.status === 'banned' 
+                                        ? <Power className="mr-1 h-3 w-3" />
+                                        : <PowerOff className="mr-1 h-3 w-3" />
+                                    }
+                                    {u.status === 'banned' ? t('admin.reactivateUser') : t('admin.deactivateUser')}
                                 </Button>
                                 {u.role !== 'admin' ? (
                                     <Button variant="outline" size="xs" onClick={() => updateUserRole(u.id, 'admin')}>
