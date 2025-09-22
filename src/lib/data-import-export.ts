@@ -1,16 +1,13 @@
 import { Doctor } from '@/types';
-import { encryptData, decryptData } from './encryption';
 
 export const exportDataFile = (doctors: Doctor[], fileName: string) => {
   try {
-    const jsonData = JSON.stringify(doctors);
-    const encryptedData = encryptData(jsonData);
-
-    const blob = new Blob([encryptedData], { type: 'text/plain;charset=utf-8' });
+    const jsonData = JSON.stringify(doctors, null, 2); // Pretty print JSON
+    const blob = new Blob([jsonData], { type: 'application/json;charset=utf-8' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    const finalFileName = fileName.endsWith('.spirit') ? fileName : `${fileName}.spirit`;
+    const finalFileName = fileName.endsWith('.json') ? fileName : `${fileName}.json`;
     link.download = finalFileName;
     document.body.appendChild(link);
     link.click();
@@ -27,8 +24,8 @@ export const exportDataFile = (doctors: Doctor[], fileName: string) => {
 
 export const importDataFile = (file: File): Promise<Doctor[]> => {
   return new Promise((resolve, reject) => {
-    if (!file.name.endsWith('.spirit')) {
-      return reject(new Error("Invalid file type. Please select a .spirit backup file."));
+    if (!file.name.endsWith('.json')) {
+      return reject(new Error("Invalid file type. Please select a .json backup file."));
     }
       
     const reader = new FileReader();
@@ -38,14 +35,9 @@ export const importDataFile = (file: File): Promise<Doctor[]> => {
         if (!event.target?.result) {
             throw new Error("File could not be read.");
         }
-        const encryptedData = event.target.result as string;
-        const decryptedJson = decryptData(encryptedData);
+        const fileContent = event.target.result as string;
 
-        if (!decryptedJson) {
-            throw new Error("Decryption failed. The file may be corrupt or the key incorrect.");
-        }
-
-        const importedData: any[] = JSON.parse(decryptedJson);
+        const importedData: any[] = JSON.parse(fileContent);
 
         if (!Array.isArray(importedData)) {
             throw new Error("Imported data is not in a valid format.");

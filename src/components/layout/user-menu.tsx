@@ -109,7 +109,7 @@ export function UserMenu() {
         return;
     }
     try {
-      toast({title: t('toasts.exporting'), description: t('toasts.exportingDescEncrypted')});
+      toast({title: t('toasts.exporting'), description: t('toasts.exportingDesc')});
       const fileName = `Spirit_Backup_${new Date().toISOString().split('T')[0]}`;
       exportDataFile(doctors, fileName);
       toast({ title: t('toasts.exportSuccess') });
@@ -295,7 +295,7 @@ export function UserMenu() {
         type="file"
         id="import-data-input"
         className="hidden"
-        accept=".spirit"
+        accept=".json"
         onChange={handleImport}
       />
       
