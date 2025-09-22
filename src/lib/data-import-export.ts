@@ -1,11 +1,28 @@
-import { saveAs } from 'file-saver';
 import { Doctor } from '@/types';
+import * as XLSX from 'xlsx';
 
 export const exportDataFile = (doctors: Doctor[], fileName: string) => {
   try {
-    const dataString = JSON.stringify(doctors, null, 2);
-    const blob = new Blob([dataString], { type: 'application/json;charset=utf-8' });
-    saveAs(blob, fileName);
+    const dataToExport = doctors.map(d => ({
+      id: d.id,
+      name: d.name,
+      specialty: d.specialty,
+      phoneNumber: d.phoneNumber,
+      clinicAddress: d.clinicAddress,
+      mapLocation: d.mapLocation,
+      isPartner: d.isPartner,
+      referralCount: d.referralCount,
+      availableDays: d.availableDays.join(','),
+      createdAt: d.createdAt,
+      // We stringify complex objects for backup.
+      // clinicCardImageUrl is too long for Excel cells, so we omit it.
+      referralNotes: JSON.stringify(d.referralNotes || []),
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Doctors');
+    XLSX.writeFile(workbook, fileName.replace('.data', '.xlsx')); // Export as xlsx for clarity
     return true;
   } catch (error) {
     console.error("Error exporting data:", error);
