@@ -24,6 +24,7 @@ import {
   Users,
   UserSearch,
   Zap,
+  Trash2,
 } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
 import { useLanguage } from '@/hooks/use-language';
@@ -50,7 +51,7 @@ export function UserMenu() {
   const router = useRouter();
   const { lang, setLang, t } = useLanguage();
   const { theme, setTheme } = useTheme();
-  const { doctors, uncheckAllPartners, resetAllReferrals, importDoctors } = useDoctors();
+  const { doctors, uncheckAllPartners, resetAllReferrals, importDoctors, deleteAllDoctors } = useDoctors();
   const { toast } = useToast();
 
   const [isMenuOpen, setMenuOpen] = useState(false);
@@ -241,6 +242,12 @@ export function UserMenu() {
                   description={t('dialogs.uncheckPartnersDesc')}
                   onConfirm={() => { uncheckAllPartners(); handleMenuOpenChange(false); }}
                   trigger={<MenuItem icon={<StarOff className="mr-2 h-4 w-4" />} label={t('userMenu.uncheckAllPartners')} destructive />}
+              />
+              <ConfirmationDialog
+                  title={t('dialogs.deleteAllDoctorsTitle')}
+                  description={t('dialogs.deleteAllDoctorsDesc')}
+                  onConfirm={() => { deleteAllDoctors(); handleMenuOpenChange(false); }}
+                  trigger={<MenuItem icon={<Trash2 className="mr-2 h-4 w-4" />} label={t('userMenu.deleteAllDoctors')} destructive />}
               />
 
               <Separator className="my-2" />

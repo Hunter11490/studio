@@ -20,6 +20,7 @@ export type DoctorContextType = {
   updateDoctor: (id: string, updates: Partial<Doctor>) => void;
   updateMultipleDoctors: (updatedDoctors: Doctor[]) => void;
   deleteDoctor: (id: string) => void;
+  deleteAllDoctors: () => void;
   getDoctorById: (id: string) => Doctor | undefined;
   importDoctors: (newDoctors: Doctor[]) => void;
   uncheckAllPartners: () => void;
@@ -103,6 +104,10 @@ export function DoctorProvider({ children }: { children: React.ReactNode }) {
   const deleteDoctor = (id: string) => {
     setDoctors(prev => prev.filter(doc => doc.id !== id));
   };
+  
+  const deleteAllDoctors = () => {
+    setDoctors([]);
+  };
 
   const getDoctorById = (id: string) => {
     return doctors.find(doc => doc.id === id);
@@ -117,8 +122,6 @@ export function DoctorProvider({ children }: { children: React.ReactNode }) {
   };
 
   const importDoctors = (newDoctors: Doctor[]) => {
-    // Replace the current list with the imported list.
-    // This makes import a "restore" operation.
     setDoctors(newDoctors);
   };
 
@@ -129,6 +132,7 @@ export function DoctorProvider({ children }: { children: React.ReactNode }) {
     updateDoctor,
     updateMultipleDoctors,
     deleteDoctor,
+    deleteAllDoctors,
     getDoctorById,
     importDoctors,
     uncheckAllPartners,
