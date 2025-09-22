@@ -41,8 +41,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const router = useRouter();
-
 
   useEffect(() => {
     setIsLoading(true);
@@ -72,6 +70,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
     
     setIsLoading(false);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   
     useEffect(() => {
@@ -104,11 +103,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     );
 
     if (userToLogin) {
-      if (userToLogin.status === 'banned') {
-        // Explicitly handle banned case if needed, e.g. show a specific message
-        // For now, we just prevent login.
-        return false;
-      }
       const sessionUser: User = {
         id: userToLogin.id,
         username: userToLogin.username,
@@ -215,8 +209,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const logout = useCallback(() => {
     setUser(null);
     setLoggedInUser(null);
-    router.replace('/login');
-  }, [setLoggedInUser, router]);
+  }, [setLoggedInUser]);
   
   const value = useMemo(() => ({
     user,

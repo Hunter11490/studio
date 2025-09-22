@@ -151,6 +151,7 @@ export function UserMenu() {
 
   const handleLogout = () => {
     logout();
+    router.replace('/login');
     handleMenuOpenChange(false);
   }
 
