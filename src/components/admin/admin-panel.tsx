@@ -14,7 +14,7 @@ import {
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { PlusCircle, Shield, ShieldOff, Trash2, Pencil, Ban, CheckCircle, PowerOff, Power } from 'lucide-react';
+import { PlusCircle, Shield, ShieldOff, Trash2, Pencil, CheckCircle, PowerOff, Power } from 'lucide-react';
 import { ConfirmationDialog } from '@/components/confirmation-dialog';
 import { AddUserDialog } from '@/components/admin/add-user-dialog';
 import { EditUserDialog } from '@/components/admin/edit-user-dialog';
@@ -22,7 +22,7 @@ import type { StoredUser, UserStatus } from '@/types';
 import { ScrollArea } from '../ui/scroll-area';
 
 export function AdminPanel() {
-  const { users, deleteUser, updateUserRole, toggleBanUser, approveUser } = useAuth();
+  const { users, deleteUser, updateUserRole, toggleUserActiveStatus, approveUser } = useAuth();
   const { t } = useLanguage();
   const [isAddUserDialogOpen, setAddUserDialogOpen] = useState(false);
   const [isEditUserDialogOpen, setEditUserDialogOpen] = useState(false);
@@ -40,7 +40,6 @@ export function AdminPanel() {
       case 'pending':
         return 'warning';
       case 'banned':
-      case 'deactivated':
         return 'destructive';
       default:
         return 'secondary';
@@ -96,15 +95,15 @@ export function AdminPanel() {
                                   </Button>
                                 )}
                                  <Button 
-                                    variant={u.status === 'banned' ? "default" : "destructive"} 
+                                    variant={u.status === 'active' ? "destructive" : "default"} 
                                     size="xs" 
-                                    onClick={() => toggleBanUser(u.id)}
+                                    onClick={() => toggleUserActiveStatus(u.id)}
                                 >
-                                    {u.status === 'banned' 
-                                        ? <Power className="mr-1 h-3 w-3" />
-                                        : <PowerOff className="mr-1 h-3 w-3" />
+                                    {u.status === 'active' 
+                                        ? <PowerOff className="mr-1 h-3 w-3" />
+                                        : <Power className="mr-1 h-3 w-3" />
                                     }
-                                    {u.status === 'banned' ? t('admin.reactivateUser') : t('admin.deactivateUser')}
+                                    {u.status === 'active' ? t('admin.deactivateUser') : t('admin.reactivateUser')}
                                 </Button>
                                 {u.role !== 'admin' ? (
                                     <Button variant="outline" size="xs" onClick={() => updateUserRole(u.id, 'admin')}>

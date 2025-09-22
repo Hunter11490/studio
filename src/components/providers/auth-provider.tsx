@@ -15,7 +15,7 @@ export type AuthContextType = {
   addUserByAdmin: (username: string, pass: string, phoneNumber: string, email: string, role: 'admin' | 'user') => boolean;
   deleteUser: (userId: string) => void;
   updateUserRole: (userId: string, role: 'admin' | 'user') => void;
-  toggleBanUser: (userId: string) => void;
+  toggleUserActiveStatus: (userId: string) => void;
   approveUser: (userId: string) => void;
   updateUser: (userId: string, updates: Partial<Omit<StoredUser, 'id'>>) => boolean;
 };
@@ -98,10 +98,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const login = useCallback((username: string, pass: string): boolean => {
     const userToLogin = storedUsers.find(
-      (u) => u.username === username && u.pass === pass && u.status !== 'banned'
+      (u) => u.username === username && u.pass === pass
     );
 
     if (userToLogin) {
+      if (userToLogin.status === 'banned') {
+        // Explicitly handle banned case if needed, e.g. show a specific message
+        // For now, we just prevent login.
+        return false;
+      }
       const sessionUser: User = {
         id: userToLogin.id,
         username: userToLogin.username,
@@ -168,10 +173,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setStoredUsers(prev => prev.map(u => u.id === userId ? { ...u, role } : u));
   }, [setStoredUsers]);
 
-  const toggleBanUser = useCallback((userId: string) => {
-    setStoredUsers(prev => prev.map(u => 
-      u.id === userId ? { ...u, status: u.status === 'banned' ? 'active' : 'banned' } : u
-    ));
+  const toggleUserActiveStatus = useCallback((userId: string) => {
+    setStoredUsers(prev => prev.map(u => {
+      if (u.id === userId) {
+        // If user is active, set to pending. If pending or banned, set to active.
+        const newStatus = u.status === 'active' ? 'pending' : 'active';
+        return { ...u, status: newStatus };
+      }
+      return u;
+    }));
   }, [setStoredUsers]);
   
   const approveUser = useCallback((userId: string) => {
@@ -203,7 +213,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const logout = useCallback((router: any) => {
     setUser(null);
     setLoggedInUser(null);
-    router.replace('/login');
+    if (router) {
+      router.replace('/login');
+    }
   }, [setLoggedInUser]);
   
   const value = useMemo(() => ({
@@ -216,10 +228,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     addUserByAdmin,
     deleteUser,
     updateUserRole,
-    toggleBanUser,
+    toggleUserActiveStatus,
     approveUser,
     updateUser,
-  }), [user, storedUsers, isLoading, login, signup, logout, addUserByAdmin, deleteUser, updateUserRole, toggleBanUser, approveUser, updateUser]);
+  }), [user, storedUsers, isLoading, login, signup, logout, addUserByAdmin, deleteUser, updateUserRole, toggleUserActiveStatus, approveUser, updateUser]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
