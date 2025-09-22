@@ -34,20 +34,16 @@ import { Label } from '../ui/label';
 import { ConfirmationDialog } from '@/components/confirmation-dialog';
 import { AboutDialog } from '@/components/about-dialog';
 import { ChatDialog } from '@/components/ai/chat-dialog';
-import { exportToExcel, importFromExcel } from '@/lib/excel';
+import { exportDataFile, importDataFile } from '@/lib/data-import-export';
 import { useToast } from '@/hooks/use-toast';
 import { ScrollArea } from '../ui/scroll-area';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetClose } from '../ui/sheet';
 import { AdminPanel } from '../admin/admin-panel';
 import { Separator } from '../ui/separator';
-import { translateText } from '@/ai/flows/translation-flow';
 import { Doctor } from '@/types';
 import { InternetSearchDialog } from '../ai/internet-search-dialog';
 import { IRAQI_GOVERNORATES } from '@/lib/constants';
 
-type DoctorExportData = {
-  [key: string]: string | number | boolean;
-};
 
 export function UserMenu() {
   const { user, logout } = useAuth();
@@ -106,54 +102,15 @@ export function UserMenu() {
     setAdminPanelOpen(isOpen);
   };
 
-  const getTranslatedDoctorData = async (doctor: Doctor): Promise<DoctorExportData> => {
-    const targetLanguage = lang === 'ar' ? 'Arabic' : 'English';
-    const referralCount = doctor.referralCount;
-    const headers = {
-        name: lang === 'ar' ? 'الاسم' : 'Name',
-        specialty: lang === 'ar' ? 'التخصص' : 'Specialty',
-        clinicAddress: lang === 'ar' ? 'عنوان العيادة' : 'Clinic Address',
-        phoneNumber: lang === 'ar' ? 'رقم الهاتف' : 'Phone Number',
-        mapLocation: lang === 'ar' ? 'رابط الخريطة' : 'Map Link',
-        isPartner: lang === 'ar' ? 'شريك' : 'Partner',
-        referralCount: lang === 'ar' ? 'عدد الإحالات' : 'Referrals',
-        commission: lang === 'ar' ? 'العمولة' : 'Commission',
-        availableDays: lang === 'ar' ? 'أيام التواجد' : 'Available Days',
-    };
-    
-    let translatedData = { name: doctor.name, specialty: doctor.specialty, clinicAddress: doctor.clinicAddress };
-    
-    try {
-        const result = await translateText({ doctors: [{ name: doctor.name, specialty: doctor.specialty, clinicAddress: doctor.clinicAddress }], targetLanguage: 'Arabic' });
-        if(result.doctors.length > 0) {
-            translatedData = result.doctors[0];
-        }
-    } catch (error) {
-        console.error("Translation failed for", doctor.name, "falling back to original.");
-    }
-    
-    return {
-      [headers.name]: translatedData.name,
-      [headers.specialty]: translatedData.specialty,
-      [headers.clinicAddress]: translatedData.clinicAddress,
-      [headers.phoneNumber]: doctor.phoneNumber,
-      [headers.mapLocation]: doctor.mapLocation,
-      [headers.isPartner]: doctor.isPartner,
-      [headers.referralCount]: referralCount,
-      [headers.commission]: referralCount * 100,
-      [headers.availableDays]: doctor.availableDays.join(', '),
-    };
-  };
-
   const handleExport = async () => {
+    if (doctors.length === 0) {
+        toast({ title: t('toasts.noDataToExport') });
+        return;
+    }
     try {
       toast({title: t('toasts.exporting'), description: t('toasts.exportingDesc')});
-
-      const translatedData = await Promise.all(doctors.map(doc => getTranslatedDoctorData(doc)));
-      
-      const fileName = `Iraqi_Doctors_${new Date().toISOString().split('T')[0]}.xlsx`;
-
-      exportToExcel(translatedData, fileName);
+      const fileName = `Spirit_Backup_${new Date().toISOString().split('T')[0]}.data`;
+      exportDataFile(doctors, fileName);
       toast({ title: t('toasts.exportSuccess') });
     } catch (error) {
       console.error(error);
@@ -165,8 +122,8 @@ export function UserMenu() {
     const file = event.target.files?.[0];
     if (file) {
       try {
-        const imported = await importFromExcel(file);
-        importDoctors(imported as Doctor[]);
+        const imported = await importDataFile(file);
+        importDoctors(imported);
         toast({ title: t('toasts.importSuccess') });
       } catch (error) {
         console.error(error);
@@ -178,7 +135,7 @@ export function UserMenu() {
   };
 
   const openImportDialog = () => {
-    document.getElementById('import-excel-input')?.click();
+    document.getElementById('import-data-input')?.click();
   };
   
   const handleQuickAdd = () => {
@@ -266,8 +223,8 @@ export function UserMenu() {
 
               <div className="px-2 py-1.5 text-sm font-semibold">{t('userMenu.dataActions')}</div>
               <MenuItem icon={<Map className="mr-2 h-4 w-4" />} label={t('userMenu.searchOnMap')} onClick={() => { handleSearchOnMap(); handleMenuOpenChange(false); }} />
-              <MenuItem icon={<FileDown className="mr-2 h-4 w-4" />} label={t('userMenu.exportToExcel')} onClick={() => { handleExport(); handleMenuOpenChange(false); }} />
-              <MenuItem icon={<FileUp className="mr-2 h-4 w-4" />} label={t('userMenu.importFromExcel')} onClick={() => { openImportDialog(); handleMenuOpenChange(false); }} />
+              <MenuItem icon={<FileDown className="mr-2 h-4 w-4" />} label={t('userMenu.exportData')} onClick={() => { handleExport(); handleMenuOpenChange(false); }} />
+              <MenuItem icon={<FileUp className="mr-2 h-4 w-4" />} label={t('userMenu.importData')} onClick={() => { openImportDialog(); handleMenuOpenChange(false); }} />
               
               <ConfirmationDialog
                   title={t('dialogs.resetReferralsTitle')}
@@ -332,9 +289,9 @@ export function UserMenu() {
       {/* Hidden file input for import */}
       <input
         type="file"
-        id="import-excel-input"
+        id="import-data-input"
         className="hidden"
-        accept=".xlsx, .xls"
+        accept=".data"
         onChange={handleImport}
       />
       
