@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import Image from 'next/image';
 import {
   Star,
   Plus,
@@ -13,6 +12,9 @@ import {
   BadgePercent,
   CalendarDays,
   ClipboardList,
+  MoreVertical,
+  Map as MapIcon,
+  StarOff,
 } from 'lucide-react';
 import { Doctor } from '@/types';
 import { useDoctors } from '@/hooks/use-doctors';
@@ -26,11 +28,15 @@ import { ConfirmationDialog } from '@/components/confirmation-dialog';
 import { DoctorFormDialog } from './doctor-form-dialog';
 import { ReferralNotesDialog } from './referral-notes-dialog';
 import { Skeleton } from '../ui/skeleton';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
 import { cn } from '@/lib/utils';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
-
-const WEEK_DAYS = ['Sat', 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
 
 export function DoctorCard({ doctor }: { doctor: Doctor }) {
   const { updateDoctor, deleteDoctor } = useDoctors();
@@ -61,23 +67,14 @@ export function DoctorCard({ doctor }: { doctor: Doctor }) {
       () => {
         toast({ title: t('toasts.locationError'), description: 'Please enable location permissions.', variant: 'destructive' });
       },
-      { timeout: 10000 } // Add a 10-second timeout
+      { timeout: 10000, enableHighAccuracy: true } // Add a 10-second timeout and high accuracy
     );
   };
   
-  const handleAvailabilityToggle = (day: string) => {
-    const currentDays = doctor.availableDays || [];
-    const newDays = currentDays.includes(day)
-      ? currentDays.filter(d => d !== day)
-      : [...currentDays, day];
-    updateDoctor(doctor.id, { availableDays: newDays });
-  };
-
   const handleReferralChange = (amount: number) => {
     const newCount = Math.max(0, referralCount + amount);
     const newNotes = [...(doctor.referralNotes || [])];
     
-    // Ensure notes array matches the new count
     while (newNotes.length < newCount) {
         newNotes.push({ patientName: '', referralDate: '', testType: '', patientAge: '', chronicDiseases: '' });
     }
@@ -86,7 +83,7 @@ export function DoctorCard({ doctor }: { doctor: Doctor }) {
     }
 
     updateDoctor(doctor.id, { referralCount: newCount, referralNotes: newNotes });
-};
+  };
   
   const handleDeleteDoctor = () => {
       deleteDoctor(doctor.id);
@@ -95,132 +92,90 @@ export function DoctorCard({ doctor }: { doctor: Doctor }) {
   return (
     <>
       <Card className={cn(
-          "flex flex-col overflow-hidden relative",
-          doctor.isPartner && "border-primary/50 animate-pulse-glow"
+          "flex flex-col overflow-hidden transition-all duration-300",
+          doctor.isPartner && "border-primary/50 shadow-lg shadow-primary/10"
         )}>
-        <Image
-          src={`https://picsum.photos/seed/${doctor.id}/600/400`}
-          alt="Tahrir Square monument watermark"
-          data-ai-hint="iraq landmark"
-          fill
-          className="object-cover opacity-5 dark:opacity-10"
-        />
-        <CardHeader className="p-4 relative z-10">
-          <div className="flex items-start justify-between">
-            <div className="grid gap-1">
-                <CardTitle className="font-headline text-xl text-primary">
-                    {doctor.isLoading ? <Skeleton className="h-7 w-48" /> : doctor.name}
+        <CardHeader className="p-4">
+          <div className="flex items-start justify-between gap-4">
+            <div className="flex-grow">
+                <CardTitle className="font-headline text-xl text-primary flex items-center gap-2">
+                    {doctor.isPartner && <Star className="h-5 w-5 fill-primary text-primary" />}
+                    <span>{doctor.name}</span>
                 </CardTitle>
-                <div className="text-sm text-muted-foreground">
-                    {doctor.isLoading ? (
-                    <Skeleton className="h-5 w-32 mt-1" />
-                    ) : (
-                    doctor.specialty
-                    )}
-                </div>
+                <p className="text-sm text-muted-foreground mt-1">{doctor.specialty}</p>
             </div>
-            <div className="flex items-center gap-2">
-              {doctor.isPartner && (
-                <Badge>
-                  <Star className="mr-1 h-3 w-3" />
-                  {t('doctorCard.partner')}
-                </Badge>
-              )}
-               <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setReferralSheetOpen(true)}>
-                          <ClipboardList className="h-5 w-5" />
-                        </Button>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>{t('doctorCard.viewCases')}</p>
-                      </TooltipContent>
-                    </Tooltip>
-              </TooltipProvider>
-            </div>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="h-8 w-8 flex-shrink-0">
+                  <MoreVertical className="h-5 w-5" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={handleSetLocation}>
+                  <MapPin className="mr-2 h-4 w-4" />
+                  <span>{t('doctorCard.setMyLocation')}</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => window.open(doctor.mapLocation, '_blank')} disabled={!doctor.mapLocation}>
+                  <MapIcon className="mr-2 h-4 w-4" />
+                  <span>{t('doctorCard.map')}</span>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={handlePartnerToggle}>
+                  {doctor.isPartner ? <StarOff className="mr-2 h-4 w-4" /> : <Star className="mr-2 h-4 w-4" />}
+                  <span>{doctor.isPartner ? t('userMenu.uncheckAllPartners') : t('doctorCard.partner')}</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </CardHeader>
 
-        <CardContent className="p-4 flex-grow space-y-4 text-sm z-10">
+        <CardContent className="p-4 pt-0 flex-grow space-y-4 text-sm">
           {/* Referrals Section */}
-          <div className="space-y-2 rounded-lg border p-3 bg-background/50 backdrop-blur-sm">
+          <div className="space-y-2 rounded-lg border p-3 bg-secondary/50">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2 text-muted-foreground">
                 <BadgePercent className="h-4 w-4" />
                 <span>{t('doctorCard.referrals')}</span>
               </div>
               <div className="flex items-center gap-2">
-                <Button size="icon" variant="outline" className="h-6 w-6 rounded-full" onClick={() => handleReferralChange(-1)}>
+                <Button size="icon" variant="ghost" className="h-6 w-6 rounded-full" onClick={() => handleReferralChange(-1)} disabled={referralCount <= 0}>
                   <Minus className="h-4 w-4" />
                 </Button>
                 <span className="font-bold w-4 text-center text-base">{referralCount}</span>
-                <Button size="icon" variant="outline" className="h-6 w-6 rounded-full" onClick={() => handleReferralChange(1)}>
+                <Button size="icon" variant="ghost" className="h-6 w-6 rounded-full" onClick={() => handleReferralChange(1)}>
                   <Plus className="h-4 w-4" />
                 </Button>
               </div>
             </div>
             <Separator/>
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between text-xs">
               <span className="text-muted-foreground">{t('doctorCard.commission')}</span>
               <span className="font-semibold text-accent">{commission.toLocaleString()} {t('doctorCard.usd')}</span>
             </div>
           </div>
           
-          {/* Contact & Availability */}
-          <div className="space-y-4">
-             <div className="space-y-2">
-                <div className="flex items-start gap-3">
-                    <Phone className="h-4 w-4 mt-0.5 shrink-0 text-muted-foreground" /> 
-                    {doctor.isLoading ? <Skeleton className="h-5 w-24" /> : <a href={`tel:${doctor.phoneNumber}`} className="hover:underline text-primary" dir="ltr">{doctor.phoneNumber}</a>}
-                </div>
-                <div className="flex items-start gap-3">
-                    <MapPin className="h-4 w-4 mt-0.5 shrink-0 text-muted-foreground" />
-                    {doctor.isLoading ? <Skeleton className="h-5 w-full" /> : <div>{doctor.clinicAddress}</div>}
-                </div>
-             </div>
-            <Separator/>
-            <div className="space-y-3">
-              <div className="flex items-center gap-2 font-medium text-muted-foreground text-xs uppercase">
-                <CalendarDays className="h-4 w-4" />
-                <span>{t('doctorCard.availability')}</span>
+          {/* Contact Info */}
+           <div className="space-y-2 text-xs">
+              <div className="flex items-center gap-3">
+                  <Phone className="h-3 w-3 shrink-0 text-muted-foreground" /> 
+                  <a href={`tel:${doctor.phoneNumber}`} className="hover:underline" dir="ltr">{doctor.phoneNumber}</a>
               </div>
-              <div className="flex flex-wrap gap-1.5">
-                {WEEK_DAYS.map(day => (
-                  <Button
-                    key={day}
-                    size="sm"
-                    variant={(doctor.availableDays || []).includes(day) ? 'secondary' : 'outline'}
-                    onClick={() => handleAvailabilityToggle(day)}
-                    className="h-7 px-2.5"
-                  >
-                    {t(`doctorCard.days.${day}` as any)}
-                  </Button>
-                ))}
+              <div className="flex items-center gap-3">
+                  <MapPin className="h-3 w-3 shrink-0 text-muted-foreground" />
+                  <span>{doctor.clinicAddress}</span>
               </div>
-            </div>
-          </div>
+           </div>
         </CardContent>
 
-        <CardFooter className="p-2 border-t flex flex-col gap-2 z-10 bg-background/50 backdrop-blur-sm">
-          <div className="flex w-full gap-2">
-            <Button variant="success" size="sm" className="flex-1" onClick={() => window.open(doctor.mapLocation, '_blank')} disabled={!doctor.mapLocation}>
-              <MapPin className="mr-2 h-4 w-4" /> {t('doctorCard.map')}
-            </Button>
-            <Button variant={doctor.mapLocation ? "success" : "default"} size="sm" className="flex-1" onClick={handleSetLocation}>
-              {t('doctorCard.setMyLocation')}
-            </Button>
-          </div>
-          <div className="flex w-full gap-2">
-             <Button variant="warning" size="sm" className="flex-1" onClick={() => setEditing(true)}>
+        <CardFooter className="p-2 border-t bg-background/50 flex gap-2">
+            <Button variant="outline" size="sm" className="flex-1" onClick={() => setEditing(true)}>
                 <Pencil className="mr-2 h-4 w-4" /> {t('doctorCard.edit')}
             </Button>
-            <Button variant={doctor.isPartner ? 'default' : 'secondary'} size="sm" className="flex-1" onClick={handlePartnerToggle}>
-                <Star className="mr-2 h-4 w-4" /> {t('doctorCard.partner')}
+            <Button variant="outline" size="sm" className="flex-1" onClick={() => setReferralSheetOpen(true)}>
+                <ClipboardList className="mr-2 h-4 w-4" /> {t('doctorCard.viewCases')}
             </Button>
-          </div>
-          <ConfirmationDialog
-                trigger={<Button variant="destructive" size="sm" className="w-full"><Trash2 className="mr-2 h-4 w-4" /> {t('doctorCard.delete')}</Button>}
+            <ConfirmationDialog
+                trigger={<Button variant="destructive" size="icon" className="flex-shrink-0"><Trash2 className="h-4 w-4" /></Button>}
                 title={t('dialogs.deleteDoctorTitle')}
                 description={`${t('dialogs.deleteDoctorDesc')} (${doctor.name})`}
                 onConfirm={handleDeleteDoctor}
