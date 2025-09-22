@@ -2,21 +2,34 @@
 
 import { useState, useEffect, useCallback } from 'react';
 
-export function useLocalStorage<T>(key: string, initialValue: T): [T, (value: T | ((val: T) => T)) => void] {
-  const [storedValue, setStoredValue] = useState<T>(() => {
-    if (typeof window === 'undefined') {
+// Custom hook to handle dynamic keys in localStorage
+export function useLocalStorage<T>(key: string | null, initialValue: T): [T, (value: T | ((val: T) => T)) => void] {
+  
+  const readValue = useCallback((): T => {
+    if (typeof window === 'undefined' || key === null) {
       return initialValue;
     }
     try {
       const item = window.localStorage.getItem(key);
-      return item ? JSON.parse(item) : initialValue;
+      return item ? (JSON.parse(item) as T) : initialValue;
     } catch (error) {
-      console.error(error);
+      console.warn(`Error reading localStorage key “${key}”:`, error);
       return initialValue;
     }
-  });
+  }, [initialValue, key]);
 
+  const [storedValue, setStoredValue] = useState<T>(readValue);
+
+  // This effect will re-read the value from localStorage when the key changes.
+  useEffect(() => {
+    setStoredValue(readValue());
+  }, [key, readValue]);
+  
   const setValue = (value: T | ((val: T) => T)) => {
+    if (key === null) {
+      console.warn('Cannot set localStorage value, key is null.');
+      return;
+    }
     try {
       const valueToStore = value instanceof Function ? value(storedValue) : value;
       setStoredValue(valueToStore);
@@ -28,11 +41,16 @@ export function useLocalStorage<T>(key: string, initialValue: T): [T, (value: T 
     }
   };
 
+
   useEffect(() => {
     const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === key && e.newValue) {
-        setStoredValue(JSON.parse(e.newValue));
-      }
+        if (e.key === key && e.newValue) {
+            try {
+                setStoredValue(JSON.parse(e.newValue));
+            } catch (error) {
+                console.warn(`Error parsing new value for key “${key}”:`, error);
+            }
+        }
     };
     window.addEventListener('storage', handleStorageChange);
     return () => {

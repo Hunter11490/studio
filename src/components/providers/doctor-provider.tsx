@@ -1,10 +1,11 @@
 'use client';
 
-import { createContext, useState, useMemo, useCallback } from 'react';
+import { createContext, useState, useMemo, useEffect } from 'react';
 import { useLocalStorage } from '@/hooks/use-local-storage';
 import { Doctor } from '@/types';
+import { useAuth } from '@/hooks/use-auth';
 
-export const DOCTORS_STORAGE_KEY = 'iraqi_doctors_list_v3_cleared';
+const BASE_DOCTORS_STORAGE_KEY = 'iraqi_doctors_list_user';
 const VIEW_MODE_STORAGE_KEY = 'iraqi_doctors_view_mode_v1';
 const SORT_OPTION_STORAGE_KEY = 'iraqi_doctors_sort_option_v1';
 
@@ -36,11 +37,22 @@ export type DoctorContextType = {
 export const DoctorContext = createContext<DoctorContextType | null>(null);
 
 export function DoctorProvider({ children }: { children: React.ReactNode }) {
-  const [doctors, setDoctors] = useLocalStorage<Doctor[]>(DOCTORS_STORAGE_KEY, initialDoctors);
+  const { user } = useAuth();
+  const userSpecificDoctorsKey = user ? `${BASE_DOCTORS_STORAGE_KEY}_${user.id}` : null;
+  
+  const [doctors, setDoctors] = useLocalStorage<Doctor[]>(userSpecificDoctorsKey || 'temp_doctors_key', initialDoctors);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterPartners, setFilterPartners] = useState(false);
   const [viewMode, setViewMode] = useLocalStorage<'grid' | 'list'>(VIEW_MODE_STORAGE_KEY, 'grid');
   const [sortOption, setSortOption] = useLocalStorage<SortOption>(SORT_OPTION_STORAGE_KEY, 'createdAt');
+
+  // When user logs out, clear the doctors from state.
+  useEffect(() => {
+    if (!user) {
+      setDoctors(initialDoctors);
+    }
+  }, [user, setDoctors]);
+
 
   const addDoctor = (doctorData: Omit<Doctor, 'id' | 'createdAt'>) => {
     const referralCount = doctorData.referralCount || 0;
@@ -111,7 +123,7 @@ export function DoctorProvider({ children }: { children: React.ReactNode }) {
   };
 
   const value = useMemo(() => ({
-    doctors,
+    doctors: user ? doctors : [],
     addDoctor,
     addMultipleDoctors,
     updateDoctor,
@@ -129,7 +141,7 @@ export function DoctorProvider({ children }: { children: React.ReactNode }) {
     setViewMode,
     sortOption,
     setSortOption,
-  }), [doctors, searchTerm, filterPartners, viewMode, sortOption, setDoctors, setViewMode, setSortOption]);
+  }), [doctors, user, searchTerm, filterPartners, viewMode, sortOption, setDoctors, setViewMode, setSortOption]);
 
   return <DoctorContext.Provider value={value}>{children}</DoctorContext.Provider>;
 }
