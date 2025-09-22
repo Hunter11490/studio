@@ -1,5 +1,4 @@
 import { Doctor } from '@/types';
-import * as XLSX from 'xlsx';
 import { encryptData, decryptData } from './encryption';
 
 export const exportDataFile = (doctors: Doctor[], fileName: string) => {
@@ -52,7 +51,7 @@ export const importDataFile = (file: File): Promise<Doctor[]> => {
             throw new Error("Imported data is not in a valid format.");
         }
 
-        const validDoctors: Doctor[] = importedData.map((d: any): Doctor => {
+        const validDoctors: Doctor[] = importedData.map((d: any): Doctor | null => {
             if (!d.id || !d.name) {
                 console.warn(`Skipping invalid doctor entry in file: ${JSON.stringify(d)}`);
                 return null;
