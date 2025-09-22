@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
@@ -22,9 +23,16 @@ const formSchema = z.object({
 
 export default function LoginPage() {
   const router = useRouter();
-  const { login } = useAuth();
+  const { user, login } = useAuth();
   const { t } = useLanguage();
   const { toast } = useToast();
+
+  useEffect(() => {
+    // If user is already logged in, redirect to dashboard.
+    if (user) {
+      router.replace('/dashboard');
+    }
+  }, [user, router]);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -51,6 +59,11 @@ export default function LoginPage() {
       });
       form.reset();
     }
+  }
+
+  // Don't render the form if the user is already logged in and we're about to redirect.
+  if (user) {
+    return null;
   }
 
   return (

@@ -7,16 +7,16 @@ import { Header } from '@/components/layout/header';
 import { AuthLoader } from '@/components/auth-loader';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
-  const { user, isLoading } = useAuth();
+  const { user } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
-    if (!isLoading && !user) {
+    if (!user) {
       router.replace('/login');
     }
-  }, [user, isLoading, router]);
+  }, [user, router]);
 
-  if (isLoading || !user) {
+  if (!user) {
     return <AuthLoader />;
   }
 
