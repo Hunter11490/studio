@@ -146,7 +146,7 @@ export function UserMenu() {
     const randomArea = baghdadAreas[Math.floor(Math.random() * baghdadAreas.length)];
     const query = `أطباء في ${randomArea}`;
     setQuickAddQuery(query);
-    setQuickAddOpen(true);
+    setInternetSearchOpen(true);
     handleMenuOpenChange(false);
   };
 
@@ -303,13 +303,11 @@ export function UserMenu() {
       {/* Dialogs */}
       <AboutDialog open={isAboutOpen} onOpenChange={setAboutOpen} />
       <ChatDialog open={isChatOpen} onOpenChange={setChatOpen} />
-      <InternetSearchDialog open={isInternetSearchOpen} onOpenChange={setInternetSearchOpen} />
       <InternetSearchDialog 
-        open={isQuickAddOpen} 
-        onOpenChange={setQuickAddOpen} 
+        open={isInternetSearchOpen} 
+        onOpenChange={setInternetSearchOpen} 
         initialSearchQuery={quickAddQuery}
       />
-
       
       {/* Admin Panel Sheet */}
       {user.role === 'admin' && (
