@@ -21,7 +21,7 @@ export function AuthLoader() {
       <div className="flex flex-col items-center gap-4 text-center">
         <Logo className="h-24 w-24 text-primary" />
         <div className="flex flex-col items-center">
-          <h1 className="text-3xl font-semibold tracking-tight text-primary animate-glow">{isClient ? t('appName') : 'Spirit'}</h1>
+          <h1 className="text-3xl font-semibold tracking-tight text-primary">{isClient ? t('appName') : 'Spirit'}</h1>
           <p className="text-sm text-muted-foreground">{isClient ? t('appSubtitle') : 'For Managing Centers and Hospitals'}</p>
         </div>
       </div>
