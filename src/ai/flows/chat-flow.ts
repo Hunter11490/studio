@@ -37,7 +37,7 @@ const chatFlow = ai.defineFlow(
       name: 'chatPrompt',
       input: {schema: ChatInputSchema},
       output: {schema: ChatOutputSchema},
-      model: googleAI.model('gemini-pro'),
+      model: googleAI.model('gemini-1.5-flash-latest'),
       prompt: `You are a medical assistant helping medical representatives by answering questions from doctors. Use your knowledge to provide accurate and helpful answers.\n\nQuestion: {{{question}}}`,
     });
 

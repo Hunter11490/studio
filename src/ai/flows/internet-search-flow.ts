@@ -8,6 +8,7 @@
  */
 
 import {ai} from '@/ai/genkit';
+import { googleAI } from '@genkit-ai/googleai';
 import {z} from 'genkit';
 
 const DoctorSchema = z.object({
@@ -42,6 +43,7 @@ const internetSearchFlow = ai.defineFlow(
       name: 'internetSearchPrompt',
       input: {schema: InternetSearchInputSchema},
       output: {schema: InternetSearchOutputSchema},
+      model: googleAI.model('gemini-1.5-flash-latest'),
       prompt: `You are an expert medical directory assistant for Iraq. Your task is to find real doctors based on the user's query.
 
 Perform a deep and comprehensive search for doctors in Iraq across multiple sources, including Google Search, Facebook, and other social media platforms, based on the following query: {{{query}}}

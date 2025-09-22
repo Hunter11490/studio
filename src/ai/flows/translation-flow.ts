@@ -9,6 +9,7 @@
  */
 
 import {ai} from '@/ai/genkit';
+import { googleAI } from '@genkit-ai/googleai';
 import {z} from 'genkit';
 
 
@@ -46,6 +47,7 @@ const translationFlow = ai.defineFlow(
       name: 'translationPrompt',
       input: {schema: TranslateTextInputSchema},
       output: {schema: TranslateTextOutputSchema},
+      model: googleAI.model('gemini-1.5-flash-latest'),
       prompt: `Translate the text fields (name, specialty, clinicAddress) for each JSON object in the 'doctors' array into {{{targetLanguage}}}.
 Preserve the JSON structure and keys. Return only the translated JSON object. Your response MUST be a valid JSON object with a "doctors" key containing the array.
 
