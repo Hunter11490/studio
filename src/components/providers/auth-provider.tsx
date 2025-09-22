@@ -1,7 +1,7 @@
 'use client';
 
 import { createContext, useState, useEffect, useMemo, useCallback } from 'react';
-import type { NextRouter } from 'next/router';
+import type { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime';
 import { useLocalStorage } from '@/hooks/use-local-storage';
 import type { User, StoredUser, UserStatus } from '@/types';
 
@@ -11,7 +11,7 @@ export type AuthContextType = {
   isLoading: boolean;
   login: (username: string, pass: string) => boolean;
   signup: (username:string, pass:string, phoneNumber:string | undefined, email: string) => boolean;
-  logout: (router: NextRouter) => void;
+  logout: (router: AppRouterInstance) => void;
   addUserByAdmin: (username: string, pass: string, phoneNumber: string, email: string, role: 'admin' | 'user') => boolean;
   deleteUser: (userId: string) => void;
   updateUserRole: (userId: string, role: 'admin' | 'user') => void;
@@ -210,12 +210,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [storedUsers, setStoredUsers]);
 
 
-  const logout = useCallback((router: any) => {
+  const logout = useCallback((router: AppRouterInstance) => {
     setUser(null);
     setLoggedInUser(null);
-    if (router) {
-      router.replace('/login');
-    }
+    router.replace('/login');
   }, [setLoggedInUser]);
   
   const value = useMemo(() => ({
