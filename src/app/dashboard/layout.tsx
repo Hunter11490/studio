@@ -6,6 +6,7 @@ import { useAuth } from '@/hooks/use-auth';
 import { Header } from '@/components/layout/header';
 import { AuthLoader } from '@/components/auth-loader';
 import { BannedUser } from '@/components/banned-user';
+import { PendingApproval } from '@/components/pending-approval';
 
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -18,13 +19,18 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     }
   }, [user, router]);
   
-  if (user?.isBanned) {
-    return <BannedUser />;
-  }
-
   if (!user) {
     return <AuthLoader />;
   }
+  
+  if (user.status === 'banned') {
+    return <BannedUser />;
+  }
+
+  if (user.status === 'pending') {
+    return <PendingApproval />;
+  }
+
 
   return (
     <div className="flex min-h-screen w-full flex-col">

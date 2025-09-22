@@ -129,7 +129,7 @@ export default function SignupPage() {
           </form>
         </Form>
         <div className="mt-4 text-center text-sm">
-          {t('auth.haveAccount')}{' '}
+          {t('haveAccount')}{' '}
           <Link href="/login" className="underline">
             {t('auth.login')}
           </Link>

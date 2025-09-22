@@ -28,13 +28,15 @@ export type DoctorInfo = {
   clinicAddress: string;
 };
 
+export type UserStatus = 'pending' | 'active' | 'banned';
+
 export type User = {
   id: string;
   username: string;
   email: string;
   phoneNumber: string;
   role: 'admin' | 'user';
-  isBanned?: boolean;
+  status: UserStatus;
 };
 
 export type StoredUser = User & {

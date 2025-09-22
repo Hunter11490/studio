@@ -12,7 +12,7 @@ export function BannedUser() {
   return (
     <div className="flex h-screen w-full flex-col items-center justify-center gap-4 bg-background p-4 text-center">
       <Ban className="h-24 w-24 text-destructive" />
-      <h1 className="text-3xl font-bold text-destructive">{t('admin.bannedTitle')}</h1>
+      <h1 className="text-3xl font-bold text-destructive">{t('admin.status.banned')}</h1>
       <p className="max-w-md text-muted-foreground">{t('admin.bannedDesc')}</p>
       <Button onClick={logout} variant="outline" className="mt-4">
         {t('auth.logout')}

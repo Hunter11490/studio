@@ -14,15 +14,15 @@ import {
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { PlusCircle, Shield, ShieldOff, Trash2, Pencil, Ban } from 'lucide-react';
+import { PlusCircle, Shield, ShieldOff, Trash2, Pencil, Ban, CheckCircle } from 'lucide-react';
 import { ConfirmationDialog } from '@/components/confirmation-dialog';
 import { AddUserDialog } from '@/components/admin/add-user-dialog';
 import { EditUserDialog } from '@/components/admin/edit-user-dialog';
-import type { StoredUser } from '@/types';
+import type { StoredUser, UserStatus } from '@/types';
 import { ScrollArea } from '../ui/scroll-area';
 
 export function AdminPanel() {
-  const { users, deleteUser, updateUserRole, toggleBanUser } = useAuth();
+  const { users, deleteUser, updateUserRole, toggleBanUser, approveUser } = useAuth();
   const { t } = useLanguage();
   const [isAddUserDialogOpen, setAddUserDialogOpen] = useState(false);
   const [isEditUserDialogOpen, setEditUserDialogOpen] = useState(false);
@@ -31,6 +31,19 @@ export function AdminPanel() {
   const handleEditClick = (user: StoredUser) => {
     setUserToEdit(user);
     setEditUserDialogOpen(true);
+  };
+
+  const getStatusBadgeVariant = (status: UserStatus) => {
+    switch (status) {
+      case 'active':
+        return 'success';
+      case 'pending':
+        return 'warning';
+      case 'banned':
+        return 'destructive';
+      default:
+        return 'secondary';
+    }
   };
 
   return (
@@ -60,9 +73,9 @@ export function AdminPanel() {
                             <Badge variant={u.role === 'admin' ? 'default' : 'secondary'}>
                                 {u.role}
                             </Badge>
-                             {u.isBanned && (
-                                <Badge variant="destructive">{t('admin.banned')}</Badge>
-                            )}
+                            <Badge variant={getStatusBadgeVariant(u.status)}>
+                                {t(`admin.status.${u.status}`)}
+                            </Badge>
                         </div>
                         {u.username !== 'HUNTER' && (
                             <div className="flex items-center gap-2 mt-2 flex-wrap">
@@ -70,13 +83,19 @@ export function AdminPanel() {
                                     <Pencil className="mr-1 h-3 w-3" />
                                     {t('doctorCard.edit')}
                                 </Button>
+                                {u.status === 'pending' && (
+                                  <Button variant="success" size="xs" onClick={() => approveUser(u.id)}>
+                                    <CheckCircle className="mr-1 h-3 w-3" />
+                                    {t('admin.approveUser')}
+                                  </Button>
+                                )}
                                  <Button 
-                                    variant={u.isBanned ? "default" : "destructive"} 
+                                    variant={u.status === 'banned' ? "default" : "destructive"} 
                                     size="xs" 
                                     onClick={() => toggleBanUser(u.id)}
                                 >
                                     <Ban className="mr-1 h-3 w-3" />
-                                    {u.isBanned ? t('admin.unbanUser') : t('admin.banUser')}
+                                    {u.status === 'banned' ? t('admin.unbanUser') : t('admin.banUser')}
                                 </Button>
                                 {u.role !== 'admin' ? (
                                     <Button variant="outline" size="xs" onClick={() => updateUserRole(u.id, 'admin')}>

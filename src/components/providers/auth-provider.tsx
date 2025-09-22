@@ -2,11 +2,7 @@
 
 import { createContext, useState, useEffect, useMemo, useCallback } from 'react';
 import { useLocalStorage } from '@/hooks/use-local-storage';
-import type { User, StoredUser } from '@/types';
-import { DOCTORS_STORAGE_KEY } from './doctor-provider';
-
-// In a real offline-first app, this might involve more complex client-side hashing
-// For this prototype, we'll keep it simple.
+import type { User, StoredUser, UserStatus } from '@/types';
 
 export type AuthContextType = {
   user: User | null;
@@ -19,11 +15,12 @@ export type AuthContextType = {
   deleteUser: (userId: string) => void;
   updateUserRole: (userId: string, role: 'admin' | 'user') => void;
   toggleBanUser: (userId: string) => void;
+  approveUser: (userId: string) => void;
   updateUser: (userId: string, updates: Partial<Omit<StoredUser, 'id'>>) => boolean;
 };
 
-const USERS_STORAGE_KEY = 'iraqi_doctors_users_v2';
-const LOGGED_IN_USER_KEY = 'iraqi_doctors_loggedin_user_v2';
+const USERS_STORAGE_KEY = 'iraqi_doctors_users_v3';
+const LOGGED_IN_USER_KEY = 'iraqi_doctors_loggedin_user_v3';
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -34,7 +31,7 @@ const adminUser: StoredUser = {
   phoneNumber: '07803080003',
   email: 'im.a.hunter.one@gmail.com',
   role: 'admin',
-  isBanned: false,
+  status: 'active',
 };
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -56,10 +53,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           phoneNumber: userFromStorage.phoneNumber,
           email: userFromStorage.email,
           role: userFromStorage.role,
-          isBanned: userFromStorage.isBanned || false,
+          status: userFromStorage.status || 'pending',
         };
         setUser(sessionUser);
-        if (loggedInUser.role !== sessionUser.role || loggedInUser.isBanned !== sessionUser.isBanned) {
+        if (JSON.stringify(loggedInUser) !== JSON.stringify(sessionUser)) {
           setLoggedInUser(sessionUser);
         }
       } else {
@@ -86,9 +83,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                     phoneNumber: currentUserInStorage.phoneNumber,
                     email: currentUserInStorage.email,
                     role: currentUserInStorage.role,
-                    isBanned: currentUserInStorage.isBanned || false,
+                    status: currentUserInStorage.status,
                 };
-                // Check if any relevant property has changed
                 if (JSON.stringify(user) !== JSON.stringify(updatedSession)) {
                     setUser(updatedSession);
                     setLoggedInUser(updatedSession);
@@ -104,28 +100,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     );
 
     if (userToLogin) {
-      if (userToLogin.isBanned) {
-        // Still create a temporary session so the banned screen can be shown
-        const bannedSession: User = {
-          id: userToLogin.id,
-          username: userToLogin.username,
-          email: userToLogin.email,
-          phoneNumber: userToLogin.phoneNumber,
-          role: userToLogin.role,
-          isBanned: true,
-        };
-        setUser(bannedSession);
-        setLoggedInUser(bannedSession);
-        return true; // Login "succeeds" to show banned screen
-      }
-      
       const sessionUser: User = {
         id: userToLogin.id,
         username: userToLogin.username,
         phoneNumber: userToLogin.phoneNumber,
         email: userToLogin.email,
         role: userToLogin.role,
-        isBanned: userToLogin.isBanned || false,
+        status: userToLogin.status,
       };
       setUser(sessionUser);
       setLoggedInUser(sessionUser);
@@ -150,7 +131,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         phoneNumber,
         email,
         role: 'user',
-        isBanned: false,
+        status: 'pending',
     };
     setStoredUsers(prev => [...prev, newUser]);
     return true;
@@ -171,7 +152,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         phoneNumber,
         email,
         role,
-        isBanned: false,
+        status: 'active', // Users added by admin are active by default
     };
     setStoredUsers(prev => [...prev, newUser]);
     return true;
@@ -187,10 +168,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const toggleBanUser = useCallback((userId: string) => {
     setStoredUsers(prev => prev.map(u => 
-      u.id === userId ? { ...u, isBanned: !u.isBanned } : u
+      u.id === userId ? { ...u, status: u.status === 'banned' ? 'active' : 'banned' } : u
     ));
   }, [setStoredUsers]);
   
+  const approveUser = useCallback((userId: string) => {
+    setStoredUsers(prev => prev.map(u => 
+      u.id === userId && u.status === 'pending' ? { ...u, status: 'active' } : u
+    ));
+  }, [setStoredUsers]);
+
   const updateUser = useCallback((userId: string, updates: Partial<Omit<StoredUser, 'id'>>): boolean => {
     if (updates.email || (updates.phoneNumber && updates.phoneNumber.trim() !== '')) {
       const userExists = storedUsers.some(u => 
@@ -227,8 +214,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     deleteUser,
     updateUserRole,
     toggleBanUser,
+    approveUser,
     updateUser,
-  }), [user, storedUsers, isLoading, login, signup, logout, addUserByAdmin, deleteUser, updateUserRole, toggleBanUser, updateUser]);
+  }), [user, storedUsers, isLoading, login, signup, logout, addUserByAdmin, deleteUser, updateUserRole, toggleBanUser, approveUser, updateUser]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
