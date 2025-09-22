@@ -167,14 +167,14 @@ export function UserMenu() {
     }
   }
 
-  const MenuItem = ({ icon, label, onClick, destructive = false, trigger: TriggerComp }: { icon: React.ReactNode, label: string, onClick?: () => void, destructive?: boolean, trigger?: React.ReactNode }) => {
+  const MenuItem = ({ icon, label, onClick, destructive = false, trigger: TriggerComp }: { icon: React.ReactNode, label: string, onClick?: (e: React.MouseEvent) => void, destructive?: boolean, trigger?: React.ReactNode }) => {
     const button = (
         <Button
           variant="ghost"
           className={`w-full justify-start h-10 ${destructive ? 'text-destructive hover:text-destructive' : ''}`}
-          onClick={() => {
+          onClick={(e) => {
             if (onClick) {
-                onClick();
+                onClick(e);
             }
           }}
         >
@@ -243,7 +243,7 @@ export function UserMenu() {
                   onConfirm={() => { uncheckAllPartners(); handleMenuOpenChange(false); }}
                   trigger={<MenuItem icon={<StarOff className="mr-2 h-4 w-4" />} label={t('userMenu.uncheckAllPartners')} destructive />}
               />
-              <ConfirmationDialog
+               <ConfirmationDialog
                   title={t('dialogs.deleteAllDoctorsTitle')}
                   description={t('dialogs.deleteAllDoctorsDesc')}
                   onConfirm={() => { deleteAllDoctors(); handleMenuOpenChange(false); }}
