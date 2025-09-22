@@ -1,32 +1,22 @@
 import { Doctor } from '@/types';
 import * as XLSX from 'xlsx';
+import { encryptData, decryptData } from './encryption';
 
-// Note: This function now exports as a proper .xlsx file.
 export const exportDataFile = (doctors: Doctor[], fileName: string) => {
   try {
-    const dataToExport = doctors.map(d => ({
-      id: d.id,
-      name: d.name,
-      specialty: d.specialty,
-      phoneNumber: d.phoneNumber,
-      clinicAddress: d.clinicAddress,
-      mapLocation: d.mapLocation,
-      isPartner: d.isPartner,
-      referralCount: d.referralCount,
-      availableDays: (d.availableDays || []).join(','),
-      createdAt: d.createdAt,
-      referralNotes: JSON.stringify(d.referralNotes || '[]'),
-      // Omit clinicCardImageUrl as it's too large for Excel and can corrupt the file.
-      // It's not critical for a backup.
-    }));
+    const jsonData = JSON.stringify(doctors);
+    const encryptedData = encryptData(jsonData);
 
-    const worksheet = XLSX.utils.json_to_sheet(dataToExport);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Doctors');
-    
-    // Ensure the filename ends with .xlsx
-    const finalFileName = fileName.endsWith('.xlsx') ? fileName : `${fileName}.xlsx`;
-    XLSX.writeFile(workbook, finalFileName);
+    const blob = new Blob([encryptedData], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    const finalFileName = fileName.endsWith('.spirit') ? fileName : `${fileName}.spirit`;
+    link.download = finalFileName;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
     
     return true;
   } catch (error) {
@@ -36,9 +26,15 @@ export const exportDataFile = (doctors: Doctor[], fileName: string) => {
 };
 
 
-// Note: This function now imports from an .xlsx file, not a .json or .data file.
 export const importDataFile = (file: File): Promise<Doctor[]> => {
   return new Promise((resolve, reject) => {
+    if (file.name.endsWith('.xlsx')) {
+        return reject(new Error("Old .xlsx backup files are no longer supported. Please use an encrypted .spirit backup file."));
+    }
+    if (!file.name.endsWith('.spirit')) {
+        return reject(new Error("Invalid file type. Please select a .spirit backup file."));
+    }
+      
     const reader = new FileReader();
     
     reader.onload = (event) => {
@@ -46,35 +42,25 @@ export const importDataFile = (file: File): Promise<Doctor[]> => {
         if (!event.target?.result) {
             throw new Error("File could not be read.");
         }
-        const data = new Uint8Array(event.target.result as ArrayBuffer);
-        const workbook = XLSX.read(data, { type: 'array' });
-        const sheetName = workbook.SheetNames[0];
-        const worksheet = workbook.Sheets[sheetName];
-        const importedData: any[] = XLSX.utils.sheet_to_json(worksheet);
+        const encryptedData = event.target.result as string;
+        const decryptedJson = decryptData(encryptedData);
+
+        if (!decryptedJson) {
+            throw new Error("Decryption failed. The file may be corrupt or the key incorrect.");
+        }
+
+        const importedData: any[] = JSON.parse(decryptedJson);
 
         if (!Array.isArray(importedData)) {
             throw new Error("Imported data is not in a valid format.");
         }
 
         const validDoctors: Doctor[] = importedData.map((d: any): Doctor => {
-            // Basic validation
             if (!d.id || !d.name) {
-                throw new Error(`Invalid doctor entry found in file: ${JSON.stringify(d)}`);
+                console.warn(`Skipping invalid doctor entry in file: ${JSON.stringify(d)}`);
+                return null;
             }
             
-            let referralNotes = [];
-            try {
-                // Safely parse referral notes
-                if (d.referralNotes) {
-                    const parsedNotes = JSON.parse(d.referralNotes);
-                    if (Array.isArray(parsedNotes)) {
-                        referralNotes = parsedNotes;
-                    }
-                }
-            } catch {
-                referralNotes = []; // Default to empty array on parse error
-            }
-
             return {
                id: String(d.id),
                name: String(d.name),
@@ -82,23 +68,23 @@ export const importDataFile = (file: File): Promise<Doctor[]> => {
                phoneNumber: d.phoneNumber || '',
                clinicAddress: d.clinicAddress || '',
                mapLocation: d.mapLocation || '',
-               clinicCardImageUrl: '', // Omitted during export, so empty on import
+               clinicCardImageUrl: d.clinicCardImageUrl || '',
                isPartner: d.isPartner === true || d.isPartner === 'true',
                referralCount: Number(d.referralCount) || 0,
-               referralNotes: referralNotes,
-               availableDays: d.availableDays ? String(d.availableDays).split(',') : [],
+               referralNotes: d.referralNotes || [],
+               availableDays: d.availableDays || [],
                createdAt: d.createdAt || new Date().toISOString()
             };
-        });
+        }).filter((d): d is Doctor => d !== null);
         
         resolve(validDoctors);
       } catch (error) {
         console.error("Error parsing imported file:", error);
-        reject(new Error("File is not a valid Excel format or is corrupted."));
+        reject(new Error("File is not valid or is corrupted."));
       }
     };
 
     reader.onerror = (error) => reject(error);
-    reader.readAsArrayBuffer(file);
+    reader.readAsText(file);
   });
 };

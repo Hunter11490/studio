@@ -110,7 +110,7 @@ export function UserMenu() {
         return;
     }
     try {
-      toast({title: t('toasts.exporting'), description: t('toasts.exportingDesc')});
+      toast({title: t('toasts.exporting'), description: t('toasts.exportingDescEncrypted')});
       const fileName = `Spirit_Backup_${new Date().toISOString().split('T')[0]}`;
       exportDataFile(doctors, fileName);
       toast({ title: t('toasts.exportSuccess') });
@@ -296,7 +296,7 @@ export function UserMenu() {
         type="file"
         id="import-data-input"
         className="hidden"
-        accept=".xlsx, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        accept=".spirit"
         onChange={handleImport}
       />
       
