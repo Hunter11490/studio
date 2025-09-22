@@ -15,6 +15,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/
 import { DropdownMenu, DropdownMenuContent, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuSeparator, DropdownMenuTrigger } from '../ui/dropdown-menu';
 import { SortOption } from '@/components/providers/doctor-provider';
 import { useToast } from '@/hooks/use-toast';
+import { translateText, DoctorInfo } from '@/ai/flows/translation-flow';
 import { Doctor } from '@/types';
 
 export function Header() {
@@ -28,12 +29,14 @@ export function Header() {
     viewMode, 
     setViewMode,
     sortOption,
-    setSortOption
+    setSortOption,
+    updateMultipleDoctors
   } = useDoctors();
   const { user } = useAuth();
   const [isAddDoctorOpen, setAddDoctorOpen] = useState(false);
   const [isPartnerDashboardOpen, setPartnerDashboardOpen] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [isTranslating, setIsTranslating] = useState(false);
   const { toast } = useToast();
 
   const handleFullscreenToggle = async () => {
@@ -47,6 +50,51 @@ export function Header() {
   };
 
   const partnerCount = doctors.filter(d => d.isPartner).length;
+
+  const handleTranslateAll = async () => {
+    if (doctors.length === 0) {
+      toast({ title: t('toasts.noDoctorsToTranslate') });
+      return;
+    }
+    setIsTranslating(true);
+    toast({ title: t('toasts.translatingTitle') });
+    try {
+        const doctorsToTranslate: DoctorInfo[] = doctors.map(d => ({
+            name: d.name,
+            specialty: d.specialty,
+            clinicAddress: d.clinicAddress
+        }));
+
+        const response = await translateText({
+            doctors: doctorsToTranslate,
+            targetLanguage: 'Arabic',
+        });
+
+        const translatedDoctorsMap = new Map(response.doctors.map((d, i) => [i, d]));
+
+        const updatedDoctors: Doctor[] = doctors.map((originalDoctor, index) => {
+            const translatedInfo = translatedDoctorsMap.get(index);
+            if (translatedInfo) {
+                return {
+                    ...originalDoctor,
+                    name: translatedInfo.name,
+                    specialty: translatedInfo.specialty,
+                    clinicAddress: translatedInfo.clinicAddress,
+                };
+            }
+            return originalDoctor;
+        });
+
+        updateMultipleDoctors(updatedDoctors);
+        toast({ title: t('toasts.translationSuccessTitle') });
+    } catch (error) {
+        console.error("Translation failed:", error);
+        toast({ title: t('toasts.translationErrorTitle'), variant: 'destructive' });
+    } finally {
+        setIsTranslating(false);
+    }
+  };
+
 
   return (
     <>
@@ -154,6 +202,27 @@ export function Header() {
               </TooltipProvider>
               
               <DropdownMenuSeparator orientation="vertical" className="h-5 bg-border mx-1" />
+
+                <TooltipProvider>
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <Button
+                                variant="ghost"
+                                size="xs"
+                                onClick={handleTranslateAll}
+                                disabled={isTranslating}
+                                className="h-6 w-6 p-1"
+                            >
+                                {isTranslating ? (
+                                    <Loader2 className="h-4 w-4 animate-spin" />
+                                ) : (
+                                    <Languages className="h-4 w-4" />
+                                )}
+                            </Button>
+                        </TooltipTrigger>
+                        <TooltipContent><p>{t('header.translateAll')}</p></TooltipContent>
+                    </Tooltip>
+                </TooltipProvider>
 
               <TooltipProvider>
                   <Tooltip>
