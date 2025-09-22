@@ -8,12 +8,11 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useAuth } from '@/hooks/use-auth';
 import { useLanguage } from '@/hooks/use-language';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { Logo } from '@/components/logo';
-import { Loader2 } from 'lucide-react';
+import { Loader2, User, Mail, KeyRound, Phone } from 'lucide-react';
 
 const formSchema = z.object({
   username: z.string().min(3, 'Username must be at least 3 characters'),
@@ -61,13 +60,12 @@ export default function SignupPage() {
   }
 
   return (
-    <Card className="w-full">
-      <CardHeader className="items-center text-center">
-        <Logo className="h-16 w-16 text-primary mb-2" />
-        <CardTitle className="font-headline text-3xl">{t('auth.signup')}</CardTitle>
-        <CardDescription>{t('auth.signupCta')}</CardDescription>
-      </CardHeader>
-      <CardContent>
+    <div className="flex flex-col gap-6">
+        <div className="flex flex-col items-center gap-2 text-center">
+            <Logo className="h-16 w-16 text-primary mb-2 lg:hidden" />
+            <h1 className="text-3xl font-semibold">{t('auth.signup')}</h1>
+            <p className="text-muted-foreground">{t('auth.signupCta')}</p>
+        </div>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <FormField
@@ -76,9 +74,12 @@ export default function SignupPage() {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>{t('auth.username')}</FormLabel>
-                  <FormControl>
-                    <Input placeholder="newuser" {...field} />
-                  </FormControl>
+                   <div className="relative">
+                        <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <FormControl>
+                            <Input placeholder="newuser" {...field} className="pl-10" />
+                        </FormControl>
+                   </div>
                   <FormMessage />
                 </FormItem>
               )}
@@ -89,9 +90,12 @@ export default function SignupPage() {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>{t('auth.email')}</FormLabel>
-                  <FormControl>
-                    <Input type="email" placeholder="user@example.com" {...field} />
-                  </FormControl>
+                   <div className="relative">
+                        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <FormControl>
+                            <Input type="email" placeholder="user@example.com" {...field} className="pl-10" />
+                        </FormControl>
+                   </div>
                   <FormMessage />
                 </FormItem>
               )}
@@ -102,9 +106,12 @@ export default function SignupPage() {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>{t('auth.password')}</FormLabel>
-                  <FormControl>
-                    <Input type="password" placeholder="••••••••" {...field} />
-                  </FormControl>
+                   <div className="relative">
+                        <KeyRound className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <FormControl>
+                            <Input type="password" placeholder="••••••••" {...field} className="pl-10" />
+                        </FormControl>
+                   </div>
                   <FormMessage />
                 </FormItem>
               )}
@@ -115,9 +122,12 @@ export default function SignupPage() {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>{t('auth.phoneNumber')}</FormLabel>
-                  <FormControl>
-                    <Input placeholder="07..." {...field} />
-                  </FormControl>
+                   <div className="relative">
+                        <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <FormControl>
+                            <Input placeholder="07..." {...field} className="pl-10" />
+                        </FormControl>
+                   </div>
                   <FormMessage />
                 </FormItem>
               )}
@@ -130,11 +140,10 @@ export default function SignupPage() {
         </Form>
         <div className="mt-4 text-center text-sm">
           {t('haveAccount')}{' '}
-          <Link href="/login" className="underline">
+          <Link href="/login" className="underline font-medium text-primary">
             {t('auth.login')}
           </Link>
         </div>
-      </CardContent>
-    </Card>
+    </div>
   );
 }

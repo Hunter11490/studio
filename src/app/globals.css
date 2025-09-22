@@ -77,11 +77,11 @@
   body {
     @apply text-foreground;
     background-color: hsl(var(--background));
-    background-image: linear-gradient(to bottom right, hsl(var(--background)), hsl(var(--primary) / 0.1));
+    @apply min-h-screen;
   }
 
-  .dark body {
-    background-image: linear-gradient(to bottom right, hsl(var(--background)), hsl(var(--primary) / 0.15));
+  html.dark body {
+    background-image: linear-gradient(to bottom right, hsl(var(--background)), hsl(var(--primary) / 0.05));
   }
 }
 

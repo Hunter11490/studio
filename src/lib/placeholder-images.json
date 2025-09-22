@@ -2,10 +2,10 @@
 {
   "placeholderImages": [
     {
-      "id": "auth-background",
-      "description": "Abstract medical background with blue tones and geometric shapes.",
-      "imageUrl": "https://picsum.photos/seed/authbg/1920/1080",
-      "imageHint": "medical abstract"
+      "id": "auth-split-screen",
+      "description": "A doctor in a modern, sunlit hospital corridor, looking thoughtfully out a window.",
+      "imageUrl": "https://picsum.photos/seed/authsplit/1200/1800",
+      "imageHint": "doctor hospital"
     },
     {
       "id": "doctor-placeholder",
