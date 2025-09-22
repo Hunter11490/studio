@@ -22,6 +22,12 @@ export type Doctor = {
   isLoading?: boolean;
 };
 
+export type DoctorInfo = {
+  name: string;
+  specialty: string;
+  clinicAddress: string;
+};
+
 export type User = {
   id: string;
   username: string;

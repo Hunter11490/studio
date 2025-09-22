@@ -76,11 +76,11 @@ export function DoctorCard({ doctor }: { doctor: Doctor }) {
     const newCount = Math.max(0, referralCount + amount);
     const newNotes = [...(doctor.referralNotes || [])];
     
-    if (newCount > newNotes.length) {
-        for (let i = newNotes.length; i < newCount; i++) {
-            newNotes.push({ patientName: '', referralDate: '', testType: '', patientAge: '', chronicDiseases: '' });
-        }
-    } else {
+    // Ensure notes array matches the new count
+    while (newNotes.length < newCount) {
+        newNotes.push({ patientName: '', referralDate: '', testType: '', patientAge: '', chronicDiseases: '' });
+    }
+    if (newNotes.length > newCount) {
         newNotes.length = newCount;
     }
 
@@ -98,9 +98,9 @@ export function DoctorCard({ doctor }: { doctor: Doctor }) {
           doctor.isPartner && "border-primary/50 animate-pulse-glow"
         )}>
         <Image
-          src="https://picsum.photos/seed/tahrir square/600/400"
+          src={`https://picsum.photos/seed/${doctor.id}/600/400`}
           alt="Tahrir Square monument watermark"
-          data-ai-hint="tahrir square"
+          data-ai-hint="iraq landmark"
           fill
           className="object-cover opacity-5 dark:opacity-10"
         />

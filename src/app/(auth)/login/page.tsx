@@ -15,6 +15,7 @@ import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { Logo } from '@/components/logo';
 import { Loader2 } from 'lucide-react';
+import { AuthLoader } from '@/components/auth-loader';
 
 const formSchema = z.object({
   username: z.string().min(1, 'Username is required'),
@@ -23,16 +24,16 @@ const formSchema = z.object({
 
 export default function LoginPage() {
   const router = useRouter();
-  const { user, login } = useAuth();
+  const { user, login, isLoading } = useAuth();
   const { t } = useLanguage();
   const { toast } = useToast();
 
   useEffect(() => {
     // If user is already logged in, redirect to dashboard.
-    if (user) {
+    if (!isLoading && user) {
       router.replace('/dashboard');
     }
-  }, [user, router]);
+  }, [user, router, isLoading]);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -61,9 +62,9 @@ export default function LoginPage() {
     }
   }
 
-  // Don't render the form if the user is already logged in and we're about to redirect.
-  if (user) {
-    return null;
+  // Show a loader while checking auth status, or if we're about to redirect.
+  if (isLoading || user) {
+    return <AuthLoader />;
   }
 
   return (

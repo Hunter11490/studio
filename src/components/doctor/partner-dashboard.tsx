@@ -21,7 +21,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Users, FileDown, X, Plus, Minus } from 'lucide-react';
 import { ScrollArea } from '../ui/scroll-area';
-import type { Doctor } from '@/types';
+import type { Doctor, DoctorInfo } from '@/types';
 import { translateText } from '@/ai/flows/translation-flow';
 import { exportToExcel } from '@/lib/excel';
 import { useToast } from '@/hooks/use-toast';
@@ -83,8 +83,8 @@ function PartnerDoctorItem({ doctor }: { doctor: Doctor }) {
 }
 
 export function PartnerDashboard({ open, onOpenChange }: PartnerDashboardProps) {
-  const { doctors, updateDoctor } = useDoctors();
-  const { t, lang } = useLanguage();
+  const { doctors } = useDoctors();
+  const { t } = useLanguage();
   const { toast } = useToast();
 
   const partnerDoctors = useMemo(() => {
@@ -115,21 +115,22 @@ export function PartnerDashboard({ open, onOpenChange }: PartnerDashboardProps) 
     onOpenChange(isOpen);
   };
 
-  const getTranslatedDoctorData = async (doctor: Doctor): Promise<PartnerExportData> => {
-    const targetLanguage = lang === 'ar' ? 'Arabic' : 'English';
-    const referralCount = doctor.referralCount;
+  const getTranslatedDoctorData = async (doctorsToTranslate: Doctor[]): Promise<PartnerExportData[]> => {
+    const doctorsInfo: DoctorInfo[] = doctorsToTranslate.map(d => ({
+        name: d.name,
+        specialty: d.specialty,
+        clinicAddress: d.clinicAddress
+    }));
 
-    let translatedData = { name: doctor.name, specialty: doctor.specialty, clinicAddress: doctor.clinicAddress };
-    
+    let translatedDocs: DoctorInfo[] = [];
     try {
-        const result = await translateText({ doctors: [ { name: doctor.name, specialty: doctor.specialty, clinicAddress: doctor.clinicAddress } ], targetLanguage: 'Arabic' });
-        if (result.doctors.length > 0) {
-            translatedData = result.doctors[0];
-        }
+        const response = await translateText({ doctors: doctorsInfo, targetLanguage: 'Arabic' });
+        translatedDocs = response.doctors;
     } catch (error) {
-        console.error("Translation failed for", doctor.name, "falling back to original.");
+        console.error("Batch translation failed, falling back to original data.", error);
+        translatedDocs = doctorsInfo; // Fallback to original
     }
-    
+
     const headers: { [key: string]: string } = {
         name: t('partnerDashboard.exportName'),
         address: t('partnerDashboard.exportAddress'),
@@ -138,13 +139,17 @@ export function PartnerDashboard({ open, onOpenChange }: PartnerDashboardProps) 
         commission: t('partnerDashboard.exportCommission'),
     };
 
-    return {
-        [headers.name]: translatedData.name,
-        [headers.address]: translatedData.clinicAddress,
-        [headers.phone]: doctor.phoneNumber,
-        [headers.referrals]: referralCount,
-        [headers.commission]: referralCount * 100,
-    };
+    return doctorsToTranslate.map((originalDoctor, index) => {
+        const translatedInfo = translatedDocs[index] || originalDoctor;
+        const referralCount = originalDoctor.referralCount;
+        return {
+            [headers.name]: translatedInfo.name,
+            [headers.address]: translatedInfo.clinicAddress,
+            [headers.phone]: originalDoctor.phoneNumber,
+            [headers.referrals]: referralCount,
+            [headers.commission]: referralCount * 100,
+        };
+    });
   };
 
   const handleExportExcel = async () => {
@@ -154,11 +159,8 @@ export function PartnerDashboard({ open, onOpenChange }: PartnerDashboardProps) 
     }
     try {
       toast({title: t('toasts.exporting'), description: t('toasts.exportingDesc')});
-
-      const translatedData = await Promise.all(partnerDoctors.map(doc => getTranslatedDoctorData(doc)));
-      
+      const translatedData = await getTranslatedDoctorData(partnerDoctors);
       const fileName = `${t('partnerDashboard.exportFileName')}_${new Date().toISOString().split('T')[0]}.xlsx`;
-
       exportToExcel(translatedData, fileName);
       toast({ title: t('toasts.exportSuccess') });
     } catch (error) {
