@@ -3,7 +3,7 @@
 import { createContext, useState, useEffect, useCallback } from 'react';
 import { useLocalStorage } from '@/hooks/use-local-storage';
 import { translations } from '@/lib/localization';
-import type { Translation } from '@/types';
+import type { Translation, Translations } from '@/types';
 
 type Language = 'en' | 'ar';
 type Direction = 'ltr' | 'rtl';
@@ -24,14 +24,17 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const newDir = lang === 'ar' ? 'rtl' : 'ltr';
     setDir(newDir);
-    document.documentElement.lang = lang;
-    document.documentElement.dir = newDir;
+    if (typeof window !== 'undefined') {
+        document.documentElement.lang = lang;
+        document.documentElement.dir = newDir;
+    }
   }, [lang]);
 
   const t = useCallback(
     (key: string, replacements?: Record<string, string | number>): string => {
       const keys = key.split('.');
-      let result: string | Translation = translations[lang];
+      let result: string | Translation = translations[lang] as Translation;
+
       for (const k of keys) {
         if (typeof result === 'object' && result !== null && k in result) {
           result = result[k] as string | Translation;
