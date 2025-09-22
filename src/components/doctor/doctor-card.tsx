@@ -27,6 +27,7 @@ import { DoctorFormDialog } from './doctor-form-dialog';
 import { ReferralNotesDialog } from './referral-notes-dialog';
 import { Skeleton } from '../ui/skeleton';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
+import { cn } from '@/lib/utils';
 
 
 const WEEK_DAYS = ['Sat', 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
@@ -92,7 +93,10 @@ export function DoctorCard({ doctor }: { doctor: Doctor }) {
 
   return (
     <>
-      <Card className="flex flex-col overflow-hidden relative">
+      <Card className={cn(
+          "flex flex-col overflow-hidden relative",
+          doctor.isPartner && "border-primary/50 animate-pulse-glow"
+        )}>
         <Image
           src="https://picsum.photos/seed/tahrir square/600/400"
           alt="Tahrir Square monument watermark"
