@@ -8,3 +8,9 @@ runConfig:
   # Set the request timeout to 1 hour to allow for long-running AI searches.
   timeoutSeconds: 3600
 
+# Required for Genkit to be able to access the Google AI API
+secretEnv:
+  - secret: GEMINI_API_KEY
+    availability:
+      - BUILD
+      - RUNTIME
