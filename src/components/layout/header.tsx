@@ -15,14 +15,12 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/
 import { DropdownMenu, DropdownMenuContent, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuSeparator, DropdownMenuTrigger } from '../ui/dropdown-menu';
 import { SortOption } from '@/components/providers/doctor-provider';
 import { useToast } from '@/hooks/use-toast';
-import { translateText, DoctorInfo } from '@/ai/flows/translation-flow';
 import { Doctor } from '@/types';
 
 export function Header() {
   const { lang, t } = useLanguage();
   const { 
     doctors, 
-    updateMultipleDoctors,
     searchTerm, 
     setSearchTerm, 
     filterPartners, 
@@ -36,7 +34,6 @@ export function Header() {
   const [isAddDoctorOpen, setAddDoctorOpen] = useState(false);
   const [isPartnerDashboardOpen, setPartnerDashboardOpen] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const [isTranslating, setIsTranslating] = useState(false);
   const { toast } = useToast();
 
   const handleFullscreenToggle = async () => {
@@ -48,59 +45,6 @@ export function Header() {
       setIsFullscreen(false);
     }
   };
-
-  const handleTranslateAll = async () => {
-    if (!doctors.length) {
-      toast({ title: t('toasts.noDoctorsToTranslate') });
-      return;
-    }
-
-    setIsTranslating(true);
-    toast({ title: t('toasts.translatingTitle') });
-    
-    // Set loading state for cards
-    const loadingDoctors = doctors.map(d => ({ ...d, isLoading: true }));
-    updateMultipleDoctors(loadingDoctors);
-
-    try {
-      const targetLanguage = lang === 'en' ? 'Arabic' : 'English';
-      const doctorsToTranslate: DoctorInfo[] = doctors.map(d => ({
-        name: d.name,
-        specialty: d.specialty,
-        clinicAddress: d.clinicAddress,
-      }));
-
-      const translationResult = await translateText({
-        doctors: doctorsToTranslate,
-        targetLanguage,
-      });
-
-      const updatedDoctors: Doctor[] = doctors.map((originalDoctor, index) => {
-        const translatedInfo = translationResult.doctors[index];
-        return {
-          ...originalDoctor,
-          name: translatedInfo?.name || originalDoctor.name,
-          specialty: translatedInfo?.specialty || originalDoctor.specialty,
-          clinicAddress: translatedInfo?.clinicAddress || originalDoctor.clinicAddress,
-          isLoading: false, // Make sure to turn off loading state
-        };
-      });
-      
-      updateMultipleDoctors(updatedDoctors);
-
-      toast({ title: t('toasts.translationSuccessTitle') });
-
-    } catch (error) {
-      console.error("Translation failed", error);
-      toast({ title: t('toasts.translationErrorTitle'), variant: 'destructive' });
-      // Reset loading state on error
-      const resetDoctors = doctors.map(d => ({ ...d, isLoading: false }));
-      updateMultipleDoctors(resetDoctors);
-    } finally {
-      setIsTranslating(false);
-    }
-  };
-
 
   const partnerCount = doctors.filter(d => d.isPartner).length;
 
@@ -156,20 +100,6 @@ export function Header() {
             {/* Controls */}
             <div className="flex items-center gap-1 rounded-md border p-0.5 bg-secondary">
                <TooltipProvider>
-                 <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      size="xs"
-                      onClick={handleTranslateAll}
-                      className="h-6 w-6 p-1"
-                      disabled={isTranslating}
-                    >
-                      {isTranslating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Languages className="h-4 w-4" />}
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent><p>{t('header.translateAll')}</p></TooltipContent>
-                </Tooltip>
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <Button
