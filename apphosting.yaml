@@ -1,4 +1,0 @@
-runConfig:
-  minInstances: 0
-managedTraffic:
-  allowVpcIngress: private-ranges-only
