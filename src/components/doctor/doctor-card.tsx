@@ -88,14 +88,17 @@ export function DoctorCard({ doctor }: { doctor: Doctor }) {
     <>
       <Card className={cn(
           "flex flex-col overflow-hidden transition-all duration-300",
-          doctor.isPartner && "border-primary/50 shadow-lg shadow-primary/10 animate-glow"
+          doctor.isPartner && "border-primary/50 shadow-lg shadow-primary/10"
         )}>
         <CardHeader className="p-4">
           <div className="flex items-start justify-between gap-4">
             <div className="flex-grow">
                 <CardTitle className="font-headline text-xl text-primary flex items-center gap-2">
-                    <Button variant="ghost" size="icon" onClick={handlePartnerToggle} className="h-7 w-7 text-primary hover:text-primary">
-                        {doctor.isPartner ? <Star className="h-5 w-5 fill-current" /> : <Star className="h-5 w-5" />}
+                    <Button variant="ghost" size="icon" onClick={handlePartnerToggle} className="h-7 w-7 rounded-full">
+                        <Star className={cn(
+                          "h-5 w-5 transition-colors",
+                          doctor.isPartner ? "text-warning fill-current" : "text-muted-foreground hover:text-warning/80"
+                        )} />
                     </Button>
                     <span>{doctor.name}</span>
                 </CardTitle>
