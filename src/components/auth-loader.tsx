@@ -4,10 +4,12 @@ import { MedicalLoader } from '@/components/medical-loader';
 import { Logo } from '@/components/logo';
 import { useLanguage } from '@/hooks/use-language';
 import { useEffect, useState } from 'react';
+import { cn } from '@/lib/utils';
 
 export function AuthLoader() {
   const { t, tQuote } = useLanguage();
   const [quote, setQuote] = useState({ quote: '', author: '' });
+  const [isFading, setIsFading] = useState(false);
   const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
@@ -15,6 +17,20 @@ export function AuthLoader() {
     setQuote(tQuote());
     setIsClient(true);
   }, [tQuote]);
+
+  useEffect(() => {
+    if (!isClient) return;
+
+    const intervalId = setInterval(() => {
+      setIsFading(true);
+      setTimeout(() => {
+        setQuote(tQuote());
+        setIsFading(false);
+      }, 500); // This should match the transition duration
+    }, 10000); // 10 seconds
+
+    return () => clearInterval(intervalId);
+  }, [isClient, tQuote]);
 
   return (
     <div className="flex h-screen w-full flex-col items-center justify-center gap-8 bg-background p-4">
@@ -26,7 +42,10 @@ export function AuthLoader() {
         </div>
       </div>
       <MedicalLoader />
-      <div className="mt-8 text-center max-w-md min-h-[6rem]">
+      <div className={cn(
+          "mt-8 text-center max-w-md min-h-[6rem] transition-opacity duration-500 ease-in-out",
+          isFading ? "opacity-0" : "opacity-100"
+        )}>
         {isClient ? (
           <>
             <blockquote className="text-lg italic text-foreground">
