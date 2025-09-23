@@ -61,14 +61,14 @@ build:
 
 # The environment variables to set.
 # Learn more at https://firebase.google.com/docs/hosting/app-hosting/reference/apphosting-yaml#env
-# env:
-#   - variable: 'NODE_ENV'
-#     value: 'production'
+env:
+  - variable: 'GENKIT_ENV'
+    value: 'prod'
 
 # The secrets to mount.
 # Learn more at https://firebase.google.com/docs/hosting/app-hosting/reference/apphosting-yaml#secrets
-# secrets:
-#   - 'MY_SECRET'
+secrets:
+  - 'GEMINI_API_KEY'
 
 # The number of concurrent requests to allow.
 # Learn more at https://firebase.google.com/docs/hosting/app-hosting/reference/apphosting-yaml#concurrency
