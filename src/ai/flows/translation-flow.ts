@@ -43,13 +43,25 @@ const translationFlow = ai.defineFlow(
     outputSchema: TranslateTextOutputSchema,
   },
   async input => {
+    // Define a schema for the prompt's input that allows for optional fields
+    // to prevent validation errors if some doctor objects are incomplete.
+    const promptInputSchema = z.object({
+        doctors: z.array(z.object({
+            name: z.string(),
+            specialty: z.string().optional(),
+            clinicAddress: z.string().optional(),
+        })),
+        targetLanguage: z.string(),
+    });
+
     const prompt = ai.definePrompt({
       name: 'translationPrompt',
-      input: {schema: TranslateTextInputSchema},
+      input: {schema: promptInputSchema},
       output: {schema: TranslateTextOutputSchema},
       model: googleAI.model('gemini-1.5-flash-latest'),
       prompt: `Translate the text fields (name, specialty, clinicAddress) for each JSON object in the 'doctors' array into {{{targetLanguage}}}.
-Preserve the JSON structure and keys. Return only the translated JSON object. Your response MUST be a valid JSON object with a "doctors" key containing the array.
+Preserve the JSON structure and keys. If a field is missing, keep it missing in the output.
+Return only the translated JSON object. Your response MUST be a valid JSON object with a "doctors" key containing the array.
 
 Input:
 {{{json doctors}}}
