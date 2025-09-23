@@ -12,20 +12,12 @@ import { useLanguage } from '@/hooks/use-language';
 import { useAuth } from '@/hooks/use-auth';
 import { Logo } from './logo';
 import { StoredUser } from '@/types';
+import { StethoscopeLogo } from './stethoscope-logo';
 
 type AboutDialogProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 };
-
-const NeonLightsBackground = () => (
-  <div className="neon-background">
-    <div className="neon-light blue" style={{ '--start-x': '10vw', '--end-x': '30vw' } as React.CSSProperties}></div>
-    <div className="neon-light pink" style={{ '--start-x': '90vw', '--end-x': '70vw' } as React.CSSProperties}></div>
-    <div className="neon-light green" style={{ '--start-x': '50vw', '--end-x': '40vw' } as React.CSSProperties}></div>
-    <div className="neon-light yellow" style={{ '--start-x': '30vw', '--end-x': '80vw' } as React.CSSProperties}></div>
-  </div>
-);
 
 export function AboutDialog({ open, onOpenChange }: AboutDialogProps) {
   const { t } = useLanguage();
@@ -71,19 +63,21 @@ export function AboutDialog({ open, onOpenChange }: AboutDialogProps) {
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="sm:max-w-md bg-transparent border-none shadow-2xl shadow-primary/50 text-white overflow-hidden">
-        <NeonLightsBackground />
-        <div className="relative z-10 backdrop-blur-sm p-6 rounded-lg bg-black/50">
+      <DialogContent className="sm:max-w-md bg-card shadow-2xl overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-background via-transparent to-background opacity-90" />
+        <StethoscopeLogo className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-2/3 w-2/3 text-primary/10 animate-pulse" />
+        
+        <div className="relative z-10 p-6">
           <DialogHeader className="items-center text-center">
-              <Logo className="h-16 w-16 text-primary mb-2 animate-pulse-glow" />
-            <DialogTitle className="font-headline text-2xl text-white">{t('dialogs.aboutTitle')}</DialogTitle>
-            <DialogDescription className="text-center pt-2 text-white/80">
+              <Logo className="h-16 w-16 text-primary mb-2" />
+            <DialogTitle className="font-headline text-2xl">{t('dialogs.aboutTitle')}</DialogTitle>
+            <DialogDescription className="text-center pt-2">
               {t('dialogs.aboutDesc')}
             </DialogDescription>
           </DialogHeader>
           {projectOwner && (
-            <div className="pt-4 text-center text-sm text-white/70">
-              <p className="font-semibold">{t('dialogs.contactOwner')}</p>
+            <div className="pt-4 text-center text-sm text-muted-foreground">
+              <p className="font-semibold text-foreground">{t('dialogs.contactOwner')}</p>
               <p dir="ltr">{projectOwner.email}</p>
               <p dir="ltr">{projectOwner.phoneNumber}</p>
               <p dir="ltr" className="mt-4 text-xs italic uppercase animate-pulse">For your beautiful eyes Bebo 143</p>
