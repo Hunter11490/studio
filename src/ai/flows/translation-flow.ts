@@ -21,8 +21,13 @@ const DoctorInfoSchema = z.object({
 export type DoctorInfo = z.infer<typeof DoctorInfoSchema>;
 
 
+// Allow optional fields here to prevent validation errors on input.
 const TranslateTextInputSchema = z.object({
-  doctors: z.array(DoctorInfoSchema).describe('An array of doctor information to translate.'),
+  doctors: z.array(z.object({
+    name: z.string().describe('The name to translate.'),
+    specialty: z.string().describe('The specialty to translate.').optional(),
+    clinicAddress: z.string().describe('The clinic address to translate.').optional(),
+  })).describe('An array of doctor information to translate.'),
   targetLanguage: z.string().describe('The target language to translate to (e.g., "Arabic", "English").'),
 });
 export type TranslateTextInput = z.infer<typeof TranslateTextInputSchema>;
