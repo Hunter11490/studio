@@ -15,8 +15,8 @@ import {z} from 'genkit';
 
 const DoctorInfoSchema = z.object({
   name: z.string().describe('The name to translate.'),
-  specialty: z.string().describe('The specialty to translate.'),
-  clinicAddress: z.string().describe('The clinic address to translate.'),
+  specialty: z.string().describe('The specialty to translate.').optional(),
+  clinicAddress: z.string().describe('The clinic address to translate.').optional(),
 });
 export type DoctorInfo = z.infer<typeof DoctorInfoSchema>;
 
@@ -65,7 +65,7 @@ const translationFlow = ai.defineFlow(
       output: {schema: TranslateTextOutputSchema},
       model: googleAI.model('gemini-1.5-flash-latest'),
       prompt: `Translate the text fields (name, specialty, clinicAddress) for each JSON object in the 'doctors' array into {{{targetLanguage}}}.
-Preserve the JSON structure and keys. If a field is missing, keep it missing in the output.
+Preserve the JSON structure and keys. If a field is missing, keep it missing in the output. If a field is present but empty or null, return it as an empty string.
 Return only the translated JSON object. Your response MUST be a valid JSON object with a "doctors" key containing the array.
 
 Input:
