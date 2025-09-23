@@ -42,8 +42,9 @@ export function DoctorCard({ doctor }: { doctor: Doctor }) {
   const referralCount = doctor.referralCount || 0;
   const commission = referralCount * 100;
   
-  const handlePartnerToggle = () => {
+  const handlePartnerToggle = (e: React.MouseEvent<HTMLButtonElement>) => {
     updateDoctor(doctor.id, { isPartner: !doctor.isPartner });
+    e.currentTarget.blur();
   };
 
   const handleSetLocation = () => {
