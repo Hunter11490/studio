@@ -12,7 +12,6 @@ import { useLanguage } from '@/hooks/use-language';
 import { useAuth } from '@/hooks/use-auth';
 import { Logo } from './logo';
 import { StoredUser } from '@/types';
-import { StethoscopeLogo } from './stethoscope-logo';
 
 type AboutDialogProps = {
   open: boolean;
@@ -65,13 +64,12 @@ export function AboutDialog({ open, onOpenChange }: AboutDialogProps) {
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-md bg-card shadow-2xl overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-background via-transparent to-background opacity-90" />
-        <StethoscopeLogo className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-2/3 w-2/3 text-primary/10 animate-pulse" />
         
         <div className="relative z-10 p-6">
           <DialogHeader className="items-center text-center">
               <Logo className="h-16 w-16 text-primary mb-2" />
-            <DialogTitle className="font-headline text-2xl">{t('dialogs.aboutTitle')}</DialogTitle>
-            <DialogDescription className="text-center pt-2">
+            <DialogTitle className="font-headline text-2xl animate-glow">{t('dialogs.aboutTitle')}</DialogTitle>
+            <DialogDescription className="text-center pt-2 animate-glow">
               {t('dialogs.aboutDesc')}
             </DialogDescription>
           </DialogHeader>
@@ -80,7 +78,7 @@ export function AboutDialog({ open, onOpenChange }: AboutDialogProps) {
               <p className="font-semibold text-foreground">{t('dialogs.contactOwner')}</p>
               <p dir="ltr">{projectOwner.email}</p>
               <p dir="ltr">{projectOwner.phoneNumber}</p>
-              <p dir="ltr" className="mt-4 text-xs italic uppercase animate-pulse">For your beautiful eyes Bebo 143</p>
+              <p dir="ltr" className="mt-4 text-xs italic uppercase animate-glow">For your beautiful eyes Bebo 143</p>
             </div>
           )}
         </div>
