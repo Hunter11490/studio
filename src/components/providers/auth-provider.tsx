@@ -146,15 +146,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [setStoredUsers]);
 
   const toggleUserActiveStatus = useCallback((userId: string) => {
-    setStoredUsers(prev => prev.map(u => {
-      if (u.id === userId) {
-        // If user is active, set to pending. If pending or banned, set to active.
-        const newStatus = u.status === 'active' ? 'pending' : 'active';
-        return { ...u, status: newStatus };
-      }
-      return u;
-    }));
-  }, [setStoredUsers]);
+    setStoredUsers(prev => {
+        const newUsers = prev.map(u => {
+            if (u.id === userId) {
+                // If user is active, set to banned. If pending or banned, set to active.
+                const newStatus = u.status === 'active' ? 'banned' : 'active';
+                return { ...u, status: newStatus };
+            }
+            return u;
+        });
+        return newUsers;
+    });
+}, [setStoredUsers]);
   
   const approveUser = useCallback((userId: string) => {
     setStoredUsers(prev => prev.map(u => 
