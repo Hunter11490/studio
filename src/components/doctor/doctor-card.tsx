@@ -88,7 +88,7 @@ export function DoctorCard({ doctor }: { doctor: Doctor }) {
     <>
       <Card className={cn(
           "flex flex-col overflow-hidden transition-all duration-300",
-          doctor.isPartner && "border-primary/50 shadow-lg shadow-primary/10"
+          doctor.isPartner && "animate-pulse-glow"
         )}>
         <CardHeader className="p-4">
           <div className="flex items-start justify-between gap-4">
