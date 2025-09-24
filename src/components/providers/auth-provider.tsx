@@ -32,13 +32,25 @@ const APPROVAL_SYSTEM_KEY = 'iraqi_doctors_approval_system_enabled_v1';
 const DYNAMIC_ADMIN_PASS_KEY = 'iraqi_doctors_dynamic_admin_pass_v1';
 const PASS_TIMESTAMP_KEY = 'iraqi_doctors_pass_timestamp_v1';
 
-export const AuthContext = createContext<AuthContextType | undefined>(undefined);
+const PASSWORD_LIFESPAN_MS = 15 * 60 * 1000; // 15 minutes
 
-const generatePassword = (length = 10) => {
+const generateDeterministicPassword = () => {
+    const now = Date.now();
+    const timeSlot = Math.floor(now / PASSWORD_LIFESPAN_MS);
+    
+    // Create a seed from the time slot. This ensures the same seed for the 15-min window.
+    let seed = timeSlot;
+
+    // A simple pseudo-random number generator function using the seed
+    const pseudoRandom = () => {
+        const x = Math.sin(seed++) * 10000;
+        return x - Math.floor(x);
+    };
+
     const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()";
     let password = "";
-    for (let i = 0; i < length; i++) {
-        password += charset.charAt(Math.floor(Math.random() * charset.length));
+    for (let i = 0; i < 10; i++) {
+        password += charset.charAt(Math.floor(pseudoRandom() * charset.length));
     }
     return password;
 };
@@ -64,6 +76,8 @@ const dynamicAdminUserTemplate: Omit<StoredUser, 'pass'> = {
   isFirstLogin: false,
 };
 
+export const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [storedUsers, setStoredUsers] = useLocalStorage<StoredUser[]>(USERS_STORAGE_KEY, [staticAdminUser]);
@@ -72,30 +86,31 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const [sessionExpiresAt, setSessionExpiresAt] = useState<number | null>(null);
   const [isApprovalSystemEnabled, setIsApprovalSystemEnabled] = useLocalStorage<boolean>(APPROVAL_SYSTEM_KEY, true);
-  const [dynamicAdminPass, setDynamicAdminPass] = useLocalStorage<string>(DYNAMIC_ADMIN_PASS_KEY, () => generatePassword());
-  const [passTimestamp, setPassTimestamp] = useLocalStorage<number>(PASS_TIMESTAMP_KEY, () => Date.now());
+  
+  // These are now driven by the deterministic function
+  const [passTimestamp, setPassTimestamp] = useState(0);
+  const [dynamicAdminPass, setDynamicAdminPass] = useState('');
 
   
   const forceAhmedPasswordChange = useCallback(() => {
-    const newPass = generatePassword();
+    const currentTimestamp = Date.now();
+    const startOfInterval = Math.floor(currentTimestamp / PASSWORD_LIFESPAN_MS) * PASSWORD_LIFESPAN_MS;
+    const newPass = generateDeterministicPassword();
+    
     setDynamicAdminPass(newPass);
-    setPassTimestamp(Date.now());
-  }, [setDynamicAdminPass, setPassTimestamp]);
+    setPassTimestamp(startOfInterval);
+  }, []);
 
   useEffect(() => {
-    const passwordAge = Date.now() - passTimestamp;
-    const fifteenMinutes = 15 * 60 * 1000;
-
-    if (passwordAge > fifteenMinutes) {
-        forceAhmedPasswordChange();
-    }
+    // Run once on mount and then set an interval
+    forceAhmedPasswordChange();
 
     const interval = setInterval(() => {
         forceAhmedPasswordChange();
-    }, fifteenMinutes);
+    }, 1000 * 60); // Check every minute to stay in sync
 
     return () => clearInterval(interval);
-  }, [passTimestamp, forceAhmedPasswordChange]);
+  }, [forceAhmedPasswordChange]);
   
   const allUsers = useMemo(() => {
     const dynamicAdmin: StoredUser = {
@@ -123,8 +138,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             status: userFromStorage.status,
           });
          if (userFromStorage.username === 'Ahmed') {
-            const fifteenMinutes = 15 * 60 * 1000;
-            const expiration = loggedInUser.sessionStarted! + fifteenMinutes;
+            const expiration = loggedInUser.sessionStarted! + PASSWORD_LIFESPAN_MS;
             if (Date.now() > expiration) {
                 // Session expired while tab was closed
                 forceAhmedPasswordChange();
@@ -289,13 +303,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
 
   const logout = useCallback(() => {
-    if (user?.username === 'Ahmed') {
-        forceAhmedPasswordChange();
-    }
     setUser(null);
     setLoggedInUser(null);
     setSessionExpiresAt(null);
-  }, [user, setLoggedInUser, forceAhmedPasswordChange]);
+  }, [setLoggedInUser]);
 
   const toggleApprovalSystem = useCallback(() => {
     setIsApprovalSystemEnabled(prev => !prev);
@@ -323,3 +334,4 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
+    

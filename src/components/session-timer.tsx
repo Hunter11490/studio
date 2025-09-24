@@ -7,7 +7,7 @@ import { Timer } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 export function SessionTimer({ expiryTimestamp }: { expiryTimestamp: number }) {
-  const { logout, forceAhmedPasswordChange } = useAuth();
+  const { logout } = useAuth();
   const { t } = useLanguage();
   const { toast } = useToast();
 
@@ -30,13 +30,12 @@ export function SessionTimer({ expiryTimestamp }: { expiryTimestamp: number }) {
           description: t('admin.sessionExpiredDesc'),
           variant: 'destructive',
         });
-        forceAhmedPasswordChange();
         logout();
       }
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [expiryTimestamp, logout, t, toast, forceAhmedPasswordChange]);
+  }, [expiryTimestamp, logout, t, toast]);
 
   const minutes = Math.floor((remainingTime / 1000 / 60) % 60);
   const seconds = Math.floor((remainingTime / 1000) % 60);
@@ -53,3 +52,5 @@ export function SessionTimer({ expiryTimestamp }: { expiryTimestamp: number }) {
     </div>
   );
 }
+
+    
