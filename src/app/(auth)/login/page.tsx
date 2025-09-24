@@ -52,10 +52,12 @@ export default function LoginPage() {
     const success = login(values.username, values.password);
     if (success) {
       const loggedInUser = users.find(u => u.username === values.username);
-      if (loggedInUser?.status === 'active') {
+      if (loggedInUser?.status === 'active' || loggedInUser?.status === 'pending') {
+        toast({
+          title: t('auth.login'),
+          description: `${t('userMenu.greeting')} ${values.username}`,
+        });
         router.replace('/dashboard');
-      } else if (loggedInUser?.status === 'pending') {
-        router.replace('/dashboard'); // Dashboard layout will handle the redirect
       } else {
          toast({
           title: t('admin.status.deactivated'),

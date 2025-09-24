@@ -110,7 +110,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         phoneNumber,
         email,
         role: 'user',
-        status: 'pending',
+        status: 'active', // New users are now active by default
     };
     setStoredUsers(prev => [...prev, newUser]);
     return true;
