@@ -267,7 +267,7 @@ export function UserMenu() {
                   {t('userMenu.toggleTheme')}
                 </Label>
                 <div className="grid grid-cols-4 gap-2">
-                  {(['light', 'dark', 'pink', 'blue', 'brown', 'system'] as const).map((themeName) => {
+                  {(['light', 'dark', 'pink', 'blue', 'brown', 'emerald', 'amethyst', 'system'] as const).map((themeName) => {
                     const isActive = theme === themeName;
                     return (
                       <Button
@@ -288,6 +288,8 @@ export function UserMenu() {
                               'bg-[#fbe8f0] border border-[#f4a8c4]': themeName === 'pink',
                               'bg-[#e8f0f9] border border-[#a8c4f4]': themeName === 'blue',
                               'bg-[#f5f0e8] border border-[#c4a884]': themeName === 'brown',
+                              'bg-[#e8f9f0] border border-[#84c4a8]': themeName === 'emerald',
+                              'bg-[#f0e8f9] border border-[#c4a8f4]': themeName === 'amethyst',
                               'border': themeName === 'system'
                             }
                           )}>

@@ -101,6 +101,26 @@
     --chart-5: 190 75% 55%;
   }
 
+  .dark.pink {
+    --background: 340 10% 10%;
+    --foreground: 340 10% 90%;
+    --card: 340 10% 15%;
+    --card-foreground: 340 10% 90%;
+    --popover: 340 10% 10%;
+    --popover-foreground: 340 10% 90%;
+    --primary: 340 85% 65%;
+    --primary-foreground: 340 85% 5%;
+    --secondary: 340 20% 25%;
+    --secondary-foreground: 340 10% 90%;
+    --muted: 340 20% 25%;
+    --muted-foreground: 340 15% 65%;
+    --accent: 170 70% 50%;
+    --accent-foreground: 170 70% 5%;
+    --border: 340 20% 25%;
+    --input: 340 20% 25%;
+    --ring: 340 85% 65%;
+  }
+
   .brown {
     --background: 35 25% 90%;
     --foreground: 35 25% 10%;
@@ -184,6 +204,86 @@
     --input: 215 35% 20%;
     --ring: 220 90% 65%;
   }
+
+  .emerald {
+    --background: 150 50% 95%;
+    --foreground: 155 30% 15%;
+    --card: 150 60% 98%;
+    --card-foreground: 155 30% 15%;
+    --popover: 150 50% 95%;
+    --popover-foreground: 155 30% 15%;
+    --primary: 160 80% 35%;
+    --primary-foreground: 160 80% 95%;
+    --secondary: 155 40% 90%;
+    --secondary-foreground: 160 80% 20%;
+    --muted: 155 40% 90%;
+    --muted-foreground: 155 25% 55%;
+    --accent: 50 80% 60%;
+    --accent-foreground: 50 80% 10%;
+    --border: 155 30% 85%;
+    --input: 155 30% 85%;
+    --ring: 160 80% 35%;
+  }
+
+  .dark.emerald {
+    --background: 155 30% 8%;
+    --foreground: 150 50% 92%;
+    --card: 155 30% 12%;
+    --card-foreground: 150 50% 92%;
+    --popover: 155 30% 8%;
+    --popover-foreground: 150 50% 92%;
+    --primary: 160 70% 45%;
+    --primary-foreground: 160 70% 95%;
+    --secondary: 155 25% 20%;
+    --secondary-foreground: 150 50% 92%;
+    --muted: 155 25% 20%;
+    --muted-foreground: 150 20% 65%;
+    --accent: 50 70% 55%;
+    --accent-foreground: 50 70% 5%;
+    --border: 155 25% 20%;
+    --input: 155 25% 20%;
+    --ring: 160 70% 45%;
+  }
+
+  .amethyst {
+    --background: 270 50% 96%;
+    --foreground: 275 40% 10%;
+    --card: 270 60% 99%;
+    --card-foreground: 275 40% 10%;
+    --popover: 270 50% 96%;
+    --popover-foreground: 275 40% 10%;
+    --primary: 265 85% 60%;
+    --primary-foreground: 265 85% 98%;
+    --secondary: 270 50% 92%;
+    --secondary-foreground: 265 85% 30%;
+    --muted: 270 50% 92%;
+    --muted-foreground: 275 20% 50%;
+    --accent: 320 80% 65%;
+    --accent-foreground: 320 80% 98%;
+    --border: 270 40% 88%;
+    --input: 270 40% 88%;
+    --ring: 265 85% 60%;
+  }
+
+  .dark.amethyst {
+    --background: 275 40% 8%;
+    --foreground: 270 50% 94%;
+    --card: 275 40% 12%;
+    --card-foreground: 270 50% 94%;
+    --popover: 275 40% 8%;
+    --popover-foreground: 270 50% 94%;
+    --primary: 265 80% 68%;
+    --primary-foreground: 265 80% 8%;
+    --secondary: 270 30% 20%;
+    --secondary-foreground: 270 50% 94%;
+    --muted: 270 30% 20%;
+    --muted-foreground: 270 20% 70%;
+    --accent: 320 75% 60%;
+    --accent-foreground: 320 75% 98%;
+    --border: 270 30% 20%;
+    --input: 270 30% 20%;
+    --ring: 265 80% 68%;
+  }
 }
 
 
@@ -202,6 +302,17 @@
   }
   
   html.pink body {
+    background-image: linear-gradient(to bottom right, hsl(var(--background)), hsl(var(--primary) / 0.1));
+  }
+  
+  html.dark.pink body {
+     background-image: linear-gradient(to bottom right, hsl(var(--background)), hsl(var(--primary) / 0.1));
+  }
+  
+  html.brown body, html.blue body, html.emerald body, html.amethyst body {
+    background-image: linear-gradient(to bottom right, hsl(var(--background)), hsl(var(--primary) / 0.07));
+  }
+   html.dark.brown body, html.dark.blue body, html.dark.emerald body, html.dark.amethyst body {
     background-image: linear-gradient(to bottom right, hsl(var(--background)), hsl(var(--primary) / 0.1));
   }
 }
