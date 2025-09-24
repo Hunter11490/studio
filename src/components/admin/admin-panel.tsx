@@ -14,14 +14,12 @@ import {
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { PlusCircle, Shield, ShieldOff, Trash2, Pencil, CheckCircle, PowerOff, Power } from 'lucide-react';
+import { PlusCircle, Shield, ShieldOff, Trash2, Pencil, CheckCircle, PowerOff, Power, ToggleRight, ToggleLeft } from 'lucide-react';
 import { ConfirmationDialog } from '@/components/confirmation-dialog';
 import { AddUserDialog } from '@/components/admin/add-user-dialog';
 import { EditUserDialog } from '@/components/admin/edit-user-dialog';
 import type { StoredUser, UserStatus } from '@/types';
 import { ScrollArea } from '../ui/scroll-area';
-import { Switch } from '../ui/switch';
-import { Label } from '../ui/label';
 
 export function AdminPanel() {
   const { users, deleteUser, updateUserRole, toggleUserActiveStatus, approveUser, isApprovalSystemEnabled, toggleApprovalSystem } = useAuth();
@@ -61,14 +59,16 @@ export function AdminPanel() {
       <div className="py-4">
         <Card>
           <CardHeader>
-            <CardTitle>{t('admin.usersTable')}</CardTitle>
-             <div className="flex items-center space-x-2 pt-2">
-                <Switch
-                    id="approval-system-toggle"
-                    checked={isApprovalSystemEnabled}
-                    onCheckedChange={toggleApprovalSystem}
-                />
-                <Label htmlFor="approval-system-toggle">{t('admin.approvalSystem')}</Label>
+            <div className="flex justify-between items-center">
+              <CardTitle>{t('admin.usersTable')}</CardTitle>
+              <Button
+                variant={isApprovalSystemEnabled ? 'success' : 'secondary'}
+                onClick={toggleApprovalSystem}
+                size="sm"
+              >
+                {isApprovalSystemEnabled ? <ToggleRight className="mr-2 h-4 w-4" /> : <ToggleLeft className="mr-2 h-4 w-4" />}
+                {t('admin.approvalSystem')}
+              </Button>
             </div>
           </CardHeader>
           <CardContent>
