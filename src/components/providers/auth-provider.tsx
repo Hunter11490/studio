@@ -31,7 +31,7 @@ const PASS_TIMESTAMP_KEY = 'iraqi_doctors_pass_timestamp_v1';
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const generatePassword = (length = 12) => {
+const generatePassword = (length = 10) => {
     const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()";
     let password = "";
     for (let i = 0, n = charset.length; i < n; ++i) {
