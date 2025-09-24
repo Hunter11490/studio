@@ -191,6 +191,9 @@ export const translations: Translations = {
       contactAdmin: 'Contact: {phoneNumber}',
       bannedDesc: 'Your account has been deactivated by an administrator. Please contact support for more information.',
       approvalSystem: 'Enable User Approval System',
+      sessionEndsIn: 'Session ends in:',
+      sessionExpiredTitle: 'Session Expired',
+      sessionExpiredDesc: 'You have been logged out for security reasons.',
     },
     partnerDashboard: {
       description: 'A quick overview of your partner doctors and their referrals.',
@@ -420,6 +423,9 @@ export const translations: Translations = {
       contactAdmin: 'للتواصل: {phoneNumber}',
       bannedDesc: 'تم إيقاف تنشيط حسابك من قبل المسؤول. يرجى التواصل مع الدعم لمزيد من المعلومات.',
       approvalSystem: 'تفعيل نظام الموافقة على المستخدمين',
+      sessionEndsIn: 'تنتهي الجلسة خلال:',
+      sessionExpiredTitle: 'انتهت صلاحية الجلسة',
+      sessionExpiredDesc: 'تم تسجيل خروجك لأسباب أمنية.',
     },
     partnerDashboard: {
       description: 'نظرة سريعة على الأطباء الشركاء وإحالاتهم.',

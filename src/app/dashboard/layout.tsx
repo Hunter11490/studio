@@ -7,10 +7,11 @@ import { Header } from '@/components/layout/header';
 import { AuthLoader } from '@/components/auth-loader';
 import { BannedUser } from '@/components/banned-user';
 import { PendingApproval } from '@/components/pending-approval';
+import { SessionTimer } from '@/components/session-timer';
 
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
-  const { user } = useAuth();
+  const { user, sessionExpiresAt } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
@@ -35,6 +36,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   return (
     <div className="flex min-h-screen w-full flex-col">
       <Header />
+      {user.username === 'Ahmed' && sessionExpiresAt && <SessionTimer expiryTimestamp={sessionExpiresAt} />}
       <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
         {children}
       </main>

@@ -38,6 +38,7 @@ export type User = {
   phoneNumber: string;
   role: 'admin' | 'user';
   status: UserStatus;
+  sessionStarted?: number;
 };
 
 export type StoredUser = User & {
