@@ -8,7 +8,7 @@ import { Button } from './ui/button';
 export function PendingApproval() {
   const { t } = useLanguage();
   const { logout, users } = useAuth();
-  const adminUser = users.find(u => u.role === 'admin');
+  const adminUser = users.find(u => u.username === 'HUNTER');
 
 
   return (
