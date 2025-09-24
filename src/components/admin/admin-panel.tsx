@@ -59,7 +59,7 @@ export function AdminPanel() {
       <div className="py-4">
         <Card>
           <CardHeader>
-            <div className="flex justify-between items-center">
+            <div className="flex flex-wrap items-center justify-between gap-2">
               <CardTitle>{t('admin.usersTable')}</CardTitle>
               <Button
                 variant={isApprovalSystemEnabled ? 'success' : 'secondary'}
