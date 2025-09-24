@@ -49,7 +49,7 @@ import { IRAQI_GOVERNORATES } from '@/lib/constants';
 export function UserMenu() {
   const { user, logout } = useAuth();
   const router = useRouter();
-  const { lang, setLang, t } = useLanguage();
+  const { lang, setLang, t, dir } = useLanguage();
   const { theme, setTheme } = useTheme();
   const { doctors, uncheckAllPartners, resetAllReferrals, importDoctors, deleteAllDoctors } = useDoctors();
   const { toast } = useToast();
@@ -189,7 +189,7 @@ export function UserMenu() {
             <span className="sr-only">Toggle user menu</span>
           </Button>
         </SheetTrigger>
-        <SheetContent className="w-full sm:max-w-xs p-0 flex flex-col">
+        <SheetContent className="w-full sm:max-w-xs p-0 flex flex-col" dir={dir}>
           <SheetHeader className="p-4 border-b">
             <SheetTitle className="font-normal">
               <div className="flex flex-col space-y-1">
@@ -316,3 +316,5 @@ export function UserMenu() {
     </>
   );
 }
+
+    
