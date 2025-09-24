@@ -72,7 +72,7 @@ export function WelcomeDialog({ open, onOpenChange, onFinished }: WelcomeDialogP
 
         <Carousel 
             className="w-full"
-            opts={{ direction: lang === 'ar' ? 'rtl' : 'ltr' }}
+            opts={{ direction: lang === 'ar' ? 'rtl' : 'ltr', loop: true }}
             onSelect={(api) => {
                 if (api) setStep(api.selectedScrollSnap());
             }}
@@ -92,8 +92,8 @@ export function WelcomeDialog({ open, onOpenChange, onFinished }: WelcomeDialogP
                     </CarouselItem>
                 ))}
             </CarouselContent>
-            <CarouselPrevious className={cn(step === 0 && 'invisible')} />
-            <CarouselNext className={cn(step === steps.length - 1 && 'invisible')} />
+            <CarouselPrevious />
+            <CarouselNext />
         </Carousel>
 
         <div className="flex justify-center items-center gap-2">
