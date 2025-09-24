@@ -87,6 +87,10 @@ export const translations: Translations = {
       light: 'Light',
       dark: 'Dark',
       system: 'System',
+      pink: 'Pink',
+      blue: 'Blue',
+      brown: 'Brown',
+      rainbow: 'Rainbow',
       aiTools: 'AI Tools',
       aiChat: 'AI Chat',
       internetSearch: 'Internet Doctor Search',
@@ -332,6 +336,10 @@ export const translations: Translations = {
       light: 'فاتح',
       dark: 'داكن',
       system: 'النظام',
+      pink: 'وردي',
+      blue: 'أزرق',
+      brown: 'بني',
+      rainbow: 'قوس قزح',
       aiTools: 'أدوات الذكاء الاصطناعي',
       aiChat: 'محادثة AI',
       internetSearch: 'بحث في الإنترنت عن أطباء',
@@ -483,12 +491,12 @@ export const translations: Translations = {
     },
     welcome: {
       title: "أهلاً بك في روح!",
-      description: "دليلك الطبي الذكي. إليك بعض الميزات الرئيسية لتبدأ:",
-      feature1: "ابنِ دليلك: أضف، عدّل، وأدر قائمة الأطباء الخاصة بك.",
-      feature2: "إدارة الإحالات: تتبّع إحالات المرضى وملاحظات الحالات بسهولة.",
-      feature3: "استثمر قوة الذكاء الاصطناعي: استخدم الذكاء الاصطناعي للعثور على أطباء جدد.",
-      feature4: "أمّن بياناتك: قم بعمل نسخة احتياطية واستعادة لبياناتك في أي وقت.",
-      start: "لنبدأ"
+      description: "Your intelligent medical directory. Here are some key features to get you started:",
+      feature1: "Build Your Directory: Add, edit, and manage your list of doctors.",
+      feature2: "Manage Referrals: Easily track patient referrals and case notes.",
+      feature3: "Harness AI Power: Use AI to find new doctors or chat with a medical assistant.",
+      feature4: "Secure Your Data: Backup and restore your data anytime.",
+      start: "Let's Get Started"
     }
   },
 };

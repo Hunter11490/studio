@@ -3,7 +3,7 @@
 import { createContext, useContext, useEffect } from 'react';
 import { useLocalStorage } from '@/hooks/use-local-storage';
 
-type Theme = 'dark' | 'light' | 'system' | 'pink';
+type Theme = 'dark' | 'light' | 'system' | 'pink' | 'brown' | 'blue' | 'rainbow';
 
 type ThemeProviderProps = {
   children: React.ReactNode;
@@ -34,7 +34,7 @@ export function ThemeProvider({
   useEffect(() => {
     const root = window.document.documentElement;
 
-    root.classList.remove('light', 'dark', 'pink');
+    root.classList.remove('light', 'dark', 'pink', 'brown', 'blue', 'rainbow');
 
     if (theme === 'system') {
       const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';

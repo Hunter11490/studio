@@ -26,14 +26,14 @@ import {
   Zap,
   Trash2,
   Heart,
+  Palette,
+  Laptop,
 } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
 import { useLanguage } from '@/hooks/use-language';
 import { useTheme } from '@/components/providers/theme-provider';
 import { useDoctors } from '@/hooks/use-doctors';
 import { Button } from '@/components/ui/button';
-import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
-import { Label } from '../ui/label';
 import { ConfirmationDialog } from '@/components/confirmation-dialog';
 import { AboutDialog } from '@/components/about-dialog';
 import { ChatDialog } from '@/components/ai/chat-dialog';
@@ -44,7 +44,9 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '../u
 import { AdminPanel } from '../admin/admin-panel';
 import { Separator } from '../ui/separator';
 import { InternetSearchDialog } from '../ai/internet-search-dialog';
-import { IRAQI_GOVERNORATES } from '@/lib/constants';
+import { cn } from '@/lib/utils';
+import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
+import { Label } from '../ui/label';
 
 
 export function UserMenu() {
@@ -239,7 +241,7 @@ export function UserMenu() {
               />
 
               <Separator className="my-2" />
-
+              
               <div className="p-2 space-y-2">
                 <Label><Languages className="inline-block mr-2 h-4 w-4" />{t('userMenu.changeLanguage')}</Label>
                 <RadioGroup value={lang} onValueChange={(value) => setLang(value as 'en' | 'ar')} className="grid grid-cols-2 gap-2">
@@ -258,26 +260,46 @@ export function UserMenu() {
                 </RadioGroup>
               </div>
 
-               <div className="p-2 space-y-2">
-                <Label className="flex items-center"><Sun className="h-4 w-4 mr-2 dark:hidden"/><Moon className="h-4 w-4 mr-2 hidden dark:inline-block"/>{t('userMenu.toggleTheme')}</Label>
-                 <RadioGroup value={theme} onValueChange={(value) => setTheme(value as 'light' | 'dark' | 'system' | 'pink')} className="grid grid-cols-4 gap-2">
-                    <div>
-                      <RadioGroupItem value="light" id="theme-light-sheet" className="peer sr-only" />
-                      <Label htmlFor="theme-light-sheet" className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover px-3 py-2 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary">{t('userMenu.light')}</Label>
-                    </div>
-                     <div>
-                      <RadioGroupItem value="dark" id="theme-dark-sheet" className="peer sr-only" />
-                      <Label htmlFor="theme-dark-sheet" className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover px-3 py-2 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary">{t('userMenu.dark')}</Label>
-                    </div>
-                     <div>
-                      <RadioGroupItem value="pink" id="theme-pink-sheet" className="peer sr-only" />
-                      <Label htmlFor="theme-pink-sheet" className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover px-3 py-2 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary"><Heart className="h-4 w-4" /></Label>
-                    </div>
-                     <div>
-                      <RadioGroupItem value="system" id="theme-system-sheet" className="peer sr-only" />
-                      <Label htmlFor="theme-system-sheet" className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover px-3 py-2 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary">{t('userMenu.system')}</Label>
-                    </div>
-                </RadioGroup>
+
+              <div className="p-2 space-y-2">
+                <Label className="flex items-center">
+                  <Palette className="h-4 w-4 mr-2" />
+                  {t('userMenu.toggleTheme')}
+                </Label>
+                <div className="grid grid-cols-4 gap-2">
+                  {(['light', 'dark', 'pink', 'blue', 'brown', 'rainbow', 'system'] as const).map((themeName) => {
+                    const isActive = theme === themeName;
+                    return (
+                      <Button
+                        key={themeName}
+                        variant="outline"
+                        size="icon"
+                        className={cn(
+                          'h-12 w-full flex items-center justify-center',
+                          isActive && 'border-primary ring-2 ring-primary'
+                        )}
+                        onClick={() => setTheme(themeName)}
+                      >
+                        <div className="flex flex-col items-center gap-1">
+                          <div className={cn('h-5 w-5 rounded-full flex items-center justify-center', 
+                            {
+                              'bg-background border': themeName === 'light',
+                              'bg-[#090c10] border': themeName === 'dark',
+                              'bg-[#fbe8f0] border border-[#f4a8c4]': themeName === 'pink',
+                              'bg-[#e8f0f9] border border-[#a8c4f4]': themeName === 'blue',
+                              'bg-[#f5f0e8] border border-[#c4a884]': themeName === 'brown',
+                              'bg-gradient-to-r from-red-500 via-yellow-500 to-blue-500': themeName === 'rainbow',
+                              'border': themeName === 'system'
+                            }
+                          )}>
+                            {themeName === 'system' && <Laptop className="h-3 w-3 text-muted-foreground" />}
+                          </div>
+                          <span className="text-xs capitalize">{t(`userMenu.${themeName}`)}</span>
+                        </div>
+                      </Button>
+                    )
+                  })}
+                </div>
               </div>
 
             </div>
@@ -321,5 +343,3 @@ export function UserMenu() {
     </>
   );
 }
-
-    
