@@ -58,77 +58,77 @@ function DoctorRow({ doctor }: { doctor: Doctor }) {
   return (
     <>
       <TableRow className="align-top">
-        <TableCell className="py-2">
-          <div className="flex items-center gap-2">
-             <Button variant="ghost" size="icon" onClick={handlePartnerToggle} className="h-7 w-7 rounded-full flex-shrink-0">
-                <Star className={cn(
-                    "h-5 w-5 transition-colors",
-                    doctor.isPartner ? "text-warning fill-current" : "text-muted-foreground hover:text-warning/80"
-                )} />
-            </Button>
-            <div>
-                <div className="font-medium">{doctor.name}</div>
-                <div className="text-sm text-muted-foreground">{doctor.specialty}</div>
-            </div>
-          </div>
-        </TableCell>
-        
-        <TableCell className="hidden sm:table-cell py-2">
-           <div className="flex flex-col gap-2 w-48">
-             <div className="flex items-center justify-between">
-              <span className="text-xs text-muted-foreground">{t('doctorCard.referrals')}</span>
-              <div className="flex items-center gap-1">
-                <Button size="icon" variant="ghost" className="h-5 w-5 rounded-full" onClick={() => handleReferralChange(-1)} disabled={referralCount <= 0}>
-                  <Minus className="h-3 w-3" />
-                </Button>
-                <span className="font-bold w-4 text-center text-sm">{referralCount}</span>
-                <Button size="icon" variant="ghost" className="h-5 w-5 rounded-full" onClick={() => handleReferralChange(1)}>
-                  <Plus className="h-3 w-3" />
-                </Button>
+        <TableCell className="py-3">
+          <div className="flex justify-between items-start w-full gap-4">
+              <div className="flex-grow">
+                  <div className="flex items-center gap-2">
+                    <Button variant="ghost" size="icon" onClick={handlePartnerToggle} className="h-7 w-7 rounded-full flex-shrink-0">
+                        <Star className={cn(
+                            "h-5 w-5 transition-colors",
+                            doctor.isPartner ? "text-warning fill-current" : "text-muted-foreground hover:text-warning/80"
+                        )} />
+                    </Button>
+                    <div>
+                        <div className="font-medium">{doctor.name}</div>
+                        <div className="text-sm text-muted-foreground">{doctor.specialty}</div>
+                    </div>
+                  </div>
+                  
+                  <div className="flex flex-col gap-2 w-48 mt-2 ml-10">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs text-muted-foreground">{t('doctorCard.referrals')}</span>
+                      <div className="flex items-center gap-1">
+                        <Button size="icon" variant="ghost" className="h-5 w-5 rounded-full" onClick={() => handleReferralChange(-1)} disabled={referralCount <= 0}>
+                          <Minus className="h-3 w-3" />
+                        </Button>
+                        <span className="font-bold w-4 text-center text-sm">{referralCount}</span>
+                        <Button size="icon" variant="ghost" className="h-5 w-5 rounded-full" onClick={() => handleReferralChange(1)}>
+                          <Plus className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    </div>
+                    <Separator />
+                    <div className="flex items-center justify-between">
+                        <span className="text-xs text-muted-foreground">{t('doctorCard.commission')}</span>
+                        <span className="text-xs font-semibold text-accent">{commission.toLocaleString()} {t('doctorCard.usd')}</span>
+                    </div>
+                  </div>
               </div>
-            </div>
-            <Separator />
-            <div className="flex items-center justify-between">
-                <span className="text-xs text-muted-foreground">{t('doctorCard.commission')}</span>
-                <span className="text-xs font-semibold text-accent">{commission.toLocaleString()} {t('doctorCard.usd')}</span>
-            </div>
-           </div>
-        </TableCell>
-        
-        <TableCell className="py-2">
-          <div className="flex justify-end">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="h-8 w-8 p-0">
-                  <span className="sr-only">Open menu</span>
-                  <MoreHorizontal className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => setReferralSheetOpen(true)}>
-                  <ClipboardList className="mr-2 h-4 w-4" />
-                  <span>{t('doctorCard.viewCases')}</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setEditing(true)}>
-                  <Pencil className="mr-2 h-4 w-4" />
-                  <span>{t('doctorCard.edit')}</span>
-                </DropdownMenuItem>
-                <ConfirmationDialog
-                  trigger={
-                    <DropdownMenuItem
-                      onSelect={(e) => e.preventDefault()} // prevent menu from closing
-                      className="text-destructive focus:text-destructive"
-                    >
-                      <Trash2 className="mr-2 h-4 w-4" />
-                      <span>{t('doctorCard.delete')}</span>
+            
+              <div className="flex-shrink-0">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" className="h-8 w-8 p-0">
+                      <span className="sr-only">Open menu</span>
+                      <MoreHorizontal className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem onClick={() => setReferralSheetOpen(true)}>
+                      <ClipboardList className="mr-2 h-4 w-4" />
+                      <span>{t('doctorCard.viewCases')}</span>
                     </DropdownMenuItem>
-                  }
-                  title={t('dialogs.deleteDoctorTitle')}
-                  description={`${t('dialogs.deleteDoctorDesc')} (${doctor.name})`}
-                  onConfirm={() => deleteDoctor(doctor.id)}
-                />
-              </DropdownMenuContent>
-            </DropdownMenu>
+                    <DropdownMenuItem onClick={() => setEditing(true)}>
+                      <Pencil className="mr-2 h-4 w-4" />
+                      <span>{t('doctorCard.edit')}</span>
+                    </DropdownMenuItem>
+                    <ConfirmationDialog
+                      trigger={
+                        <DropdownMenuItem
+                          onSelect={(e) => e.preventDefault()}
+                          className="text-destructive focus:text-destructive"
+                        >
+                          <Trash2 className="mr-2 h-4 w-4" />
+                          <span>{t('doctorCard.delete')}</span>
+                        </DropdownMenuItem>
+                      }
+                      title={t('dialogs.deleteDoctorTitle')}
+                      description={`${t('dialogs.deleteDoctorDesc')} (${doctor.name})`}
+                      onConfirm={() => deleteDoctor(doctor.id)}
+                    />
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
           </div>
         </TableCell>
       </TableRow>
@@ -152,10 +152,6 @@ export function DoctorList({ doctors }: { doctors: Doctor[] }) {
                 <TableHeader>
                 <TableRow>
                     <TableHead>{t('doctorList.name')}</TableHead>
-                    <TableHead className="hidden sm:table-cell">{t('doctorCard.referrals')}</TableHead>
-                    <TableHead>
-                    <span className="sr-only">{t('doctorList.actions')}</span>
-                    </TableHead>
                 </TableRow>
                 </TableHeader>
                 <TableBody>
