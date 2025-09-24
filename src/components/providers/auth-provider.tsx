@@ -11,6 +11,7 @@ export type AuthContextType = {
   users: StoredUser[];
   isLoading: boolean;
   sessionExpiresAt: number | null;
+  passTimestamp: number;
   login: (username: string, pass: string) => boolean;
   signup: (username:string, pass:string, phoneNumber:string | undefined, email: string) => boolean;
   logout: () => void;
@@ -135,7 +136,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             setSessionExpiresAt(null);
          }
       } else {
-        setUser(null);
         setLoggedInUser(null);
       }
     } else {
@@ -302,6 +302,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     users: allUsers,
     isLoading,
     sessionExpiresAt,
+    passTimestamp,
     login,
     signup,
     logout,
@@ -314,7 +315,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     isApprovalSystemEnabled,
     toggleApprovalSystem,
     forceAhmedPasswordChange,
-  }), [user, allUsers, isLoading, sessionExpiresAt, login, signup, logout, addUserByAdmin, deleteUser, updateUserRole, toggleUserActiveStatus, approveUser, updateUser, isApprovalSystemEnabled, toggleApprovalSystem, forceAhmedPasswordChange]);
+  }), [user, allUsers, isLoading, sessionExpiresAt, passTimestamp, login, signup, logout, addUserByAdmin, deleteUser, updateUserRole, toggleUserActiveStatus, approveUser, updateUser, isApprovalSystemEnabled, toggleApprovalSystem, forceAhmedPasswordChange]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

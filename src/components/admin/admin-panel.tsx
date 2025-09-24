@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/use-auth';
 import { useLanguage } from '@/hooks/use-language';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
@@ -14,12 +14,46 @@ import {
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { PlusCircle, Shield, ShieldOff, Trash2, Pencil, CheckCircle, PowerOff, Power, ToggleRight, ToggleLeft, Copy, Check } from 'lucide-react';
+import { PlusCircle, Shield, ShieldOff, Trash2, Pencil, CheckCircle, PowerOff, Power, ToggleRight, ToggleLeft, Copy, Check, Timer } from 'lucide-react';
 import { ConfirmationDialog } from '@/components/confirmation-dialog';
 import { AddUserDialog } from '@/components/admin/add-user-dialog';
 import { EditUserDialog } from '@/components/admin/edit-user-dialog';
 import type { StoredUser, UserStatus } from '@/types';
 import { ScrollArea } from '../ui/scroll-area';
+
+const PasswordCountdown = () => {
+    const { passTimestamp } = useAuth();
+    const calculateRemainingTime = () => {
+        const fifteenMinutes = 15 * 60 * 1000;
+        const now = Date.now();
+        const nextChangeTime = passTimestamp + fifteenMinutes;
+        return Math.max(0, nextChangeTime - now);
+    };
+
+    const [remainingTime, setRemainingTime] = useState(calculateRemainingTime);
+
+     useEffect(() => {
+        const interval = setInterval(() => {
+            setRemainingTime(calculateRemainingTime());
+        }, 1000);
+        return () => clearInterval(interval);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [passTimestamp]);
+
+    const minutes = Math.floor((remainingTime / 1000 / 60) % 60);
+    const seconds = Math.floor((remainingTime / 1000) % 60);
+
+    return (
+        <div className="flex items-center gap-1 text-xs text-muted-foreground mt-2" dir="ltr">
+            <Timer className="h-3 w-3" />
+            <span>Resets in:</span>
+            <span className="font-mono font-semibold text-foreground tabular-nums">
+                {String(minutes).padStart(2, '0')}:{String(seconds).padStart(2, '0')}
+            </span>
+        </div>
+    );
+};
+
 
 const DynamicAdminCredentials = () => {
     const { users } = useAuth();
@@ -41,6 +75,7 @@ const DynamicAdminCredentials = () => {
                 <p><span className="font-medium">Username:</span> {ahmedAdmin.username}</p>
                 <p className="flex items-center gap-2"><span className="font-medium">Password:</span> <span className="font-mono bg-muted px-1 py-0.5 rounded">{ahmedAdmin.pass}</span></p>
             </div>
+            <PasswordCountdown />
             <Button size="xs" variant="outline" onClick={handleCopy} className="mt-2 w-full">
                 {hasCopied ? <Check className="mr-2 h-4 w-4 text-success" /> : <Copy className="mr-2 h-4 w-4" />}
                 {hasCopied ? 'Copied!' : 'Copy Credentials'}
