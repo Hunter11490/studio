@@ -112,13 +112,15 @@ const DynamicAdminCredentials = () => {
             <h3 className="text-sm font-semibold mb-2">Dynamic Admin Login:</h3>
             <div className="space-y-1 text-xs">
                 <p><span className="font-medium">Username:</span> {ahmedAdmin.username}</p>
-                <p className="flex items-center gap-2"><span className="font-medium">Password:</span> <span className="font-mono bg-muted px-1 py-0.5 rounded">••••••••••</span></p>
+                <div className="flex items-center gap-2">
+                    <span className="font-medium">Password:</span>
+                    <Button size="xs" variant="outline" onClick={handleCopy} className="w-full">
+                        {hasCopied ? <Check className="mr-2 h-4 w-4 text-success" /> : <Copy className="mr-2 h-4 w-4" />}
+                        {hasCopied ? 'Copied!' : 'Copy Password'}
+                    </Button>
+                </div>
             </div>
             <PasswordCountdown />
-            <Button size="xs" variant="outline" onClick={handleCopy} className="mt-2 w-full">
-                {hasCopied ? <Check className="mr-2 h-4 w-4 text-success" /> : <Copy className="mr-2 h-4 w-4" />}
-                {hasCopied ? 'Copied!' : 'Copy Credentials'}
-            </Button>
         </div>
     );
 };
@@ -240,7 +242,7 @@ export function AdminPanel() {
                                     {u.status === 'active' ? t('admin.deactivateUser') : t('admin.reactivateUser')}
                                 </Button>
                                 )}
-                                {canModify && (
+                                {currentUser?.username === 'HUNTER' && (
                                   <>
                                     {u.role !== 'admin' ? (
                                         <Button variant="outline" size="xs" onClick={() => updateUserRole(u.id, 'admin')}>
@@ -248,10 +250,12 @@ export function AdminPanel() {
                                             {t('admin.makeAdmin')}
                                         </Button>
                                     ) : (
+                                      u.username !== 'Ahmed' && (
                                         <Button variant="secondary" size="xs" onClick={() => updateUserRole(u.id, 'user')}>
                                             <ShieldOff className="mr-1 h-3 w-3" />
                                             {t('admin.removeAdmin')}
                                         </Button>
+                                      )
                                     )}
                                   </>
                                 )}
