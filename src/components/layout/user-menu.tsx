@@ -25,6 +25,7 @@ import {
   UserSearch,
   Zap,
   Trash2,
+  Heart,
 } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
 import { useLanguage } from '@/hooks/use-language';
@@ -259,18 +260,22 @@ export function UserMenu() {
 
                <div className="p-2 space-y-2">
                 <Label className="flex items-center"><Sun className="h-4 w-4 mr-2 dark:hidden"/><Moon className="h-4 w-4 mr-2 hidden dark:inline-block"/>{t('userMenu.toggleTheme')}</Label>
-                 <RadioGroup value={theme} onValueChange={(value) => setTheme(value as 'light' | 'dark' | 'system')} className="grid grid-cols-3 gap-2">
+                 <RadioGroup value={theme} onValueChange={(value) => setTheme(value as 'light' | 'dark' | 'system' | 'pink')} className="grid grid-cols-4 gap-2">
                     <div>
                       <RadioGroupItem value="light" id="theme-light-sheet" className="peer sr-only" />
-                      <Label htmlFor="theme-light-sheet" className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-3 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary">{t('userMenu.light')}</Label>
+                      <Label htmlFor="theme-light-sheet" className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover px-3 py-2 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary">{t('userMenu.light')}</Label>
                     </div>
                      <div>
                       <RadioGroupItem value="dark" id="theme-dark-sheet" className="peer sr-only" />
-                      <Label htmlFor="theme-dark-sheet" className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-3 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary">{t('userMenu.dark')}</Label>
+                      <Label htmlFor="theme-dark-sheet" className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover px-3 py-2 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary">{t('userMenu.dark')}</Label>
+                    </div>
+                     <div>
+                      <RadioGroupItem value="pink" id="theme-pink-sheet" className="peer sr-only" />
+                      <Label htmlFor="theme-pink-sheet" className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover px-3 py-2 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary"><Heart className="h-4 w-4" /></Label>
                     </div>
                      <div>
                       <RadioGroupItem value="system" id="theme-system-sheet" className="peer sr-only" />
-                      <Label htmlFor="theme-system-sheet" className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-3 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary">{t('userMenu.system')}</Label>
+                      <Label htmlFor="theme-system-sheet" className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover px-3 py-2 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary">{t('userMenu.system')}</Label>
                     </div>
                 </RadioGroup>
               </div>
