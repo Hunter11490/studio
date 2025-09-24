@@ -19,7 +19,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { MoreHorizontal, Pencil, Trash2, Star, ClipboardList, Plus, Minus } from 'lucide-react';
+import { MoreHorizontal, Pencil, Trash2, Star, Plus, Minus, ClipboardList } from 'lucide-react';
 import { DoctorFormDialog } from './doctor-form-dialog';
 import { ConfirmationDialog } from '../confirmation-dialog';
 import { ReferralNotesDialog } from './referral-notes-dialog';
@@ -54,7 +54,6 @@ function DoctorRow({ doctor }: { doctor: Doctor }) {
     e.currentTarget.blur();
   };
 
-
   return (
     <>
       <TableRow className="align-top">
@@ -69,7 +68,7 @@ function DoctorRow({ doctor }: { doctor: Doctor }) {
                         )} />
                     </Button>
                     <div>
-                        <div className="font-medium">{doctor.name}</div>
+                        <div className={cn("font-medium", doctor.isPartner && "animate-glow font-bold")}>{doctor.name}</div>
                         <div className="text-sm text-muted-foreground">{doctor.specialty}</div>
                     </div>
                   </div>

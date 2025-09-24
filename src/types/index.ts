@@ -51,3 +51,8 @@ export type Translations = {
   en: Translation;
   ar: Translation;
 };
+
+
+export type PartnerExportData = {
+  [key: string]: string | number;
+};

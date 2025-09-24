@@ -5,15 +5,24 @@ import { useDoctors } from '@/hooks/use-doctors';
 import { DoctorGrid } from '@/components/doctor/doctor-grid';
 import { DoctorList } from '@/components/doctor/doctor-list';
 import { useLanguage } from '@/hooks/use-language';
-import { Frown, UserSearch } from 'lucide-react';
-import { Doctor } from '@/types';
+import { Frown, UserSearch, FileDown } from 'lucide-react';
+import { Doctor, PartnerExportData } from '@/types';
 import { Button } from '@/components/ui/button';
 import { DoctorFormDialog } from '@/components/doctor/doctor-form-dialog';
+import { useToast } from '@/hooks/use-toast';
+import { exportToExcel } from '@/lib/excel';
+import { translateText, DoctorInfo } from '@/ai/flows/translation-flow';
+
 
 export default function DashboardPage() {
   const { doctors, searchTerm, filterPartners, viewMode, sortOption } = useDoctors();
   const { t } = useLanguage();
+  const { toast } = useToast();
   const [isAddDoctorOpen, setAddDoctorOpen] = useState(false);
+
+  const partnerDoctors = useMemo(() => {
+    return doctors.filter(d => d.isPartner)
+  }, [doctors]);
 
   const filteredAndSortedDoctors = useMemo(() => {
     
@@ -45,6 +54,60 @@ export default function DashboardPage() {
         );
       });
   }, [doctors, searchTerm, filterPartners, sortOption]);
+
+  const getTranslatedDoctorData = async (doctorsToTranslate: Doctor[]): Promise<PartnerExportData[]> => {
+    const doctorsInfo: DoctorInfo[] = doctorsToTranslate.map(d => ({
+        name: d.name,
+        specialty: d.specialty,
+        clinicAddress: d.clinicAddress
+    }));
+
+    let translatedDocs: DoctorInfo[] = [];
+    try {
+        const response = await translateText({ doctors: doctorsInfo, targetLanguage: 'Arabic' });
+        translatedDocs = response.doctors;
+    } catch (error) {
+        console.error("Batch translation failed, falling back to original data.", error);
+        translatedDocs = doctorsInfo; // Fallback to original
+    }
+
+    const headers: { [key: string]: string } = {
+        name: t('partnerDashboard.exportName'),
+        address: t('partnerDashboard.exportAddress'),
+        phone: t('partnerDashboard.exportPhone'),
+        referrals: t('partnerDashboard.exportReferrals'),
+        commission: t('partnerDashboard.exportCommission'),
+    };
+
+    return doctorsToTranslate.map((originalDoctor, index) => {
+        const translatedInfo = translatedDocs[index] || originalDoctor;
+        const referralCount = originalDoctor.referralCount;
+        return {
+            [headers.name]: translatedInfo.name,
+            [headers.address]: translatedInfo.clinicAddress,
+            [headers.phone]: originalDoctor.phoneNumber,
+            [headers.referrals]: referralCount,
+            [headers.commission]: referralCount * 100,
+        };
+    });
+  };
+
+  const handleExportPartners = async () => {
+    if (partnerDoctors.length === 0) {
+      toast({ title: t('partnerDashboard.noPartners') });
+      return;
+    }
+    try {
+      toast({title: t('toasts.exporting'), description: t('toasts.exportingDesc')});
+      const translatedData = await getTranslatedDoctorData(partnerDoctors);
+      const fileName = `${t('partnerDashboard.exportFileName')}_${new Date().toISOString().split('T')[0]}.xlsx`;
+      exportToExcel(translatedData, fileName);
+      toast({ title: t('toasts.exportSuccess') });
+    } catch (error) {
+      console.error(error);
+      toast({ title: t('toasts.exportError'), variant: 'destructive' });
+    }
+  };
   
 
   if (doctors.length === 0) {
@@ -85,6 +148,17 @@ export default function DashboardPage() {
       {viewMode === 'grid' 
         ? <DoctorGrid doctors={filteredAndSortedDoctors} />
         : <DoctorList doctors={filteredAndSortedDoctors} />}
+
+      {viewMode === 'list' && partnerDoctors.length > 0 && (
+         <Button
+          onClick={handleExportPartners}
+          className="fixed bottom-6 right-6 z-40 h-14 w-14 rounded-full shadow-lg"
+          size="icon"
+        >
+          <FileDown className="h-6 w-6" />
+          <span className="sr-only">{t('partnerDashboard.exportExcel')}</span>
+        </Button>
+      )}
     </>
   );
 }
