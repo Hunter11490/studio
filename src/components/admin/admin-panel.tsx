@@ -64,49 +64,8 @@ const UserExpiryCountdown = ({ user }: { user: StoredUser }) => {
 };
 
 
-const PasswordCountdown = () => {
-    const { passTimestamp, forceAhmedPasswordChange } = useAuth();
-    const { t } = useLanguage();
-    const calculateRemainingTime = () => {
-        const twentyFourHours = 24 * 60 * 60 * 1000;
-        const now = Date.now();
-        const nextChangeTime = passTimestamp + twentyFourHours;
-        return Math.max(0, nextChangeTime - now);
-    };
-
-    const [remainingTime, setRemainingTime] = useState(calculateRemainingTime);
-
-     useEffect(() => {
-        const interval = setInterval(() => {
-            const newRemainingTime = calculateRemainingTime();
-            setRemainingTime(newRemainingTime);
-            if (newRemainingTime <= 0) {
-              // Time to force a password change
-              forceAhmedPasswordChange();
-            }
-        }, 1000);
-        return () => clearInterval(interval);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [passTimestamp]);
-
-    const hours = Math.floor((remainingTime / (1000 * 60 * 60)));
-    const minutes = Math.floor((remainingTime / 1000 / 60) % 60);
-    const seconds = Math.floor((remainingTime / 1000) % 60);
-
-    return (
-        <div className="flex items-center gap-1 text-xs text-muted-foreground mt-2" dir="ltr">
-            <Timer className="h-3 w-3" />
-            <span>{t('admin.sessionEndsIn')}</span>
-            <span className="font-mono font-semibold text-foreground tabular-nums">
-                {String(hours).padStart(2, '0')}:{String(minutes).padStart(2, '0')}:{String(seconds).padStart(2, '0')}
-            </span>
-        </div>
-    );
-};
-
-
 const DynamicAdminCredentials = () => {
-    const { users } = useAuth();
+    const { users, passTimestamp } = useAuth();
     const [hasCopied, setHasCopied] = useState(false);
     const ahmedAdmin = users.find(u => u.username === 'Ahmed');
 
@@ -130,7 +89,6 @@ const DynamicAdminCredentials = () => {
                     </Button>
                 </div>
             </div>
-            <PasswordCountdown />
         </div>
     );
 };
