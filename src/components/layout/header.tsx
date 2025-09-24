@@ -111,7 +111,7 @@ export function Header() {
 
           {/* Centered App Name & Subtitle */}
           <div className="absolute left-1/2 -translate-x-1/2 flex flex-col items-center">
-            <h1 className="text-lg font-semibold tracking-tight whitespace-nowrap text-primary">{t('appName')}</h1>
+            <h1 className="text-lg font-semibold tracking-tight whitespace-nowrap text-primary animate-glow">{t('appName')}</h1>
             <p className="text-[9px] text-muted-foreground whitespace-nowrap -mt-1">{t('appSubtitle')}</p>
           </div>
 
