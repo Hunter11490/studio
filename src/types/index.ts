@@ -43,6 +43,7 @@ export type User = {
 
 export type StoredUser = User & {
   pass: string;
+  isFirstLogin?: boolean;
 };
 
 export type Translation = {
@@ -56,5 +57,5 @@ export type Translations = {
 
 
 export type PartnerExportData = {
-  [key: string]: string | number;
+  [key:string]: string | number;
 };

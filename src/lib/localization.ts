@@ -157,6 +157,9 @@ export const translations: Translations = {
       search: 'Search',
       close: 'Close',
       notAvailable: 'N/A',
+      next: 'Next',
+      previous: 'Previous',
+      finish: 'Finish',
     },
      admin: {
       dashboardTitle: 'Admin Dashboard',
@@ -231,6 +234,20 @@ export const translations: Translations = {
       name: 'Name',
       specialty: 'Specialty',
       actions: 'Actions',
+    },
+    welcome: {
+      title: "Welcome to Spirit!",
+      description: "Your personal, offline-first assistant for managing your doctor directory. Here's a quick tour of the main features:",
+      step1Title: "Adding a Doctor",
+      step1Desc: "Click the 'Add Doctor' button in the header to open the form and enter the doctor's details. All data is saved securely on your device.",
+      step2Title: "Managing Referrals",
+      step2Desc: "Easily track referrals for each doctor. Use the +/- buttons to change the count, and click 'View Referral Cases' to add detailed notes for each case.",
+      step3Title: "AI Tools",
+      step3Desc: "Use the AI Assistant for medical questions or search the internet for new doctors. Access these tools from the user menu.",
+      step4Title: "Data Backup",
+      step4Desc: "Your data is valuable. Use the 'Backup Data' and 'Restore Data' options in the user menu to keep your list safe and move it between devices.",
+      step5Title: "Get Started",
+      step5Desc: "You're all set! Close this guide and start building your doctor directory.",
     }
   },
   ar: {
@@ -389,6 +406,9 @@ export const translations: Translations = {
       search: 'بحث',
       close: 'إغلاق',
       notAvailable: 'غير متوفر',
+      next: 'التالي',
+      previous: 'السابق',
+      finish: 'إنهاء',
     },
     admin: {
       dashboardTitle: 'لوحة تحكم المسؤول',
@@ -463,6 +483,20 @@ export const translations: Translations = {
       name: 'الاسم',
       specialty: 'التخصص',
       actions: 'الإجراءات',
+    },
+    welcome: {
+      title: "أهلاً بك في روح!",
+      description: "مساعدك الشخصي لإدارة دليل الأطباء الخاص بك، يعمل حتى بدون انترنت. إليك جولة سريعة على أهم الميزات:",
+      step1Title: "إضافة طبيب",
+      step1Desc: "انقر على زر 'إضافة طبيب' في الشريط العلوي لفتح النموذج وإدخال تفاصيل الطبيب. يتم حفظ جميع البيانات بأمان على جهازك.",
+      step2Title: "إدارة الإحالات",
+      step2Desc: "تتبع إحالات كل طبيب بسهولة. استخدم أزرار +/- لتغيير العدد، وانقر على 'عرض حالات الإحالة' لإضافة ملاحظات مفصلة لكل حالة.",
+      step3Title: "أدوات الذكاء الاصطناعي",
+      step3Desc: "استخدم المساعد الذكي للأسئلة الطبية أو ابحث في الإنترنت عن أطباء جدد. يمكنك الوصول لهذه الأدوات من قائمة المستخدم.",
+      step4Title: "النسخ الاحتياطي للبيانات",
+      step4Desc: "بياناتك ثمينة. استخدم خياري 'نسخ احتياطي' و 'استعادة البيانات' في قائمة المستخدم للحفاظ على قائمتك آمنة ونقلها بين الأجهزة.",
+      step5Title: "ابدأ الآن",
+      step5Desc: "أنت الآن جاهز! أغلق هذا الدليل وابدأ في بناء دليل الأطباء الخاص بك.",
     }
   },
 };

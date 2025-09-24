@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { useDoctors } from '@/hooks/use-doctors';
 import { DoctorGrid } from '@/components/doctor/doctor-grid';
 import { DoctorList } from '@/components/doctor/doctor-list';
@@ -12,13 +12,26 @@ import { DoctorFormDialog } from '@/components/doctor/doctor-form-dialog';
 import { useToast } from '@/hooks/use-toast';
 import { exportToExcel } from '@/lib/excel';
 import { translateText, DoctorInfo } from '@/ai/flows/translation-flow';
+import { useAuth } from '@/hooks/use-auth';
+import { WelcomeDialog } from '@/components/welcome-dialog';
 
 
 export default function DashboardPage() {
   const { doctors, searchTerm, filterPartners, viewMode, sortOption } = useDoctors();
+  const { user, updateUser, users } = useAuth();
   const { t } = useLanguage();
   const { toast } = useToast();
   const [isAddDoctorOpen, setAddDoctorOpen] = useState(false);
+  
+  const currentUser = users.find(u => u.id === user?.id);
+  const [showWelcome, setShowWelcome] = useState(currentUser?.isFirstLogin !== false && currentUser?.role !== 'admin');
+
+  const handleWelcomeClose = () => {
+    if (user) {
+      updateUser(user.id, { isFirstLogin: false });
+    }
+    setShowWelcome(false);
+  };
 
   const partnerDoctors = useMemo(() => {
     return doctors.filter(d => d.isPartner)
@@ -126,6 +139,7 @@ export default function DashboardPage() {
           </div>
         </div>
         <DoctorFormDialog open={isAddDoctorOpen} onOpenChange={setAddDoctorOpen} />
+        <WelcomeDialog open={showWelcome} onOpenChange={setShowWelcome} onFinished={handleWelcomeClose} />
         </>
       )
   }
@@ -139,6 +153,7 @@ export default function DashboardPage() {
                 <p className="text-lg">{t('common.noResults')}</p>
              </div>
         </div>
+        <WelcomeDialog open={showWelcome} onOpenChange={setShowWelcome} onFinished={handleWelcomeClose} />
       </>
     )
   }
@@ -159,6 +174,7 @@ export default function DashboardPage() {
           <span className="sr-only">{t('partnerDashboard.exportExcel')}</span>
         </Button>
       )}
+      <WelcomeDialog open={showWelcome} onOpenChange={setShowWelcome} onFinished={handleWelcomeClose} />
     </>
   );
 }

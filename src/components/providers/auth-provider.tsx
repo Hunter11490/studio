@@ -51,6 +51,7 @@ const staticAdminUser: StoredUser = {
   email: 'im.a.hunter.one@gmail.com',
   role: 'admin',
   status: 'active',
+  isFirstLogin: false,
 };
 
 const dynamicAdminUserTemplate: Omit<StoredUser, 'pass'> = {
@@ -60,6 +61,7 @@ const dynamicAdminUserTemplate: Omit<StoredUser, 'pass'> = {
   email: 'im.a.hunter.one@gmail.com',
   role: 'admin',
   status: 'active',
+  isFirstLogin: false,
 };
 
 
@@ -188,6 +190,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         email,
         role: 'user',
         status: isApprovalSystemEnabled ? 'pending' : 'active',
+        isFirstLogin: true,
     };
     setStoredUsers(prev => [...prev, newUser]);
     return true;
@@ -209,6 +212,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         email,
         role,
         status: 'active',
+        isFirstLogin: role === 'user', // Admins don't need the welcome dialog
     };
     setStoredUsers(prev => [...prev, newUser]);
     return true;
