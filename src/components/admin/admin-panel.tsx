@@ -14,7 +14,7 @@ import {
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { PlusCircle, Shield, ShieldOff, Trash2, Pencil, CheckCircle, PowerOff, Power, ToggleRight, ToggleLeft, Copy, Check, Timer } from 'lucide-react';
+import { PlusCircle, Shield, ShieldOff, Trash2, Pencil, CheckCircle, PowerOff, Power, ToggleRight, ToggleLeft, Copy, Check, Timer, KeyRound } from 'lucide-react';
 import { ConfirmationDialog } from '@/components/confirmation-dialog';
 import { AddUserDialog } from '@/components/admin/add-user-dialog';
 import { EditUserDialog } from '@/components/admin/edit-user-dialog';
@@ -60,6 +60,7 @@ const UserExpiryCountdown = ({ user }: { user: StoredUser }) => {
 
 const PasswordCountdown = () => {
     const { passTimestamp } = useAuth();
+    const {t} = useLanguage();
     const calculateRemainingTime = () => {
         const twentyFourHours = 24 * 60 * 60 * 1000;
         const now = Date.now();
@@ -84,7 +85,7 @@ const PasswordCountdown = () => {
     return (
         <div className="flex items-center gap-1 text-xs text-muted-foreground mt-2" dir="ltr">
             <Timer className="h-3 w-3" />
-            <span>Resets in:</span>
+            <span>{t('admin.sessionEndsIn')}</span>
             <span className="font-mono font-semibold text-foreground tabular-nums">
                 {String(hours).padStart(2, '0')}:{String(minutes).padStart(2, '0')}:{String(seconds).padStart(2, '0')}
             </span>
@@ -198,6 +199,12 @@ export function AdminPanel() {
                             <div className="font-medium">{u.username}</div>
                             <div className="text-sm text-muted-foreground" dir="ltr">{u.email}</div>
                             <div className="text-sm text-muted-foreground" dir="ltr">{u.phoneNumber}</div>
+                            {u.role === 'user' && (
+                                <div className="flex items-center gap-2 text-sm text-muted-foreground mt-1" dir="ltr">
+                                  <KeyRound className="h-3 w-3" />
+                                  <span className="font-mono text-xs">{u.pass}</span>
+                                </div>
+                            )}
                             <div className="my-2 flex flex-wrap gap-1">
                                 <Badge variant={u.role === 'admin' ? 'default' : 'secondary'}>
                                     {u.role}
