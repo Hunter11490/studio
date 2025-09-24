@@ -64,7 +64,7 @@ export function WelcomeDialog({ open, onOpenChange, onFinished }: WelcomeDialogP
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent 
-        className="sm:max-w-2xl bg-card shadow-2xl overflow-hidden transition-all duration-300 data-[state=open]:scale-100 scale-95" 
+        className="sm:max-w-xl bg-card shadow-2xl overflow-hidden transition-all duration-300 data-[state=open]:scale-100 scale-95" 
         onInteractOutside={(e) => e.preventDefault()}
       >
         <div className="absolute inset-0 bg-gradient-to-br from-background via-transparent to-primary/5 opacity-80" />
