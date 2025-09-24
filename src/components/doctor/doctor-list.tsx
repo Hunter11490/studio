@@ -49,16 +49,28 @@ function DoctorRow({ doctor }: { doctor: Doctor }) {
     updateDoctor(doctor.id, { referralCount: newCount, referralNotes: newNotes });
   };
 
+  const handlePartnerToggle = (e: React.MouseEvent<HTMLButtonElement>) => {
+    updateDoctor(doctor.id, { isPartner: !doctor.isPartner });
+    e.currentTarget.blur();
+  };
+
 
   return (
     <>
       <TableRow className="align-top">
         <TableCell className="py-2">
           <div className="flex items-center gap-2">
-            {doctor.isPartner && <Star className="h-4 w-4 text-primary flex-shrink-0" />}
-            <div className="font-medium">{doctor.name}</div>
+             <Button variant="ghost" size="icon" onClick={handlePartnerToggle} className="h-7 w-7 rounded-full flex-shrink-0">
+                <Star className={cn(
+                    "h-5 w-5 transition-colors",
+                    doctor.isPartner ? "text-warning fill-current" : "text-muted-foreground hover:text-warning/80"
+                )} />
+            </Button>
+            <div>
+                <div className="font-medium">{doctor.name}</div>
+                <div className="text-sm text-muted-foreground">{doctor.specialty}</div>
+            </div>
           </div>
-          <div className="text-sm text-muted-foreground">{doctor.specialty}</div>
         </TableCell>
         
         <TableCell className="hidden sm:table-cell py-2">
