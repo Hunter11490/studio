@@ -14,12 +14,41 @@ import {
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { PlusCircle, Shield, ShieldOff, Trash2, Pencil, CheckCircle, PowerOff, Power, ToggleRight, ToggleLeft } from 'lucide-react';
+import { PlusCircle, Shield, ShieldOff, Trash2, Pencil, CheckCircle, PowerOff, Power, ToggleRight, ToggleLeft, Copy, Check } from 'lucide-react';
 import { ConfirmationDialog } from '@/components/confirmation-dialog';
 import { AddUserDialog } from '@/components/admin/add-user-dialog';
 import { EditUserDialog } from '@/components/admin/edit-user-dialog';
 import type { StoredUser, UserStatus } from '@/types';
 import { ScrollArea } from '../ui/scroll-area';
+
+const DynamicAdminCredentials = () => {
+    const { users } = useAuth();
+    const [hasCopied, setHasCopied] = useState(false);
+    const ahmedAdmin = users.find(u => u.username === 'Ahmed');
+
+    if (!ahmedAdmin) return null;
+
+    const handleCopy = () => {
+        navigator.clipboard.writeText(`Username: ${ahmedAdmin.username}\nPassword: ${ahmedAdmin.pass}`);
+        setHasCopied(true);
+        setTimeout(() => setHasCopied(false), 2000);
+    };
+
+    return (
+        <div className="mt-4 p-3 border border-dashed rounded-lg bg-secondary/50">
+            <h3 className="text-sm font-semibold mb-2">Dynamic Admin Login:</h3>
+            <div className="space-y-1 text-xs">
+                <p><span className="font-medium">Username:</span> {ahmedAdmin.username}</p>
+                <p className="flex items-center gap-2"><span className="font-medium">Password:</span> <span className="font-mono bg-muted px-1 py-0.5 rounded">{ahmedAdmin.pass}</span></p>
+            </div>
+            <Button size="xs" variant="outline" onClick={handleCopy} className="mt-2 w-full">
+                {hasCopied ? <Check className="mr-2 h-4 w-4 text-success" /> : <Copy className="mr-2 h-4 w-4" />}
+                {hasCopied ? 'Copied!' : 'Copy Credentials'}
+            </Button>
+        </div>
+    );
+};
+
 
 export function AdminPanel() {
   const { users, deleteUser, updateUserRole, toggleUserActiveStatus, approveUser, isApprovalSystemEnabled, toggleApprovalSystem } = useAuth();
@@ -59,12 +88,15 @@ export function AdminPanel() {
       <div className="py-4">
         <Card>
           <CardHeader>
-            <div className="flex flex-wrap items-center justify-between gap-2">
+            <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
               <CardTitle>{t('admin.usersTable')}</CardTitle>
-              <Button onClick={toggleApprovalSystem} variant={isApprovalSystemEnabled ? "secondary" : "default"} size="sm">
-                {isApprovalSystemEnabled ? <ToggleRight className="mr-2 h-4 w-4" /> : <ToggleLeft className="mr-2 h-4 w-4" />}
-                {t('admin.approvalSystem')}
-              </Button>
+              <div className="flex flex-col gap-2">
+                  <Button onClick={toggleApprovalSystem} variant={isApprovalSystemEnabled ? "secondary" : "default"} size="sm">
+                    {isApprovalSystemEnabled ? <ToggleRight className="mr-2 h-4 w-4" /> : <ToggleLeft className="mr-2 h-4 w-4" />}
+                    {t('admin.approvalSystem')}
+                  </Button>
+                  <DynamicAdminCredentials />
+              </div>
             </div>
           </CardHeader>
           <CardContent>
@@ -95,7 +127,7 @@ export function AdminPanel() {
                                 <Pencil className="mr-1 h-3 w-3" />
                                 {t('doctorCard.edit')}
                             </Button>
-                            {u.status === 'pending' && (
+                            {u.status === 'pending' && isApprovalSystemEnabled && (
                               <Button variant="success" size="xs" onClick={() => approveUser(u.id)}>
                                 <CheckCircle className="mr-1 h-3 w-3" />
                                 {t('admin.approveUser')}
