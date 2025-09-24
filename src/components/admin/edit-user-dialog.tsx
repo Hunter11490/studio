@@ -27,7 +27,7 @@ type EditUserDialogProps = {
 };
 
 export function EditUserDialog({ open, onOpenChange, userToEdit }: EditUserDialogProps) {
-  const { t } = useLanguage();
+  const { t, dir } = useLanguage();
   const { updateUser } = useAuth();
   const { toast } = useToast();
 
@@ -81,7 +81,7 @@ export function EditUserDialog({ open, onOpenChange, userToEdit }: EditUserDialo
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent dir={dir}>
         <DialogHeader>
           <DialogTitle>{t('admin.editUserDialogTitle')}</DialogTitle>
         </DialogHeader>
@@ -145,7 +145,7 @@ export function EditUserDialog({ open, onOpenChange, userToEdit }: EditUserDialo
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>{t('admin.role')}</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <Select onValueChange={field.onChange} defaultValue={field.value} dir={dir}>
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder="Select a role" />

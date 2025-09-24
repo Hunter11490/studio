@@ -22,6 +22,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { UploadCloud } from 'lucide-react';
 import Image from 'next/image';
 import { ScrollArea } from '../ui/scroll-area';
+import { Textarea } from '../ui/textarea';
 
 const formSchema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -40,7 +41,7 @@ type DoctorFormDialogProps = {
 
 export function DoctorFormDialog({ open, onOpenChange, doctorToEdit }: DoctorFormDialogProps) {
   const { addDoctor, updateDoctor } = useDoctors();
-  const { t } = useLanguage();
+  const { t, dir } = useLanguage();
   const [imagePreview, setImagePreview] = useState<string | null>(null);
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -131,7 +132,7 @@ export function DoctorFormDialog({ open, onOpenChange, doctorToEdit }: DoctorFor
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="sm:max-w-md flex flex-col h-full sm:h-auto">
+      <DialogContent className="sm:max-w-md flex flex-col h-full sm:h-auto" dir={dir}>
         <DialogHeader>
           <DialogTitle className="font-headline">
             {doctorToEdit ? t('doctorForm.editTitle') : t('doctorForm.addTitle')}
@@ -174,7 +175,7 @@ export function DoctorFormDialog({ open, onOpenChange, doctorToEdit }: DoctorFor
                     <FormItem>
                       <FormLabel>{t('doctorForm.phoneNumber')}</FormLabel>
                       <FormControl>
-                        <Input {...field} />
+                        <Input {...field} dir="ltr" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -187,7 +188,7 @@ export function DoctorFormDialog({ open, onOpenChange, doctorToEdit }: DoctorFor
                     <FormItem>
                       <FormLabel>{t('doctorForm.clinicAddress')}</FormLabel>
                       <FormControl>
-                        <Input {...field} />
+                        <Textarea {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -219,7 +220,7 @@ export function DoctorFormDialog({ open, onOpenChange, doctorToEdit }: DoctorFor
                   control={form.control}
                   name="isPartner"
                   render={({ field }) => (
-                    <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4 rtl:space-x-reverse">
+                    <FormItem className="flex flex-row items-center space-x-3 space-y-0 rounded-md border p-4 rtl:space-x-reverse">
                       <FormControl>
                         <Checkbox checked={field.value} onCheckedChange={field.onChange} />
                       </FormControl>
