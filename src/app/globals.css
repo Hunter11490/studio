@@ -239,30 +239,25 @@
   }
   
   @keyframes rainbow-text-animation {
-    0%, 100% { --primary: 0 90% 40%; }
-    16% { --primary: 60 90% 40%; }
-    33% { --primary: 120 90% 40%; }
-    50% { --primary: 180 90% 40%; }
-    66% { --primary: 240 90% 40%; }
-    83% { --primary: 300 90% 40%; }
+    0% { --primary-hue: 0; }
+    100% { --primary-hue: 360; }
   }
   
   @keyframes rainbow-bg-animation {
-    0%, 100% { --background: 0 13% 91%; }
-    16% { --background: 60 13% 91%; }
-    33% { --background: 120 13% 91%; }
-    50% { --background: 180 13% 91%; }
-    66% { --background: 240 13% 91%; }
-    83% { --background: 300 13% 91%; }
+    0% { --bg-hue: 0; }
+    100% { --bg-hue: 360; }
   }
-
-  @keyframes rainbow-bg-animation-dark {
-    0%, 100% { --background: 0 71% 4%; }
-    16% { --background: 60 71% 4%; }
-    33% { --background: 120 71% 4%; }
-    50% { --background: 180 71% 4%; }
-    66% { --background: 240 71% 4%; }
-    83% { --background: 300 71% 4%; }
+  
+  .rainbow {
+    --primary: hsl(var(--primary-hue, 0), 90%, 50%);
+    --background: hsl(var(--bg-hue, 0), 13%, 91%);
+    animation: rainbow-bg-animation 15s linear infinite, rainbow-text-animation 15s linear infinite reverse;
+  }
+  
+  .dark.rainbow {
+    --primary: hsl(var(--primary-hue, 0), 90%, 60%);
+    --background: hsl(var(--bg-hue, 0), 71%, 4%);
+    animation: rainbow-bg-animation 15s linear infinite, rainbow-text-animation 15s linear infinite reverse;
   }
 
   @keyframes pulse-glow {
