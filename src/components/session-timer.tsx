@@ -37,7 +37,8 @@ export function SessionTimer({ expiryTimestamp }: { expiryTimestamp: number }) {
     return () => clearInterval(interval);
   }, [expiryTimestamp, logout, t, toast]);
 
-  const minutes = Math.floor((remainingTime / 1000 / 60) % 60);
+  const hours = Math.floor(remainingTime / (1000 * 60 * 60));
+  const minutes = Math.floor((remainingTime / (1000 * 60)) % 60);
   const seconds = Math.floor((remainingTime / 1000) % 60);
 
   return (
@@ -46,11 +47,9 @@ export function SessionTimer({ expiryTimestamp }: { expiryTimestamp: number }) {
       <div className="text-foreground" dir="ltr">
         <span>{t('admin.sessionEndsIn')} </span>
         <span className="font-mono font-bold tracking-wider">
-          {String(minutes).padStart(2, '0')}:{String(seconds).padStart(2, '0')}
+          {String(hours).padStart(2, '0')}:{String(minutes).padStart(2, '0')}:{String(seconds).padStart(2, '0')}
         </span>
       </div>
     </div>
   );
 }
-
-    
