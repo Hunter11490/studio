@@ -20,9 +20,11 @@ import { AddUserDialog } from '@/components/admin/add-user-dialog';
 import { EditUserDialog } from '@/components/admin/edit-user-dialog';
 import type { StoredUser, UserStatus } from '@/types';
 import { ScrollArea } from '../ui/scroll-area';
+import { Switch } from '../ui/switch';
+import { Label } from '../ui/label';
 
 export function AdminPanel() {
-  const { user, users, deleteUser, updateUserRole, toggleUserActiveStatus, approveUser } = useAuth();
+  const { users, deleteUser, updateUserRole, toggleUserActiveStatus, approveUser, isApprovalSystemEnabled, toggleApprovalSystem } = useAuth();
   const { t } = useLanguage();
   const [isAddUserDialogOpen, setAddUserDialogOpen] = useState(false);
   const [isEditUserDialogOpen, setEditUserDialogOpen] = useState(false);
@@ -60,9 +62,17 @@ export function AdminPanel() {
         <Card>
           <CardHeader>
             <CardTitle>{t('admin.usersTable')}</CardTitle>
+             <div className="flex items-center space-x-2 pt-2">
+                <Switch
+                    id="approval-system-toggle"
+                    checked={isApprovalSystemEnabled}
+                    onCheckedChange={toggleApprovalSystem}
+                />
+                <Label htmlFor="approval-system-toggle">{t('admin.approvalSystem')}</Label>
+            </div>
           </CardHeader>
           <CardContent>
-            <ScrollArea className="h-[calc(100vh-200px)]">
+            <ScrollArea className="h-[calc(100vh-250px)]">
                 <Table>
                 <TableHeader>
                     <TableRow>
@@ -89,7 +99,7 @@ export function AdminPanel() {
                                 <Pencil className="mr-1 h-3 w-3" />
                                 {t('doctorCard.edit')}
                             </Button>
-                            {u.status === 'pending' && (
+                            {u.status === 'pending' && isApprovalSystemEnabled && (
                               <Button variant="success" size="xs" onClick={() => approveUser(u.id)}>
                                 <CheckCircle className="mr-1 h-3 w-3" />
                                 {t('admin.approveUser')}

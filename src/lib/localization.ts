@@ -190,6 +190,7 @@ export const translations: Translations = {
       pendingDesc: 'Your account is awaiting approval. Please contact the administrator to activate it.',
       contactAdmin: 'Contact: {phoneNumber}',
       bannedDesc: 'Your account has been deactivated by an administrator. Please contact support for more information.',
+      approvalSystem: 'Enable User Approval System',
     },
     partnerDashboard: {
       description: 'A quick overview of your partner doctors and their referrals.',
@@ -418,6 +419,7 @@ export const translations: Translations = {
       pendingDesc: 'حسابك في انتظار الموافقة. يرجى التواصل مع المسؤول لتفعيل حسابك.',
       contactAdmin: 'للتواصل: {phoneNumber}',
       bannedDesc: 'تم إيقاف تنشيط حسابك من قبل المسؤول. يرجى التواصل مع الدعم لمزيد من المعلومات.',
+      approvalSystem: 'تفعيل نظام الموافقة على المستخدمين',
     },
     partnerDashboard: {
       description: 'نظرة سريعة على الأطباء الشركاء وإحالاتهم.',

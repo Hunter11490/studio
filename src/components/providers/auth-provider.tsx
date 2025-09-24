@@ -19,10 +19,13 @@ export type AuthContextType = {
   toggleUserActiveStatus: (userId: string) => void;
   approveUser: (userId: string) => void;
   updateUser: (userId: string, updates: Partial<Omit<StoredUser, 'id'>>) => boolean;
+  isApprovalSystemEnabled: boolean;
+  toggleApprovalSystem: () => void;
 };
 
 const USERS_STORAGE_KEY = 'iraqi_doctors_users_v3';
 const LOGGED_IN_USER_KEY = 'iraqi_doctors_loggedin_user_v3';
+const APPROVAL_SYSTEM_KEY = 'iraqi_doctors_approval_system_enabled_v1';
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -39,6 +42,7 @@ const adminUser: StoredUser = {
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [storedUsers, setStoredUsers] = useLocalStorage<StoredUser[]>(USERS_STORAGE_KEY, [adminUser]);
   const [loggedInUser, setLoggedInUser] = useLocalStorage<User | null>(LOGGED_IN_USER_KEY, null);
+  const [isApprovalSystemEnabled, setIsApprovalSystemEnabled] = useLocalStorage<boolean>(APPROVAL_SYSTEM_KEY, true);
   
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -110,11 +114,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         phoneNumber,
         email,
         role: 'user',
-        status: 'pending', // New users are now pending by default
+        status: isApprovalSystemEnabled ? 'pending' : 'active',
     };
     setStoredUsers(prev => [...prev, newUser]);
     return true;
-  }, [storedUsers, setStoredUsers]);
+  }, [storedUsers, setStoredUsers, isApprovalSystemEnabled]);
   
   const addUserByAdmin = useCallback((username: string, pass: string, phoneNumber: string, email: string, role: 'admin' | 'user'): boolean => {
     const userExists = storedUsers.some(u => 
@@ -189,6 +193,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(null);
     setLoggedInUser(null);
   }, [setLoggedInUser]);
+
+  const toggleApprovalSystem = useCallback(() => {
+    setIsApprovalSystemEnabled(prev => !prev);
+  }, [setIsApprovalSystemEnabled]);
   
   const value = useMemo(() => ({
     user,
@@ -203,7 +211,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     toggleUserActiveStatus,
     approveUser,
     updateUser,
-  }), [user, storedUsers, isLoading, login, signup, logout, addUserByAdmin, deleteUser, updateUserRole, toggleUserActiveStatus, approveUser, updateUser]);
+    isApprovalSystemEnabled,
+    toggleApprovalSystem,
+  }), [user, storedUsers, isLoading, login, signup, logout, addUserByAdmin, deleteUser, updateUserRole, toggleUserActiveStatus, approveUser, updateUser, isApprovalSystemEnabled, toggleApprovalSystem]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
