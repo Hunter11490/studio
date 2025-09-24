@@ -27,8 +27,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     return <BannedUser />;
   }
 
-  // The 'pending' status is no longer used for new signups, 
-  // but this check is kept for any old users that might still have this status.
   if (user.status === 'pending') {
     return <PendingApproval />;
   }
