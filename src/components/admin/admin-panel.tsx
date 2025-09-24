@@ -61,14 +61,6 @@ export function AdminPanel() {
           <CardHeader>
             <div className="flex flex-wrap items-center justify-between gap-2">
               <CardTitle>{t('admin.usersTable')}</CardTitle>
-              <Button
-                variant={isApprovalSystemEnabled ? 'success' : 'secondary'}
-                onClick={toggleApprovalSystem}
-                size="sm"
-              >
-                {isApprovalSystemEnabled ? <ToggleRight className="mr-2 h-4 w-4" /> : <ToggleLeft className="mr-2 h-4 w-4" />}
-                {t('admin.approvalSystem')}
-              </Button>
             </div>
           </CardHeader>
           <CardContent>
@@ -99,7 +91,7 @@ export function AdminPanel() {
                                 <Pencil className="mr-1 h-3 w-3" />
                                 {t('doctorCard.edit')}
                             </Button>
-                            {u.status === 'pending' && isApprovalSystemEnabled && (
+                            {u.status === 'pending' && (
                               <Button variant="success" size="xs" onClick={() => approveUser(u.id)}>
                                 <CheckCircle className="mr-1 h-3 w-3" />
                                 {t('admin.approveUser')}

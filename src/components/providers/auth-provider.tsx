@@ -42,7 +42,7 @@ const adminUser: StoredUser = {
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [storedUsers, setStoredUsers] = useLocalStorage<StoredUser[]>(USERS_STORAGE_KEY, [adminUser]);
   const [loggedInUser, setLoggedInUser] = useLocalStorage<User | null>(LOGGED_IN_USER_KEY, null);
-  const [isApprovalSystemEnabled, setIsApprovalSystemEnabled] = useLocalStorage<boolean>(APPROVAL_SYSTEM_KEY, true);
+  const [isApprovalSystemEnabled, setIsApprovalSystemEnabled] = useLocalStorage<boolean>(APPROVAL_SYSTEM_KEY, false);
   
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -114,11 +114,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         phoneNumber,
         email,
         role: 'user',
-        status: isApprovalSystemEnabled ? 'pending' : 'active',
+        status: 'active',
     };
     setStoredUsers(prev => [...prev, newUser]);
     return true;
-  }, [storedUsers, setStoredUsers, isApprovalSystemEnabled]);
+  }, [storedUsers, setStoredUsers]);
   
   const addUserByAdmin = useCallback((username: string, pass: string, phoneNumber: string, email: string, role: 'admin' | 'user'): boolean => {
     const userExists = storedUsers.some(u => 

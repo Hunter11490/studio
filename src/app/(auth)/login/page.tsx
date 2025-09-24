@@ -52,11 +52,13 @@ export default function LoginPage() {
     const success = login(values.username, values.password);
     if (success) {
       const loggedInUser = users.find(u => u.username === values.username);
-      if (loggedInUser?.status === 'active' || loggedInUser?.status === 'pending') {
+      if (loggedInUser?.status === 'active') {
         toast({
           title: t('auth.login'),
           description: `${t('userMenu.greeting')} ${values.username}`,
         });
+        router.replace('/dashboard');
+      } else if (loggedInUser?.status === 'pending') {
         router.replace('/dashboard');
       } else {
          toast({
