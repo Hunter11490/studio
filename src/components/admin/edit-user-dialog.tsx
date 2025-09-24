@@ -28,13 +28,13 @@ type EditUserDialogProps = {
 
 export function EditUserDialog({ open, onOpenChange, userToEdit }: EditUserDialogProps) {
   const { t, dir } = useLanguage();
-  const { updateUser } = useAuth();
+  const { user: currentUser, updateUser } = useAuth();
   const { toast } = useToast();
 
   const formSchema = z.object({
     username: z.string().min(3, 'Username must be at least 3 characters'),
     email: z.string().email('Invalid email address'),
-    pass: z.string().min(6, 'Password must be at least 6 characters'),
+    pass: z.string().optional(),
     phoneNumber: z.string().optional(),
     role: z.enum(['user', 'admin']),
   });
@@ -55,7 +55,7 @@ export function EditUserDialog({ open, onOpenChange, userToEdit }: EditUserDialo
       form.reset({
         username: userToEdit.username,
         email: userToEdit.email,
-        pass: userToEdit.username === 'Ahmed' ? '' : userToEdit.pass,
+        pass: '',
         phoneNumber: userToEdit.phoneNumber || '',
         role: userToEdit.role,
       });
@@ -64,8 +64,21 @@ export function EditUserDialog({ open, onOpenChange, userToEdit }: EditUserDialo
 
   const onSubmit = (values: z.infer<typeof formSchema>) => {
     if (!userToEdit) return;
+    
+    const updates: Partial<Omit<StoredUser, 'id'>> = {
+      username: values.username,
+      email: values.email,
+      phoneNumber: values.phoneNumber,
+      // Only HUNTER can change roles. If Ahmed is editing, keep the original role.
+      role: currentUser?.username === 'HUNTER' ? values.role : userToEdit.role,
+    };
+    
+    // Only include the password if a new one was entered.
+    if (values.pass && values.pass.trim() !== '') {
+      updates.pass = values.pass;
+    }
 
-    const success = updateUser(userToEdit.id, values);
+    const success = updateUser(userToEdit.id, updates);
 
     if (success) {
       toast({ title: t('admin.editUserSuccess') });
@@ -120,7 +133,7 @@ export function EditUserDialog({ open, onOpenChange, userToEdit }: EditUserDialo
                 <FormItem>
                   <FormLabel>{t('admin.password')}</FormLabel>
                   <FormControl>
-                    <Input type="text" {...field} placeholder={userToEdit?.username === 'Ahmed' ? 'Enter new password or leave blank' : ''}/>
+                    <Input type="text" {...field} placeholder="Enter new password or leave blank"/>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -139,27 +152,29 @@ export function EditUserDialog({ open, onOpenChange, userToEdit }: EditUserDialo
                 </FormItem>
               )}
             />
-            <FormField
-              control={form.control}
-              name="role"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{t('admin.role')}</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value} dir={dir}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select a role" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="user">User</SelectItem>
-                      <SelectItem value="admin">Admin</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            {currentUser?.username === 'HUNTER' && (
+              <FormField
+                control={form.control}
+                name="role"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t('admin.role')}</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value} dir={dir}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select a role" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="user">User</SelectItem>
+                        <SelectItem value="admin">Admin</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
             <DialogFooter>
               <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
                 {t('doctorForm.cancel')}
