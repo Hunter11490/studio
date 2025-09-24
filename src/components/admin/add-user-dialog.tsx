@@ -26,6 +26,7 @@ type AddUserDialogProps = {
 
 export function AddUserDialog({ open, onOpenChange }: AddUserDialogProps) {
   const { t } = useLanguage();
+  const { user: currentUser } = useAuth();
 
   const formSchema = z.object({
     username: z.string().min(3, 'Username must be at least 3 characters'),
@@ -50,7 +51,10 @@ export function AddUserDialog({ open, onOpenChange }: AddUserDialogProps) {
   });
   
   const onSubmit = (values: z.infer<typeof formSchema>) => {
-    const success = addUserByAdmin(values.username, values.password, values.phoneNumber || '', values.email, values.role);
+    // If Ahmed is adding, force the role to 'user'
+    const role = currentUser?.username === 'Ahmed' ? 'user' : values.role;
+    
+    const success = addUserByAdmin(values.username, values.password, values.phoneNumber || '', values.email, role);
     if (success) {
         toast({ title: t('admin.addUserSuccess') });
         form.reset();
@@ -120,27 +124,29 @@ export function AddUserDialog({ open, onOpenChange }: AddUserDialogProps) {
                 </FormItem>
               )}
             />
-            <FormField
-              control={form.control}
-              name="role"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{t('admin.role')}</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select a role" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="user">User</SelectItem>
-                      <SelectItem value="admin">Admin</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            {currentUser?.username !== 'Ahmed' && (
+              <FormField
+                control={form.control}
+                name="role"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t('admin.role')}</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select a role" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="user">User</SelectItem>
+                        <SelectItem value="admin">Admin</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
             <DialogFooter>
               <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
                 {t('doctorForm.cancel')}

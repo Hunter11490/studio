@@ -124,7 +124,7 @@ const DynamicAdminCredentials = () => {
 
 
 export function AdminPanel() {
-  const { users, deleteUser, updateUserRole, toggleUserActiveStatus, approveUser, isApprovalSystemEnabled, toggleApprovalSystem, checkAndDeactivateUsers } = useAuth();
+  const { user: currentUser, users, deleteUser, updateUserRole, toggleUserActiveStatus, approveUser, isApprovalSystemEnabled, toggleApprovalSystem, checkAndDeactivateUsers } = useAuth();
   const { t } = useLanguage();
   const [isAddUserDialogOpen, setAddUserDialogOpen] = useState(false);
   const [isEditUserDialogOpen, setEditUserDialogOpen] = useState(false);
@@ -160,6 +160,8 @@ export function AdminPanel() {
 
   // Filter out the current admin user (HUNTER) from the list to prevent self-modification
   const displayUsers = users.filter(u => u.username !== 'HUNTER');
+  
+  const isAhmed = currentUser?.username === 'Ahmed';
 
   return (
     <>
@@ -173,7 +175,7 @@ export function AdminPanel() {
                     {isApprovalSystemEnabled ? <ToggleRight className="mr-2 h-4 w-4" /> : <ToggleLeft className="mr-2 h-4 w-4" />}
                     {t('admin.approvalSystem')}
                   </Button>
-                  <DynamicAdminCredentials />
+                  {currentUser?.username === 'HUNTER' && <DynamicAdminCredentials />}
               </div>
             </div>
           </CardHeader>
@@ -186,68 +188,83 @@ export function AdminPanel() {
                     </TableRow>
                 </TableHeader>
                 <TableBody>
-                    {displayUsers.map((u) => (
-                    <TableRow key={u.id}>
-                        <TableCell>
-                        <div className="font-medium">{u.username}</div>
-                        <div className="text-sm text-muted-foreground" dir="ltr">{u.email}</div>
-                        <div className="text-sm text-muted-foreground" dir="ltr">{u.phoneNumber}</div>
-                        <div className="my-2 flex flex-wrap gap-1">
-                            <Badge variant={u.role === 'admin' ? 'default' : 'secondary'}>
-                                {u.role}
-                            </Badge>
-                            <Badge variant={getStatusBadgeVariant(u.status)}>
-                                {t(`admin.status.${getStatusTranslationKey(u.status)}`)}
-                            </Badge>
-                        </div>
-                        <UserExpiryCountdown user={u} />
-                        <div className="flex items-center gap-2 mt-2 flex-wrap">
-                            <Button variant="outline" size="xs" onClick={() => handleEditClick(u)}>
-                                <Pencil className="mr-1 h-3 w-3" />
-                                {t('doctorCard.edit')}
-                            </Button>
-                            {u.status === 'pending' && isApprovalSystemEnabled && (
-                              <Button variant="success" size="xs" onClick={() => approveUser(u.id)}>
-                                <CheckCircle className="mr-1 h-3 w-3" />
-                                {t('admin.approveUser')}
-                              </Button>
-                            )}
-                             <Button 
-                                variant={u.status === 'active' ? "destructive" : "success"} 
-                                size="xs" 
-                                onClick={() => toggleUserActiveStatus(u.id)}
-                            >
-                                {u.status === 'active' 
-                                    ? <PowerOff className="mr-1 h-3 w-3" />
-                                    : <Power className="mr-1 h-3 w-3" />
-                                }
-                                {u.status === 'active' ? t('admin.deactivateUser') : t('admin.reactivateUser')}
-                            </Button>
-                            {u.role !== 'admin' ? (
-                                <Button variant="outline" size="xs" onClick={() => updateUserRole(u.id, 'admin')}>
-                                    <Shield className="mr-1 h-3 w-3" />
-                                    {t('admin.makeAdmin')}
+                    {displayUsers.map((u) => {
+                      const isTargetAdmin = u.role === 'admin';
+                      const canModify = !isAhmed || (isAhmed && !isTargetAdmin);
+
+                      return (
+                        <TableRow key={u.id}>
+                            <TableCell>
+                            <div className="font-medium">{u.username}</div>
+                            <div className="text-sm text-muted-foreground" dir="ltr">{u.email}</div>
+                            <div className="text-sm text-muted-foreground" dir="ltr">{u.phoneNumber}</div>
+                            <div className="my-2 flex flex-wrap gap-1">
+                                <Badge variant={u.role === 'admin' ? 'default' : 'secondary'}>
+                                    {u.role}
+                                </Badge>
+                                <Badge variant={getStatusBadgeVariant(u.status)}>
+                                    {t(`admin.status.${getStatusTranslationKey(u.status)}`)}
+                                </Badge>
+                            </div>
+                            <UserExpiryCountdown user={u} />
+                            <div className="flex items-center gap-2 mt-2 flex-wrap">
+                                {canModify && (
+                                  <Button variant="outline" size="xs" onClick={() => handleEditClick(u)}>
+                                      <Pencil className="mr-1 h-3 w-3" />
+                                      {t('doctorCard.edit')}
+                                  </Button>
+                                )}
+                                {u.status === 'pending' && isApprovalSystemEnabled && canModify && (
+                                  <Button variant="success" size="xs" onClick={() => approveUser(u.id)}>
+                                    <CheckCircle className="mr-1 h-3 w-3" />
+                                    {t('admin.approveUser')}
+                                  </Button>
+                                )}
+                                {canModify && (
+                                <Button 
+                                    variant={u.status === 'active' ? "destructive" : "success"} 
+                                    size="xs" 
+                                    onClick={() => toggleUserActiveStatus(u.id)}
+                                >
+                                    {u.status === 'active' 
+                                        ? <PowerOff className="mr-1 h-3 w-3" />
+                                        : <Power className="mr-1 h-3 w-3" />
+                                    }
+                                    {u.status === 'active' ? t('admin.deactivateUser') : t('admin.reactivateUser')}
                                 </Button>
-                            ) : (
-                                <Button variant="secondary" size="xs" onClick={() => updateUserRole(u.id, 'user')}>
-                                    <ShieldOff className="mr-1 h-3 w-3" />
-                                    {t('admin.removeAdmin')}
-                                </Button>
-                            )}
-                            <ConfirmationDialog
-                                trigger={
-                                    <Button variant="destructive" size="xs">
-                                        <Trash2 className="h-3 w-3" />
-                                    </Button>
-                                }
-                                title={t('admin.deleteUserTitle')}
-                                description={`${t('admin.deleteUserDesc')} (${u.username})?`}
-                                onConfirm={() => deleteUser(u.id)}
-                            />
-                        </div>
-                        </TableCell>
-                    </TableRow>
-                    ))}
+                                )}
+                                {canModify && (
+                                  <>
+                                    {u.role !== 'admin' ? (
+                                        <Button variant="outline" size="xs" onClick={() => updateUserRole(u.id, 'admin')}>
+                                            <Shield className="mr-1 h-3 w-3" />
+                                            {t('admin.makeAdmin')}
+                                        </Button>
+                                    ) : (
+                                        <Button variant="secondary" size="xs" onClick={() => updateUserRole(u.id, 'user')}>
+                                            <ShieldOff className="mr-1 h-3 w-3" />
+                                            {t('admin.removeAdmin')}
+                                        </Button>
+                                    )}
+                                  </>
+                                )}
+                                {canModify && (
+                                <ConfirmationDialog
+                                    trigger={
+                                        <Button variant="destructive" size="xs">
+                                            <Trash2 className="h-3 w-3" />
+                                        </Button>
+                                    }
+                                    title={t('admin.deleteUserTitle')}
+                                    description={`${t('admin.deleteUserDesc')} (${u.username})?`}
+                                    onConfirm={() => deleteUser(u.id)}
+                                />
+                                )}
+                            </div>
+                            </TableCell>
+                        </TableRow>
+                      );
+                    })}
                 </TableBody>
                 </Table>
             </ScrollArea>
