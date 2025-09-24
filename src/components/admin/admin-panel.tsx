@@ -111,7 +111,7 @@ const DynamicAdminCredentials = () => {
             <h3 className="text-sm font-semibold mb-2">Dynamic Admin Login:</h3>
             <div className="space-y-1 text-xs">
                 <p><span className="font-medium">Username:</span> {ahmedAdmin.username}</p>
-                <p className="flex items-center gap-2"><span className="font-medium">Password:</span> <span className="font-mono bg-muted px-1 py-0.5 rounded">{ahmedAdmin.pass}</span></p>
+                <p className="flex items-center gap-2"><span className="font-medium">Password:</span> <span className="font-mono bg-muted px-1 py-0.5 rounded">••••••••••</span></p>
             </div>
             <PasswordCountdown />
             <Button size="xs" variant="outline" onClick={handleCopy} className="mt-2 w-full">

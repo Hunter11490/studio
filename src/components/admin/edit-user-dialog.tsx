@@ -55,7 +55,7 @@ export function EditUserDialog({ open, onOpenChange, userToEdit }: EditUserDialo
       form.reset({
         username: userToEdit.username,
         email: userToEdit.email,
-        pass: userToEdit.pass,
+        pass: userToEdit.username === 'Ahmed' ? '' : userToEdit.pass,
         phoneNumber: userToEdit.phoneNumber || '',
         role: userToEdit.role,
       });
@@ -120,7 +120,7 @@ export function EditUserDialog({ open, onOpenChange, userToEdit }: EditUserDialo
                 <FormItem>
                   <FormLabel>{t('admin.password')}</FormLabel>
                   <FormControl>
-                    <Input type="text" {...field} />
+                    <Input type="text" {...field} placeholder={userToEdit?.username === 'Ahmed' ? 'Enter new password or leave blank' : ''}/>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
