@@ -114,11 +114,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         phoneNumber,
         email,
         role: 'user',
-        status: 'active',
+        status: isApprovalSystemEnabled ? 'pending' : 'active',
     };
     setStoredUsers(prev => [...prev, newUser]);
     return true;
-  }, [storedUsers, setStoredUsers]);
+  }, [storedUsers, setStoredUsers, isApprovalSystemEnabled]);
   
   const addUserByAdmin = useCallback((username: string, pass: string, phoneNumber: string, email: string, role: 'admin' | 'user'): boolean => {
     const userExists = storedUsers.some(u => 

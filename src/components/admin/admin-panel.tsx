@@ -61,6 +61,10 @@ export function AdminPanel() {
           <CardHeader>
             <div className="flex flex-wrap items-center justify-between gap-2">
               <CardTitle>{t('admin.usersTable')}</CardTitle>
+              <Button onClick={toggleApprovalSystem} variant={isApprovalSystemEnabled ? "secondary" : "default"} size="sm">
+                {isApprovalSystemEnabled ? <ToggleRight className="mr-2 h-4 w-4" /> : <ToggleLeft className="mr-2 h-4 w-4" />}
+                {t('admin.approvalSystem')}
+              </Button>
             </div>
           </CardHeader>
           <CardContent>
