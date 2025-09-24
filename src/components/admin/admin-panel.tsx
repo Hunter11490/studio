@@ -20,6 +20,12 @@ import { AddUserDialog } from '@/components/admin/add-user-dialog';
 import { EditUserDialog } from '@/components/admin/edit-user-dialog';
 import type { StoredUser, UserStatus } from '@/types';
 import { ScrollArea } from '../ui/scroll-area';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 
 const EXPIRY_DURATION_MS = 33 * 24 * 60 * 60 * 1000;
 
@@ -182,7 +188,7 @@ export function AdminPanel() {
               </div>
             </div>
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-0">
             <ScrollArea className="h-[calc(100vh-250px)]">
                 <Table>
                 <TableHeader>
@@ -280,14 +286,27 @@ export function AdminPanel() {
                 </Table>
             </ScrollArea>
           </CardContent>
-          <CardFooter className="border-t px-6 py-3">
-             <Button onClick={() => setAddUserDialogOpen(true)}>
-                <PlusCircle className="mr-2 h-4 w-4" />
-                {t('admin.addUser')}
-            </Button>
-          </CardFooter>
         </Card>
       </div>
+
+       <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              onClick={() => setAddUserDialogOpen(true)}
+              className="fixed bottom-6 right-6 z-40 h-14 w-14 rounded-full shadow-lg"
+              size="icon"
+            >
+              <PlusCircle className="h-6 w-6" />
+              <span className="sr-only">{t('admin.addUser')}</span>
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent side="left">
+            <p>{t('admin.addUser')}</p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
+
       <AddUserDialog open={isAddUserDialogOpen} onOpenChange={setAddUserDialogOpen} />
       <EditUserDialog 
         open={isEditUserDialogOpen} 
