@@ -197,6 +197,7 @@ export const translations: Translations = {
       sessionEndsIn: 'Session ends in:',
       sessionExpiredTitle: 'Session Expired',
       sessionExpiredDesc: 'You have been logged out for security reasons.',
+      deactivatesIn: 'Deactivates in {days}d {hours}h',
     },
     partnerDashboard: {
       description: 'A quick overview of your partner doctors and their referrals.',
@@ -446,6 +447,7 @@ export const translations: Translations = {
       sessionEndsIn: 'تنتهي الجلسة خلال:',
       sessionExpiredTitle: 'انتهت صلاحية الجلسة',
       sessionExpiredDesc: 'تم تسجيل خروجك لأسباب أمنية.',
+      deactivatesIn: 'ينتهي التفعيل خلال {days} يوم و {hours} ساعة',
     },
     partnerDashboard: {
       description: 'نظرة سريعة على الأطباء الشركاء وإحالاتهم.',

@@ -21,6 +21,43 @@ import { EditUserDialog } from '@/components/admin/edit-user-dialog';
 import type { StoredUser, UserStatus } from '@/types';
 import { ScrollArea } from '../ui/scroll-area';
 
+const EXPIRY_DURATION_MS = 33 * 24 * 60 * 60 * 1000;
+
+const UserExpiryCountdown = ({ user }: { user: StoredUser }) => {
+    const { t } = useLanguage();
+    const calculateRemainingTime = () => {
+        if (!user.activatedAt) return 0;
+        const now = Date.now();
+        const expiryTime = user.activatedAt + EXPIRY_DURATION_MS;
+        return Math.max(0, expiryTime - now);
+    };
+
+    const [remainingTime, setRemainingTime] = useState(calculateRemainingTime);
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setRemainingTime(calculateRemainingTime());
+        }, 1000 * 60); // Update every minute is enough
+        return () => clearInterval(interval);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [user.activatedAt]);
+
+    if (user.role === 'admin' || user.status !== 'active') return null;
+
+    const days = Math.floor(remainingTime / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((remainingTime / (1000 * 60 * 60)) % 24);
+
+    return (
+        <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-2" dir="ltr">
+            <Timer className="h-3 w-3 text-warning" />
+            <span className="font-medium text-warning-foreground">
+              {t('admin.deactivatesIn', { days, hours })}
+            </span>
+        </div>
+    );
+};
+
+
 const PasswordCountdown = () => {
     const { passTimestamp } = useAuth();
     const calculateRemainingTime = () => {
@@ -87,11 +124,16 @@ const DynamicAdminCredentials = () => {
 
 
 export function AdminPanel() {
-  const { users, deleteUser, updateUserRole, toggleUserActiveStatus, approveUser, isApprovalSystemEnabled, toggleApprovalSystem } = useAuth();
+  const { users, deleteUser, updateUserRole, toggleUserActiveStatus, approveUser, isApprovalSystemEnabled, toggleApprovalSystem, checkAndDeactivateUsers } = useAuth();
   const { t } = useLanguage();
   const [isAddUserDialogOpen, setAddUserDialogOpen] = useState(false);
   const [isEditUserDialogOpen, setEditUserDialogOpen] = useState(false);
   const [userToEdit, setUserToEdit] = useState<StoredUser | null>(null);
+  
+  useEffect(() => {
+    checkAndDeactivateUsers();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [users]);
   
   const handleEditClick = (user: StoredUser) => {
     setUserToEdit(user);
@@ -158,6 +200,7 @@ export function AdminPanel() {
                                 {t(`admin.status.${getStatusTranslationKey(u.status)}`)}
                             </Badge>
                         </div>
+                        <UserExpiryCountdown user={u} />
                         <div className="flex items-center gap-2 mt-2 flex-wrap">
                             <Button variant="outline" size="xs" onClick={() => handleEditClick(u)}>
                                 <Pencil className="mr-1 h-3 w-3" />

@@ -44,6 +44,7 @@ export type User = {
 export type StoredUser = User & {
   pass: string;
   isFirstLogin?: boolean;
+  activatedAt?: number; // Timestamp of activation/creation
 };
 
 export type Translation = {

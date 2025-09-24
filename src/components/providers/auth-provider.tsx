@@ -24,6 +24,7 @@ export type AuthContextType = {
   isApprovalSystemEnabled: boolean;
   toggleApprovalSystem: () => void;
   forceAhmedPasswordChange: () => void;
+  checkAndDeactivateUsers: () => void;
 };
 
 const USERS_STORAGE_KEY = 'iraqi_doctors_users_v3';
@@ -32,7 +33,8 @@ const APPROVAL_SYSTEM_KEY = 'iraqi_doctors_approval_system_enabled_v1';
 const DYNAMIC_ADMIN_PASS_KEY = 'iraqi_doctors_dynamic_admin_pass_v1';
 const PASS_TIMESTAMP_KEY = 'iraqi_doctors_pass_timestamp_v1';
 
-const PASSWORD_LIFESPAN_MS = 24 * 60 * 60 * 1000; // 24 hours
+const PASSWORD_LIFESPAN_MS = 24 * 60 * 60 * 1000;
+const USER_EXPIRY_DURATION_MS = 33 * 24 * 60 * 60 * 1000;
 
 const generateDeterministicPassword = () => {
     const now = Date.now();
@@ -47,7 +49,7 @@ const generateDeterministicPassword = () => {
         return x - Math.floor(x);
     };
 
-    const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()";
+    const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
     let password = "";
     for (let i = 0; i < 10; i++) {
         password += charset.charAt(Math.floor(pseudoRandom() * charset.length));
@@ -205,6 +207,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         role: 'user',
         status: isApprovalSystemEnabled ? 'pending' : 'active',
         isFirstLogin: true,
+        activatedAt: isApprovalSystemEnabled ? undefined : Date.now(),
     };
     setStoredUsers(prev => [...prev, newUser]);
     return true;
@@ -227,6 +230,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         role,
         status: 'active',
         isFirstLogin: role === 'user', // Admins don't need the welcome dialog
+        activatedAt: Date.now(),
     };
     setStoredUsers(prev => [...prev, newUser]);
     return true;
@@ -251,7 +255,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const newUsers = prev.map(u => {
             if (u.id === userId) {
                 const newStatus = u.status === 'active' ? 'banned' : 'active';
-                return { ...u, status: newStatus };
+                const newActivatedAt = newStatus === 'active' ? Date.now() : u.activatedAt;
+                return { ...u, status: newStatus, activatedAt: newActivatedAt };
             }
             return u;
         });
@@ -261,7 +266,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   
   const approveUser = useCallback((userId: string) => {
     setStoredUsers(prev => prev.map(u => 
-      u.id === userId && u.status === 'pending' ? { ...u, status: 'active' } : u
+      u.id === userId && u.status === 'pending' ? { ...u, status: 'active', activatedAt: Date.now() } : u
     ));
   }, [setStoredUsers]);
 
@@ -312,6 +317,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setIsApprovalSystemEnabled(prev => !prev);
   }, [setIsApprovalSystemEnabled]);
   
+  const checkAndDeactivateUsers = useCallback(() => {
+    const now = Date.now();
+    const updatedUsers = storedUsers.map(u => {
+        if (u.role === 'user' && u.status === 'active' && u.activatedAt) {
+            if (now - u.activatedAt > USER_EXPIRY_DURATION_MS) {
+                return { ...u, status: 'banned' as UserStatus };
+            }
+        }
+        return u;
+    });
+    // Prevent infinite loops by only setting state if there's a change
+    if (JSON.stringify(updatedUsers) !== JSON.stringify(storedUsers)) {
+        setStoredUsers(updatedUsers);
+    }
+  }, [storedUsers, setStoredUsers]);
+  
   const value = useMemo(() => ({
     user,
     users: allUsers,
@@ -330,8 +351,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     isApprovalSystemEnabled,
     toggleApprovalSystem,
     forceAhmedPasswordChange,
-  }), [user, allUsers, isLoading, sessionExpiresAt, passTimestamp, login, signup, logout, addUserByAdmin, deleteUser, updateUserRole, toggleUserActiveStatus, approveUser, updateUser, isApprovalSystemEnabled, toggleApprovalSystem, forceAhmedPasswordChange]);
+    checkAndDeactivateUsers,
+  }), [user, allUsers, isLoading, sessionExpiresAt, passTimestamp, login, signup, logout, addUserByAdmin, deleteUser, updateUserRole, toggleUserActiveStatus, approveUser, updateUser, isApprovalSystemEnabled, toggleApprovalSystem, forceAhmedPasswordChange, checkAndDeactivateUsers]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
-    
