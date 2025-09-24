@@ -21,6 +21,7 @@ import { PlusCircle, Stethoscope, BrainCircuit, Database, CheckCircle, ArrowRigh
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
 import { Card, CardContent } from './ui/card';
+import { Logo } from './logo';
 
 type WelcomeDialogProps = {
   open: boolean;
@@ -62,61 +63,73 @@ export function WelcomeDialog({ open, onOpenChange, onFinished }: WelcomeDialogP
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg" onInteractOutside={(e) => e.preventDefault()}>
-        <DialogHeader>
-          <DialogTitle className="font-headline text-2xl text-center">{t('welcome.title')}</DialogTitle>
-          <DialogDescription className="text-center">
-            {t('welcome.description')}
-          </DialogDescription>
-        </DialogHeader>
+      <DialogContent 
+        className="sm:max-w-2xl bg-card shadow-2xl overflow-hidden transition-all duration-300 data-[state=open]:scale-100 scale-95" 
+        onInteractOutside={(e) => e.preventDefault()}
+      >
+        <div className="absolute inset-0 bg-gradient-to-br from-background via-transparent to-primary/5 opacity-80" />
+         <div className="absolute -bottom-1/4 -right-1/4 w-1/2 h-1/2 rounded-full bg-primary/5 blur-3xl" />
+         <div className="absolute -top-1/4 -left-1/4 w-1/2 h-1/2 rounded-full bg-accent/5 blur-3xl" />
 
-        <Carousel 
-            className="w-full"
-            opts={{ direction: lang === 'ar' ? 'rtl' : 'ltr', loop: true }}
-            onSelect={(api) => {
-                if (api) setStep(api.selectedScrollSnap());
-            }}
-        >
-            <CarouselContent>
-                {steps.map((s, index) => (
-                    <CarouselItem key={index}>
-                        <div className="p-1">
-                            <Card className="bg-secondary/50 border-dashed">
-                                <CardContent className="flex flex-col items-center justify-center p-6 gap-4 text-center aspect-video">
-                                    <s.icon className="w-12 h-12 text-primary" />
-                                    <h3 className="text-lg font-semibold">{s.title}</h3>
-                                    <p className="text-sm text-muted-foreground">{s.description}</p>
-                                </CardContent>
-                            </Card>
-                        </div>
-                    </CarouselItem>
+        <div className="relative z-10">
+            <DialogHeader className="items-center text-center mb-4">
+              <Logo className="h-16 w-16 text-primary mb-2" />
+              <DialogTitle className="font-headline text-2xl animate-glow">{t('welcome.title')}</DialogTitle>
+              <DialogDescription>
+                {t('welcome.description')}
+              </DialogDescription>
+            </DialogHeader>
+
+            <Carousel 
+                className="w-full"
+                opts={{ direction: lang === 'ar' ? 'rtl' : 'ltr', loop: true }}
+                onSelect={(api) => {
+                    if (api) setStep(api.selectedScrollSnap());
+                }}
+            >
+                <CarouselContent>
+                    {steps.map((s, index) => (
+                        <CarouselItem key={index}>
+                            <div className="p-1">
+                                <Card className="bg-background/70 backdrop-blur-sm border-dashed min-h-[280px]">
+                                    <CardContent className="flex flex-col items-center justify-center p-6 gap-4 text-center h-full">
+                                        <s.icon className="w-16 h-16 text-primary" />
+                                        <h3 className="text-xl font-semibold">{s.title}</h3>
+                                        <p className="text-sm text-muted-foreground leading-relaxed">{s.description}</p>
+                                    </CardContent>
+                                </Card>
+                            </div>
+                        </CarouselItem>
+                    ))}
+                </CarouselContent>
+                <CarouselPrevious className="hidden sm:flex" />
+                <CarouselNext className="hidden sm:flex" />
+            </Carousel>
+
+            <div className="flex justify-center items-center gap-2 mt-4">
+                {steps.map((_, index) => (
+                    <button
+                        key={index}
+                        onClick={() => {}} // Could add functionality to jump to slide
+                        className={cn("h-2 rounded-full transition-all duration-300", step === index ? 'w-6 bg-primary' : 'w-2 bg-muted hover:bg-muted-foreground/50')}
+                        aria-label={`Go to slide ${index + 1}`}
+                    />
                 ))}
-            </CarouselContent>
-            <CarouselPrevious />
-            <CarouselNext />
-        </Carousel>
-
-        <div className="flex justify-center items-center gap-2">
-            {steps.map((_, index) => (
-                <div 
-                    key={index}
-                    className={cn("h-2 w-2 rounded-full transition-all", step === index ? 'w-4 bg-primary' : 'bg-muted')}
-                />
-            ))}
-        </div>
-
-        <DialogFooter>
-          {step === steps.length - 1 ? (
-             <Button onClick={onFinished} className="w-full">
-                {t('common.finish')}
-                {lang === 'en' ? <ArrowRight className="ml-2 h-4 w-4" /> : <ArrowLeft className="mr-2 h-4 w-4" />}
-            </Button>
-          ): (
-            <div className="w-full text-center text-xs text-muted-foreground">
-                {t('common.next')} / {t('common.previous')}
             </div>
-          )}
-        </DialogFooter>
+
+            <DialogFooter className="mt-6">
+              {step === steps.length - 1 ? (
+                 <Button onClick={onFinished} className="w-full animate-pulse-glow">
+                    {t('common.finish')}
+                    {lang === 'en' ? <ArrowRight className="ml-2 h-4 w-4" /> : <ArrowLeft className="mr-2 h-4 w-4" />}
+                </Button>
+              ): (
+                <div className="w-full text-center text-xs text-muted-foreground">
+                    {t('common.next')} / {t('common.previous')}
+                </div>
+              )}
+            </DialogFooter>
+        </div>
       </DialogContent>
     </Dialog>
   );
