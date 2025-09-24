@@ -184,22 +184,6 @@
     --input: 215 35% 20%;
     --ring: 220 90% 65%;
   }
-  
-  .rainbow {
-    animation: rainbow-bg-animation 15s linear infinite;
-  }
-  
-  .dark.rainbow {
-    animation: rainbow-bg-animation-dark 15s linear infinite;
-  }
-  
-  .rainbow .animate-glow,
-  .rainbow .text-primary,
-  .rainbow .border-primary,
-  .rainbow .ring-primary,
-  .rainbow .bg-primary {
-      animation: rainbow-text-animation 15s linear infinite;
-  }
 }
 
 
@@ -236,28 +220,6 @@
 
   .animate-glow {
     animation: glow 2.5s ease-in-out infinite;
-  }
-  
-  @keyframes rainbow-text-animation {
-    0% { --primary-hue: 0; }
-    100% { --primary-hue: 360; }
-  }
-  
-  @keyframes rainbow-bg-animation {
-    0% { --bg-hue: 0; }
-    100% { --bg-hue: 360; }
-  }
-  
-  .rainbow {
-    --primary: hsl(var(--primary-hue, 0), 90%, 50%);
-    --background: hsl(var(--bg-hue, 0), 13%, 91%);
-    animation: rainbow-bg-animation 15s linear infinite, rainbow-text-animation 15s linear infinite reverse;
-  }
-  
-  .dark.rainbow {
-    --primary: hsl(var(--primary-hue, 0), 90%, 60%);
-    --background: hsl(var(--bg-hue, 0), 71%, 4%);
-    animation: rainbow-bg-animation 15s linear infinite, rainbow-text-animation 15s linear infinite reverse;
   }
 
   @keyframes pulse-glow {
