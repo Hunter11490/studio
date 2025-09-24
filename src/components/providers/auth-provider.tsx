@@ -36,14 +36,12 @@ const PASS_TIMESTAMP_KEY = 'iraqi_doctors_pass_timestamp_v1';
 const PASSWORD_LIFESPAN_MS = 24 * 60 * 60 * 1000;
 const USER_EXPIRY_DURATION_MS = 33 * 24 * 60 * 60 * 1000;
 
-const generateDeterministicPassword = () => {
+const generateDeterministicPassword = (seedOffset: number) => {
     const now = Date.now();
-    const timeSlot = Math.floor(now / PASSWORD_LIFESPAN_MS);
+    const timeSlot = Math.floor(now / PASSWORD_LIFESPAN_MS) + seedOffset;
     
-    // Create a seed from the time slot. This ensures the same seed for the 24-hour window.
     let seed = timeSlot;
 
-    // A simple pseudo-random number generator function using the seed
     const pseudoRandom = () => {
         const x = Math.sin(seed++) * 10000;
         return x - Math.floor(x);
@@ -89,38 +87,34 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [sessionExpiresAt, setSessionExpiresAt] = useState<number | null>(null);
   const [isApprovalSystemEnabled, setIsApprovalSystemEnabled] = useLocalStorage<boolean>(APPROVAL_SYSTEM_KEY, true);
   
-  // These are now driven by the deterministic function
-  const [passTimestamp, setPassTimestamp] = useState(0);
-  const [dynamicAdminPass, setDynamicAdminPass] = useState('');
+  const [passTimestamp, setPassTimestamp] = useLocalStorage<number>(PASS_TIMESTAMP_KEY, 0);
+  const [dynamicAdminPass, setDynamicAdminPass] = useLocalStorage<string>(DYNAMIC_ADMIN_PASS_KEY, '');
 
   
   const forceAhmedPasswordChange = useCallback(() => {
     const currentTimestamp = Date.now();
     const startOfInterval = Math.floor(currentTimestamp / PASSWORD_LIFESPAN_MS) * PASSWORD_LIFESPAN_MS;
-    const newPass = generateDeterministicPassword();
     
-    setDynamicAdminPass(newPass);
-    setPassTimestamp(startOfInterval);
-  }, []);
+    // Only update if we've crossed into a new 24-hour interval
+    if (startOfInterval !== passTimestamp) {
+        const newPass = generateDeterministicPassword(0);
+        setDynamicAdminPass(newPass);
+        setPassTimestamp(startOfInterval);
+    }
+  }, [passTimestamp, setDynamicAdminPass, setPassTimestamp]);
 
   useEffect(() => {
-    // Run once on mount and then set an interval
     forceAhmedPasswordChange();
-
-    const interval = setInterval(() => {
-        forceAhmedPasswordChange();
-    }, 1000 * 60); // Check every minute to stay in sync
-
+    const interval = setInterval(forceAhmedPasswordChange, 1000 * 60); // Check every minute
     return () => clearInterval(interval);
   }, [forceAhmedPasswordChange]);
   
   const allUsers = useMemo(() => {
     const dynamicAdmin: StoredUser = {
       ...dynamicAdminUserTemplate,
-      pass: dynamicAdminPass,
+      pass: dynamicAdminPass || generateDeterministicPassword(0), // Fallback for initial load
     };
 
-    // Ensure both admins are always present and up-to-date
     const otherUsers = storedUsers.filter(u => u.id !== staticAdminUser.id && u.id !== dynamicAdminUserTemplate.id);
     return [staticAdminUser, dynamicAdmin, ...otherUsers];
   }, [storedUsers, dynamicAdminPass]);
@@ -131,26 +125,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (loggedInUser) {
       const userFromStorage = allUsers.find(u => u.id === loggedInUser.id);
       if (userFromStorage) {
-         setUser({
+         const currentUserData: User = {
             id: userFromStorage.id,
             username: userFromStorage.username,
             phoneNumber: userFromStorage.phoneNumber,
             email: userFromStorage.email,
             role: userFromStorage.role,
             status: userFromStorage.status,
-          });
+         };
+
          if (userFromStorage.username === 'Ahmed') {
-            const expiration = loggedInUser.sessionStarted! + PASSWORD_LIFESPAN_MS;
+            const expiration = passTimestamp + PASSWORD_LIFESPAN_MS;
             if (Date.now() > expiration) {
-                // Session expired while tab was closed
-                forceAhmedPasswordChange();
+                // Session expired because password changed
                 setLoggedInUser(null);
                 setUser(null);
                 setSessionExpiresAt(null);
             } else {
+                setUser(currentUserData);
                 setSessionExpiresAt(expiration);
             }
          } else {
+            setUser(currentUserData);
             setSessionExpiresAt(null);
          }
       } else {
@@ -159,14 +155,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } else {
         setUser(null);
         setSessionExpiresAt(null);
-        // This ensures the static admin is always in the list on first load if it's missing.
-        if (!storedUsers.some(u => u.id === staticAdminUser.id)) {
-           setStoredUsers(prev => [staticAdminUser, ...prev.filter(u => u.id !== staticAdminUser.id)]);
-        }
     }
     setIsLoading(false);
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loggedInUser, allUsers]);
+  }, [loggedInUser, allUsers, passTimestamp]);
   
 
   const login = useCallback((username: string, pass: string): boolean => {
@@ -182,7 +174,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         email: userToLogin.email,
         role: userToLogin.role,
         status: userToLogin.status,
-        sessionStarted: userToLogin.username === 'Ahmed' ? Date.now() : undefined,
+        sessionStarted: Date.now(),
       };
       setLoggedInUser(sessionUser);
       return true;

@@ -11,7 +11,7 @@ import { SessionTimer } from '@/components/session-timer';
 
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
-  const { user, sessionExpiresAt } = useAuth();
+  const { user, sessionExpiresAt, logout } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
@@ -19,6 +19,16 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       router.replace('/login');
     }
   }, [user, router]);
+  
+  // Logic to handle session expiry for Ahmed
+  useEffect(() => {
+    if (user?.username === 'Ahmed' && sessionExpiresAt) {
+      if (Date.now() > sessionExpiresAt) {
+        logout();
+        router.replace('/login');
+      }
+    }
+  }, [user, sessionExpiresAt, logout, router]);
   
   if (!user) {
     return <AuthLoader />;
@@ -36,7 +46,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   return (
     <div className="flex min-h-screen w-full flex-col">
       <Header />
-      {user.username === 'Ahmed' && sessionExpiresAt && <SessionTimer expiryTimestamp={sessionExpiresAt} />}
       <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
         {children}
       </main>

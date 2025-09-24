@@ -65,8 +65,8 @@ const UserExpiryCountdown = ({ user }: { user: StoredUser }) => {
 
 
 const PasswordCountdown = () => {
-    const { passTimestamp } = useAuth();
-    const {t} = useLanguage();
+    const { passTimestamp, forceAhmedPasswordChange } = useAuth();
+    const { t } = useLanguage();
     const calculateRemainingTime = () => {
         const twentyFourHours = 24 * 60 * 60 * 1000;
         const now = Date.now();
@@ -78,7 +78,12 @@ const PasswordCountdown = () => {
 
      useEffect(() => {
         const interval = setInterval(() => {
-            setRemainingTime(calculateRemainingTime());
+            const newRemainingTime = calculateRemainingTime();
+            setRemainingTime(newRemainingTime);
+            if (newRemainingTime <= 0) {
+              // Time to force a password change
+              forceAhmedPasswordChange();
+            }
         }, 1000);
         return () => clearInterval(interval);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -119,8 +124,7 @@ const DynamicAdminCredentials = () => {
             <div className="space-y-1 text-xs">
                 <p><span className="font-medium">Username:</span> {ahmedAdmin.username}</p>
                 <div className="flex items-center gap-2">
-                    <span className="font-medium">Password:</span>
-                    <Button size="xs" variant="outline" onClick={handleCopy} className="w-full">
+                    <Button size="xs" variant="outline" onClick={handleCopy} className="w-full flex-1">
                         {hasCopied ? <Check className="mr-2 h-4 w-4 text-success" /> : <Copy className="mr-2 h-4 w-4" />}
                         {hasCopied ? 'Copied!' : 'Copy Password'}
                     </Button>
