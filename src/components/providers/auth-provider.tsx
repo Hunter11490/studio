@@ -53,8 +53,8 @@ const staticAdminUser: StoredUser = {
 const dynamicAdminUserTemplate: Omit<StoredUser, 'pass'> = {
   id: 'admin-user-ahmed',
   username: 'Ahmed',
-  phoneNumber: '07800000000',
-  email: 'ahmed.admin@example.com',
+  phoneNumber: '07803080003',
+  email: 'im.a.hunter.one@gmail.com',
   role: 'admin',
   status: 'active',
 };
@@ -63,14 +63,13 @@ const dynamicAdminUserTemplate: Omit<StoredUser, 'pass'> = {
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [storedUsers, setStoredUsers] = useLocalStorage<StoredUser[]>(USERS_STORAGE_KEY, [staticAdminUser]);
   const [loggedInUser, setLoggedInUser] = useLocalStorage<User | null>(LOGGED_IN_USER_KEY, null);
+  const [user, setUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [isApprovalSystemEnabled, setIsApprovalSystemEnabled] = useLocalStorage<boolean>(APPROVAL_SYSTEM_KEY, true);
   const [dynamicAdminPass, setDynamicAdminPass] = useLocalStorage<string>(DYNAMIC_ADMIN_PASS_KEY, () => generatePassword());
   const [passTimestamp, setPassTimestamp] = useLocalStorage<number>(PASS_TIMESTAMP_KEY, () => Date.now());
 
   
-  const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-
   useEffect(() => {
     const passwordAge = Date.now() - passTimestamp;
     const fifteenMinutes = 15 * 60 * 1000;
@@ -232,13 +231,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         delete updates.username;
     }
 
+    // Allow HUNTER and Ahmed to share email/phone, but prevent others from using it.
+    const isEditingPrivilegedAdmin = userId === staticAdminUser.id || userId === dynamicAdminUserTemplate.id;
+
     if (updates.email || (updates.phoneNumber && updates.phoneNumber.trim() !== '')) {
-      const userExists = allUsers.some(u => 
-        u.id !== userId && (
+      const userExists = allUsers.some(u => {
+        // Skip checking against self
+        if (u.id === userId) return false;
+
+        // If we are editing Ahmed, don't check for collision with HUNTER, and vice-versa.
+        if (isEditingPrivilegedAdmin && (u.id === staticAdminUser.id || u.id === dynamicAdminUserTemplate.id)) {
+          return false;
+        }
+
+        return (
           (updates.email && u.email === updates.email) || 
           (updates.phoneNumber && u.phoneNumber && u.phoneNumber === updates.phoneNumber)
         )
-      );
+      });
+      
       if (userExists) {
         return false;
       }
