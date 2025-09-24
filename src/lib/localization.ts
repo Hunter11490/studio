@@ -238,17 +238,12 @@ export const translations: Translations = {
     },
     welcome: {
       title: "Welcome to Spirit!",
-      description: "Your intelligent, offline-first medical directory. Let's begin a quick journey through your new assistant's capabilities.",
-      step1Title: "Build Your Directory",
-      step1Desc: "Tap 'Add Doctor' to begin. All information is stored securely on your device, accessible anytime, anywhere, even offline.",
-      step2Title: "Manage Referrals Seamlessly",
-      step2Desc: "Track patient referrals effortlessly. Adjust counts with a tap and add detailed case notes to maintain perfect records.",
-      step3Title: "Harness AI Power",
-      step3Desc: "From the user menu, chat with your AI Medical Assistant or use Internet Search to discover new doctors, complete with their contact details.",
-      step4Title: "Secure Your Data",
-      step4Desc: "Your work is precious. Use 'Backup' and 'Restore' from the user menu to safeguard your data or transfer it to another device.",
-      step5Title: "You're Ready to Go!",
-      step5Desc: "The application is now at your command. Dive in and start transforming the way you manage your professional network.",
+      description: "Your intelligent medical directory. Here are some key features to get you started:",
+      feature1: "Build Your Directory: Add, edit, and manage your list of doctors.",
+      feature2: "Manage Referrals: Easily track patient referrals and case notes.",
+      feature3: "Harness AI Power: Use AI to find new doctors or chat with a medical assistant.",
+      feature4: "Secure Your Data: Backup and restore your data anytime.",
+      start: "Let's Get Started"
     }
   },
   ar: {
@@ -488,17 +483,12 @@ export const translations: Translations = {
     },
     welcome: {
       title: "أهلاً بك في روح!",
-      description: "دليلك الطبي الذكي الذي يعمل بدون إنترنت. لنبدأ رحلة سريعة لاستكشاف قدرات مساعدك الجديد.",
-      step1Title: "ابنِ دليلك الخاص",
-      step1Desc: "اضغط على 'إضافة طبيب' للبدء. تُحفظ جميع معلوماتك بأمان على جهازك، ويمكن الوصول إليها في أي وقت ومكان، حتى بدون اتصال بالإنترنت.",
-      step2Title: "إدارة الإحالات بسلاسة",
-      step2Desc: "تتبّع إحالات المرضى بسهولة. عدّل الأرقام بنقرة واحدة وأضف ملاحظات تفصيلية للحالات للحفاظ على سجلات مثالية.",
-      step3Title: "استثمر قوة الذكاء الاصطناعي",
-      step3Desc: "من قائمة المستخدم، تحدث مع مساعدك الطبي الذكي أو استخدم البحث عبر الإنترنت لاكتشاف أطباء جدد مع تفاصيل الاتصال بهم.",
-      step4Title: "أمّن بياناتك الثمينة",
-      step4Desc: "عملك يستحق الحماية. استخدم خياري 'النسخ الاحتياطي' و 'الاستعادة' من قائمة المستخدم للحفاظ على بياناتك أو نقلها إلى جهاز آخر.",
-      step5Title: "أنت الآن مستعد للانطلاق!",
-      step5Desc: "التطبيق الآن بين يديك. انطلق وابدأ في تحويل طريقتك في إدارة شبكتك المهنية.",
+      description: "دليلك الطبي الذكي. إليك بعض الميزات الرئيسية لتبدأ:",
+      feature1: "ابنِ دليلك: أضف، عدّل، وأدر قائمة الأطباء الخاصة بك.",
+      feature2: "إدارة الإحالات: تتبّع إحالات المرضى وملاحظات الحالات بسهولة.",
+      feature3: "استثمر قوة الذكاء الاصطناعي: استخدم الذكاء الاصطناعي للعثور على أطباء جدد.",
+      feature4: "أمّن بياناتك: قم بعمل نسخة احتياطية واستعادة لبياناتك في أي وقت.",
+      start: "لنبدأ"
     }
   },
 };
