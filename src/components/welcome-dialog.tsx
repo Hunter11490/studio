@@ -64,7 +64,7 @@ export function WelcomeDialog({ open, onOpenChange, onFinished }: WelcomeDialogP
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent 
-        className="sm:max-w-xl bg-card shadow-2xl overflow-hidden transition-all duration-300 data-[state=open]:scale-100 scale-95" 
+        className="sm:max-w-lg bg-card shadow-2xl overflow-hidden transition-all duration-300 data-[state=open]:scale-100 scale-95" 
         onInteractOutside={(e) => e.preventDefault()}
       >
         <div className="absolute inset-0 bg-gradient-to-br from-background via-transparent to-primary/5 opacity-80" />
@@ -91,7 +91,7 @@ export function WelcomeDialog({ open, onOpenChange, onFinished }: WelcomeDialogP
                     {steps.map((s, index) => (
                         <CarouselItem key={index}>
                             <div className="p-1">
-                                <Card className="bg-background/70 backdrop-blur-sm border-dashed min-h-[280px]">
+                                <Card className="bg-background/70 backdrop-blur-sm border-dashed min-h-[240px]">
                                     <CardContent className="flex flex-col items-center justify-center p-6 gap-4 text-center h-full">
                                         <s.icon className="w-16 h-16 text-primary" />
                                         <h3 className="text-xl font-semibold">{s.title}</h3>
