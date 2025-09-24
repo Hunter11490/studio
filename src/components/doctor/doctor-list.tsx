@@ -19,32 +19,71 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { MoreHorizontal, Pencil, Trash2, Star, ClipboardList } from 'lucide-react';
-import { Badge } from '../ui/badge';
+import { MoreHorizontal, Pencil, Trash2, Star, ClipboardList, Plus, Minus } from 'lucide-react';
 import { DoctorFormDialog } from './doctor-form-dialog';
 import { ConfirmationDialog } from '../confirmation-dialog';
 import { ReferralNotesDialog } from './referral-notes-dialog';
+import { cn } from '@/lib/utils';
+import { Separator } from '../ui/separator';
 
 function DoctorRow({ doctor }: { doctor: Doctor }) {
   const { t } = useLanguage();
-  const { deleteDoctor } = useDoctors();
+  const { deleteDoctor, updateDoctor } = useDoctors();
   const [isEditing, setEditing] = useState(false);
   const [isReferralSheetOpen, setReferralSheetOpen] = useState(false);
+  
+  const referralCount = doctor.referralCount || 0;
+  const commission = referralCount * 100;
+
+  const handleReferralChange = (amount: number) => {
+    const newCount = Math.max(0, referralCount + amount);
+    const newNotes = [...(doctor.referralNotes || [])];
+    
+    while (newNotes.length < newCount) {
+        newNotes.push({ patientName: '', referralDate: '', testType: '', patientAge: '', chronicDiseases: '' });
+    }
+    if (newNotes.length > newCount) {
+        newNotes.length = newCount;
+    }
+
+    updateDoctor(doctor.id, { referralCount: newCount, referralNotes: newNotes });
+  };
+
 
   return (
     <>
-      <TableRow>
-        <TableCell>
+      <TableRow className="align-top">
+        <TableCell className="py-2">
           <div className="flex items-center gap-2">
-            {doctor.isPartner && <Star className="h-4 w-4 text-primary" />}
+            {doctor.isPartner && <Star className="h-4 w-4 text-primary flex-shrink-0" />}
             <div className="font-medium">{doctor.name}</div>
           </div>
+          <div className="text-sm text-muted-foreground">{doctor.specialty}</div>
         </TableCell>
-        <TableCell className="hidden md:table-cell">{doctor.specialty}</TableCell>
-        <TableCell className="hidden sm:table-cell">
-          <Badge variant="secondary">{doctor.referralCount}</Badge>
+        
+        <TableCell className="hidden sm:table-cell py-2">
+           <div className="flex flex-col gap-2 w-48">
+             <div className="flex items-center justify-between">
+              <span className="text-xs text-muted-foreground">{t('doctorCard.referrals')}</span>
+              <div className="flex items-center gap-1">
+                <Button size="icon" variant="ghost" className="h-5 w-5 rounded-full" onClick={() => handleReferralChange(-1)} disabled={referralCount <= 0}>
+                  <Minus className="h-3 w-3" />
+                </Button>
+                <span className="font-bold w-4 text-center text-sm">{referralCount}</span>
+                <Button size="icon" variant="ghost" className="h-5 w-5 rounded-full" onClick={() => handleReferralChange(1)}>
+                  <Plus className="h-3 w-3" />
+                </Button>
+              </div>
+            </div>
+            <Separator />
+            <div className="flex items-center justify-between">
+                <span className="text-xs text-muted-foreground">{t('doctorCard.commission')}</span>
+                <span className="text-xs font-semibold text-accent">{commission.toLocaleString()} {t('doctorCard.usd')}</span>
+            </div>
+           </div>
         </TableCell>
-        <TableCell>
+        
+        <TableCell className="py-2">
           <div className="flex justify-end">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -96,12 +135,11 @@ export function DoctorList({ doctors }: { doctors: Doctor[] }) {
     const { t } = useLanguage();
 
     return (
-        <div className="border rounded-lg w-full">
+        <div className="border rounded-lg w-full bg-card">
             <Table>
                 <TableHeader>
                 <TableRow>
                     <TableHead>{t('doctorList.name')}</TableHead>
-                    <TableHead className="hidden md:table-cell">{t('doctorList.specialty')}</TableHead>
                     <TableHead className="hidden sm:table-cell">{t('doctorCard.referrals')}</TableHead>
                     <TableHead>
                     <span className="sr-only">{t('doctorList.actions')}</span>
