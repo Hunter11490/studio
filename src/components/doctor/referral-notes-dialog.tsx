@@ -26,9 +26,11 @@ type ReferralNotesDialogProps = {
   doctor: Doctor;
 };
 
-type CaseExportData = {
-  [key: string]: string;
-}
+// Helper to get today's date in YYYY-MM-DD format
+const getTodayDateString = () => {
+    const today = new Date();
+    return today.toISOString().split('T')[0];
+};
 
 export function ReferralNotesDialog({ open, onOpenChange, doctor }: ReferralNotesDialogProps) {
   const { updateDoctor } = useDoctors();
@@ -45,6 +47,7 @@ export function ReferralNotesDialog({ open, onOpenChange, doctor }: ReferralNote
           return {
             patientName: existingCase?.patientName || '',
             referralDate: existingCase?.referralDate || '',
+            testDate: existingCase?.testDate || getTodayDateString(),
             testType: existingCase?.testType || '',
             patientAge: existingCase?.patientAge || '',
             chronicDiseases: existingCase?.chronicDiseases || '',
@@ -81,7 +84,7 @@ export function ReferralNotesDialog({ open, onOpenChange, doctor }: ReferralNote
   };
   
   const handleAddCase = () => {
-    setCases(prev => [...prev, { patientName: '', referralDate: '', testType: '', patientAge: '', chronicDiseases: '' }]);
+    setCases(prev => [...prev, { patientName: '', referralDate: '', testDate: getTodayDateString(), testType: '', patientAge: '', chronicDiseases: '' }]);
   };
   
   const handleRemoveCase = () => {
@@ -107,6 +110,7 @@ export function ReferralNotesDialog({ open, onOpenChange, doctor }: ReferralNote
     const headers = {
       patientName: t('referralNotes.patientName'),
       referralDate: t('referralNotes.referralDate'),
+      testDate: t('referralNotes.testDate'),
       testType: t('referralNotes.testType'),
       patientAge: t('referralNotes.patientAge'),
       chronicDiseases: t('referralNotes.chronicDiseases'),
@@ -115,6 +119,7 @@ export function ReferralNotesDialog({ open, onOpenChange, doctor }: ReferralNote
     const dataToExport = cases.map(c => ({
       [headers.patientName]: c.patientName,
       [headers.referralDate]: c.referralDate,
+      [headers.testDate]: c.testDate,
       [headers.testType]: c.testType,
       [headers.patientAge]: c.patientAge,
       [headers.chronicDiseases]: c.chronicDiseases,
@@ -169,6 +174,15 @@ export function ReferralNotesDialog({ open, onOpenChange, doctor }: ReferralNote
                         type="date"
                         value={caseItem.referralDate}
                         onChange={(e) => handleCaseChange(index, 'referralDate', e.target.value)}
+                        />
+                    </div>
+                     <div className="grid gap-2">
+                        <Label htmlFor={`test-date-${index}`}>{t('referralNotes.testDate')}</Label>
+                        <Input
+                        id={`test-date-${index}`}
+                        type="date"
+                        value={caseItem.testDate}
+                        onChange={(e) => handleCaseChange(index, 'testDate', e.target.value)}
                         />
                     </div>
                     <div className="grid gap-2">

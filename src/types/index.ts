@@ -1,6 +1,7 @@
 export type ReferralCase = {
   patientName: string;
   referralDate: string;
+  testDate: string; // New field for test date
   testType: string;
   patientAge: string;
   chronicDiseases: string;

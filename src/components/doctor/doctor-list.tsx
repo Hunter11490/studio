@@ -26,6 +26,12 @@ import { ReferralNotesDialog } from './referral-notes-dialog';
 import { cn } from '@/lib/utils';
 import { Separator } from '../ui/separator';
 
+// Helper to get today's date in YYYY-MM-DD format
+const getTodayDateString = () => {
+    const today = new Date();
+    return today.toISOString().split('T')[0];
+};
+
 function DoctorRow({ doctor }: { doctor: Doctor }) {
   const { t } = useLanguage();
   const { deleteDoctor, updateDoctor } = useDoctors();
@@ -40,7 +46,7 @@ function DoctorRow({ doctor }: { doctor: Doctor }) {
     const newNotes = [...(doctor.referralNotes || [])];
     
     while (newNotes.length < newCount) {
-        newNotes.push({ patientName: '', referralDate: '', testType: '', patientAge: '', chronicDiseases: '' });
+        newNotes.push({ patientName: '', referralDate: '', testDate: getTodayDateString(), testType: '', patientAge: '', chronicDiseases: '' });
     }
     if (newNotes.length > newCount) {
         newNotes.length = newCount;

@@ -32,6 +32,12 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 
+// Helper to get today's date in YYYY-MM-DD format
+const getTodayDateString = () => {
+    const today = new Date();
+    return today.toISOString().split('T')[0];
+};
+
 export function DoctorCard({ doctor }: { doctor: Doctor }) {
   const { updateDoctor, deleteDoctor } = useDoctors();
   const { t } = useLanguage();
@@ -71,7 +77,7 @@ export function DoctorCard({ doctor }: { doctor: Doctor }) {
     const newNotes = [...(doctor.referralNotes || [])];
     
     while (newNotes.length < newCount) {
-        newNotes.push({ patientName: '', referralDate: '', testType: '', patientAge: '', chronicDiseases: '' });
+        newNotes.push({ patientName: '', referralDate: '', testDate: getTodayDateString(), testType: '', patientAge: '', chronicDiseases: '' });
     }
     if (newNotes.length > newCount) {
         newNotes.length = newCount;
@@ -88,7 +94,7 @@ export function DoctorCard({ doctor }: { doctor: Doctor }) {
     <>
       <Card className={cn(
           "flex flex-col overflow-hidden transition-all duration-300",
-          doctor.isPartner && "animate-pulse-glow"
+          doctor.isPartner && "border-primary/50 shadow-lg shadow-primary/20"
         )}>
         <CardHeader className="p-4">
           <div className="flex items-start justify-between gap-4">
@@ -100,7 +106,7 @@ export function DoctorCard({ doctor }: { doctor: Doctor }) {
                           doctor.isPartner ? "text-warning fill-current" : "text-muted-foreground hover:text-warning/80"
                         )} />
                     </Button>
-                    <span>{doctor.name}</span>
+                    <span className={cn(doctor.isPartner && "animate-glow")}>{doctor.name}</span>
                 </CardTitle>
                 <p className="text-sm text-muted-foreground mt-1">{doctor.specialty}</p>
             </div>
@@ -164,7 +170,7 @@ export function DoctorCard({ doctor }: { doctor: Doctor }) {
             <Button variant="outline" size="sm" className="flex-1" onClick={() => setEditing(true)}>
                 <Pencil className="mr-2 h-4 w-4" /> {t('doctorCard.edit')}
             </Button>
-            <Button variant="outline" size="sm" className="flex-1" onClick={() => setReferralSheetOpen(true)}>
+             <Button variant="outline" size="sm" className="flex-1" onClick={() => setReferralSheetOpen(true)}>
                 <ClipboardList className="mr-2 h-4 w-4" /> {t('doctorCard.viewCases')}
             </Button>
             <ConfirmationDialog
