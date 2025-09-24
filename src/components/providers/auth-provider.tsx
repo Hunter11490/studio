@@ -26,11 +26,22 @@ export type AuthContextType = {
 const USERS_STORAGE_KEY = 'iraqi_doctors_users_v3';
 const LOGGED_IN_USER_KEY = 'iraqi_doctors_loggedin_user_v3';
 const APPROVAL_SYSTEM_KEY = 'iraqi_doctors_approval_system_enabled_v1';
+const DYNAMIC_ADMIN_PASS_KEY = 'iraqi_doctors_dynamic_admin_pass_v1';
+const PASS_TIMESTAMP_KEY = 'iraqi_doctors_pass_timestamp_v1';
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const adminUser: StoredUser = {
-  id: 'admin-user',
+const generatePassword = (length = 12) => {
+    const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()";
+    let password = "";
+    for (let i = 0, n = charset.length; i < n; ++i) {
+        password += charset.charAt(Math.floor(Math.random() * n));
+    }
+    return password;
+};
+
+const staticAdminUser: StoredUser = {
+  id: 'admin-user-hunter',
   username: 'HUNTER',
   pass: 'Ah5535670',
   phoneNumber: '07803080003',
@@ -39,21 +50,62 @@ const adminUser: StoredUser = {
   status: 'active',
 };
 
+const dynamicAdminUserTemplate: Omit<StoredUser, 'pass'> = {
+  id: 'admin-user-ahmed',
+  username: 'Ahmed',
+  phoneNumber: '07800000000',
+  email: 'ahmed.admin@example.com',
+  role: 'admin',
+  status: 'active',
+};
+
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [storedUsers, setStoredUsers] = useLocalStorage<StoredUser[]>(USERS_STORAGE_KEY, [adminUser]);
+  const [storedUsers, setStoredUsers] = useLocalStorage<StoredUser[]>(USERS_STORAGE_KEY, [staticAdminUser]);
   const [loggedInUser, setLoggedInUser] = useLocalStorage<User | null>(LOGGED_IN_USER_KEY, null);
-  const [isApprovalSystemEnabled, setIsApprovalSystemEnabled] = useLocalStorage<boolean>(APPROVAL_SYSTEM_KEY, false);
+  const [isApprovalSystemEnabled, setIsApprovalSystemEnabled] = useLocalStorage<boolean>(APPROVAL_SYSTEM_KEY, true);
+  const [dynamicAdminPass, setDynamicAdminPass] = useLocalStorage<string>(DYNAMIC_ADMIN_PASS_KEY, () => generatePassword());
+  const [passTimestamp, setPassTimestamp] = useLocalStorage<number>(PASS_TIMESTAMP_KEY, () => Date.now());
+
   
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const router = useRouter();
+
+  useEffect(() => {
+    const passwordAge = Date.now() - passTimestamp;
+    const fifteenMinutes = 15 * 60 * 1000;
+
+    if (passwordAge > fifteenMinutes) {
+        const newPass = generatePassword();
+        setDynamicAdminPass(newPass);
+        setPassTimestamp(Date.now());
+    }
+
+    const interval = setInterval(() => {
+        const newPass = generatePassword();
+        setDynamicAdminPass(newPass);
+        setPassTimestamp(Date.now());
+    }, fifteenMinutes);
+
+    return () => clearInterval(interval);
+  }, [passTimestamp, setDynamicAdminPass, setPassTimestamp]);
+  
+  const allUsers = useMemo(() => {
+    const dynamicAdmin: StoredUser = {
+      ...dynamicAdminUserTemplate,
+      pass: dynamicAdminPass,
+    };
+
+    // Ensure both admins are always present and up-to-date
+    const otherUsers = storedUsers.filter(u => u.id !== staticAdminUser.id && u.id !== dynamicAdminUserTemplate.id);
+    return [staticAdminUser, dynamicAdmin, ...otherUsers];
+  }, [storedUsers, dynamicAdminPass]);
 
 
   useEffect(() => {
     setIsLoading(true);
     if (loggedInUser) {
-      // Find the user's latest data from the full user list
-      const userFromStorage = storedUsers.find(u => u.id === loggedInUser.id);
+      const userFromStorage = allUsers.find(u => u.id === loggedInUser.id);
       if (userFromStorage) {
          setUser({
             id: userFromStorage.id,
@@ -64,23 +116,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             status: userFromStorage.status,
           });
       } else {
-        // If the logged-in user is not in the user list, they've been deleted.
         setUser(null);
         setLoggedInUser(null);
       }
     } else {
         setUser(null);
-         if (!storedUsers.find(u => u.username === 'HUNTER')) {
-           setStoredUsers(prev => [adminUser, ...prev.filter(u => u.username !== 'HUNTER')]);
-      }
+        // This ensures the static admin is always in the list on first load if it's missing.
+        if (!storedUsers.some(u => u.id === staticAdminUser.id)) {
+           setStoredUsers(prev => [staticAdminUser, ...prev.filter(u => u.id !== staticAdminUser.id)]);
+        }
     }
     setIsLoading(false);
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loggedInUser, storedUsers]);
+  }, [loggedInUser, allUsers]);
   
 
   const login = useCallback((username: string, pass: string): boolean => {
-    const userToLogin = storedUsers.find(
+    const userToLogin = allUsers.find(
       (u) => u.username === username && u.pass === pass
     );
 
@@ -97,10 +149,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return true;
     }
     return false;
-  }, [storedUsers, setLoggedInUser]);
+  }, [allUsers, setLoggedInUser]);
 
   const signup = useCallback((username: string, pass: string, phoneNumber: string = '', email: string): boolean => {
-    const userExists = storedUsers.some(u => 
+    const userExists = allUsers.some(u => 
         u.email === email || (phoneNumber && u.phoneNumber && u.phoneNumber === phoneNumber)
     );
     if (userExists) {
@@ -118,10 +170,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
     setStoredUsers(prev => [...prev, newUser]);
     return true;
-  }, [storedUsers, setStoredUsers, isApprovalSystemEnabled]);
+  }, [allUsers, setStoredUsers, isApprovalSystemEnabled]);
   
   const addUserByAdmin = useCallback((username: string, pass: string, phoneNumber: string, email: string, role: 'admin' | 'user'): boolean => {
-    const userExists = storedUsers.some(u => 
+    const userExists = allUsers.some(u => 
         u.email === email || (phoneNumber && u.phoneNumber && u.phoneNumber === phoneNumber)
     );
     if (userExists) {
@@ -135,25 +187,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         phoneNumber,
         email,
         role,
-        status: 'active', // Users added by admin are active by default
+        status: 'active',
     };
     setStoredUsers(prev => [...prev, newUser]);
     return true;
-  }, [storedUsers, setStoredUsers]);
+  }, [allUsers, setStoredUsers]);
   
   const deleteUser = useCallback((userId: string) => {
-    setStoredUsers(prev => prev.filter(u => u.id !== userId && u.username !== 'HUNTER'));
+    // Prevent deletion of the two main admin accounts
+    if (userId === staticAdminUser.id || userId === dynamicAdminUserTemplate.id) return;
+    setStoredUsers(prev => prev.filter(u => u.id !== userId));
   }, [setStoredUsers]);
 
   const updateUserRole = useCallback((userId: string, role: 'admin' | 'user') => {
+    // Prevent role change for main admin accounts
+    if (userId === staticAdminUser.id || userId === dynamicAdminUserTemplate.id) return;
     setStoredUsers(prev => prev.map(u => u.id === userId ? { ...u, role } : u));
   }, [setStoredUsers]);
 
   const toggleUserActiveStatus = useCallback((userId: string) => {
+     // Prevent status change for main admin accounts
+    if (userId === staticAdminUser.id || userId === dynamicAdminUserTemplate.id) return;
     setStoredUsers(prev => {
         const newUsers = prev.map(u => {
             if (u.id === userId) {
-                // If user is active, set to banned. If pending or banned, set to active.
                 const newStatus = u.status === 'active' ? 'banned' : 'active';
                 return { ...u, status: newStatus };
             }
@@ -170,8 +227,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [setStoredUsers]);
 
   const updateUser = useCallback((userId: string, updates: Partial<Omit<StoredUser, 'id'>>): boolean => {
+    // Do not allow updating the username of the two main admin accounts
+    if ((userId === staticAdminUser.id || userId === dynamicAdminUserTemplate.id) && updates.username) {
+        delete updates.username;
+    }
+
     if (updates.email || (updates.phoneNumber && updates.phoneNumber.trim() !== '')) {
-      const userExists = storedUsers.some(u => 
+      const userExists = allUsers.some(u => 
         u.id !== userId && (
           (updates.email && u.email === updates.email) || 
           (updates.phoneNumber && u.phoneNumber && u.phoneNumber === updates.phoneNumber)
@@ -186,7 +248,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       prev.map(u => (u.id === userId ? { ...u, ...updates } : u))
     );
     return true;
-  }, [storedUsers, setStoredUsers]);
+  }, [allUsers, setStoredUsers]);
 
 
   const logout = useCallback(() => {
@@ -200,7 +262,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   
   const value = useMemo(() => ({
     user,
-    users: storedUsers,
+    users: allUsers,
     isLoading,
     login,
     signup,
@@ -213,7 +275,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     updateUser,
     isApprovalSystemEnabled,
     toggleApprovalSystem,
-  }), [user, storedUsers, isLoading, login, signup, logout, addUserByAdmin, deleteUser, updateUserRole, toggleUserActiveStatus, approveUser, updateUser, isApprovalSystemEnabled, toggleApprovalSystem]);
+  }), [user, allUsers, isLoading, login, signup, logout, addUserByAdmin, deleteUser, updateUserRole, toggleUserActiveStatus, approveUser, updateUser, isApprovalSystemEnabled, toggleApprovalSystem]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

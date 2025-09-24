@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
@@ -13,14 +13,41 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { Logo } from '@/components/logo';
-import { Loader2, KeyRound, User } from 'lucide-react';
+import { Loader2, KeyRound, User, Copy, Check } from 'lucide-react';
 import { AuthLoader } from '@/components/auth-loader';
-import { UserStatus } from '@/types';
 
 const formSchema = z.object({
   username: z.string().min(1, 'Username is required'),
   password: z.string().min(1, 'Password is required'),
 });
+
+const DynamicAdminLogin = () => {
+    const { users } = useAuth();
+    const [hasCopied, setHasCopied] = useState(false);
+    const ahmedAdmin = users.find(u => u.username === 'Ahmed');
+
+    if (!ahmedAdmin) return null;
+
+    const handleCopy = () => {
+        navigator.clipboard.writeText(`Username: ${ahmedAdmin.username}\nPassword: ${ahmedAdmin.pass}`);
+        setHasCopied(true);
+        setTimeout(() => setHasCopied(false), 2000);
+    };
+
+    return (
+        <div className="mt-6 p-4 border border-dashed rounded-lg bg-secondary/50">
+            <h3 className="text-sm font-semibold mb-2">Dynamic Admin Login:</h3>
+            <div className="space-y-2 text-xs">
+                <p><span className="font-medium">Username:</span> {ahmedAdmin.username}</p>
+                <p className="flex items-center gap-2"><span className="font-medium">Password:</span> <span className="font-mono bg-muted px-1 py-0.5 rounded">{ahmedAdmin.pass}</span></p>
+            </div>
+            <Button size="sm" variant="outline" onClick={handleCopy} className="mt-3 w-full">
+                {hasCopied ? <Check className="mr-2 h-4 w-4 text-success" /> : <Copy className="mr-2 h-4 w-4" />}
+                {hasCopied ? 'Copied!' : 'Copy Credentials'}
+            </Button>
+        </div>
+    );
+};
 
 export default function LoginPage() {
   const router = useRouter();
@@ -137,6 +164,8 @@ export default function LoginPage() {
             {t('auth.signup')}
           </Link>
         </div>
+
+        <DynamicAdminLogin />
     </div>
   );
 }
