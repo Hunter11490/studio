@@ -24,9 +24,9 @@ import { ScrollArea } from '../ui/scroll-area';
 const PasswordCountdown = () => {
     const { passTimestamp } = useAuth();
     const calculateRemainingTime = () => {
-        const fifteenMinutes = 15 * 60 * 1000;
+        const twentyFourHours = 24 * 60 * 60 * 1000;
         const now = Date.now();
-        const nextChangeTime = passTimestamp + fifteenMinutes;
+        const nextChangeTime = passTimestamp + twentyFourHours;
         return Math.max(0, nextChangeTime - now);
     };
 
@@ -40,6 +40,7 @@ const PasswordCountdown = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [passTimestamp]);
 
+    const hours = Math.floor((remainingTime / (1000 * 60 * 60)));
     const minutes = Math.floor((remainingTime / 1000 / 60) % 60);
     const seconds = Math.floor((remainingTime / 1000) % 60);
 
@@ -48,7 +49,7 @@ const PasswordCountdown = () => {
             <Timer className="h-3 w-3" />
             <span>Resets in:</span>
             <span className="font-mono font-semibold text-foreground tabular-nums">
-                {String(minutes).padStart(2, '0')}:{String(seconds).padStart(2, '0')}
+                {String(hours).padStart(2, '0')}:{String(minutes).padStart(2, '0')}:{String(seconds).padStart(2, '0')}
             </span>
         </div>
     );

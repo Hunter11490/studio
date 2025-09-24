@@ -32,13 +32,13 @@ const APPROVAL_SYSTEM_KEY = 'iraqi_doctors_approval_system_enabled_v1';
 const DYNAMIC_ADMIN_PASS_KEY = 'iraqi_doctors_dynamic_admin_pass_v1';
 const PASS_TIMESTAMP_KEY = 'iraqi_doctors_pass_timestamp_v1';
 
-const PASSWORD_LIFESPAN_MS = 15 * 60 * 1000; // 15 minutes
+const PASSWORD_LIFESPAN_MS = 24 * 60 * 60 * 1000; // 24 hours
 
 const generateDeterministicPassword = () => {
     const now = Date.now();
     const timeSlot = Math.floor(now / PASSWORD_LIFESPAN_MS);
     
-    // Create a seed from the time slot. This ensures the same seed for the 15-min window.
+    // Create a seed from the time slot. This ensures the same seed for the 24-hour window.
     let seed = timeSlot;
 
     // A simple pseudo-random number generator function using the seed
