@@ -141,30 +141,17 @@ export function UserMenu() {
     document.getElementById('import-data-input')?.click();
   };
   
-  const handleQuickAdd = () => {
-    const baghdadAreas = IRAQI_GOVERNORATES["Baghdad"];
-    const randomArea = baghdadAreas[Math.floor(Math.random() * baghdadAreas.length)];
-    const query = `أطباء في ${randomArea}`;
-    setQuickAddQuery(query);
-    setInternetSearchOpen(true);
+  const handleWorkInProgress = () => {
+    toast({
+      title: 'جاري العمل عليها',
+      description: 'ضمن التحديث القادم',
+    });
     handleMenuOpenChange(false);
   };
 
   const handleLogout = () => {
     logout();
     router.replace('/login');
-  }
-
-  const handleSearchOnMap = () => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition((position) => {
-        const { latitude, longitude } = position.coords;
-        const url = `https://www.google.com/maps/search/doctor/@${latitude},${longitude},15z`;
-        window.open(url, '_blank');
-      }, () => {
-        toast({ title: t('toasts.locationError'), variant: 'destructive' });
-      });
-    }
   }
 
   const MenuItem = ({ icon, label, onClick, destructive = false, trigger: TriggerComp }: { icon: React.ReactNode, label: string, onClick?: (e: React.MouseEvent) => void, destructive?: boolean, trigger?: React.ReactNode }) => {
@@ -221,13 +208,13 @@ export function UserMenu() {
               )}
 
               <div className="px-2 py-1.5 text-sm font-semibold">{t('userMenu.aiTools')}</div>
-              <MenuItem icon={<BrainCircuit className="mr-2 h-4 w-4" />} label={t('userMenu.aiChat')} onClick={() => { setChatOpen(true); handleMenuOpenChange(false); }} />
-              <MenuItem icon={<UserSearch className="mr-2 h-4 w-4" />} label={t('userMenu.internetSearch')} onClick={() => { setInternetSearchOpen(true); handleMenuOpenChange(false); }} />
-              <MenuItem icon={<Zap className="mr-2 h-4 w-4" />} label={t('userMenu.quickAdd')} onClick={handleQuickAdd} />
+              <MenuItem icon={<BrainCircuit className="mr-2 h-4 w-4" />} label={t('userMenu.aiChat')} onClick={handleWorkInProgress} />
+              <MenuItem icon={<UserSearch className="mr-2 h-4 w-4" />} label={t('userMenu.internetSearch')} onClick={handleWorkInProgress} />
+              <MenuItem icon={<Zap className="mr-2 h-4 w-4" />} label={t('userMenu.quickAdd')} onClick={handleWorkInProgress} />
               <Separator className="my-2" />
 
               <div className="px-2 py-1.5 text-sm font-semibold">{t('userMenu.dataActions')}</div>
-              <MenuItem icon={<Map className="mr-2 h-4 w-4" />} label={t('userMenu.searchOnMap')} onClick={() => { handleSearchOnMap(); handleMenuOpenChange(false); }} />
+              <MenuItem icon={<Map className="mr-2 h-4 w-4" />} label={t('userMenu.searchOnMap')} onClick={handleWorkInProgress} />
               <MenuItem icon={<FileDown className="mr-2 h-4 w-4" />} label={t('userMenu.exportData')} onClick={() => { handleExport(); handleMenuOpenChange(false); }} />
               <MenuItem icon={<FileUp className="mr-2 h-4 w-4" />} label={t('userMenu.importData')} onClick={() => { openImportDialog(); handleMenuOpenChange(false); }} />
               
