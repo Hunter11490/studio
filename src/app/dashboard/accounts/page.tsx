@@ -16,6 +16,9 @@ import { Patient, FinancialRecord } from '@/types';
 import { format } from 'date-fns';
 import { ar } from 'date-fns/locale';
 import { Calculator, User, Search, FileText, PlusCircle, MinusCircle, DollarSign } from 'lucide-react';
+import { Label } from '@/components/ui/label';
+import { translations } from '@/lib/localization';
+
 
 const calculateBalance = (records: FinancialRecord[] = []) => {
     return records.reduce((acc, record) => acc + record.amount, 0);
