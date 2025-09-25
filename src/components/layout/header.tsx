@@ -17,7 +17,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuRadioGroup, DropdownMenu
 import { SortOption } from '@/components/providers/doctor-provider';
 import { useToast } from '@/hooks/use-toast';
 import { translateText } from '@/ai/flows/translation-flow';
-import type { Doctor, DoctorInfo } from '@/types';
+import type { Doctor, DoctorInfo, ReferralCase } from '@/types';
 import { translations } from '@/lib/localization';
 
 function capitalizeFirstLetter(string: string) {
@@ -51,7 +51,8 @@ export function Header({ onAddDoctor }: { onAddDoctor?: () => void }) {
 
   const departmentSlug = useMemo(() => {
     const pathParts = pathname.split('/').filter(Boolean);
-    return pathParts[pathParts.length - 1];
+    const lastPart = pathParts[pathParts.length - 1];
+    return lastPart === 'dashboard' ? 'representatives' : lastPart;
   }, [pathname]);
 
   const departmentName = useMemo(() => {
@@ -89,28 +90,43 @@ export function Header({ onAddDoctor }: { onAddDoctor?: () => void }) {
     setIsTranslating(true);
     toast({ title: t('toasts.translatingTitle') });
     try {
-        const doctorsToTranslate: DoctorInfo[] = doctors.map(d => ({
-            name: d.name,
-            specialty: d.specialty,
-            clinicAddress: d.clinicAddress
-        }));
-
+        // We send the full doctor object, Genkit will only use the fields defined in the input schema
         const response = await translateText({
-            doctors: doctorsToTranslate,
+            doctors: doctors,
             targetLanguage: 'Arabic',
         });
 
-        const updatedDoctors: Doctor[] = doctors.map((originalDoctor, index) => {
-            const translatedInfo = response.doctors[index];
+        // Create a map for faster lookup of translated data
+        const translatedDoctorsMap = new Map<string, DoctorInfo>();
+        response.doctors.forEach((translatedDoc, index) => {
+            // Use original doctor's ID as the key
+            const originalId = doctors[index].id;
+            translatedDoctorsMap.set(originalId, translatedDoc);
+        });
+
+        const updatedDoctors: Doctor[] = doctors.map(originalDoctor => {
+            const translatedInfo = translatedDoctorsMap.get(originalDoctor.id);
             if (translatedInfo) {
+                // Ensure referral notes are correctly mapped and preserve non-translated fields
+                const updatedNotes = originalDoctor.referralNotes?.map((originalNote, noteIndex) => {
+                    const translatedNote = translatedInfo.referralNotes?.[noteIndex];
+                    return {
+                        ...originalNote,
+                        patientName: translatedNote?.patientName || originalNote.patientName,
+                        testType: translatedNote?.testType || originalNote.testType,
+                        chronicDiseases: translatedNote?.chronicDiseases || originalNote.chronicDiseases,
+                    };
+                });
+
                 return {
                     ...originalDoctor,
                     name: translatedInfo.name,
                     specialty: translatedInfo.specialty,
                     clinicAddress: translatedInfo.clinicAddress,
+                    referralNotes: updatedNotes,
                 };
             }
-            return originalDoctor;
+            return originalDoctor; // Fallback to original if something goes wrong
         });
 
         updateMultipleDoctors(updatedDoctors);
