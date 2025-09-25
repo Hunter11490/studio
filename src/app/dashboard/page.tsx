@@ -100,11 +100,11 @@ const medicalDepts = [
    { name: 'ent', icon: Ear, href: '#' },
    { name: 'ophthalmology', icon: Eye, href: '#' },
    { name: 'dermatology', icon: User, href: '#' },
-   { name: 'cardiology', icon: HeartPulse, href: '/dashboard/oncology' }, // Changed to oncology to reuse page
+   { name: 'cardiology', icon: HeartPulse, href: '/dashboard/oncology' },
    { name: 'neurology', icon: Brain, href: '#' },
    { name: 'oncology', icon: Quote, href: '/dashboard/oncology' },
    { name: 'nephrology', icon: Droplets, href: '#' },
-   { name: 'bloodBank', icon: Heart, href: '/dashboard/oncology' }, // Changed to oncology to reuse page
+   { name: 'bloodBank', icon: Heart, href: '/dashboard/blood-bank' },
 ];
 
 const adminDepts = [
@@ -112,6 +112,7 @@ const adminDepts = [
   { name: 'medicalRecords', icon: BookUser, href: '#' },
   { name: 'sterilization', icon: SprayCan, href: '#' },
   { name: 'services', icon: Utensils, href: '#' },
+  { name: 'representatives', icon: Users, href: '/dashboard/representatives' },
 ];
 
 
