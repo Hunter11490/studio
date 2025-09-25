@@ -30,6 +30,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
 
 // Helper to get today's date in YYYY-MM-DD format
@@ -100,15 +101,15 @@ export function DoctorCard({ doctor }: { doctor: Doctor }) {
           <div className="flex items-start justify-between gap-4">
             <div className="flex-grow">
                 <CardTitle className="font-headline text-xl text-primary flex items-center gap-2">
-                    <Button variant="ghost" size="icon" onClick={handlePartnerToggle} className="h-7 w-7 rounded-full">
+                    <Button variant="ghost" size="icon" onClick={handlePartnerToggle} className="h-7 w-7 rounded-full flex-shrink-0">
                         <Star className={cn(
                           "h-5 w-5 transition-colors",
                           doctor.isPartner ? "text-warning fill-current" : "text-muted-foreground hover:text-warning/80"
                         )} />
                     </Button>
-                    <span className={cn(doctor.isPartner && "animate-glow")}>{doctor.name}</span>
+                    <span className={cn("truncate", doctor.isPartner && "animate-glow")}>{doctor.name}</span>
                 </CardTitle>
-                <p className="text-sm text-muted-foreground mt-1">{doctor.specialty}</p>
+                <p className="text-sm text-muted-foreground mt-1 truncate">{doctor.specialty}</p>
             </div>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -117,6 +118,15 @@ export function DoctorCard({ doctor }: { doctor: Doctor }) {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => setEditing(true)}>
+                  <Pencil className="mr-2 h-4 w-4" />
+                  <span>{t('doctorCard.edit')}</span>
+                </DropdownMenuItem>
+                 <DropdownMenuItem onClick={() => setReferralSheetOpen(true)}>
+                  <ClipboardList className="mr-2 h-4 w-4" />
+                  <span>{t('doctorCard.viewCases')}</span>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleSetLocation}>
                   <MapPin className="mr-2 h-4 w-4" />
                   <span>{t('doctorCard.setMyLocation')}</span>
@@ -125,6 +135,18 @@ export function DoctorCard({ doctor }: { doctor: Doctor }) {
                   <MapIcon className="mr-2 h-4 w-4" />
                   <span>{t('doctorCard.map')}</span>
                 </DropdownMenuItem>
+                 <DropdownMenuSeparator />
+                 <ConfirmationDialog
+                    trigger={
+                      <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-destructive focus:text-destructive">
+                        <Trash2 className="mr-2 h-4 w-4" />
+                        <span>{t('doctorCard.delete')}</span>
+                      </DropdownMenuItem>
+                    }
+                    title={t('dialogs.deleteDoctorTitle')}
+                    description={`${t('dialogs.deleteDoctorDesc')} (${doctor.name})`}
+                    onConfirm={handleDeleteDoctor}
+                />
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
@@ -165,21 +187,6 @@ export function DoctorCard({ doctor }: { doctor: Doctor }) {
               </div>
            </div>
         </CardContent>
-
-        <CardFooter className="p-2 border-t bg-background/50 flex gap-2">
-            <Button variant="outline" size="sm" className="flex-1" onClick={() => setEditing(true)}>
-                <Pencil className="mr-2 h-4 w-4" /> {t('doctorCard.edit')}
-            </Button>
-             <Button variant="outline" size="sm" className="flex-1" onClick={() => setReferralSheetOpen(true)}>
-                <ClipboardList className="mr-2 h-4 w-4" /> {t('doctorCard.viewCases')}
-            </Button>
-            <ConfirmationDialog
-                trigger={<Button variant="destructive" size="icon" className="flex-shrink-0"><Trash2 className="h-4 w-4" /></Button>}
-                title={t('dialogs.deleteDoctorTitle')}
-                description={`${t('dialogs.deleteDoctorDesc')} (${doctor.name})`}
-                onConfirm={handleDeleteDoctor}
-            />
-        </CardFooter>
       </Card>
       
       <DoctorFormDialog open={isEditing} onOpenChange={setEditing} doctorToEdit={doctor} />

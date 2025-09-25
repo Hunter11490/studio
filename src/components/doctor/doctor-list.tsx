@@ -18,13 +18,16 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator
 } from '@/components/ui/dropdown-menu';
-import { MoreHorizontal, Pencil, Trash2, Star, Plus, Minus, ClipboardList } from 'lucide-react';
+import { MoreHorizontal, Pencil, Trash2, Star, Plus, Minus, ClipboardList, Map as MapIcon, MapPin } from 'lucide-react';
 import { DoctorFormDialog } from './doctor-form-dialog';
 import { ConfirmationDialog } from '../confirmation-dialog';
 import { ReferralNotesDialog } from './referral-notes-dialog';
 import { cn } from '@/lib/utils';
 import { Separator } from '../ui/separator';
+import { useToast } from '@/hooks/use-toast';
+
 
 // Helper to get today's date in YYYY-MM-DD format
 const getTodayDateString = () => {
@@ -35,6 +38,7 @@ const getTodayDateString = () => {
 function DoctorRow({ doctor }: { doctor: Doctor }) {
   const { t } = useLanguage();
   const { deleteDoctor, updateDoctor } = useDoctors();
+  const { toast } = useToast();
   const [isEditing, setEditing] = useState(false);
   const [isReferralSheetOpen, setReferralSheetOpen] = useState(false);
   
@@ -58,6 +62,25 @@ function DoctorRow({ doctor }: { doctor: Doctor }) {
   const handlePartnerToggle = (e: React.MouseEvent<HTMLButtonElement>) => {
     updateDoctor(doctor.id, { isPartner: !doctor.isPartner });
     e.currentTarget.blur();
+  };
+  
+  const handleSetLocation = () => {
+    if (!navigator.geolocation) {
+      toast({ title: t('toasts.locationError'), description: 'Geolocation is not supported by your browser.', variant: 'destructive' });
+      return;
+    }
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+        const mapUrl = `https://www.google.com/maps?q=${latitude},${longitude}`;
+        updateDoctor(doctor.id, { mapLocation: mapUrl });
+        toast({ title: 'Location set successfully!' });
+      },
+      () => {
+        toast({ title: t('toasts.locationError'), description: 'Please enable location permissions.', variant: 'destructive' });
+      },
+      { timeout: 10000, enableHighAccuracy: true }
+    );
   };
 
   return (
@@ -109,14 +132,24 @@ function DoctorRow({ doctor }: { doctor: Doctor }) {
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
-                    <DropdownMenuItem onClick={() => setReferralSheetOpen(true)}>
-                      <ClipboardList className="mr-2 h-4 w-4" />
-                      <span>{t('doctorCard.viewCases')}</span>
-                    </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => setEditing(true)}>
                       <Pencil className="mr-2 h-4 w-4" />
                       <span>{t('doctorCard.edit')}</span>
                     </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setReferralSheetOpen(true)}>
+                      <ClipboardList className="mr-2 h-4 w-4" />
+                      <span>{t('doctorCard.viewCases')}</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={handleSetLocation}>
+                      <MapPin className="mr-2 h-4 w-4" />
+                      <span>{t('doctorCard.setMyLocation')}</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => window.open(doctor.mapLocation, '_blank')} disabled={!doctor.mapLocation}>
+                      <MapIcon className="mr-2 h-4 w-4" />
+                      <span>{t('doctorCard.map')}</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
                     <ConfirmationDialog
                       trigger={
                         <DropdownMenuItem

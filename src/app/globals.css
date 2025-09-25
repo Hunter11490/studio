@@ -295,6 +295,7 @@
     @apply text-foreground;
     background-color: hsl(var(--background));
     @apply min-h-screen;
+    background-image: linear-gradient(to bottom right, hsl(var(--background)), hsl(var(--primary) / 0.03));
   }
 
   html.dark body {

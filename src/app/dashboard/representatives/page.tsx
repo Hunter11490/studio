@@ -14,6 +14,7 @@ import { Header } from '@/components/layout/header';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { DoctorGrid } from '@/components/doctor/doctor-grid';
 import { DoctorList } from '@/components/doctor/doctor-list';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 type PartnerExportData = {
   [key: string]: string | number;
@@ -35,7 +36,7 @@ function StatCard({ title, value, icon: Icon }: { title: string; value: string |
 
 export default function RepresentativesPage() {
   const { doctors, searchTerm, filterPartners, viewMode, sortOption, updateMultipleDoctors } = useDoctors();
-  const { t } = useLanguage();
+  const { t, dir } = useLanguage();
   const { toast } = useToast();
   const [isAddDoctorOpen, setAddDoctorOpen] = useState(false);
   
@@ -184,14 +185,24 @@ export default function RepresentativesPage() {
         {renderContent()}
       </main>
       <DoctorFormDialog open={isAddDoctorOpen} onOpenChange={setAddDoctorOpen} />
-      <Button
-        onClick={handleExportPartners}
-        className="fixed bottom-6 right-6 z-40 h-14 w-14 rounded-full shadow-lg"
-        size="icon"
-        >
-        <FileDown className="h-6 w-6" />
-        <span className="sr-only">{t('partnerDashboard.exportExcel')}</span>
-      </Button>
+      
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              onClick={handleExportPartners}
+              className="fixed bottom-6 right-6 z-40 h-14 w-14 rounded-full shadow-lg"
+              size="icon"
+              >
+              <FileDown className="h-6 w-6" />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent side={dir === 'rtl' ? 'right' : 'left'}>
+             <p>{t('partnerDashboard.exportExcel')}</p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
+
     </>
   );
 }
