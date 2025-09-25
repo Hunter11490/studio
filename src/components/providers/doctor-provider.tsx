@@ -24,7 +24,7 @@ export type DoctorContextType = {
   doctors: Doctor[];
   addDoctor: (doctor: Omit<Doctor, 'id' | 'createdAt'>) => void;
   addMultipleDoctors: (doctors: Omit<Doctor, 'id' | 'createdAt'>[]) => void;
-  updateDoctor: (id: string, updates: PartialDoctorWithFunction>) => void;
+  updateDoctor: (id: string, updates: PartialDoctorWithFunction) => void;
   updateMultipleDoctors: (updatedDoctors: Doctor[]) => void;
   deleteDoctor: (id: string) => void;
   deleteAllDoctors: () => void;
