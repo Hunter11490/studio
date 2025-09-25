@@ -9,11 +9,41 @@ import { UserMenu } from '@/components/layout/user-menu';
 import { Logo } from '@/components/logo';
 import { PatientRegistrationDialog } from '@/components/reception/patient-registration-dialog';
 import { Button } from '@/components/ui/button';
-import { Plus } from 'lucide-react';
+import { Plus, Pencil } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Patient } from '@/types';
 import { Stethoscope } from 'lucide-react';
+
+function PatientItem({ patient }: { patient: Patient }) {
+  const { t } = useLanguage();
+  const [isEditing, setIsEditing] = useState(false);
+
+  return (
+    <>
+      <div className="py-3 flex justify-between items-center">
+        <div>
+          <p className="font-semibold">{patient.patientName}</p>
+          <p className="text-sm text-muted-foreground">{t('reception.toDepartment')} {t(`departments.${patient.department}`)}</p>
+        </div>
+        <div className="flex items-center gap-2">
+            <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => setIsEditing(true)}>
+                <Pencil className="h-4 w-4" />
+            </Button>
+            <div className="text-sm text-muted-foreground" dir="ltr">
+                {format(parseISO(patient.createdAt), 'hh:mm a')}
+            </div>
+        </div>
+      </div>
+      <PatientRegistrationDialog 
+        open={isEditing} 
+        onOpenChange={setIsEditing} 
+        patientToEdit={patient}
+      />
+    </>
+  );
+}
+
 
 export default function ReceptionPage() {
   const { t, lang } = useLanguage();
@@ -83,15 +113,7 @@ export default function ReceptionPage() {
                     {groupedPatients[dateKey]
                       .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
                       .map(patient => (
-                       <div key={patient.id} className="py-3 flex justify-between items-center">
-                          <div>
-                            <p className="font-semibold">{patient.patientName}</p>
-                            <p className="text-sm text-muted-foreground">{t('reception.toDepartment')} {t(`departments.${patient.department}`)}</p>
-                          </div>
-                          <div className="text-sm text-muted-foreground" dir="ltr">
-                            {format(parseISO(patient.createdAt), 'hh:mm a')}
-                          </div>
-                       </div>
+                       <PatientItem key={patient.id} patient={patient} />
                     ))}
                   </div>
                 </CardContent>

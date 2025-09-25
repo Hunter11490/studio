@@ -19,6 +19,7 @@ import { IRAQI_GOVERNORATES } from '@/lib/constants';
 import { differenceInYears, isValid, parse } from 'date-fns';
 import Image from 'next/image';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Patient } from '@/types';
 
 const departments = [
   'reception', 'emergency', 'icu', 'surgicalOperations', 'pharmacy', 'laboratories', 'radiology', 'nursing', 'internalMedicine', 'generalSurgery', 'obGyn', 'pediatrics', 'orthopedics', 'urology', 'ent', 'ophthalmology', 'dermatology', 'cardiology', 'neurology', 'oncology', 'nephrology', 'bloodBank', 'accounts', 'medicalRecords', 'sterilization', 'services', 'representatives', 'admin'
@@ -48,12 +49,13 @@ const formSchema = z.object({
 type PatientRegistrationDialogProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  patientToEdit?: Patient;
 };
 
-export function PatientRegistrationDialog({ open, onOpenChange }: PatientRegistrationDialogProps) {
+export function PatientRegistrationDialog({ open, onOpenChange, patientToEdit }: PatientRegistrationDialogProps) {
   const { t, dir } = useLanguage();
   const { doctors } = useDoctors();
-  const { addPatient } = usePatients();
+  const { addPatient, updatePatient } = usePatients();
   const { toast } = useToast();
   const [isAddDoctorOpen, setAddDoctorOpen] = useState(false);
   const [calculatedAge, setCalculatedAge] = useState<number | null>(null);
@@ -81,6 +83,28 @@ export function PatientRegistrationDialog({ open, onOpenChange }: PatientRegistr
       doctorId: '',
     },
   });
+  
+  useEffect(() => {
+    if (patientToEdit) {
+      form.reset(patientToEdit);
+      setIdFrontPreview(patientToEdit.idFront || null);
+      setIdBackPreview(patientToEdit.idBack || null);
+    } else {
+      form.reset({
+        patientName: '',
+        dob: { day: '', month: '', year: '' },
+        receptionDate: getTodayDateString(),
+        address: { governorate: '', region: '', mahalla: '', zuqaq: '', dar: '' },
+        idFront: '',
+        idBack: '',
+        department: '',
+        doctorId: '',
+      });
+      setIdFrontPreview(null);
+      setIdBackPreview(null);
+    }
+  }, [patientToEdit, open, form]);
+
 
   const dob = form.watch('dob');
   useEffect(() => {
@@ -121,21 +145,31 @@ export function PatientRegistrationDialog({ open, onOpenChange }: PatientRegistr
 
 
   const onSubmit = (values: z.infer<typeof formSchema>) => {
-    addPatient(values);
-    toast({
-      title: t('reception.submitSuccessTitle'),
-      description: t('reception.submitSuccessDesc', {patientName: values.patientName, department: t(`departments.${values.department}`)}),
-    });
+    if (patientToEdit) {
+      updatePatient(patientToEdit.id, values);
+      toast({
+        title: t('reception.updateSuccessTitle'),
+        description: t('reception.updateSuccessDesc', {patientName: values.patientName}),
+      });
+    } else {
+      addPatient(values);
+      toast({
+        title: t('reception.submitSuccessTitle'),
+        description: t('reception.submitSuccessDesc', {patientName: values.patientName, department: t(`departments.${values.department}`)}),
+      });
+    }
     onOpenChange(false);
   };
+
+  const isEditing = !!patientToEdit;
 
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent className="sm:max-w-2xl h-full sm:h-auto flex flex-col" dir={dir}>
           <DialogHeader>
-            <DialogTitle>{t('reception.title')}</DialogTitle>
-            <DialogDescription>{t('reception.description')}</DialogDescription>
+            <DialogTitle>{isEditing ? t('reception.editTitle') : t('reception.title')}</DialogTitle>
+            <DialogDescription>{isEditing ? t('reception.editDescription') : t('reception.description')}</DialogDescription>
           </DialogHeader>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col flex-grow min-h-0">
@@ -391,7 +425,7 @@ export function PatientRegistrationDialog({ open, onOpenChange }: PatientRegistr
                 </Button>
                 <Button type="submit">
                   <Send className="mr-2 h-4 w-4" />
-                  {t('reception.submitPatient')}
+                  {isEditing ? t('reception.updatePatient') : t('reception.submitPatient')}
                 </Button>
               </DialogFooter>
             </form>

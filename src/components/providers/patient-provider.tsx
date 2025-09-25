@@ -14,6 +14,7 @@ const initialPatients: Patient[] = [];
 export type PatientContextType = {
   patients: Patient[];
   addPatient: (patient: Omit<Patient, 'id' | 'createdAt'>) => void;
+  updatePatient: (id: string, updates: Partial<Omit<Patient, 'id'>>) => void;
 };
 
 export const PatientContext = createContext<PatientContextType | null>(null);
@@ -74,10 +75,15 @@ export function PatientProvider({ children }: { children: React.ReactNode }) {
 
   }, [setPatients, updateDoctor]);
 
+  const updatePatient = useCallback((id: string, updates: Partial<Omit<Patient, 'id'>>) => {
+    setPatients(prev => prev.map(p => p.id === id ? { ...p, ...updates } : p));
+  }, [setPatients]);
+
   const value = useMemo(() => ({
     patients: user ? patients : [],
     addPatient,
-  }), [patients, user, addPatient]);
+    updatePatient,
+  }), [patients, user, addPatient, updatePatient]);
 
   return <PatientContext.Provider value={value}>{children}</PatientContext.Provider>;
 }
