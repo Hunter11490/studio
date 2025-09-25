@@ -32,6 +32,7 @@ import {
   Footprints,
   HeartHandshake,
   Shield,
+  Loader2,
 } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { useLanguage } from '@/hooks/use-language';
@@ -125,6 +126,7 @@ export default function HospitalDashboardPage() {
   
   const currentUser = users.find(u => u.id === user?.id);
   const [showWelcome, setShowWelcome] = useState(currentUser?.isFirstLogin !== false && currentUser?.role !== 'admin');
+  const [loadingDept, setLoadingDept] = useState<string | null>(null);
 
   const handleWelcomeClose = () => {
     if (user) {
@@ -140,15 +142,29 @@ export default function HospitalDashboardPage() {
      }
 
      const isClickable = dept.href !== '#';
+     const isLoading = loadingDept === dept.href;
+
      const content = (
-        <Card className={`flex flex-col justify-center items-center p-2 aspect-square text-center relative overflow-hidden transition-transform duration-300 ${isClickable ? 'hover:scale-105 hover:shadow-primary/20' : 'opacity-50 cursor-not-allowed'}`}>
+        <Card 
+            onClick={() => isClickable && setLoadingDept(dept.href)}
+            className={cn(
+                "flex flex-col justify-center items-center p-2 aspect-square text-center relative overflow-hidden transition-transform duration-300",
+                isClickable ? 'hover:scale-105 hover:shadow-primary/20 cursor-pointer' : 'opacity-50 cursor-not-allowed',
+                isLoading && 'ring-2 ring-primary ring-offset-2 ring-offset-background'
+            )}
+        >
+            {isLoading && (
+                <div className="absolute inset-0 bg-secondary/80 flex items-center justify-center z-10">
+                    <Loader2 className="h-6 w-6 text-primary animate-spin" />
+                </div>
+            )}
             <dept.icon className="h-5 w-5 mb-1 text-primary" />
             <CardTitle className="text-xs font-semibold tracking-tight leading-tight">{t(`departments.${dept.name}`)}</CardTitle>
             <StethoscopeLogo className="absolute -right-4 -bottom-4 h-10 w-10 text-primary/5 opacity-50" />
         </Card>
      )
 
-    return isClickable ? <Link href={dept.href} key={dept.name}>{content}</Link> : <div key={dept.name}>{content}</div>;
+    return isClickable ? <Link href={dept.href} key={dept.name} className="relative">{content}</Link> : <div key={dept.name}>{content}</div>;
   }
 
   return (
