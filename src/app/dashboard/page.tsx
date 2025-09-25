@@ -93,20 +93,20 @@ const mainDepts = [
 ];
 
 const medicalDepts = [
-   { name: 'internalMedicine', icon: Stethoscope, href: '/dashboard/oncology' },
+   { name: 'internalMedicine', icon: Stethoscope, href: '/dashboard/internal-medicine' },
    { name: 'generalSurgery', icon: Scissors, href: '/dashboard/surgery' },
-   { name: 'obGyn', icon: HeartHandshake, href: '/dashboard/oncology' },
-   { name: 'pediatrics', icon: Baby, href: '/dashboard/oncology' },
-   { name: 'orthopedics', icon: Bone, href: '/dashboard/oncology' },
-   { name: 'urology', icon: Footprints, href: '/dashboard/oncology' },
-   { name: 'ent', icon: Ear, href: '/dashboard/oncology' },
-   { name: 'ophthalmology', icon: Eye, href: '/dashboard/oncology' },
-   { name: 'dermatology', icon: User, href: '/dashboard/oncology' },
-   { name: 'cardiology', icon: HeartPulse, href: '/dashboard/oncology' },
-   { name: 'neurology', icon: Brain, href: '/dashboard/oncology' },
+   { name: 'obGyn', icon: HeartHandshake, href: '/dashboard/ob-gyn' },
+   { name: 'pediatrics', icon: Baby, href: '/dashboard/pediatrics' },
+   { name: 'orthopedics', icon: Bone, href: '/dashboard/orthopedics' },
+   { name: 'urology', icon: Footprints, href: '/dashboard/urology' },
+   { name: 'ent', icon: Ear, href: '/dashboard/ent' },
+   { name: 'ophthalmology', icon: Eye, href: '/dashboard/ophthalmology' },
+   { name: 'dermatology', icon: User, href: '/dashboard/dermatology' },
+   { name: 'cardiology', icon: HeartPulse, href: '/dashboard/cardiology' },
+   { name: 'neurology', icon: Brain, href: '/dashboard/neurology' },
    { name: 'oncology', icon: Quote, href: '/dashboard/oncology' },
-   { name: 'nephrology', icon: Droplets, href: '/dashboard/oncology' },
-   { name: 'bloodBank', icon: Heart, href: '/dashboard/oncology' },
+   { name: 'nephrology', icon: Droplets, href: '/dashboard/nephrology' },
+   { name: 'bloodBank', icon: Heart, href: '/dashboard/blood-bank' },
 ];
 
 const adminDepts = [
@@ -148,7 +148,7 @@ export default function HospitalDashboardPage() {
         <Card 
             onClick={() => isClickable && setLoadingDept(dept.name)}
             className={cn(
-                "flex flex-col justify-center items-center p-2 h-full aspect-square text-center relative overflow-hidden transition-transform duration-300",
+                "flex flex-col justify-center items-center p-2 h-24 text-center relative overflow-hidden transition-transform duration-300",
                 isClickable ? 'hover:scale-105 hover:shadow-primary/20 cursor-pointer' : 'opacity-50 cursor-not-allowed',
                 isLoading && 'ring-2 ring-primary ring-offset-2 ring-offset-background'
             )}
