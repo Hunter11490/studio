@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useMemo, useEffect, useCallback } from 'react';
@@ -457,7 +456,3 @@ function DrugForm({ onSave, drugToEdit }: { onSave: (data: z.infer<typeof formSc
         </Form>
     );
 }
-
-
-    
-    
