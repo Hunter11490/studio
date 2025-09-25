@@ -58,12 +58,12 @@ const mainDepts = [
   {
     name: 'emergency',
     icon: Ambulance,
-    href: '/dashboard/reception',
+    href: '#', // TBD
   },
   {
     name: 'icu',
     icon: BedDouble,
-    href: '/dashboard/reception',
+    href: '#', // TBD
   },
   {
     name: 'surgicalOperations',
@@ -73,17 +73,17 @@ const mainDepts = [
   {
     name: 'pharmacy',
     icon: Pill,
-    href: '/dashboard/oncology',
+    href: '/dashboard/pharmacy',
   },
   {
     name: 'laboratories',
     icon: Beaker,
-    href: '/dashboard/oncology',
+    href: '/dashboard/laboratories',
   },
   {
     name: 'radiology',
     icon: Scan,
-    href: '/dashboard/oncology',
+    href: '#', // TBD
   },
   {
     name: 'nursing',
@@ -110,10 +110,10 @@ const medicalDepts = [
 ];
 
 const adminDepts = [
-  { name: 'accounts', icon: Calculator, href: '/dashboard/oncology' },
-  { name: 'medicalRecords', icon: BookUser, href: '/dashboard/oncology' },
-  { name: 'sterilization', icon: SprayCan, href: '/dashboard/oncology' },
-  { name: 'services', icon: Utensils, href: '/dashboard/oncology' },
+  { name: 'accounts', icon: Calculator, href: '#' }, // TBD
+  { name: 'medicalRecords', icon: BookUser, href: '#' }, // TBD
+  { name: 'sterilization', icon: SprayCan, href: '#' }, // TBD
+  { name: 'services', icon: Utensils, href: '#' }, // TBD
   { name: 'representatives', icon: Users, href: '/dashboard/representatives' },
   { name: 'admin', icon: Shield, href: '/dashboard/admin' },
 ];

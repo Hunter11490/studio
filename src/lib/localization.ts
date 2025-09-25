@@ -165,7 +165,8 @@ export const translations: Translations = {
       next: 'Next',
       previous: 'Previous',
       finish: 'Finish',
-      submit: 'Submit'
+      submit: 'Submit',
+      save: 'Save'
     },
      admin: {
       dashboardTitle: 'Admin Dashboard',
@@ -287,7 +288,7 @@ export const translations: Translations = {
       title: 'New Patient Registration',
       editTitle: 'Edit Patient Data',
       description: 'Register a new patient and assign them to a department.',
-      editDescription: 'Update the patient\'s information.',
+      editDescription: "Update the patient's information.",
       patientName: 'Patient Name',
       patientNamePlaceholder: 'Enter patient\'s full name',
       dob: 'Date of Birth',
@@ -319,7 +320,7 @@ export const translations: Translations = {
       submitSuccessTitle: 'Patient Registered',
       submitSuccessDesc: '{patientName} has been routed to {department}.',
       updateSuccessTitle: 'Patient Updated',
-      updateSuccessDesc: '{patientName}\'s data has been updated successfully.',
+      updateSuccessDesc: "{patientName}'s data has been updated successfully.",
       noPatientsTitle: 'No Patients Registered Yet',
       noPatientsDesc: 'Click the button to register the first patient.',
       toDepartment: 'to',
@@ -336,6 +337,41 @@ export const translations: Translations = {
         darRequired: 'Dar is required',
         departmentRequired: 'Department selection is required',
       }
+    },
+    pharmacy: {
+      inventory: 'Drug Inventory',
+      addDrug: 'Add Drug',
+      editDrug: 'Edit Drug',
+      drugName: 'Drug Name',
+      quantity: 'Quantity',
+      price: 'Price',
+      searchPlaceholder: 'Search for a drug...',
+      iqd: 'IQD',
+    },
+    surgery: {
+      newBooking: 'New Booking',
+      editBooking: 'Edit Booking',
+      patientName: 'Patient Name',
+      surgeryType: 'Surgery Type',
+      surgeonName: 'Surgeon Name',
+      date: 'Date & Time',
+      noBookings: 'No bookings for this day.',
+      status: {
+        title: 'Status',
+        scheduled: 'Scheduled',
+        completed: 'Completed',
+        canceled: 'Canceled',
+      },
+    },
+    lab: {
+      testList: 'Available Tests',
+      searchPlaceholder: 'Search for a test...',
+      testName: 'Test Name',
+      price: 'Price',
+      iqd: 'IQD',
+      costCalculator: 'Cost Calculator',
+      noTestsSelected: 'Add tests from the list to calculate the cost.',
+      totalCost: 'Total Cost',
     }
   },
   ar: {
@@ -502,7 +538,8 @@ export const translations: Translations = {
       next: 'التالي',
       previous: 'السابق',
       finish: 'إنهاء',
-      submit: 'إرسال'
+      submit: 'إرسال',
+      save: 'حفظ'
     },
     admin: {
       dashboardTitle: 'لوحة تحكم المسؤول',
@@ -673,6 +710,41 @@ export const translations: Translations = {
         darRequired: 'رقم الدار مطلوب',
         departmentRequired: 'يجب اختيار قسم',
       }
+    },
+    pharmacy: {
+      inventory: 'مخزون الأدوية',
+      addDrug: 'إضافة دواء',
+      editDrug: 'تعديل الدواء',
+      drugName: 'اسم الدواء',
+      quantity: 'الكمية',
+      price: 'السعر',
+      searchPlaceholder: 'ابحث عن دواء...',
+      iqd: 'دينار',
+    },
+    surgery: {
+      newBooking: 'حجز جديد',
+      editBooking: 'تعديل الحجز',
+      patientName: 'اسم المريض',
+      surgeryType: 'نوع العملية',
+      surgeonName: 'اسم الجراح',
+      date: 'التاريخ والوقت',
+      noBookings: 'لا توجد حجوزات لهذا اليوم.',
+      status: {
+        title: 'الحالة',
+        scheduled: 'مجدولة',
+        completed: 'مكتملة',
+        canceled: 'ملغاة',
+      },
+    },
+    lab: {
+      testList: 'الفحوصات المتاحة',
+      searchPlaceholder: 'ابحث عن فحص...',
+      testName: 'اسم الفحص',
+      price: 'السعر',
+      iqd: 'دينار',
+      costCalculator: 'حاسبة التكلفة',
+      noTestsSelected: 'أضف فحوصات من القائمة لحساب التكلفة.',
+      totalCost: 'التكلفة الإجمالية',
     }
   },
 };
