@@ -19,7 +19,9 @@ import { IRAQI_GOVERNORATES } from '@/lib/constants';
 import { differenceInYears, isValid, parse } from 'date-fns';
 import Image from 'next/image';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Patient } from '@/types';
+import { Patient, FinancialRecord } from '@/types';
+import { useLocalStorage } from '@/hooks/use-local-storage';
+
 
 const departments = [
   'reception', 'emergency', 'icu', 'surgicalOperations', 'pharmacy', 'laboratories', 'radiology', 'nursing', 'internalMedicine', 'generalSurgery', 'obGyn', 'pediatrics', 'orthopedics', 'urology', 'ent', 'ophthalmology', 'dermatology', 'cardiology', 'neurology', 'oncology', 'nephrology', 'bloodBank', 'accounts', 'medicalRecords', 'sterilization', 'services', 'representatives', 'admin'
@@ -44,7 +46,11 @@ const formSchema = z.object({
   idBack: z.string().optional(),
   department: z.string().min(1, { message: 'reception.validation.departmentRequired' }),
   doctorId: z.string().optional(),
+  serviceId: z.string().optional(), // For lab tests, drugs, etc.
 });
+
+type LabTest = { id: string; name: string; price: number; };
+type Drug = { id: string; name: string; quantity: number; price: number; };
 
 type PatientRegistrationDialogProps = {
   open: boolean;
@@ -61,6 +67,9 @@ export function PatientRegistrationDialog({ open, onOpenChange, patientToEdit }:
   const [calculatedAge, setCalculatedAge] = useState<number | null>(null);
   const [idFrontPreview, setIdFrontPreview] = useState<string | null>(null);
   const [idBackPreview, setIdBackPreview] = useState<string | null>(null);
+
+  const [labTests] = useLocalStorage<LabTest[]>('lab_tests_list', []);
+  const [drugs] = useLocalStorage<Drug[]>('pharmacy_drugs', []);
 
   const getTodayDateString = () => {
     const today = new Date();
@@ -81,9 +90,20 @@ export function PatientRegistrationDialog({ open, onOpenChange, patientToEdit }:
       idBack: '',
       department: '',
       doctorId: '',
+      serviceId: '',
     },
   });
   
+  const department = form.watch('department');
+  const serviceId = form.watch('serviceId');
+
+  const servicesForDepartment = useMemo(() => {
+    if (department === 'laboratories') return labTests;
+    if (department === 'pharmacy') return drugs;
+    return [];
+  }, [department, labTests, drugs]);
+
+
   useEffect(() => {
     if (patientToEdit) {
       const dobParts = patientToEdit.dob || { day: '', month: '', year: '' };
@@ -149,14 +169,32 @@ export function PatientRegistrationDialog({ open, onOpenChange, patientToEdit }:
 
 
   const onSubmit = (values: z.infer<typeof formSchema>) => {
+    let initialRecord: Omit<FinancialRecord, 'id' | 'date'> | undefined = undefined;
+    
+    if (values.serviceId && servicesForDepartment.length > 0) {
+        const service = servicesForDepartment.find(s => s.id === values.serviceId);
+        if(service) {
+            initialRecord = {
+                type: department as any, // 'lab' or 'pharmacy' etc.
+                description: service.name,
+                amount: service.price
+            }
+        }
+    }
+
+    const patientData = { ...values };
+    delete patientData.serviceId;
+
+
     if (patientToEdit) {
-      updatePatient(patientToEdit.id, values);
+      updatePatient(patientToEdit.id, patientData);
+      // Note: Updating doesn't create new financial records for simplicity.
       toast({
         title: t('reception.updateSuccessTitle'),
         description: t('reception.updateSuccessDesc', {patientName: values.patientName}),
       });
     } else {
-      addPatient(values);
+      addPatient(patientData, initialRecord);
       toast({
         title: t('reception.submitSuccessTitle'),
         description: t('reception.submitSuccessDesc', {patientName: values.patientName, department: t(`departments.${values.department}`)}),
@@ -391,6 +429,33 @@ export function PatientRegistrationDialog({ open, onOpenChange, patientToEdit }:
                     </FormItem>
                   )}
                 />
+                
+                {servicesForDepartment.length > 0 && (
+                     <FormField
+                        control={form.control}
+                        name="serviceId"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>{t('reception.serviceRequired')}</FormLabel>
+                                <Select onValueChange={field.onChange} defaultValue={field.value} dir={dir}>
+                                <FormControl>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder={t('reception.selectServicePlaceholder')} />
+                                    </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                    {servicesForDepartment.map((service) => (
+                                    <SelectItem key={service.id} value={service.id}>
+                                        {service.name} - {service.price.toLocaleString()} {t('lab.iqd')}
+                                    </SelectItem>
+                                    ))}
+                                </SelectContent>
+                                </Select>
+                                <FormMessage/>
+                            </FormItem>
+                        )}
+                    />
+                )}
 
                 <FormField
                   control={form.control}

@@ -52,7 +52,7 @@ export type Patient = {
   department: string;
   doctorId?: string;
   createdAt: string;
-  financialRecords?: FinancialRecord[];
+  financialRecords: FinancialRecord[];
 };
 
 export type DoctorInfo = {

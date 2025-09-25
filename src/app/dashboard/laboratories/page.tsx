@@ -10,8 +10,18 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Beaker, PlusCircle, Trash2, Calculator, X } from 'lucide-react';
+import { Beaker, PlusCircle, Trash2, Calculator, X, User } from 'lucide-react';
 import { useLocalStorage } from '@/hooks/use-local-storage';
+import { usePatients } from '@/hooks/use-patients';
+import { Patient } from '@/types';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import { useToast } from '@/hooks/use-toast';
 
 type LabTest = {
     id: string;
@@ -35,8 +45,11 @@ const initialLabTests: LabTest[] = [
 export default function LaboratoriesPage() {
     const { t } = useLanguage();
     const [tests, setTests] = useLocalStorage<LabTest[]>('lab_tests_list', initialLabTests);
+    const { patients, addFinancialRecord } = usePatients();
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedTests, setSelectedTests] = useState<LabTest[]>([]);
+    const [selectedPatientId, setSelectedPatientId] = useState<string | null>(null);
+    const { toast } = useToast();
 
     const filteredTests = useMemo(() => {
         return tests.filter(test => test.name.toLowerCase().includes(searchTerm.toLowerCase()));
@@ -52,6 +65,30 @@ export default function LaboratoriesPage() {
 
     const handleRemoveSelectedTest = (testId: string) => {
         setSelectedTests(prev => prev.filter(t => t.id !== testId));
+    };
+
+    const handleConfirmOrder = () => {
+        if (!selectedPatientId) {
+            toast({ title: t('lab.selectPatientError'), variant: 'destructive'});
+            return;
+        }
+        if (selectedTests.length === 0) {
+            toast({ title: t('lab.noTestsSelectedError'), variant: 'destructive'});
+            return;
+        }
+
+        selectedTests.forEach(test => {
+            addFinancialRecord(selectedPatientId, {
+                type: 'lab',
+                description: `${t('lab.test')}: ${test.name}`,
+                amount: test.price,
+                date: new Date().toISOString(),
+            });
+        });
+        
+        toast({ title: t('lab.orderConfirmed')});
+        setSelectedTests([]);
+        setSelectedPatientId(null);
     };
 
     return (
@@ -113,9 +150,19 @@ export default function LaboratoriesPage() {
                             <Calculator className="h-5 w-5" />
                             {t('lab.costCalculator')}
                         </CardTitle>
+                         <Select onValueChange={setSelectedPatientId} value={selectedPatientId || ''}>
+                            <SelectTrigger className="w-full">
+                                <SelectValue placeholder={t('lab.selectPatient')} />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {patients.map(p => (
+                                    <SelectItem key={p.id} value={p.id}>{p.patientName}</SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
                     </CardHeader>
                     <CardContent className="flex-grow p-0">
-                         <ScrollArea className="h-[calc(100vh-320px)]">
+                         <ScrollArea className="h-[calc(100vh-380px)]">
                             {selectedTests.length === 0 ? (
                                 <div className="p-6 text-center text-muted-foreground">{t('lab.noTestsSelected')}</div>
                             ) : (
@@ -135,11 +182,14 @@ export default function LaboratoriesPage() {
                             )}
                          </ScrollArea>
                     </CardContent>
-                    <CardFooter className="flex-col items-start border-t pt-4">
+                    <CardFooter className="flex-col items-start border-t pt-4 gap-4">
                         <div className="w-full flex justify-between font-bold text-lg">
                             <span>{t('lab.totalCost')}:</span>
                             <span dir="ltr">{totalCost.toLocaleString()} {t('lab.iqd')}</span>
                         </div>
+                        <Button className="w-full" onClick={handleConfirmOrder} disabled={!selectedPatientId || selectedTests.length === 0}>
+                            {t('lab.confirmOrder')}
+                        </Button>
                     </CardFooter>
                 </Card>
             </main>

@@ -15,7 +15,7 @@ const initialPatients = initialData.patients;
 
 export type PatientContextType = {
   patients: Patient[];
-  addPatient: (patient: Omit<Patient, 'id' | 'createdAt'>) => void;
+  addPatient: (patient: Omit<Patient, 'id' | 'createdAt'>, initialRecord?: Omit<FinancialRecord, 'id' | 'date'>) => void;
   updatePatient: (id: string, updates: Partial<Omit<Patient, 'id'>>) => void;
   addFinancialRecord: (patientId: string, record: Omit<FinancialRecord, 'id'>) => void;
 };
@@ -31,39 +31,6 @@ export function PatientProvider({ children }: { children: React.ReactNode }) {
     initialPatients
   );
 
-  const addPatient = useCallback((patientData: Omit<Patient, 'id' | 'createdAt'>) => {
-    const newPatient: Patient = {
-      ...patientData,
-      id: new Date().toISOString() + Math.random(),
-      createdAt: new Date().toISOString(),
-      financialRecords: [], // Initialize with empty financial records
-    };
-    setPatients(prev => [newPatient, ...prev]);
-
-    // If a doctor is assigned, update their referral count
-    if (patientData.doctorId && updateDoctor) {
-      updateDoctor(patientData.doctorId, {
-        referralCount: (currentCount: number | undefined) => (currentCount || 0) + 1,
-        referralNotes: (currentNotes: any[] | undefined) => [
-          ...(currentNotes || []),
-          {
-            patientName: patientData.patientName,
-            referralDate: patientData.receptionDate,
-            testDate: new Date().toISOString().split('T')[0],
-            testType: '',
-            patientAge: String(new Date().getFullYear() - parseInt(patientData.dob.year)),
-            chronicDiseases: '',
-          },
-        ]
-      });
-    }
-
-  }, [setPatients, updateDoctor]);
-
-  const updatePatient = useCallback((id: string, updates: Partial<Omit<Patient, 'id'>>) => {
-    setPatients(prev => prev.map(p => p.id === id ? { ...p, ...updates } : p));
-  }, [setPatients]);
-  
   const addFinancialRecord = useCallback((patientId: string, record: Omit<FinancialRecord, 'id'>) => {
     const newRecord: FinancialRecord = {
       ...record,
@@ -79,6 +46,49 @@ export function PatientProvider({ children }: { children: React.ReactNode }) {
     );
   }, [setPatients]);
 
+
+  const addPatient = useCallback((patientData: Omit<Patient, 'id' | 'createdAt'>, initialRecord?: Omit<FinancialRecord, 'id' | 'date'>) => {
+    const financialRecords: FinancialRecord[] = [];
+    if(initialRecord) {
+        financialRecords.push({
+            ...initialRecord,
+            id: new Date().toISOString() + Math.random() + '_initial',
+            date: new Date().toISOString()
+        })
+    }
+
+    const newPatient: Patient = {
+      ...patientData,
+      id: new Date().toISOString() + Math.random(),
+      createdAt: new Date().toISOString(),
+      financialRecords,
+    };
+    setPatients(prev => [newPatient, ...prev]);
+
+    // If a doctor is assigned, update their referral count
+    if (patientData.doctorId && updateDoctor) {
+      updateDoctor(patientData.doctorId, {
+        referralCount: (currentCount: number | undefined) => (currentCount || 0) + 1,
+        referralNotes: (currentNotes: any[] | undefined) => [
+          ...(currentNotes || []),
+          {
+            patientName: patientData.patientName,
+            referralDate: patientData.receptionDate,
+            testDate: new Date().toISOString().split('T')[0],
+            testType: initialRecord?.description || '',
+            patientAge: String(new Date().getFullYear() - parseInt(patientData.dob.year)),
+            chronicDiseases: '',
+          },
+        ]
+      });
+    }
+
+  }, [setPatients, updateDoctor]);
+
+  const updatePatient = useCallback((id: string, updates: Partial<Omit<Patient, 'id'>>) => {
+    setPatients(prev => prev.map(p => p.id === id ? { ...p, ...updates } : p));
+  }, [setPatients]);
+  
   const value = useMemo(() => ({
     patients: user ? patients : [],
     addPatient,

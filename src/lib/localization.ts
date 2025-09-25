@@ -335,6 +335,8 @@ export const translations: Translations = {
       noPatientsTitle: 'No Patients Registered Yet',
       noPatientsDesc: 'Click the button to register the first patient.',
       toDepartment: 'to',
+      serviceRequired: 'Service Required',
+      selectServicePlaceholder: 'Select a service',
       validation: {
         patientNameRequired: 'Patient name is required',
         dayRequired: 'Day is required',
@@ -358,6 +360,14 @@ export const translations: Translations = {
       price: 'Price',
       searchPlaceholder: 'Search for a drug...',
       iqd: 'IQD',
+      salesCart: 'Sales Cart',
+      selectPatient: 'Select a patient for this sale',
+      cartEmpty: 'Cart is empty. Add drugs from the inventory.',
+      total: 'Total',
+      confirmSale: 'Confirm Sale',
+      selectPatientError: 'Please select a patient first.',
+      cartEmptyError: 'The sales cart is empty.',
+      saleConfirmed: 'Sale confirmed and added to patient records.'
     },
     surgery: {
       newBooking: 'New Booking',
@@ -382,9 +392,15 @@ export const translations: Translations = {
       testName: 'Test Name',
       price: 'Price',
       iqd: 'IQD',
-      costCalculator: 'Cost Calculator',
-      noTestsSelected: 'Add tests from the list to calculate the cost.',
+      costCalculator: 'Test Order',
+      noTestsSelected: 'Add tests from the list to create an order.',
       totalCost: 'Total Cost',
+      selectPatient: 'Select a patient for this order',
+      confirmOrder: 'Confirm Order',
+      selectPatientError: 'Please select a patient first.',
+      noTestsSelectedError: 'No tests selected for the order.',
+      orderConfirmed: 'Order confirmed and added to patient records.',
+      test: 'Test'
     },
     oncology: {
       totalDoctors: 'Total Doctors',
@@ -742,6 +758,8 @@ export const translations: Translations = {
       noPatientsTitle: 'لا يوجد مرضى مسجلون بعد',
       noPatientsDesc: 'انقر على الزر لبدء تسجيل أول مريض.',
       toDepartment: 'إلى قسم',
+      serviceRequired: 'الخدمة المطلوبة',
+      selectServicePlaceholder: 'اختر خدمة',
       validation: {
         patientNameRequired: 'اسم المريض مطلوب',
         dayRequired: 'اليوم مطلوب',
@@ -765,6 +783,14 @@ export const translations: Translations = {
       price: 'السعر',
       searchPlaceholder: 'ابحث عن دواء...',
       iqd: 'دينار',
+      salesCart: 'سلة المبيعات',
+      selectPatient: 'اختر مريضاً لهذه العملية',
+      cartEmpty: 'السلة فارغة. أضف أدوية من المخزون.',
+      total: 'الإجمالي',
+      confirmSale: 'تأكيد البيع',
+      selectPatientError: 'يرجى اختيار مريض أولاً.',
+      cartEmptyError: 'سلة المبيعات فارغة.',
+      saleConfirmed: 'تم تأكيد البيع وإضافته لسجلات المريض.'
     },
     surgery: {
       newBooking: 'حجز جديد',
@@ -789,9 +815,15 @@ export const translations: Translations = {
       testName: 'اسم الفحص',
       price: 'السعر',
       iqd: 'دينار',
-      costCalculator: 'حاسبة التكلفة',
-      noTestsSelected: 'أضف فحوصات من القائمة لحساب التكلفة.',
+      costCalculator: 'طلب فحوصات',
+      noTestsSelected: 'أضف فحوصات من القائمة لإنشاء طلب.',
       totalCost: 'التكلفة الإجمالية',
+      selectPatient: 'اختر مريضاً لهذا الطلب',
+      confirmOrder: 'تأكيد الطلب',
+      selectPatientError: 'يرجى اختيار مريض أولاً.',
+      noTestsSelectedError: 'لم يتم اختيار أي فحوصات للطلب.',
+      orderConfirmed: 'تم تأكيد الطلب وإضافته لسجلات المريض.',
+      test: 'فحص'
     },
     oncology: {
       totalDoctors: 'إجمالي الأطباء',
