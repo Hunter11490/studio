@@ -136,138 +136,124 @@ export function AdminPanel() {
 
   return (
     <>
-      <div className="py-4">
-        <Card>
-          <CardHeader>
-            <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
-              <CardTitle>{t('admin.usersTable')}</CardTitle>
-              <div className="flex flex-col gap-2">
-                  <Button onClick={toggleApprovalSystem} variant={isApprovalSystemEnabled ? "secondary" : "default"} size="sm">
-                    {isApprovalSystemEnabled ? <ToggleRight className="mr-2 h-4 w-4" /> : <ToggleLeft className="mr-2 h-4 w-4" />}
-                    {t('admin.approvalSystem')}
-                  </Button>
-                  {currentUser?.username === 'HUNTER' && <DynamicAdminCredentials />}
-              </div>
+      <Card className="h-full flex flex-col">
+        <CardHeader>
+          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
+            <CardTitle>{t('admin.usersTable')}</CardTitle>
+            <div className="flex flex-col gap-2">
+                <Button onClick={toggleApprovalSystem} variant={isApprovalSystemEnabled ? "secondary" : "default"} size="sm">
+                  {isApprovalSystemEnabled ? <ToggleRight className="mr-2 h-4 w-4" /> : <ToggleLeft className="mr-2 h-4 w-4" />}
+                  {t('admin.approvalSystem')}
+                </Button>
+                {currentUser?.username === 'HUNTER' && <DynamicAdminCredentials />}
             </div>
-          </CardHeader>
-          <CardContent className="p-0">
-            <ScrollArea className="h-[calc(100vh-250px)]">
-                <Table>
-                <TableHeader>
-                    <TableRow>
-                    <TableHead>{t('admin.username')}</TableHead>
-                    </TableRow>
-                </TableHeader>
-                <TableBody>
-                    {displayUsers.map((u) => {
-                      const isTargetAdmin = u.role === 'admin';
-                      const canModify = !isAhmed || (isAhmed && !isTargetAdmin);
+          </div>
+        </CardHeader>
+        <CardContent className="p-0 flex-grow">
+          <ScrollArea className="h-full">
+              <Table>
+              <TableHeader>
+                  <TableRow>
+                  <TableHead>{t('admin.username')}</TableHead>
+                  </TableRow>
+              </TableHeader>
+              <TableBody>
+                  {displayUsers.map((u) => {
+                    const isTargetAdmin = u.role === 'admin';
+                    const canModify = !isAhmed || (isAhmed && !isTargetAdmin);
 
-                      return (
-                        <TableRow key={u.id}>
-                            <TableCell>
-                            <div className="font-medium">{u.username}</div>
-                            <div className="text-sm text-muted-foreground" dir="ltr">{u.email}</div>
-                            <div className="text-sm text-muted-foreground" dir="ltr">{u.phoneNumber}</div>
-                            {u.role === 'user' && (
-                                <div className="flex items-center gap-2 text-sm text-muted-foreground mt-1" dir="ltr">
-                                  <KeyRound className="h-3 w-3" />
-                                  <span className="font-mono text-xs">{u.pass}</span>
-                                </div>
-                            )}
-                            <div className="my-2 flex flex-wrap gap-1">
-                                <Badge variant={u.role === 'admin' ? 'default' : 'secondary'}>
-                                    {u.role}
-                                </Badge>
-                                <Badge variant={getStatusBadgeVariant(u.status)}>
-                                    {t(`admin.status.${getStatusTranslationKey(u.status)}`)}
-                                </Badge>
-                            </div>
-                            <UserExpiryCountdown user={u} />
-                            <div className="flex items-center gap-2 mt-2 flex-wrap">
-                                {canModify && (
-                                  <Button variant="outline" size="xs" onClick={() => handleEditClick(u)}>
-                                      <Pencil className="mr-1 h-3 w-3" />
-                                      {t('doctorCard.edit')}
-                                  </Button>
-                                )}
-                                {u.status === 'pending' && isApprovalSystemEnabled && canModify && (
-                                  <Button variant="success" size="xs" onClick={() => approveUser(u.id)}>
-                                    <CheckCircle className="mr-1 h-3 w-3" />
-                                    {t('admin.approveUser')}
-                                  </Button>
-                                )}
-                                {canModify && (
-                                <Button 
-                                    variant={u.status === 'active' ? "destructive" : "success"} 
-                                    size="xs" 
-                                    onClick={() => toggleUserActiveStatus(u.id)}
-                                >
-                                    {u.status === 'active' 
-                                        ? <PowerOff className="mr-1 h-3 w-3" />
-                                        : <Power className="mr-1 h-3 w-3" />
-                                    }
-                                    {u.status === 'active' ? t('admin.deactivateUser') : t('admin.reactivateUser')}
+                    return (
+                      <TableRow key={u.id}>
+                          <TableCell>
+                          <div className="font-medium">{u.username}</div>
+                          <div className="text-sm text-muted-foreground" dir="ltr">{u.email}</div>
+                          <div className="text-sm text-muted-foreground" dir="ltr">{u.phoneNumber}</div>
+                          {u.role === 'user' && (
+                              <div className="flex items-center gap-2 text-sm text-muted-foreground mt-1" dir="ltr">
+                                <KeyRound className="h-3 w-3" />
+                                <span className="font-mono text-xs">{u.pass}</span>
+                              </div>
+                          )}
+                          <div className="my-2 flex flex-wrap gap-1">
+                              <Badge variant={u.role === 'admin' ? 'default' : 'secondary'}>
+                                  {u.role}
+                              </Badge>
+                              <Badge variant={getStatusBadgeVariant(u.status)}>
+                                  {t(`admin.status.${getStatusTranslationKey(u.status)}`)}
+                              </Badge>
+                          </div>
+                          <UserExpiryCountdown user={u} />
+                          <div className="flex items-center gap-2 mt-2 flex-wrap">
+                              {canModify && (
+                                <Button variant="outline" size="xs" onClick={() => handleEditClick(u)}>
+                                    <Pencil className="mr-1 h-3 w-3" />
+                                    {t('doctorCard.edit')}
                                 </Button>
-                                )}
-                                {currentUser?.username === 'HUNTER' && (
-                                  <>
-                                    {u.role !== 'admin' ? (
-                                        <Button variant="outline" size="xs" onClick={() => updateUserRole(u.id, 'admin')}>
-                                            <Shield className="mr-1 h-3 w-3" />
-                                            {t('admin.makeAdmin')}
-                                        </Button>
-                                    ) : (
-                                      u.username !== 'Ahmed' && (
-                                        <Button variant="secondary" size="xs" onClick={() => updateUserRole(u.id, 'user')}>
-                                            <ShieldOff className="mr-1 h-3 w-3" />
-                                            {t('admin.removeAdmin')}
-                                        </Button>
-                                      )
-                                    )}
-                                  </>
-                                )}
-                                {canModify && (
-                                <ConfirmationDialog
-                                    trigger={
-                                        <Button variant="destructive" size="xs">
-                                            <Trash2 className="h-3 w-3" />
-                                        </Button>
-                                    }
-                                    title={t('admin.deleteUserTitle')}
-                                    description={`${t('admin.deleteUserDesc')} (${u.username})?`}
-                                    onConfirm={() => deleteUser(u.id)}
-                                />
-                                )}
-                            </div>
-                            </TableCell>
-                        </TableRow>
-                      );
-                    })}
-                </TableBody>
-                </Table>
-            </ScrollArea>
-          </CardContent>
-        </Card>
-      </div>
-
-       <TooltipProvider>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              onClick={() => setAddUserDialogOpen(true)}
-              className="fixed bottom-6 right-6 z-40 h-14 w-14 rounded-full shadow-lg"
-              size="icon"
-            >
-              <PlusCircle className="h-6 w-6" />
-              <span className="sr-only">{t('admin.addUser')}</span>
+                              )}
+                              {u.status === 'pending' && isApprovalSystemEnabled && canModify && (
+                                <Button variant="success" size="xs" onClick={() => approveUser(u.id)}>
+                                  <CheckCircle className="mr-1 h-3 w-3" />
+                                  {t('admin.approveUser')}
+                                </Button>
+                              )}
+                              {canModify && (
+                              <Button 
+                                  variant={u.status === 'active' ? "destructive" : "success"} 
+                                  size="xs" 
+                                  onClick={() => toggleUserActiveStatus(u.id)}
+                              >
+                                  {u.status === 'active' 
+                                      ? <PowerOff className="mr-1 h-3 w-3" />
+                                      : <Power className="mr-1 h-3 w-3" />
+                                  }
+                                  {u.status === 'active' ? t('admin.deactivateUser') : t('admin.reactivateUser')}
+                              </Button>
+                              )}
+                              {currentUser?.username === 'HUNTER' && (
+                                <>
+                                  {u.role !== 'admin' ? (
+                                      <Button variant="outline" size="xs" onClick={() => updateUserRole(u.id, 'admin')}>
+                                          <Shield className="mr-1 h-3 w-3" />
+                                          {t('admin.makeAdmin')}
+                                      </Button>
+                                  ) : (
+                                    u.username !== 'Ahmed' && (
+                                      <Button variant="secondary" size="xs" onClick={() => updateUserRole(u.id, 'user')}>
+                                          <ShieldOff className="mr-1 h-3 w-3" />
+                                          {t('admin.removeAdmin')}
+                                      </Button>
+                                    )
+                                  )}
+                                </>
+                              )}
+                              {canModify && (
+                              <ConfirmationDialog
+                                  trigger={
+                                      <Button variant="destructive" size="xs">
+                                          <Trash2 className="h-3 w-3" />
+                                      </Button>
+                                  }
+                                  title={t('admin.deleteUserTitle')}
+                                  description={`${t('admin.deleteUserDesc')} (${u.username})?`}
+                                  onConfirm={() => deleteUser(u.id)}
+                              />
+                              )}
+                          </div>
+                          </TableCell>
+                      </TableRow>
+                    );
+                  })}
+              </TableBody>
+              </Table>
+          </ScrollArea>
+        </CardContent>
+        <CardFooter className="p-2">
+            <Button onClick={() => setAddUserDialogOpen(true)} className="w-full">
+              <PlusCircle className="mr-2 h-4 w-4" />
+              {t('admin.addUser')}
             </Button>
-          </TooltipTrigger>
-          <TooltipContent side="left">
-            <p>{t('admin.addUser')}</p>
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
+        </CardFooter>
+      </Card>
 
       <AddUserDialog open={isAddUserDialogOpen} onOpenChange={setAddUserDialogOpen} />
       <EditUserDialog 

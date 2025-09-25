@@ -30,8 +30,8 @@ export default function AdminPage() {
   }
 
   return (
-    <>
-      <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b bg-card px-4 md:px-6">
+    <div className="flex flex-col h-screen">
+      <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b bg-card px-4 md:px-6 shrink-0">
         <div className="flex items-center gap-2">
             <Logo className="h-8 w-8 text-primary" />
         </div>
@@ -42,10 +42,18 @@ export default function AdminPage() {
             <UserMenu />
         </div>
       </header>
-      <div className="p-4 md:p-8 space-y-8">
-        <PatientStatsDashboard />
-        <AdminPanel />
-      </div>
-    </>
+      
+      <main className="flex-grow p-4 md:p-6 grid grid-cols-1 lg:grid-cols-5 gap-6">
+        {/* Main content: User management */}
+        <div className="lg:col-span-3 h-full">
+          <AdminPanel />
+        </div>
+        
+        {/* Sidebar: Stats */}
+        <div className="lg:col-span-2 h-full">
+          <PatientStatsDashboard />
+        </div>
+      </main>
+    </div>
   );
 }

@@ -9,6 +9,7 @@ import { isToday, isYesterday, subDays, startOfDay, endOfDay, format, isSameDay 
 import { ar } from 'date-fns/locale';
 import { Activity, ArrowDown, ArrowUp, Users, Building, AlertTriangle } from 'lucide-react';
 import { translations } from '@/lib/localization';
+import { ScrollArea } from '../ui/scroll-area';
 
 function StatCard({ title, value, change, description, icon: Icon }: { title: string; value: string | number; change?: number | null; description?: string; icon: React.ElementType }) {
   const isPositive = change !== undefined && change !== null && change > 0;
@@ -99,60 +100,62 @@ export function PatientStatsDashboard() {
   }, [patients, t, lang]);
 
   return (
-    <div className="space-y-4">
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            <StatCard 
-                title={t('reception.title')} 
-                value={stats.todayCount} 
-                change={stats.dailyChange}
-                description={t('admin.stats.vsYesterday')}
-                icon={Users}
-            />
-            <StatCard 
-                title={t('admin.stats.weeklyTotal')} 
-                value={stats.weeklyCount}
-                change={stats.weeklyChange}
-                description={t('admin.stats.vsLastWeek')}
-                icon={Activity}
-            />
-            <StatCard
-                title={t('admin.stats.busiestDepartment')}
-                value={stats.busiestDepartment?.name || t('common.notAvailable')}
-                description={stats.busiestDepartment ? `${t('admin.stats.with')} ${stats.busiestDepartment.count} ${t('admin.stats.patients')}` : ''}
-                icon={Building}
-            />
-        </div>
-        <Card>
-            <CardHeader>
-                <CardTitle>{t('admin.stats.weeklyTraffic')}</CardTitle>
-            </CardHeader>
-            <CardContent className="pl-2">
-                {patients.length > 0 ? (
-                    <ResponsiveContainer width="100%" height={350}>
-                        <BarChart data={stats.dailyTraffic}>
-                            <CartesianGrid strokeDasharray="3 3" />
-                            <XAxis dataKey="name" stroke="#888888" fontSize={12} tickLine={false} axisLine={false} />
-                            <YAxis stroke="#888888" fontSize={12} tickLine={false} axisLine={false} allowDecimals={false} />
-                            <Tooltip
-                                contentStyle={{
-                                    backgroundColor: 'hsl(var(--background))',
-                                    border: '1px solid hsl(var(--border))'
-                                }}
-                            />
-                            <Bar dataKey="total" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]}>
-                                <LabelList dataKey="total" position="top" className="fill-foreground" fontSize={12} />
-                            </Bar>
-                        </BarChart>
-                    </ResponsiveContainer>
-                ) : (
-                    <div className="h-[350px] flex flex-col items-center justify-center text-muted-foreground gap-2">
-                        <AlertTriangle className="w-10 h-10" />
-                        <p>{t('admin.stats.noPatientData')}</p>
-                    </div>
-                )}
-            </CardContent>
-        </Card>
-    </div>
+    <ScrollArea className="h-full">
+      <div className="space-y-4 pr-4">
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
+              <StatCard 
+                  title={t('reception.title')} 
+                  value={stats.todayCount} 
+                  change={stats.dailyChange}
+                  description={t('admin.stats.vsYesterday')}
+                  icon={Users}
+              />
+              <StatCard 
+                  title={t('admin.stats.weeklyTotal')} 
+                  value={stats.weeklyCount}
+                  change={stats.weeklyChange}
+                  description={t('admin.stats.vsLastWeek')}
+                  icon={Activity}
+              />
+          </div>
+          <StatCard
+              title={t('admin.stats.busiestDepartment')}
+              value={stats.busiestDepartment?.name || t('common.notAvailable')}
+              description={stats.busiestDepartment ? `${t('admin.stats.with')} ${stats.busiestDepartment.count} ${t('admin.stats.patients')}` : ''}
+              icon={Building}
+          />
+          <Card>
+              <CardHeader>
+                  <CardTitle>{t('admin.stats.weeklyTraffic')}</CardTitle>
+              </CardHeader>
+              <CardContent className="pl-2">
+                  {patients.length > 0 ? (
+                      <ResponsiveContainer width="100%" height={300}>
+                          <BarChart data={stats.dailyTraffic}>
+                              <CartesianGrid strokeDasharray="3 3" />
+                              <XAxis dataKey="name" stroke="#888888" fontSize={12} tickLine={false} axisLine={false} />
+                              <YAxis stroke="#888888" fontSize={12} tickLine={false} axisLine={false} allowDecimals={false} />
+                              <Tooltip
+                                  contentStyle={{
+                                      backgroundColor: 'hsl(var(--background))',
+                                      border: '1px solid hsl(var(--border))'
+                                  }}
+                              />
+                              <Bar dataKey="total" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]}>
+                                  <LabelList dataKey="total" position="top" className="fill-foreground" fontSize={12} />
+                              </Bar>
+                          </BarChart>
+                      </ResponsiveContainer>
+                  ) : (
+                      <div className="h-[300px] flex flex-col items-center justify-center text-muted-foreground gap-2">
+                          <AlertTriangle className="w-10 h-10" />
+                          <p>{t('admin.stats.noPatientData')}</p>
+                      </div>
+                  )}
+              </CardContent>
+          </Card>
+      </div>
+    </ScrollArea>
   );
 }
 
