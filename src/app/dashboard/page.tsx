@@ -142,11 +142,11 @@ export default function HospitalDashboardPage() {
      }
 
      const isClickable = dept.href !== '#';
-     const isLoading = loadingDept === dept.href;
+     const isLoading = loadingDept === dept.name;
 
      const content = (
         <Card 
-            onClick={() => isClickable && setLoadingDept(dept.href)}
+            onClick={() => isClickable && setLoadingDept(dept.name)}
             className={cn(
                 "flex flex-col justify-center items-center p-2 aspect-square text-center relative overflow-hidden transition-transform duration-300",
                 isClickable ? 'hover:scale-105 hover:shadow-primary/20 cursor-pointer' : 'opacity-50 cursor-not-allowed',
