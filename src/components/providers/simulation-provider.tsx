@@ -1,3 +1,4 @@
+
 'use client';
 
 import { createContext, useState, useEffect, useCallback, ReactNode } from 'react';
@@ -22,7 +23,11 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
   const { toast } = useToast();
   const { t } = useLanguage();
   const { addNotification } = useNotifications();
-
+  
+  // Automatically start simulation on component mount
+  useEffect(() => {
+    setIsSimulating(true);
+  }, []);
 
   const performRandomAction = useCallback(() => {
     const actions = [
@@ -135,16 +140,16 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
   }, [isSimulating, performRandomAction]);
 
   const toggleSimulation = () => {
+    const wasSimulating = isSimulating;
     setIsSimulating(prev => !prev);
+     // Show toast only when manually toggling, not on initial auto-start
+     if(wasSimulating) {
+        toast({ title: t('simulation.stopped') });
+     } else {
+        toast({ title: t('simulation.started') });
+     }
   };
   
-  useEffect(() => {
-    if (isSimulating) {
-      toast({ title: t('simulation.started') });
-    }
-  }, [isSimulating, t, toast]);
-
-
   return (
     <SimulationContext.Provider value={{ isSimulating, toggleSimulation }}>
       {children}

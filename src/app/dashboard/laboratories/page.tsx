@@ -32,41 +32,111 @@ type LabTest = {
 };
 
 const initialLabTests: LabTest[] = [
-  { id: '1', name: 'Complete Blood Count (CBC)', price: 15000 },
-  { id: '2', name: 'Lipid Profile', price: 25000 },
-  { id: '3', name: 'Liver Function Tests (LFT)', price: 30000 },
-  { id: '4', name: 'Kidney Function Tests (KFT)', price: 20000 },
-  { id: '5', name: 'Thyroid Stimulating Hormone (TSH)', price: 18000 },
-  { id: '6', name: 'Blood Sugar (Fasting & PP)', price: 10000 },
-  { id: '7', name: 'Urine Analysis', price: 5000 },
-  { id: '8', name: 'Vitamin D', price: 40000 },
-  { id: '9', name: 'HbA1c', price: 20000 },
-  { id: '10', name: 'Serum Ferritin', price: 25000 },
-  { id: '11', name: 'Serum Electrolytes', price: 15000 },
-  { id: '12', name: 'C-Reactive Protein (CRP)', price: 12000 },
-  { id: '13', name: 'Prothrombin Time (PT)', price: 10000 },
-  { id: '14', name: 'Erythrocyte Sedimentation Rate (ESR)', price: 8000 },
-  { id: '15', name: 'Blood Grouping & Rh Factor', price: 5000 },
-  { id: '16', name: 'Hepatitis B Surface Antigen (HBsAg)', price: 20000 },
-  { id: '17', name: 'Hepatitis C Virus (HCV)', price: 25000 },
-  { id: '18', name: 'HIV I & II', price: 30000 },
-  { id: '19', name: 'D-Dimer', price: 35000 },
-  { id: '20', name: 'Ferritin', price: 25000 },
-  { id: '21', name: 'Troponin-I', price: 45000 },
-  { id: '22', name: 'Creatine Kinase (CK-MB)', price: 22000 },
-  { id: '23', name: 'Uric Acid', price: 10000 },
-  { id: '24', name: 'Calcium', price: 10000 },
-  { id: '25', name: 'Magnesium', price: 12000 },
-  { id: '26', name: 'Phosphorus', price: 12000 },
-  { id: '27', name: 'Amylase', price: 18000 },
-  { id: '28', name: 'Lipase', price: 20000 },
-  { id: '29', name: 'Folic Acid', price: 25000 },
-  { id: '30', name: 'Vitamin B12', price: 30000 },
-  ...Array.from({ length: 100 }, (_, i) => ({
-    id: `test-${i + 31}`,
-    name: `Specialized Test #${i + 1}`,
-    price: 10000 + Math.floor(Math.random() * 90000)
-  }))
+    // General Chemistry
+    { id: 'cbc', name: 'Complete Blood Count (CBC)', price: 15000 },
+    { id: 'bmp', name: 'Basic Metabolic Panel (BMP)', price: 25000 },
+    { id: 'cmp', name: 'Comprehensive Metabolic Panel (CMP)', price: 35000 },
+    { id: 'lipid', name: 'Lipid Profile', price: 25000 },
+    { id: 'lft', name: 'Liver Function Tests (LFT)', price: 30000 },
+    { id: 'kft', name: 'Kidney Function Tests (KFT)', price: 20000 },
+    { id: 'thyroid_panel', name: 'Thyroid Panel (TSH, T3, T4)', price: 45000 },
+    { id: 'tsh', name: 'Thyroid Stimulating Hormone (TSH)', price: 18000 },
+    { id: 'blood_sugar', name: 'Blood Sugar (Fasting & PP)', price: 10000 },
+    { id: 'hba1c', name: 'HbA1c (Glycated Hemoglobin)', price: 20000 },
+    { id: 'urine_analysis', name: 'Urine Analysis', price: 5000 },
+    { id: 'serum_electrolytes', name: 'Serum Electrolytes', price: 15000 },
+    { id: 'uric_acid', name: 'Uric Acid', price: 10000 },
+    { id: 'calcium', name: 'Calcium', price: 10000 },
+    { id: 'magnesium', name: 'Magnesium', price: 12000 },
+    { id: 'phosphorus', name: 'Phosphorus', price: 12000 },
+    { id: 'amylase', name: 'Amylase', price: 18000 },
+    { id: 'lipase', name: 'Lipase', price: 20000 },
+
+    // Vitamins & Hormones
+    { id: 'vit_d', name: 'Vitamin D, 25-Hydroxy', price: 40000 },
+    { id: 'vit_b12', name: 'Vitamin B12', price: 30000 },
+    { id: 'folic_acid', name: 'Folic Acid', price: 25000 },
+    { id: 'testosterone', name: 'Testosterone, Total', price: 30000 },
+    { id: 'estradiol', name: 'Estradiol', price: 30000 },
+    { id: 'progesterone', name: 'Progesterone', price: 30000 },
+    { id: 'cortisol', name: 'Cortisol', price: 35000 },
+    { id: 'prolactin', name: 'Prolactin', price: 25000 },
+
+    // Cardiac Markers
+    { id: 'troponin_i', name: 'Troponin-I', price: 45000 },
+    { id: 'ck_mb', name: 'Creatine Kinase (CK-MB)', price: 22000 },
+    { id: 'bnp', name: 'B-type Natriuretic Peptide (BNP)', price: 60000 },
+    { id: 'hs_crp', name: 'High-Sensitivity C-Reactive Protein (hs-CRP)', price: 25000 },
+
+    // Coagulation
+    { id: 'pt_inr', name: 'Prothrombin Time (PT/INR)', price: 10000 },
+    { id: 'aptt', name: 'Activated Partial Thromboplastin Time (aPTT)', price: 12000 },
+    { id: 'd_dimer', name: 'D-Dimer', price: 35000 },
+    { id: 'fibrinogen', name: 'Fibrinogen', price: 20000 },
+
+    // Hematology
+    { id: 'esr', name: 'Erythrocyte Sedimentation Rate (ESR)', price: 8000 },
+    { id: 'ferritin', name: 'Serum Ferritin', price: 25000 },
+    { id: 'iron_panel', name: 'Iron and TIBC Panel', price: 30000 },
+    { id: 'reticulocyte_count', name: 'Reticulocyte Count', price: 15000 },
+    { id: 'blood_group', name: 'Blood Grouping & Rh Factor', price: 5000 },
+
+    // Infectious Diseases & Immunology
+    { id: 'crp', name: 'C-Reactive Protein (CRP)', price: 12000 },
+    { id: 'aso', name: 'Antistreptolysin O (ASO) Titer', price: 15000 },
+    { id: 'rf', name: 'Rheumatoid Factor (RF)', price: 15000 },
+    { id: 'ana', name: 'Antinuclear Antibody (ANA)', price: 40000 },
+    { id: 'hiv', name: 'HIV I & II Antibody', price: 30000 },
+    { id: 'hbsag', name: 'Hepatitis B Surface Antigen (HBsAg)', price: 20000 },
+    { id: 'hcv', name: 'Hepatitis C Virus (HCV) Antibody', price: 25000 },
+    { id: 'hav', name: 'Hepatitis A Virus (HAV) Antibody', price: 25000 },
+    { id: 'vdrl', name: 'VDRL (Syphilis Test)', price: 10000 },
+    { id: 'widal', name: 'Widal Test (Typhoid)', price: 15000 },
+    { id: 'helicobacter_pylori', name: 'Helicobacter pylori (Stool/Blood)', price: 25000 },
+    { id: 'malaria', name: 'Malaria Smear', price: 10000 },
+    { id: 'dengue', name: 'Dengue NS1/IgG/IgM', price: 30000 },
+    
+    // Tumor Markers
+    { id: 'psa', name: 'Prostate-Specific Antigen (PSA)', price: 30000 },
+    { id: 'cea', name: 'Carcinoembryonic Antigen (CEA)', price: 35000 },
+    { id: 'afp', name: 'Alpha-Fetoprotein (AFP)', price: 35000 },
+    { id: 'ca125', name: 'Cancer Antigen 125 (CA-125)', price: 40000 },
+    { id: 'ca19_9', name: 'Cancer Antigen 19-9 (CA 19-9)', price: 40000 },
+    { id: 'ca15_3', name: 'Cancer Antigen 15-3 (CA 15-3)', price: 40000 },
+    { id: 'hcg', name: 'Beta-hCG (Tumor Marker)', price: 25000 },
+
+    // Microbiology
+    { id: 'urine_culture', name: 'Urine Culture & Sensitivity', price: 30000 },
+    { id: 'blood_culture', name: 'Blood Culture & Sensitivity', price: 45000 },
+    { id: 'stool_culture', name: 'Stool Culture & Sensitivity', price: 30000 },
+    { id: 'throat_swab', name: 'Throat Swab Culture', price: 25000 },
+    { id: 'gram_stain', name: 'Gram Stain', price: 10000 },
+    { id: 'afb_stain', name: 'AFB Stain (Tuberculosis)', price: 15000 },
+
+    // Other Specialized Tests
+    { id: 'g6pd', name: 'G6PD Deficiency Screen', price: 20000 },
+    { id: 'serum_protein', name: 'Serum Protein Electrophoresis', price: 35000 },
+    { id: 'ldh', name: 'Lactate Dehydrogenase (LDH)', price: 15000 },
+    { id: 'alkaline_phosphatase', name: 'Alkaline Phosphatase (ALP)', price: 10000 },
+    { id: 'ggt', name: 'Gamma-Glutamyl Transferase (GGT)', price: 12000 },
+    { id: 'total_bilirubin', name: 'Bilirubin, Total', price: 10000 },
+    { id: 'direct_bilirubin', name: 'Bilirubin, Direct', price: 10000 },
+    { id: 'albumin', name: 'Albumin', price: 10000 },
+    { id: 'globulin', name: 'Globulin', price: 10000 },
+    { id: 'creatinine', name: 'Creatinine, Serum', price: 10000 },
+    { id: 'bun', name: 'Blood Urea Nitrogen (BUN)', price: 10000 },
+    { id: 'h_pylori_breath', name: 'H. Pylori Urea Breath Test', price: 75000 },
+    { id: 'semen_analysis', name: 'Semen Analysis', price: 25000 },
+    { id: 'csf_analysis', name: 'Cerebrospinal Fluid (CSF) Analysis', price: 50000 },
+    { id: 'pleural_fluid_analysis', name: 'Pleural Fluid Analysis', price: 40000 },
+    { id: 'ascitic_fluid_analysis', name: 'Ascitic Fluid Analysis', price: 40000 },
+    { id: 'torch_panel', name: 'TORCH Panel (Toxoplasma, Rubella, CMV, HSV)', price: 80000 },
+    { id: 'allergy_panel', name: 'Food/Inhalant Allergy Panel', price: 150000 },
+    ...Array.from({ length: 30 }, (_, i) => ({
+      id: `special_test_${i + 1}`,
+      name: `Specialized Genetic Marker ${i + 1}`,
+      price: 100000 + Math.floor(Math.random() * 400000)
+    }))
 ];
 
 export default function LaboratoriesPage() {

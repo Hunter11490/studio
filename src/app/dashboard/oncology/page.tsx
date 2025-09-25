@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useMemo, useState } from 'react';
@@ -6,7 +7,7 @@ import { usePatients } from '@/hooks/use-patients';
 import { DoctorGrid } from '@/components/doctor/doctor-grid';
 import { DoctorList } from '@/components/doctor/doctor-list';
 import { useLanguage } from '@/hooks/use-language';
-import { Frown, UserSearch, Users, Activity, UserCheck, Briefcase } from 'lucide-react';
+import { Frown, UserSearch, Users, Activity, UserCheck, Stethoscope, FileText, PlusCircle } from 'lucide-react';
 import { Doctor, Patient } from '@/types';
 import { Button } from '@/components/ui/button';
 import { DoctorFormDialog } from '@/components/doctor/doctor-form-dialog';
@@ -16,16 +17,43 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { formatDistanceToNow } from 'date-fns';
 import { ar } from 'date-fns/locale';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Input } from '@/components/ui/input';
 
-function StatCard({ title, value, icon: Icon }: { title: string; value: string | number; icon: React.ElementType }) {
+const oncologyTests = [
+    { name: 'Biopsy (Needle, Incisional, Excisional)', price: 250000 },
+    { name: 'Bone Marrow Aspiration and Biopsy', price: 400000 },
+    { name: 'CT Scan (Computed Tomography)', price: 150000 },
+    { name: 'PET Scan (Positron Emission Tomography)', price: 1200000 },
+    { name: 'MRI (Magnetic Resonance Imaging)', price: 250000 },
+    { name: 'Ultrasound', price: 50000 },
+    { name: 'Mammogram', price: 75000 },
+    { name: 'Endoscopy (Upper or Lower)', price: 200000 },
+    { name: 'Tumor Marker Blood Tests (PSA, CEA, CA-125, etc.)', price: 100000 },
+    { name: 'Genetic Testing for Cancer Risk (BRCA, etc.)', price: 500000 },
+    { name: 'Immunohistochemistry (IHC)', price: 150000 },
+    { name: 'Flow Cytometry', price: 200000 },
+    { name: 'FISH (Fluorescence In Situ Hybridization)', price: 300000 },
+    { name: 'PCR (Polymerase Chain Reaction) for Cancer', price: 250000 },
+    { name: 'Chemotherapy Session (per session)', price: 350000 },
+    { name: 'Radiation Therapy (per session)', price: 200000 },
+    { name: 'Immunotherapy (e.g., Keytruda, Opdivo) (per session)', price: 4000000 },
+    { name: 'Targeted Therapy (per month supply)', price: 2500000 },
+    { name: 'Hormone Therapy', price: 150000 },
+    { name: 'Stem Cell Transplant', price: 25000000 }
+];
+
+
+function StatCard({ title, value, icon: Icon, description }: { title: string; value: string | number; icon: React.ElementType; description?: string }) {
   return (
-    <Card>
+    <Card className="transition-all hover:shadow-lg hover:-translate-y-1">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-sm font-medium">{title}</CardTitle>
-        <Icon className="h-4 w-4 text-muted-foreground" />
+        <CardTitle className="text-sm font-medium text-muted-foreground">{title}</CardTitle>
+        <Icon className="h-5 w-5 text-primary" />
       </CardHeader>
       <CardContent>
-        <div className="text-2xl font-bold">{value}</div>
+        <div className="text-3xl font-bold text-primary animate-glow">{value}</div>
+        {description && <p className="text-xs text-muted-foreground pt-1">{description}</p>}
       </CardContent>
     </Card>
   );
@@ -73,8 +101,6 @@ export default function OncologyPage() {
   const { t } = useLanguage();
   const [isAddDoctorOpen, setAddDoctorOpen] = useState(false);
   
-  // This can be dynamically set in a real app, but for now, we hardcode it.
-  // This will be used to filter doctors and pre-fill the form.
   const departmentSpecialty = "Oncology";
   
   const departmentDoctors = useMemo(() => {
@@ -88,7 +114,7 @@ export default function OncologyPage() {
       .slice(0, 10);
   }, [patients]);
   
-  const departmentStats = useMemo(() => {
+ const departmentStats = useMemo(() => {
     const totalReferrals = departmentDoctors.reduce((acc, doc) => acc + doc.referralCount, 0);
     const mostActiveDoctor = departmentDoctors.length > 0 
       ? departmentDoctors.reduce((prev, current) => (prev.referralCount > current.referralCount) ? prev : current)
@@ -97,7 +123,8 @@ export default function OncologyPage() {
     return {
       doctorCount: departmentDoctors.length,
       totalReferrals,
-      mostActiveDoctor: mostActiveDoctor?.name || t('common.notAvailable')
+      mostActiveDoctor: mostActiveDoctor?.name || t('common.notAvailable'),
+      mostActiveDoctorReferrals: mostActiveDoctor?.referralCount || 0,
     }
   }, [departmentDoctors, t]);
 
@@ -173,21 +200,53 @@ export default function OncologyPage() {
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             <StatCard title={t('oncology.totalDoctors')} value={departmentStats.doctorCount} icon={Users} />
             <StatCard title={t('oncology.totalReferrals')} value={departmentStats.totalReferrals} icon={Activity} />
-            <StatCard title={t('oncology.mostActive')} value={departmentStats.mostActiveDoctor} icon={UserCheck} />
+            <StatCard 
+              title={t('oncology.mostActive')} 
+              value={departmentStats.mostActiveDoctor} 
+              icon={UserCheck} 
+              description={`${departmentStats.mostActiveDoctorReferrals} ${t('doctorCard.referrals')}`}
+            />
         </div>
         
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-           <Card className="lg:col-span-5">
-              <CardHeader>
-                <CardTitle>{t('oncology.doctorList')}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                {renderContent()}
-              </CardContent>
-           </Card>
-           <div className="lg:col-span-2">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="lg:col-span-2 space-y-6">
+                <Card>
+                    <CardHeader>
+                        <CardTitle>{t('oncology.doctorList')}</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        {renderContent()}
+                    </CardContent>
+                </Card>
+            </div>
+            <div className="space-y-6">
+                <Card>
+                    <CardHeader>
+                        <CardTitle>{t('oncology.specializedTests')}</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <ScrollArea className="h-[250px]">
+                            <Table>
+                                <TableHeader>
+                                    <TableRow>
+                                        <TableHead>{t('lab.testName')}</TableHead>
+                                        <TableHead className="text-right">{t('lab.price')}</TableHead>
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                    {oncologyTests.map((test, index) => (
+                                        <TableRow key={index}>
+                                            <TableCell className="font-medium">{test.name}</TableCell>
+                                            <TableCell className="text-right font-mono" dir="ltr">{test.price.toLocaleString()} {t('lab.iqd')}</TableCell>
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
+                        </ScrollArea>
+                    </CardContent>
+                </Card>
                 <RecentPatients patients={departmentPatients} />
-           </div>
+            </div>
         </div>
 
       </main>
