@@ -86,7 +86,11 @@ export function PatientRegistrationDialog({ open, onOpenChange, patientToEdit }:
   
   useEffect(() => {
     if (patientToEdit) {
-      form.reset(patientToEdit);
+      const dobParts = patientToEdit.dob || { day: '', month: '', year: '' };
+      form.reset({
+        ...patientToEdit,
+        dob: dobParts,
+      });
       setIdFrontPreview(patientToEdit.idFront || null);
       setIdBackPreview(patientToEdit.idBack || null);
     } else {
@@ -393,12 +397,12 @@ export function PatientRegistrationDialog({ open, onOpenChange, patientToEdit }:
                   name="doctorId"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>{t('reception.assignDoctor')}</FormLabel>
+                      <FormLabel>{t('reception.referredBy')}</FormLabel>
                       <div className="flex gap-2">
-                          <Select onValueChange={field.onChange} defaultValue={field.value} disabled={doctors.length === 0} dir={dir}>
+                          <Select onValueChange={field.onChange} value={field.value} disabled={doctors.length === 0} dir={dir}>
                               <FormControl>
                                   <SelectTrigger>
-                                  <SelectValue placeholder={t('reception.assignDoctorPlaceholder')} />
+                                  <SelectValue placeholder={t('reception.referredByPlaceholder')} />
                                   </SelectTrigger>
                               </FormControl>
                               <SelectContent>

@@ -3,13 +3,14 @@
 import { useState, useMemo } from 'react';
 import { useLanguage } from '@/hooks/use-language';
 import { usePatients } from '@/hooks/use-patients';
+import { useDoctors } from '@/hooks/use-doctors';
 import { format, formatRelative, parseISO, startOfToday } from 'date-fns';
 import { ar } from 'date-fns/locale';
 import { UserMenu } from '@/components/layout/user-menu';
 import { Logo } from '@/components/logo';
 import { PatientRegistrationDialog } from '@/components/reception/patient-registration-dialog';
 import { Button } from '@/components/ui/button';
-import { Plus, Pencil } from 'lucide-react';
+import { Plus, Pencil, User } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Patient } from '@/types';
@@ -17,7 +18,10 @@ import { Stethoscope } from 'lucide-react';
 
 function PatientItem({ patient }: { patient: Patient }) {
   const { t } = useLanguage();
+  const { doctors } = useDoctors();
   const [isEditing, setIsEditing] = useState(false);
+  
+  const referringDoctor = patient.doctorId ? doctors.find(d => d.id === patient.doctorId) : null;
 
   return (
     <>
@@ -25,6 +29,12 @@ function PatientItem({ patient }: { patient: Patient }) {
         <div>
           <p className="font-semibold">{patient.patientName}</p>
           <p className="text-sm text-muted-foreground">{t('reception.toDepartment')} {t(`departments.${patient.department}`)}</p>
+          {referringDoctor && (
+            <p className="text-xs text-muted-foreground flex items-center gap-1.5 mt-1">
+              <User className="h-3 w-3" />
+              {t('reception.referredBy')}: {referringDoctor.name}
+            </p>
+          )}
         </div>
         <div className="flex items-center gap-2">
             <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => setIsEditing(true)}>
