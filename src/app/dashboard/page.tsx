@@ -122,15 +122,15 @@ export default function HospitalDashboardPage() {
      const isClickable = dept.href !== '#';
      const content = (
         <Card className={`relative overflow-hidden transition-transform duration-300 ${isClickable ? 'hover:scale-105 hover:shadow-primary/20' : 'opacity-50 cursor-not-allowed'}`}>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 p-3 pb-1">
-              <CardTitle className="text-xs font-medium">{lang === 'ar' ? dept.name_ar : dept.name}</CardTitle>
-              <dept.icon className="h-4 w-4 text-muted-foreground" />
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 p-2 pb-0">
+              <CardTitle className="text-[11px] font-medium">{lang === 'ar' ? dept.name_ar : dept.name}</CardTitle>
+              <dept.icon className="h-3.5 w-3.5 text-muted-foreground" />
             </CardHeader>
-            <CardContent className="p-3">
-              <div className="text-lg font-bold font-headline text-primary">{lang === 'ar' ? t(`departments.${dept.name.toLowerCase()}`) : dept.name}</div>
+            <CardContent className="p-2 pt-1">
+              <div className="text-base font-bold font-headline text-primary truncate">{lang === 'ar' ? t(`departments.${dept.name.toLowerCase()}`) : dept.name}</div>
               <p className="text-[10px] text-muted-foreground leading-tight">{lang === 'ar' ? dept.description_ar : dept.description}</p>
             </CardContent>
-             <StethoscopeLogo className="absolute -right-3 -bottom-3 h-14 w-14 text-primary/5 opacity-50" />
+             <StethoscopeLogo className="absolute -right-2 -bottom-2 h-10 w-10 text-primary/5 opacity-50" />
         </Card>
      )
 
@@ -139,11 +139,11 @@ export default function HospitalDashboardPage() {
 
   return (
     <>
-      <div className="text-center mb-6">
+      <div className="text-center mb-4">
         <h1 className="text-3xl font-bold font-headline tracking-tight">{t('appName')}</h1>
         <p className="text-muted-foreground">{t('appSubtitle')}</p>
       </div>
-      <div className="grid gap-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+      <div className="grid gap-2 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
         {departments.map(getDepartmentNode)}
       </div>
       <WelcomeDialog open={showWelcome} onOpenChange={setShowWelcome} onFinished={handleWelcomeClose} />
