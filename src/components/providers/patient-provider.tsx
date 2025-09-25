@@ -1,15 +1,10 @@
 'use client';
 
-import { createContext, useState, useMemo, useEffect, useCallback } from 'react';
-import { useLocalStorage } from '@/hooks/use-local-storage';
+import { createContext, useState, useMemo, useCallback } from 'react';
 import { Patient, FinancialRecord } from '@/types';
-import { useAuth } from '@/hooks/use-auth';
 import { useDoctors } from '@/hooks/use-doctors';
 import { generateInitialData } from '@/lib/mock-patients';
 
-const PATIENTS_STORAGE_KEY = 'iraqi_doctors_patients_global_v2';
-
-// Generate the initial data once
 const initialData = generateInitialData();
 const initialPatients = initialData.patients;
 
@@ -23,18 +18,15 @@ export type PatientContextType = {
 export const PatientContext = createContext<PatientContextType | null>(null);
 
 export function PatientProvider({ children }: { children: React.ReactNode }) {
-  const { user } = useAuth();
   const { updateDoctor } = useDoctors();
   
-  const [patients, setPatients] = useLocalStorage<Patient[]>(
-    PATIENTS_STORAGE_KEY, 
-    initialPatients
-  );
+  const [patients, setPatients] = useState<Patient[]>(initialPatients);
 
   const addFinancialRecord = useCallback((patientId: string, record: Omit<FinancialRecord, 'id'>) => {
     const newRecord: FinancialRecord = {
       ...record,
       id: new Date().toISOString() + Math.random(),
+      date: new Date().toISOString(),
     };
     
     setPatients(prev => 
@@ -90,11 +82,11 @@ export function PatientProvider({ children }: { children: React.ReactNode }) {
   }, [setPatients]);
   
   const value = useMemo(() => ({
-    patients: user ? patients : [],
+    patients,
     addPatient,
     updatePatient,
     addFinancialRecord,
-  }), [patients, user, addPatient, updatePatient, addFinancialRecord]);
+  }), [patients, addPatient, updatePatient, addFinancialRecord]);
 
   return <PatientContext.Provider value={value}>{children}</PatientContext.Provider>;
 }

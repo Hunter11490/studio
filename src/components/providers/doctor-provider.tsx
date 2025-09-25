@@ -1,18 +1,8 @@
 'use client';
 
 import { createContext, useState, useMemo, useEffect, useCallback } from 'react';
-import { useLocalStorage } from '@/hooks/use-local-storage';
 import { Doctor } from '@/types';
-import { useAuth } from '@/hooks/use-auth';
 import { generateInitialData } from '@/lib/mock-patients';
-
-const DOCTORS_STORAGE_KEY = 'iraqi_doctors_list_global_v2';
-const VIEW_MODE_STORAGE_KEY = 'iraqi_doctors_view_mode_v1';
-const SORT_OPTION_STORAGE_KEY = 'iraqi_doctors_sort_option_v1';
-
-// Generate the initial data once
-const initialData = generateInitialData();
-const initialDoctors = initialData.doctors;
 
 // This allows for functional updates, e.g., setCount(c => c + 1)
 type UpdateFunction<T> = (prev: T) => T;
@@ -46,18 +36,15 @@ export type DoctorContextType = {
 
 export const DoctorContext = createContext<DoctorContextType | null>(null);
 
-export function DoctorProvider({ children }: { children: React.ReactNode }) {
-  const { user } = useAuth();
-  
-  const [doctors, setDoctors] = useLocalStorage<Doctor[]>(
-    DOCTORS_STORAGE_KEY, 
-    initialDoctors
-  );
+const initialData = generateInitialData();
+const initialDoctors = initialData.doctors;
 
+export function DoctorProvider({ children }: { children: React.ReactNode }) {
+  const [doctors, setDoctors] = useState<Doctor[]>(initialDoctors);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterPartners, setFilterPartners] = useState(false);
-  const [viewMode, setViewMode] = useLocalStorage<'grid' | 'list'>(VIEW_MODE_STORAGE_KEY, 'grid');
-  const [sortOption, setSortOption] = useLocalStorage<SortOption>(SORT_OPTION_STORAGE_KEY, 'name');
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [sortOption, setSortOption] = useState<SortOption>('name');
 
   const addDoctor = (doctorData: Omit<Doctor, 'id' | 'createdAt'>) => {
     const referralCount = doctorData.referralCount || 0;
@@ -146,7 +133,7 @@ export function DoctorProvider({ children }: { children: React.ReactNode }) {
   };
 
   const value = useMemo(() => ({
-    doctors: user ? doctors : [],
+    doctors,
     addDoctor,
     addMultipleDoctors,
     updateDoctor,
@@ -165,7 +152,7 @@ export function DoctorProvider({ children }: { children: React.ReactNode }) {
     setViewMode,
     sortOption,
     setSortOption,
-  }), [doctors, user, searchTerm, filterPartners, viewMode, sortOption, addMultipleDoctors, updateDoctor, updateMultipleDoctors, deleteDoctor, deleteAllDoctors, getDoctorById, importDoctors, uncheckAllPartners, resetAllReferrals, setViewMode, setSortOption]);
+  }), [doctors, searchTerm, filterPartners, viewMode, sortOption, addMultipleDoctors, updateDoctor, updateMultipleDoctors, deleteDoctor, deleteAllDoctors, getDoctorById, importDoctors, uncheckAllPartners, resetAllReferrals, setViewMode, setSortOption]);
 
   return <DoctorContext.Provider value={value}>{children}</DoctorContext.Provider>;
 }

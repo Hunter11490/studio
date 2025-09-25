@@ -157,10 +157,11 @@ export function UserMenu() {
     router.replace('/login');
   }
 
-  const MenuItem = ({ icon, label, onClick, destructive = false, trigger: TriggerComp }: { icon: React.ReactNode, label: string, onClick?: (e: React.MouseEvent) => void, destructive?: boolean, trigger?: React.ReactNode }) => {
+  const MenuItem = ({ icon, label, onClick, destructive = false, trigger: TriggerComp, disabled = false }: { icon: React.ReactNode, label: string, onClick?: (e: React.MouseEvent) => void, destructive?: boolean, trigger?: React.ReactNode, disabled?: boolean }) => {
     const button = (
         <Button
           variant="ghost"
+          disabled={disabled}
           className={`w-full justify-start h-10 ${destructive ? 'text-destructive hover:text-destructive' : ''}`}
           onClick={(e) => {
             if (onClick) {
@@ -218,26 +219,26 @@ export function UserMenu() {
 
               <div className="px-2 py-1.5 text-sm font-semibold">{t('userMenu.dataActions')}</div>
               <MenuItem icon={<Map className="mr-2 h-4 w-4" />} label={t('userMenu.searchOnMap')} onClick={handleWorkInProgress} />
-              <MenuItem icon={<FileDown className="mr-2 h-4 w-4" />} label={t('userMenu.exportData')} onClick={() => { handleExport(); handleMenuOpenChange(false); }} />
-              <MenuItem icon={<FileUp className="mr-2 h-4 w-4" />} label={t('userMenu.importData')} onClick={() => { openImportDialog(); handleMenuOpenChange(false); }} />
+              <MenuItem icon={<FileDown className="mr-2 h-4 w-4" />} label={t('userMenu.exportData')} disabled={true} onClick={() => { handleExport(); handleMenuOpenChange(false); }} />
+              <MenuItem icon={<FileUp className="mr-2 h-4 w-4" />} label={t('userMenu.importData')} disabled={true} onClick={() => { openImportDialog(); handleMenuOpenChange(false); }} />
               
               <ConfirmationDialog
                   title={t('dialogs.resetReferralsTitle')}
                   description={t('dialogs.resetReferralsDesc')}
                   onConfirm={() => { resetAllReferrals(); handleMenuOpenChange(false); }}
-                  trigger={<MenuItem icon={<RotateCcw className="mr-2 h-4 w-4" />} label={t('userMenu.resetAllReferrals')} destructive />}
+                  trigger={<MenuItem icon={<RotateCcw className="mr-2 h-4 w-4" />} label={t('userMenu.resetAllReferrals')} destructive disabled={true} />}
               />
               <ConfirmationDialog
                   title={t('dialogs.uncheckPartnersTitle')}
                   description={t('dialogs.uncheckPartnersDesc')}
                   onConfirm={() => { uncheckAllPartners(); handleMenuOpenChange(false); }}
-                  trigger={<MenuItem icon={<StarOff className="mr-2 h-4 w-4" />} label={t('userMenu.uncheckAllPartners')} destructive />}
+                  trigger={<MenuItem icon={<StarOff className="mr-2 h-4 w-4" />} label={t('userMenu.uncheckAllPartners')} destructive disabled={true}/>}
               />
                <ConfirmationDialog
                   title={t('dialogs.deleteAllDoctorsTitle')}
                   description={t('dialogs.deleteAllDoctorsDesc')}
                   onConfirm={() => { deleteAllDoctors(); handleMenuOpenChange(false); }}
-                  trigger={<MenuItem icon={<Trash2 className="mr-2 h-4 w-4" />} label={t('userMenu.deleteAllDoctors')} destructive />}
+                  trigger={<MenuItem icon={<Trash2 className="mr-2 h-4 w-4" />} label={t('userMenu.deleteAllDoctors')} destructive disabled={true} />}
               />
 
               <Separator className="my-2" />
