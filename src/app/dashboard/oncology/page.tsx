@@ -73,6 +73,8 @@ export default function OncologyPage() {
   const { t } = useLanguage();
   const [isAddDoctorOpen, setAddDoctorOpen] = useState(false);
   
+  // This can be dynamically set in a real app, but for now, we hardcode it.
+  // This will be used to filter doctors and pre-fill the form.
   const departmentSpecialty = "Oncology";
   
   const departmentDoctors = useMemo(() => {
@@ -81,7 +83,7 @@ export default function OncologyPage() {
 
   const departmentPatients = useMemo(() => {
     return patients
-      .filter(p => p.department === 'oncology')
+      .filter(p => p.department.toLowerCase() === departmentSpecialty.toLowerCase())
       .sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
       .slice(0, 10);
   }, [patients]);
@@ -166,7 +168,7 @@ export default function OncologyPage() {
 
   return (
     <>
-      <Header />
+      <Header onAddDoctor={() => setAddDoctorOpen(true)} />
       <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             <StatCard title={t('oncology.totalDoctors')} value={departmentStats.doctorCount} icon={Users} />
@@ -189,7 +191,7 @@ export default function OncologyPage() {
         </div>
 
       </main>
-      <DoctorFormDialog open={isAddDoctorOpen} onOpenChange={setAddDoctorOpen} />
+      <DoctorFormDialog open={isAddDoctorOpen} onOpenChange={setAddDoctorOpen} departmentSpecialty={departmentSpecialty} />
     </>
   );
 }

@@ -26,6 +26,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
+import { DoctorFormDialog } from '../doctor/doctor-form-dialog';
 
 const EXPIRY_DURATION_MS = 33 * 24 * 60 * 60 * 1000;
 
@@ -99,6 +100,7 @@ export function AdminPanel() {
   const { t } = useLanguage();
   const [isAddUserDialogOpen, setAddUserDialogOpen] = useState(false);
   const [isEditUserDialogOpen, setEditUserDialogOpen] = useState(false);
+  const [isAddDoctorDialogOpen, setAddDoctorDialogOpen] = useState(false);
   const [userToEdit, setUserToEdit] = useState<StoredUser | null>(null);
   
   useEffect(() => {
@@ -150,7 +152,7 @@ export function AdminPanel() {
           </div>
         </CardHeader>
         <CardContent className="p-0 flex-grow">
-          <ScrollArea className="h-full">
+          <ScrollArea className="h-full max-h-[calc(100vh-380px)]">
               <Table>
               <TableHeader>
                   <TableRow>
@@ -247,15 +249,20 @@ export function AdminPanel() {
               </Table>
           </ScrollArea>
         </CardContent>
-        <CardFooter className="p-2">
+        <CardFooter className="p-2 border-t flex flex-col sm:flex-row gap-2">
             <Button onClick={() => setAddUserDialogOpen(true)} className="w-full">
               <PlusCircle className="mr-2 h-4 w-4" />
               {t('admin.addUser')}
+            </Button>
+            <Button onClick={() => setAddDoctorDialogOpen(true)} className="w-full" variant="secondary">
+              <PlusCircle className="mr-2 h-4 w-4" />
+              {t('header.addDoctor')}
             </Button>
         </CardFooter>
       </Card>
 
       <AddUserDialog open={isAddUserDialogOpen} onOpenChange={setAddUserDialogOpen} />
+      <DoctorFormDialog open={isAddDoctorDialogOpen} onOpenChange={setAddDoctorDialogOpen} />
       <EditUserDialog 
         open={isEditUserDialogOpen} 
         onOpenChange={setEditUserDialogOpen}

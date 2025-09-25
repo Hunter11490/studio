@@ -37,9 +37,10 @@ type DoctorFormDialogProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   doctorToEdit?: Doctor;
+  departmentSpecialty?: string;
 };
 
-export function DoctorFormDialog({ open, onOpenChange, doctorToEdit }: DoctorFormDialogProps) {
+export function DoctorFormDialog({ open, onOpenChange, doctorToEdit, departmentSpecialty }: DoctorFormDialogProps) {
   const { addDoctor, updateDoctor } = useDoctors();
   const { t, dir } = useLanguage();
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -90,7 +91,7 @@ export function DoctorFormDialog({ open, onOpenChange, doctorToEdit }: DoctorFor
     } else {
       form.reset({
         name: '',
-        specialty: '',
+        specialty: departmentSpecialty || '',
         phoneNumber: '',
         clinicAddress: '',
         clinicCardImageUrl: '',
@@ -98,7 +99,7 @@ export function DoctorFormDialog({ open, onOpenChange, doctorToEdit }: DoctorFor
       });
       setImagePreview(null);
     }
-  }, [doctorToEdit, open, form]);
+  }, [doctorToEdit, open, form, departmentSpecialty]);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -129,6 +130,8 @@ export function DoctorFormDialog({ open, onOpenChange, doctorToEdit }: DoctorFor
     }
     handleOpenChange(false);
   };
+
+  const isSpecialtyDisabled = !!departmentSpecialty && !doctorToEdit;
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
@@ -162,7 +165,7 @@ export function DoctorFormDialog({ open, onOpenChange, doctorToEdit }: DoctorFor
                     <FormItem>
                       <FormLabel>{t('doctorForm.specialty')}</FormLabel>
                       <FormControl>
-                        <Input {...field} />
+                        <Input {...field} disabled={isSpecialtyDisabled} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>

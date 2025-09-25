@@ -20,13 +20,14 @@ import { translateText } from '@/ai/flows/translation-flow';
 import type { Doctor, DoctorInfo } from '@/types';
 import { translations } from '@/lib/localization';
 
-
 function capitalizeFirstLetter(string: string) {
   if (!string) return string;
-  return string.charAt(0).toUpperCase() + string.slice(1);
+  // Handle camelCase like 'generalSurgery' -> 'General Surgery'
+  const withSpaces = string.replace(/([A-Z])/g, ' $1').trim();
+  return withSpaces.charAt(0).toUpperCase() + withSpaces.slice(1);
 }
 
-export function Header() {
+export function Header({ onAddDoctor }: { onAddDoctor?: () => void }) {
   const { lang, t } = useLanguage();
   const pathname = usePathname();
   const { 
@@ -48,18 +49,25 @@ export function Header() {
   const [isTranslating, setIsTranslating] = useState(false);
   const { toast } = useToast();
 
-  const departmentName = useMemo(() => {
+  const departmentSlug = useMemo(() => {
     const pathParts = pathname.split('/').filter(Boolean);
-    const deptSlug = pathParts[pathParts.length -1];
-    
-    // Find the key in translations.en.departments that matches the slug
+    return pathParts[pathParts.length - 1];
+  }, [pathname]);
+
+  const departmentName = useMemo(() => {
     const deptKey = Object.keys(translations.en.departments).find(key => 
-      key.toLowerCase() === deptSlug.toLowerCase()
+      key.toLowerCase() === departmentSlug.toLowerCase()
     );
+    return deptKey ? t(`departments.${deptKey as keyof typeof translations.en.departments}`) : capitalizeFirstLetter(departmentSlug);
+  }, [departmentSlug, t]);
 
-    return deptKey ? t(`departments.${deptKey}`) : capitalizeFirstLetter(deptSlug);
-  }, [pathname, t]);
-
+  const handleAddClick = () => {
+    if (onAddDoctor) {
+      onAddDoctor();
+    } else {
+      setAddDoctorOpen(true);
+    }
+  };
 
   const handleFullscreenToggle = async () => {
     if (!document.fullscreenElement) {
@@ -115,6 +123,10 @@ export function Header() {
     }
   };
 
+  // Determine if the current page should show a generic add doctor button
+  // vs. a department-specific one.
+  const isGenericAddPage = departmentSlug === 'representatives' || departmentSlug === 'admin';
+
 
   return (
     <>
@@ -123,7 +135,7 @@ export function Header() {
           {/* Logo and left-aligned items */}
           <div className="flex items-center gap-2">
             <Logo className="h-8 w-8 text-primary" />
-            <Button size="sm" className="gap-1" onClick={() => setAddDoctorOpen(true)}>
+            <Button size="sm" className="gap-1" onClick={handleAddClick}>
               <PlusCircle className="h-4 w-4" />
               <span className="hidden md:inline">{t('header.addDoctor')}</span>
             </Button>
@@ -265,7 +277,8 @@ export function Header() {
           </div>
         </div>
       </header>
-      <DoctorFormDialog open={isAddDoctorOpen} onOpenChange={setAddDoctorOpen} />
+      {/* Conditionally render the DoctorFormDialog for generic additions */}
+      {isGenericAddPage && <DoctorFormDialog open={isAddDoctorOpen} onOpenChange={setAddDoctorOpen} />}
       <PartnerDashboard open={isPartnerDashboardOpen} onOpenChange={setPartnerDashboardOpen} />
     </>
   );
