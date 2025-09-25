@@ -5,7 +5,7 @@ import { usePatients } from '@/hooks/use-patients';
 import { useLanguage } from '@/hooks/use-language';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LabelList } from 'recharts';
-import { isToday, isYesterday, subDays, startOfDay, endOfDay, format } from 'date-fns';
+import { isToday, isYesterday, subDays, startOfDay, endOfDay, format, isSameDay } from 'date-fns';
 import { ar } from 'date-fns/locale';
 import { Activity, ArrowDown, ArrowUp, Users, Building, AlertTriangle } from 'lucide-react';
 import { translations } from '@/lib/localization';
@@ -97,12 +97,6 @@ export function PatientStatsDashboard() {
         dailyTraffic
     };
   }, [patients, t, lang]);
-
-  const isSameDay = (d1: Date, d2: Date) => {
-      return d1.getFullYear() === d2.getFullYear() &&
-             d1.getMonth() === d2.getMonth() &&
-             d1.getDate() === d2.getDate();
-  };
 
   return (
     <div className="space-y-4">
