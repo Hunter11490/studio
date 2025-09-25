@@ -121,16 +121,10 @@ export default function HospitalDashboardPage() {
   const getDepartmentNode = (dept: (typeof departments)[0]) => {
      const isClickable = dept.href !== '#';
      const content = (
-        <Card className={`relative overflow-hidden transition-transform duration-300 ${isClickable ? 'hover:scale-105 hover:shadow-primary/20' : 'opacity-50 cursor-not-allowed'}`}>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 p-2 pb-0">
-              <CardTitle className="text-[11px] font-medium">{lang === 'ar' ? dept.name_ar : dept.name}</CardTitle>
-              <dept.icon className="h-3.5 w-3.5 text-muted-foreground" />
-            </CardHeader>
-            <CardContent className="p-2 pt-1">
-              <div className="text-base font-bold font-headline text-primary truncate">{lang === 'ar' ? t(`departments.${dept.name.toLowerCase()}`) : dept.name}</div>
-              <p className="text-[10px] text-muted-foreground leading-tight">{lang === 'ar' ? dept.description_ar : dept.description}</p>
-            </CardContent>
-             <StethoscopeLogo className="absolute -right-2 -bottom-2 h-10 w-10 text-primary/5 opacity-50" />
+        <Card className={`flex flex-col justify-center items-center p-4 aspect-square text-center relative overflow-hidden transition-transform duration-300 ${isClickable ? 'hover:scale-105 hover:shadow-primary/20' : 'opacity-50 cursor-not-allowed'}`}>
+            <dept.icon className="h-6 w-6 mb-2 text-primary" />
+            <CardTitle className="text-sm font-semibold tracking-tight">{lang === 'ar' ? dept.name_ar : dept.name}</CardTitle>
+            <StethoscopeLogo className="absolute -right-4 -bottom-4 h-12 w-12 text-primary/5 opacity-50" />
         </Card>
      )
 
@@ -139,11 +133,11 @@ export default function HospitalDashboardPage() {
 
   return (
     <>
-      <div className="text-center mb-4">
+      <div className="text-center mb-6">
         <h1 className="text-3xl font-bold font-headline tracking-tight">{t('appName')}</h1>
         <p className="text-muted-foreground">{t('appSubtitle')}</p>
       </div>
-      <div className="grid gap-2 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
+      <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3 p-4">
         {departments.map(getDepartmentNode)}
       </div>
       <WelcomeDialog open={showWelcome} onOpenChange={setShowWelcome} onFinished={handleWelcomeClose} />
