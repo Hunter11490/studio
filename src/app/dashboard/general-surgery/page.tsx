@@ -181,16 +181,18 @@ export default function DepartmentPage() {
             />
         </div>
         
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-           <Card className="lg:col-span-5">
-              <CardHeader>
-                <CardTitle>{t('oncology.doctorList')}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                {renderContent()}
-              </CardContent>
-           </Card>
-           <div className="lg:col-span-2">
+        <div className="grid gap-4 md:grid-cols-3">
+           <div className="md:col-span-2">
+            <Card>
+                <CardHeader>
+                  <CardTitle>{t('oncology.doctorList')}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {renderContent()}
+                </CardContent>
+            </Card>
+           </div>
+           <div className="md:col-span-1">
                 <RecentPatients patients={departmentPatients} />
            </div>
         </div>

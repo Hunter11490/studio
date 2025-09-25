@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useState, useMemo, useEffect, useCallback } from 'react';
@@ -109,13 +110,14 @@ export default function SurgeryPage() {
                 <div className="flex items-center gap-2">
                     <Logo className="h-8 w-8 text-primary" />
                 </div>
-                <div className="flex items-center gap-4">
+                <div className="flex flex-col items-center">
+                    <h1 className="text-lg font-semibold tracking-tight whitespace-nowrap text-primary animate-glow">{t('departments.surgicalOperations')}</h1>
                     <div className="flex items-center gap-2">
-                        <Button variant="outline" size="icon" onClick={() => changeWeek('prev')}><ChevronLeft className="h-4 w-4" /></Button>
-                        <h2 className="text-lg font-semibold text-center w-48 tabular-nums">
+                        <Button variant="ghost" size="icon" onClick={() => changeWeek('prev')}><ChevronLeft className="h-4 w-4" /></Button>
+                        <h2 className="text-sm font-semibold text-center w-32 tabular-nums">
                            {format(weekStart, 'dd MMM yyyy', {locale: lang === 'ar' ? ar : undefined})}
                         </h2>
-                        <Button variant="outline" size="icon" onClick={() => changeWeek('next')}><ChevronRight className="h-4 w-4" /></Button>
+                        <Button variant="ghost" size="icon" onClick={() => changeWeek('next')}><ChevronRight className="h-4 w-4" /></Button>
                     </div>
                 </div>
                 <div className="flex items-center gap-4">
