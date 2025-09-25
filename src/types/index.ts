@@ -23,6 +23,30 @@ export type Doctor = {
   isLoading?: boolean;
 };
 
+export type Patient = {
+  id: string;
+  patientName: string;
+  dob: {
+    day: string;
+    month: string;
+    year: string;
+  };
+  receptionDate: string;
+  address: {
+    governorate: string;
+    region: string;
+    mahalla: string;
+    zuqaq: string;
+    dar: string;
+  };
+  idFront?: string;
+  idBack?: string;
+  department: string;
+  doctorId?: string;
+  createdAt: string;
+};
+
+
 export type DoctorInfo = {
   name: string;
   specialty: string;

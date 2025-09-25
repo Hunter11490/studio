@@ -282,8 +282,8 @@ export const translations: Translations = {
       adminSections: 'Administrative & Service Departments'
     },
     reception: {
-      title: 'Reception Desk',
-      description: 'Register new patients and assign them to departments and doctors.',
+      title: 'New Patient Registration',
+      description: 'Register a new patient and assign them to a department.',
       patientName: 'Patient Name',
       patientNamePlaceholder: 'Enter patient\'s full name',
       dob: 'Date of Birth',
@@ -309,9 +309,13 @@ export const translations: Translations = {
       assignDoctor: 'Assign to Doctor',
       assignDoctorPlaceholder: 'Select a doctor (optional)',
       addDoctor: 'Add New Doctor',
+      addPatient: 'Add Patient',
       submitPatient: 'Register Patient',
       submitSuccessTitle: 'Patient Registered',
       submitSuccessDesc: '{patientName} has been routed to {department}.',
+      noPatientsTitle: 'No Patients Registered Yet',
+      noPatientsDesc: 'Click the button to register the first patient.',
+      toDepartment: 'to',
       validation: {
         patientNameRequired: 'Patient name is required',
         dayRequired: 'Day is required',
@@ -608,8 +612,8 @@ export const translations: Translations = {
       adminSections: 'الأقسام الإدارية والخدمية'
     },
     reception: {
-      title: 'مكتب الاستعلامات',
-      description: 'تسجيل المرضى الجدد وتوجيههم إلى الأقسام والأطباء.',
+      title: 'تسجيل مريض جديد',
+      description: 'تسجيل مريض جديد وتوجيهه إلى القسم المناسب.',
       patientName: 'اسم المريض',
       patientNamePlaceholder: 'أدخل الاسم الكامل للمريض',
       dob: 'تاريخ الميلاد',
@@ -635,9 +639,13 @@ export const translations: Translations = {
       assignDoctor: 'تحويل إلى طبيب',
       assignDoctorPlaceholder: 'اختر طبيباً (اختياري)',
       addDoctor: 'إضافة طبيب جديد',
+      addPatient: 'إضافة مريض',
       submitPatient: 'تسجيل المريض',
       submitSuccessTitle: 'تم تسجيل المريض',
       submitSuccessDesc: 'تم تحويل {patientName} إلى قسم {department}.',
+      noPatientsTitle: 'لا يوجد مرضى مسجلون بعد',
+      noPatientsDesc: 'انقر على الزر لبدء تسجيل أول مريض.',
+      toDepartment: 'إلى قسم',
       validation: {
         patientNameRequired: 'اسم المريض مطلوب',
         dayRequired: 'اليوم مطلوب',
