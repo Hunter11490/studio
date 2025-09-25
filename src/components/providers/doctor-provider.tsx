@@ -4,10 +4,15 @@ import { createContext, useState, useMemo, useEffect, useCallback } from 'react'
 import { useLocalStorage } from '@/hooks/use-local-storage';
 import { Doctor } from '@/types';
 import { useAuth } from '@/hooks/use-auth';
+import { generateInitialData } from '@/lib/mock-patients';
 
-const BASE_DOCTORS_STORAGE_KEY = 'iraqi_doctors_list_user';
+const DOCTORS_STORAGE_KEY = 'iraqi_doctors_list_global_v2';
 const VIEW_MODE_STORAGE_KEY = 'iraqi_doctors_view_mode_v1';
 const SORT_OPTION_STORAGE_KEY = 'iraqi_doctors_sort_option_v1';
+
+// Generate the initial data once
+const initialData = generateInitialData();
+const initialDoctors = initialData.doctors;
 
 // This allows for functional updates, e.g., setCount(c => c + 1)
 type UpdateFunction<T> = (prev: T) => T;
@@ -43,25 +48,16 @@ export const DoctorContext = createContext<DoctorContextType | null>(null);
 
 export function DoctorProvider({ children }: { children: React.ReactNode }) {
   const { user } = useAuth();
-  const userSpecificDoctorsKey = user ? `${BASE_DOCTORS_STORAGE_KEY}_${user.id}` : null;
   
   const [doctors, setDoctors] = useLocalStorage<Doctor[]>(
-    userSpecificDoctorsKey || 'temp_doctors_key', 
-    []
+    DOCTORS_STORAGE_KEY, 
+    initialDoctors
   );
 
   const [searchTerm, setSearchTerm] = useState('');
   const [filterPartners, setFilterPartners] = useState(false);
   const [viewMode, setViewMode] = useLocalStorage<'grid' | 'list'>(VIEW_MODE_STORAGE_KEY, 'grid');
   const [sortOption, setSortOption] = useLocalStorage<SortOption>(SORT_OPTION_STORAGE_KEY, 'name');
-
-  // When user logs out, clear the doctors from state.
-  useEffect(() => {
-    if (!user) {
-      setDoctors([]);
-    }
-  }, [user, setDoctors]);
-
 
   const addDoctor = (doctorData: Omit<Doctor, 'id' | 'createdAt'>) => {
     const referralCount = doctorData.referralCount || 0;
