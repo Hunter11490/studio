@@ -12,13 +12,13 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { PlusCircle, UserPlus, Send } from 'lucide-react';
+import { UserPlus, Send } from 'lucide-react';
 import { DoctorFormDialog } from '@/components/doctor/doctor-form-dialog';
 import { UserMenu } from '@/components/layout/user-menu';
 import { Logo } from '@/components/logo';
 
 const departments = [
-  'Oncology', 'Cardiology', 'Pediatrics', 'Neurology', 'Orthopedics', 'General Surgery', 'Ophthalmology', 'Emergency', 'Laboratory'
+  'oncology', 'cardiology', 'pediatrics', 'neurology', 'orthopedics', 'generalSurgery', 'ophthalmology', 'emergency', 'laboratory', 'reception'
 ];
 
 const formSchema = z.object({
@@ -47,8 +47,8 @@ export default function ReceptionPage() {
   const onSubmit = (values: z.infer<typeof formSchema>) => {
     console.log('Patient Registered:', values);
     toast({
-      title: 'Patient Registered',
-      description: `${values.patientName} has been routed to ${values.department}.`,
+      title: t('reception.submitSuccessTitle'),
+      description: t('reception.submitSuccessDesc', {patientName: values.patientName, department: t(`departments.${values.department}`)}),
     });
     form.reset();
   };
@@ -119,7 +119,7 @@ export default function ReceptionPage() {
                       <SelectContent>
                         {departments.map((dept) => (
                           <SelectItem key={dept} value={dept}>
-                            {t(`departments.${dept.toLowerCase()}`)}
+                            {t(`departments.${dept}`)}
                           </SelectItem>
                         ))}
                       </SelectContent>

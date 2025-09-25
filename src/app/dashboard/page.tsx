@@ -44,7 +44,7 @@ const departments = [
     description: 'Heart and blood vessel diseases.',
     description_ar: 'أمراض القلب والأوعية الدموية.',
     icon: HeartPulse,
-    href: '#',
+    href: '/dashboard/cardiology',
   },
   {
     name: 'Pediatrics',
@@ -52,7 +52,7 @@ const departments = [
     description: 'Infants, children, and adolescents care.',
     description_ar: 'رعاية الرضع والأطفال والمراهقين.',
     icon: Baby,
-    href: '#',
+    href: '/dashboard/pediatrics',
   },
   {
     name: 'Neurology',
@@ -76,7 +76,7 @@ const departments = [
     description: 'Wide range of surgical procedures.',
     description_ar: 'مجموعة واسعة من الإجراءات الجراحية.',
     icon: Scissors,
-    href: '#',
+    href: '/dashboard/surgery',
   },
   {
     name: 'Ophthalmology',
@@ -127,7 +127,7 @@ export default function HospitalDashboardPage() {
               <dept.icon className="h-5 w-5 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold font-headline text-primary">{lang === 'ar' ? dept.name_ar : dept.name}</div>
+              <div className="text-2xl font-bold font-headline text-primary">{lang === 'ar' ? t(`departments.${dept.name.toLowerCase()}`) : dept.name}</div>
               <p className="text-xs text-muted-foreground">{lang === 'ar' ? dept.description_ar : dept.description}</p>
             </CardContent>
              <StethoscopeLogo className="absolute -right-4 -bottom-4 h-20 w-20 text-primary/5 opacity-50" />

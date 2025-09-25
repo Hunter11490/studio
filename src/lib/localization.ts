@@ -272,7 +272,9 @@ export const translations: Translations = {
       assignDoctor: 'Assign to Doctor',
       noDoctor: 'No doctor selected',
       addDoctor: 'Add New Doctor',
-      submitPatient: 'Register Patient'
+      submitPatient: 'Register Patient',
+      submitSuccessTitle: 'Patient Registered',
+      submitSuccessDesc: '{patientName} has been routed to {department}.'
     }
   },
   ar: {
@@ -527,13 +529,13 @@ export const translations: Translations = {
     },
     departments: {
       reception: 'الاستعلامات',
-      oncology: 'قسم الأورام',
-      cardiology: 'قسم القلبية',
-      pediatrics: 'قسم الأطفال',
-      neurology: 'قسم الأعصاب',
-      orthopedics: 'قسم العظام',
+      oncology: 'الأورام',
+      cardiology: 'القلبية',
+      pediatrics: 'الأطفال',
+      neurology: 'الأعصاب',
+      orthopedics: 'العظام',
       generalSurgery: 'الجراحة العامة',
-      ophthalmology: 'قسم العيون',
+      ophthalmology: 'العيون',
       emergency: 'الطوارئ',
       laboratory: 'المختبر'
     },
@@ -546,7 +548,9 @@ export const translations: Translations = {
       assignDoctor: 'تحويل إلى طبيب',
       noDoctor: 'لم يتم اختيار طبيب',
       addDoctor: 'إضافة طبيب جديد',
-      submitPatient: 'تسجيل المريض'
+      submitPatient: 'تسجيل المريض',
+      submitSuccessTitle: 'تم تسجيل المريض',
+      submitSuccessDesc: 'تم تحويل {patientName} إلى قسم {department}.'
     }
   },
 };
