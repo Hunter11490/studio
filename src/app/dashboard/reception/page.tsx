@@ -80,7 +80,9 @@ export default function ReceptionPage() {
                 </CardHeader>
                 <CardContent>
                   <div className="divide-y">
-                    {groupedPatients[dateKey].map(patient => (
+                    {groupedPatients[dateKey]
+                      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+                      .map(patient => (
                        <div key={patient.id} className="py-3 flex justify-between items-center">
                           <div>
                             <p className="font-semibold">{patient.patientName}</p>
