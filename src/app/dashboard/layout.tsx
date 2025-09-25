@@ -17,7 +17,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const { user } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
-  const { t } = useLanguage();
+  const { t, dir } = useLanguage();
 
   useEffect(() => {
     if (!user) {
@@ -41,19 +41,19 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   return (
     <div className="flex min-h-screen w-full flex-col">
-       <main className="flex-grow p-4 md:p-8 relative">
+       <main className="flex-grow relative">
         {showBackButton && (
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
-                  <Button asChild variant="secondary" size="icon" className="fixed bottom-6 left-6 z-40 h-14 w-14 rounded-full shadow-lg">
+                  <Button asChild variant="secondary" size="icon" className="fixed bottom-6 left-6 z-40 h-14 w-14 rounded-full shadow-lg animate-pulse-glow">
                     <Link href="/dashboard">
                       <ArrowLeft className="h-6 w-6" />
                     </Link>
                   </Button>
               </TooltipTrigger>
-              <TooltipContent side="right">
-                <p>العودة الى القائمة الرئيسية</p>
+              <TooltipContent side={dir === 'rtl' ? 'left' : 'right'}>
+                <p>{t('common.backToMenu')}</p>
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>

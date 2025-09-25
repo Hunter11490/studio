@@ -166,7 +166,8 @@ export const translations: Translations = {
       previous: 'Previous',
       finish: 'Finish',
       submit: 'Submit',
-      save: 'Save'
+      save: 'Save',
+      backToMenu: 'Back to Main Menu'
     },
      admin: {
       dashboardTitle: 'Admin Dashboard',
@@ -559,7 +560,8 @@ export const translations: Translations = {
       previous: 'السابق',
       finish: 'إنهاء',
       submit: 'إرسال',
-      save: 'حفظ'
+      save: 'حفظ',
+      backToMenu: 'العودة للقائمة الرئيسية'
     },
     admin: {
       dashboardTitle: 'لوحة تحكم المسؤول',
@@ -691,7 +693,7 @@ export const translations: Translations = {
       title: 'تسجيل مريض جديد',
       editTitle: 'تعديل بيانات المريض',
       description: 'تسجيل مريض جديد وتوجيهه إلى القسم المناسب.',
-      editDescription: 'تحديث معلومات المريض.',
+      editDescription: "تحديث معلومات المريض.",
       patientName: 'اسم المريض',
       patientNamePlaceholder: 'أدخل الاسم الكامل للمريض',
       dob: 'تاريخ الميلاد',
@@ -723,7 +725,7 @@ export const translations: Translations = {
       submitSuccessTitle: 'تم تسجيل المريض',
       submitSuccessDesc: 'تم تحويل {patientName} إلى قسم {department}.',
       updateSuccessTitle: 'تم تحديث المريض',
-      updateSuccessDesc: 'تم تحديث بيانات {patientName} بنجاح.',
+      updateSuccessDesc: "تم تحديث بيانات {patientName} بنجاح.",
       noPatientsTitle: 'لا يوجد مرضى مسجلون بعد',
       noPatientsDesc: 'انقر على الزر لبدء تسجيل أول مريض.',
       toDepartment: 'إلى قسم',
