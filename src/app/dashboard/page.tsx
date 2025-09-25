@@ -20,19 +20,17 @@ import {
   User,
   Ambulance,
   BedDouble,
-  Scalpel,
   Pill,
   Beaker,
   Scan,
   Users,
-  ClipboardList,
   BookUser,
   Spray,
   Utensils,
   Calculator,
   Ear,
   Footprints,
-  Pregnant,
+  HeartHandshake,
 } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { useLanguage } from '@/hooks/use-language';
@@ -67,8 +65,8 @@ const mainDepts = [
   },
   {
     name: 'surgicalOperations',
-    icon: Scalpel,
-    href: '#',
+    icon: Scissors,
+    href: '/dashboard/surgery',
   },
   {
     name: 'pharmacy',
@@ -95,7 +93,7 @@ const mainDepts = [
 const medicalDepts = [
    { name: 'internalMedicine', icon: Stethoscope, href: '#' },
    { name: 'generalSurgery', icon: Scissors, href: '/dashboard/surgery' },
-   { name: 'obGyn', icon: Pregnant, href: '#' },
+   { name: 'obGyn', icon: HeartHandshake, href: '#' },
    { name: 'pediatrics', icon: Baby, href: '#' },
    { name: 'orthopedics', icon: Bone, href: '#' },
    { name: 'urology', icon: Footprints, href: '#' },
