@@ -6,17 +6,34 @@ const medicalSpecialties = [
     "Oncology", "Nephrology", "Blood Bank", "Emergency Medicine", "Anesthesiology"
 ];
 
+const arabicFirstNames = [
+    "د. أحمد", "د. علي", "د. يوسف", "د. عمر", "د. خالد", "د. محمد",
+    "د. فاطمة", "د. ليلى", "د. نور", "د. هدى", "د. مريم", "د. زينب"
+];
+const arabicLastNames = [
+    "الجميلي", "الزبيدي", "الحداد", "الخفاجي", "التكريتي", "الشمري", "الساعدي",
+    "العبادي", "الدليمي", "الياسري", "العراقي", "البغدادي", "الموصلي", "البصري",
+    "النجفي", "الكربلائي", "الحلي", "الرمادي", "الحيالي"
+];
+
+
 // Helper to get a random specialty
 const getRandomSpecialty = () => medicalSpecialties[Math.floor(Math.random() * medicalSpecialties.length)];
+const getRandomArabicName = (index: number) => {
+    const firstName = arabicFirstNames[index % arabicFirstNames.length];
+    const lastName = arabicLastNames[Math.floor(index / arabicFirstNames.length) % arabicLastNames.length];
+    return `${firstName} ${lastName}`;
+}
+
 
 // This file is intentionally left empty for production.
 // Mock data can be added here for development purposes.
 export const MOCK_DOCTORS: Omit<Doctor, 'id' | 'createdAt'>[] = [
   {
-    name: "Dr. Ahmed Al-Jumaily",
+    name: "د. أحمد الجميلي",
     specialty: "Cardiology",
     phoneNumber: "07701234567",
-    clinicAddress: "Al-Mansour, Baghdad",
+    clinicAddress: "المنصور، بغداد",
     mapLocation: "",
     clinicCardImageUrl: "",
     isPartner: true,
@@ -25,10 +42,10 @@ export const MOCK_DOCTORS: Omit<Doctor, 'id' | 'createdAt'>[] = [
     referralNotes: []
   },
   {
-    name: "Dr. Fatima Al-Zubaidi",
+    name: "د. فاطمة الزبيدي",
     specialty: "Dermatology",
     phoneNumber: "07807654321",
-    clinicAddress: "Al-Karrada, Baghdad",
+    clinicAddress: "الكرادة، بغداد",
     mapLocation: "",
     clinicCardImageUrl: "",
     isPartner: false,
@@ -37,10 +54,10 @@ export const MOCK_DOCTORS: Omit<Doctor, 'id' | 'createdAt'>[] = [
     referralNotes: []
   },
   {
-    name: "Dr. Yusuf Al-Haddad",
+    name: "د. يوسف الحداد",
     specialty: "Orthopedics",
     phoneNumber: "07901122334",
-    clinicAddress: "Al-Adhamiyah, Baghdad",
+    clinicAddress: "الأعظمية، بغداد",
     mapLocation: "",
     clinicCardImageUrl: "",
     isPartner: true,
@@ -49,10 +66,10 @@ export const MOCK_DOCTORS: Omit<Doctor, 'id' | 'createdAt'>[] = [
     referralNotes: []
   },
   {
-    name: "Dr. Layla Al-Khafaji",
+    name: "د. ليلى الخفاجي",
     specialty: "Pediatrics",
     phoneNumber: "07712345678",
-    clinicAddress: "Zayouna, Baghdad",
+    clinicAddress: "زيونة، بغداد",
     mapLocation: "",
     clinicCardImageUrl: "",
     isPartner: false,
@@ -61,10 +78,10 @@ export const MOCK_DOCTORS: Omit<Doctor, 'id' | 'createdAt'>[] = [
     referralNotes: []
   },
   {
-    name: "Dr. Omar Al-Tikriti",
+    name: "د. عمر التكريتي",
     specialty: "Neurology",
     phoneNumber: "07818765432",
-    clinicAddress: "Yarmouk, Baghdad",
+    clinicAddress: "اليرموك، بغداد",
     mapLocation: "",
     clinicCardImageUrl: "",
     isPartner: true,
@@ -73,10 +90,10 @@ export const MOCK_DOCTORS: Omit<Doctor, 'id' | 'createdAt'>[] = [
     referralNotes: []
   },
   {
-    name: "Dr. Noor Al-Shammari",
+    name: "د. نور الشمري",
     specialty: "Oncology",
     phoneNumber: "07912233445",
-    clinicAddress: "Medical City, Baghdad",
+    clinicAddress: "مدينة الطب، بغداد",
     mapLocation: "",
     clinicCardImageUrl: "",
     isPartner: false,
@@ -85,10 +102,10 @@ export const MOCK_DOCTORS: Omit<Doctor, 'id' | 'createdAt'>[] = [
     referralNotes: []
   },
   {
-    name: "Dr. Ali Al-Saadi",
+    name: "د. علي الساعدي",
     specialty: "General Surgery",
     phoneNumber: "07723456789",
-    clinicAddress: "Al-Harthiya, Baghdad",
+    clinicAddress: "الحارثية، بغداد",
     mapLocation: "",
     clinicCardImageUrl: "",
     isPartner: true,
@@ -97,10 +114,10 @@ export const MOCK_DOCTORS: Omit<Doctor, 'id' | 'createdAt'>[] = [
     referralNotes: []
   },
   {
-    name: "Dr. Huda Al-Abadi",
+    name: "د. هدى العبادي",
     specialty: "Obstetrics and Gynecology",
     phoneNumber: "07829876543",
-    clinicAddress: "Al-Jadriya, Baghdad",
+    clinicAddress: "الجادرية، بغداد",
     mapLocation: "",
     clinicCardImageUrl: "",
     isPartner: false,
@@ -109,10 +126,10 @@ export const MOCK_DOCTORS: Omit<Doctor, 'id' | 'createdAt'>[] = [
     referralNotes: []
   },
   {
-    name: "Dr. Ibrahim Al-Dulaimi",
+    name: "د. إبراهيم الدليمي",
     specialty: "Urology",
     phoneNumber: "07923344556",
-    clinicAddress: "Amiriyah, Baghdad",
+    clinicAddress: "العامرية، بغداد",
     mapLocation: "",
     clinicCardImageUrl: "",
     isPartner: true,
@@ -121,10 +138,10 @@ export const MOCK_DOCTORS: Omit<Doctor, 'id' | 'createdAt'>[] = [
     referralNotes: []
   },
   {
-    name: "Dr. Mariam Al-Yasiri",
+    name: "د. مريم الياسري",
     specialty: "Ophthalmology",
     phoneNumber: "07734567890",
-    clinicAddress: "Palestine Street, Baghdad",
+    clinicAddress: "شارع فلسطين، بغداد",
     mapLocation: "",
     clinicCardImageUrl: "",
     isPartner: false,
@@ -133,10 +150,10 @@ export const MOCK_DOCTORS: Omit<Doctor, 'id' | 'createdAt'>[] = [
     referralNotes: []
   },
   {
-    name: "Dr. Khalid Al-Amiri",
+    name: "د. خالد العامري",
     specialty: "ENT",
     phoneNumber: "07830987654",
-    clinicAddress: "Al-Saydiya, Baghdad",
+    clinicAddress: "السيدية، بغداد",
     mapLocation: "",
     clinicCardImageUrl: "",
     isPartner: true,
@@ -145,10 +162,10 @@ export const MOCK_DOCTORS: Omit<Doctor, 'id' | 'createdAt'>[] = [
     referralNotes: []
   },
   {
-    name: "Dr. Zainab Al-Rubaie",
+    name: "د. زينب الربيعي",
     specialty: "Internal Medicine",
     phoneNumber: "07934455667",
-    clinicAddress: "Al-Dora, Baghdad",
+    clinicAddress: "الدورة، بغداد",
     mapLocation: "",
     clinicCardImageUrl: "",
     isPartner: false,
@@ -157,14 +174,11 @@ export const MOCK_DOCTORS: Omit<Doctor, 'id' | 'createdAt'>[] = [
     referralNotes: []
   },
   ...Array.from({ length: 138 }, (_, i) => {
-    const firstName = ["Dr. Mohammed", "Dr. Fatima", "Dr. Ali", "Dr. Zahra", "Dr. Hassan", "Dr. Zainab", "Dr. Hussein", "Dr. Maryam", "Dr. Mustafa", "Dr. Noor"][i % 10];
-    const lastName = ["Al-Iraqi", "Al-Baghdadi", "Al-Mosuli", "Al-Basri", "Al-Najafi", "Al-Karbalai", "Al-Hilli", "Al-Ramadi", "Al-Tikriti", "Al-Diyali"][Math.floor(i / 10) % 10];
-    
     return {
-        name: `${firstName} ${lastName} ${i + 1}`,
+        name: `${getRandomArabicName(i)}`,
         specialty: getRandomSpecialty(),
         phoneNumber: `07${Math.floor(700000000 + Math.random() * 299999999)}`,
-        clinicAddress: `District ${i+1}, Baghdad`,
+        clinicAddress: `منطقة ${i+1}, بغداد`,
         mapLocation: "",
         clinicCardImageUrl: "",
         isPartner: Math.random() > 0.5,

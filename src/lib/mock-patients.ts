@@ -1,9 +1,10 @@
 import { Patient } from '@/types';
 import { MOCK_DOCTORS } from './mock-doctors';
 
-const firstNames = ["Mohammed", "Fatima", "Ali", "Zahra", "Hassan", "Zainab", "Hussein", "Maryam", "Mustafa", "Noor", "Ahmed", "Aya", "Ibrahim", "Sara", "Yusuf", "Huda"];
-const lastNames = ["Al-Jumaily", "Al-Zubaidi", "Al-Haddad", "Al-Khafaji", "Al-Tikriti", "Al-Shammari", "Al-Saadi", "Al-Abadi", "Al-Dulaimi", "Al-Yasiri"];
-const governorates = ["Baghdad", "Basra", "Nineveh", "Erbil", "Anbar", "Karbala", "Kirkuk", "Najaf", "Dhi Qar", "Diyala"];
+const firstNames = ["محمد", "فاطمة", "علي", "زهراء", "حسن", "زينب", "حسين", "مريم", "مصطفى", "نور", "أحمد", "آية", "إبراهيم", "سارة", "يوسف", "هدى"];
+const lastNames = ["الجميلي", "الزبيدي", "الحداد", "الخفاجي", "التكريتي", "الشمري", "الساعدي", "العبادي", "الدليمي", "الياسري", "العامري", "الربيعي"];
+
+const governorates = ["بغداد", "البصرة", "نينوى", "أربيل", "الأنبار", "كربلاء", "كركوك", "النجف", "ذي قار", "ديالى"];
 const departments = [
   'internalMedicine', 'generalSurgery', 'obGyn', 'pediatrics', 'orthopedics', 'urology', 'ent', 'ophthalmology', 'dermatology', 'cardiology', 'neurology', 'oncology', 'nephrology',
 ];
@@ -27,7 +28,7 @@ const createMockPatient = (i: number): Patient => {
     const dobDay = 1 + Math.floor(Math.random() * 28);
 
     const randomDoctor = getRandomElement(MOCK_DOCTORS);
-    const doctorId = MOCK_DOCTORS.find(d => d.name === randomDoctor.name) ? `mock-id-${randomDoctor.name}` : undefined;
+    const doctorId = MOCK_DOCTORS.find(d => d.name === randomDoctor.name) ? randomDoctor.name : undefined;
 
 
     return {
@@ -41,13 +42,13 @@ const createMockPatient = (i: number): Patient => {
         receptionDate: createdAtDate.toISOString().split('T')[0],
         address: {
             governorate: getRandomElement(governorates),
-            region: `Region ${i % 10 + 1}`,
+            region: `منطقة ${i % 10 + 1}`,
             mahalla: String(100 + i % 100),
             zuqaq: String(1 + i % 50),
             dar: String(1 + i % 100),
         },
         department: getRandomElement(departments),
-        doctorId: MOCK_DOCTORS[i % MOCK_DOCTORS.length].name, // Assign to a doctor
+        doctorId: doctorId,
         createdAt: createdAtDate.toISOString(),
     };
 };
@@ -71,9 +72,9 @@ MOCK_PATIENTS.forEach(patient => {
                 patientName: patient.patientName,
                 referralDate: patient.receptionDate,
                 testDate: new Date().toISOString().split('T')[0],
-                testType: 'Initial Checkup',
+                testType: 'فحص أولي',
                 patientAge: String(new Date().getFullYear() - parseInt(patient.dob.year)),
-                chronicDiseases: 'None'
+                chronicDiseases: 'لا يوجد'
             });
         }
     }
