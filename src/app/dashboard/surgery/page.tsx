@@ -110,31 +110,28 @@ export default function SurgeryPage() {
                 <div className="flex items-center gap-2">
                     <Logo className="h-8 w-8 text-primary" />
                 </div>
-                <div className="flex flex-col items-center">
-                    <h1 className="text-lg font-semibold tracking-tight whitespace-nowrap text-primary animate-glow">{t('departments.surgicalOperations')}</h1>
-                    <div className="flex items-center gap-2">
-                        <Button variant="ghost" size="icon" onClick={() => changeWeek('prev')}><ChevronLeft className="h-4 w-4" /></Button>
-                        <h2 className="text-sm font-semibold text-center w-32 tabular-nums">
-                           {format(weekStart, 'dd MMM yyyy', {locale: lang === 'ar' ? ar : undefined})}
-                        </h2>
-                        <Button variant="ghost" size="icon" onClick={() => changeWeek('next')}><ChevronRight className="h-4 w-4" /></Button>
-                    </div>
+                <div className="flex items-center gap-2">
+                    <Button variant="ghost" size="icon" onClick={() => changeWeek('prev')}><ChevronLeft className="h-4 w-4" /></Button>
+                    <h1 className="text-lg font-semibold text-center w-40 md:w-auto tabular-nums whitespace-nowrap">
+                        {format(weekStart, 'dd MMM yyyy', {locale: lang === 'ar' ? ar : undefined})}
+                    </h1>
+                    <Button variant="ghost" size="icon" onClick={() => changeWeek('next')}><ChevronRight className="h-4 w-4" /></Button>
                 </div>
                 <div className="flex items-center gap-4">
                     <UserMenu />
                 </div>
             </header>
 
-            <div className="flex-grow p-4 grid grid-cols-[auto_1fr] gap-4">
+            <div className="flex-grow flex p-2 md:p-4 overflow-hidden">
                 {/* Time Gutter */}
-                <div className="w-16 text-center text-sm text-muted-foreground">
+                <div className="w-16 text-center text-sm text-muted-foreground flex-shrink-0">
                     <div className="h-10"></div> {/* Header space */}
-                    {timeSlots.map(time => <div key={time} className="h-[60px] relative"><span className="absolute -top-2">{time}</span></div>)}
+                    {timeSlots.map(time => <div key={time} className="h-[60px] relative"><span className="absolute -top-2 rtl:right-0 ltr:left-0 w-full text-center">{time}</span></div>)}
                 </div>
 
                 {/* Schedule Grid */}
-                <ScrollArea className="flex-grow">
-                    <div className="grid grid-cols-7 gap-px bg-border rounded-lg border overflow-hidden">
+                <div className="flex-grow overflow-x-auto">
+                    <div className="grid grid-cols-7 min-w-[900px] gap-px bg-border rounded-lg border overflow-hidden">
                         {weekDays.map(day => (
                             <div key={day.toString()} className="bg-background relative">
                                 <div className="p-2 border-b text-center font-semibold text-sm h-10 sticky top-0 bg-background z-10">
@@ -169,7 +166,7 @@ export default function SurgeryPage() {
                             </div>
                         ))}
                     </div>
-                </ScrollArea>
+                </div>
             </div>
             
              <Button onClick={() => handleAddClick(new Date(), 9)} className="fixed bottom-6 right-6 z-40 h-14 w-14 rounded-full shadow-lg animate-pulse-glow" size="icon">
