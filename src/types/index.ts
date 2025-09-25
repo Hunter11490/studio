@@ -100,3 +100,11 @@ export type Translations = {
 export type PartnerExportData = {
   [key:string]: string | number;
 };
+
+export type AppNotification = {
+  id: string;
+  title: string;
+  description: string;
+  createdAt: string;
+  isRead: boolean;
+};

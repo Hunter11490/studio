@@ -438,6 +438,13 @@ export const translations: Translations = {
         addPayment: "Add Payment",
         paymentAmount: "Payment Amount",
         paymentReceived: "Payment Received",
+    },
+    notifications: {
+      title: "Notifications",
+      description: "Recent activity from across the hospital.",
+      empty: "You have no new notifications.",
+      markAllRead: "Mark all as read",
+      clearAll: "Clear All"
     }
   },
   ar: {
@@ -877,6 +884,13 @@ export const translations: Translations = {
         addPayment: "إضافة دفعة",
         paymentAmount: "مبلغ الدفعة",
         paymentReceived: "دفعة مستلمة",
+    },
+    notifications: {
+      title: "الإشعارات",
+      description: "آخر الأنشطة من جميع أنحاء المستشفى.",
+      empty: "ليس لديك إشعارات جديدة.",
+      markAllRead: "تحديد الكل كمقروء",
+      clearAll: "مسح الكل"
     }
   },
 };

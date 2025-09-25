@@ -1,4 +1,3 @@
-
 'use client';
 
 import { createContext, useState, useEffect, useCallback, ReactNode } from 'react';
@@ -7,6 +6,7 @@ import { usePatients } from '@/hooks/use-patients';
 import { useToast } from '@/hooks/use-toast';
 import { useLanguage } from '@/hooks/use-language';
 import { createRandomDoctor, createRandomPatient } from '@/lib/simulation-utils';
+import { useNotifications } from '@/hooks/use-notifications';
 
 type SimulationContextType = {
   isSimulating: boolean;
@@ -21,13 +21,16 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
   const { patients, addPatient, updatePatient, addFinancialRecord } = usePatients();
   const { toast } = useToast();
   const { t } = useLanguage();
+  const { addNotification } = useNotifications();
+
 
   const performRandomAction = useCallback(() => {
     const actions = [
       () => { // Add Doctor
         const newDoctor = createRandomDoctor();
         addDoctor(newDoctor);
-        toast({ title: t('simulation.doctorAdded'), description: newDoctor.name });
+        const notifTitle = t('simulation.doctorAdded');
+        addNotification({ title: notifTitle, description: newDoctor.name });
       },
       () => { // Add Patient with consultation fee
         if (doctors.length > 0) {
@@ -38,7 +41,9 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
             description: `Consultation - ${newPatientData.department}`,
             amount: consultationFee
           });
-          toast({ title: t('simulation.patientAdded'), description: `${newPatientData.patientName} -> ${t(`departments.${newPatientData.department}`)}` });
+          const notifTitle = t('simulation.patientAdded');
+          const notifDesc = `${newPatientData.patientName} -> ${t(`departments.${newPatientData.department}`)}`;
+          addNotification({ title: notifTitle, description: notifDesc });
         }
       },
        () => { // Patient gets a lab test
@@ -51,7 +56,9 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
             amount: testCost,
             date: new Date().toISOString()
           });
-          toast({ title: t('simulation.labTest'), description: `${randomPatient.patientName} got a lab test.`});
+          const notifTitle = t('simulation.labTest');
+          const notifDesc = `${randomPatient.patientName} got a lab test.`;
+          addNotification({ title: notifTitle, description: notifDesc });
         }
       },
        () => { // Patient buys medicine
@@ -64,7 +71,9 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
             amount: drugCost,
             date: new Date().toISOString()
           });
-           toast({ title: t('simulation.pharmacyBill'), description: `${randomPatient.patientName} bought medicine.`});
+           const notifTitle = t('simulation.pharmacyBill');
+           const notifDesc = `${randomPatient.patientName} bought medicine.`;
+           addNotification({ title: notifTitle, description: notifDesc });
         }
       },
       () => { // Patient makes a payment
@@ -79,7 +88,9 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
               amount: -paymentAmount, // Negative amount for payment
               date: new Date().toISOString()
             });
-            toast({ title: t('simulation.paymentMade'), description: `${randomPatient.patientName} paid ${paymentAmount.toLocaleString()} IQD.`});
+            const notifTitle = t('simulation.paymentMade');
+            const notifDesc = `${randomPatient.patientName} paid ${paymentAmount.toLocaleString()} IQD.`;
+            addNotification({ title: notifTitle, description: notifDesc });
           }
         }
       },
@@ -87,7 +98,8 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
         if (doctors.length > 20) { // Keep a baseline of doctors
           const oldestDoctor = [...doctors].sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())[0];
           deleteDoctor(oldestDoctor.id);
-          toast({ title: t('simulation.doctorRemoved'), description: oldestDoctor.name, variant: 'destructive' });
+          const notifTitle = t('simulation.doctorRemoved');
+          addNotification({ title: notifTitle, description: oldestDoctor.name });
         }
       },
        () => { // Update Referral Count
@@ -97,7 +109,9 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
             const newCount = Math.max(0, randomDoctor.referralCount + change);
             if(randomDoctor.referralCount !== newCount) {
                 updateDoctor(randomDoctor.id, { referralCount: newCount });
-                toast({ title: t('simulation.referralUpdate'), description: `${randomDoctor.name} now has ${newCount} referrals.` });
+                const notifTitle = t('simulation.referralUpdate');
+                const notifDesc = `${randomDoctor.name} now has ${newCount} referrals.`;
+                addNotification({ title: notifTitle, description: notifDesc });
             }
          }
       }
@@ -106,13 +120,12 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
     const randomAction = actions[Math.floor(Math.random() * actions.length)];
     randomAction();
 
-  }, [doctors, patients, addDoctor, deleteDoctor, addPatient, updateDoctor, addFinancialRecord, t, toast]);
+  }, [doctors, patients, addDoctor, deleteDoctor, addPatient, updateDoctor, addFinancialRecord, t, addNotification]);
 
   useEffect(() => {
     let intervalId: NodeJS.Timeout | null = null;
     if (isSimulating) {
-      // Run more frequently to show more activity
-      intervalId = setInterval(performRandomAction, Math.random() * (15000 - 8000) + 8000); // Between 8-15 seconds
+      intervalId = setInterval(performRandomAction, Math.random() * (15000 - 8000) + 8000);
     }
     return () => {
       if (intervalId) {
@@ -126,16 +139,8 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
   };
   
   useEffect(() => {
-    // We use a useEffect to show the toast after the state has been updated.
-    // This prevents the "cannot update a component while rendering another" error.
     if (isSimulating) {
       toast({ title: t('simulation.started') });
-    } else {
-      // Don't show "stopped" on initial render
-      const wasSimulating = isSimulating;
-      if (wasSimulating) {
-        toast({ title: t('simulation.stopped'), variant: 'destructive' });
-      }
     }
   }, [isSimulating, t, toast]);
 
