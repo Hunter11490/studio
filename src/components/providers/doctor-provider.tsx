@@ -4,19 +4,10 @@ import { createContext, useState, useMemo, useEffect, useCallback } from 'react'
 import { useLocalStorage } from '@/hooks/use-local-storage';
 import { Doctor } from '@/types';
 import { useAuth } from '@/hooks/use-auth';
-import { generateInitialData } from '@/lib/mock-patients';
 
 const BASE_DOCTORS_STORAGE_KEY = 'iraqi_doctors_list_user';
 const VIEW_MODE_STORAGE_KEY = 'iraqi_doctors_view_mode_v1';
 const SORT_OPTION_STORAGE_KEY = 'iraqi_doctors_sort_option_v1';
-
-const { doctors: initialMockDoctors } = generateInitialData();
-const initialDoctors: Doctor[] = initialMockDoctors.map((doc, i) => ({
-    ...doc,
-    id: new Date().toISOString() + Math.random() + doc.name + i,
-    createdAt: new Date().toISOString(),
-}));
-
 
 // This allows for functional updates, e.g., setCount(c => c + 1)
 type UpdateFunction<T> = (prev: T) => T;
@@ -63,17 +54,6 @@ export function DoctorProvider({ children }: { children: React.ReactNode }) {
   const [filterPartners, setFilterPartners] = useState(false);
   const [viewMode, setViewMode] = useLocalStorage<'grid' | 'list'>(VIEW_MODE_STORAGE_KEY, 'grid');
   const [sortOption, setSortOption] = useLocalStorage<SortOption>(SORT_OPTION_STORAGE_KEY, 'name');
-
-  // Effect to load mock data for HUNTER user if it's the first time
-  useEffect(() => {
-    if (user?.username === 'HUNTER' && userSpecificDoctorsKey) {
-      const storedData = window.localStorage.getItem(userSpecificDoctorsKey);
-      if (!storedData || JSON.parse(storedData).length === 0) {
-        setDoctors(initialDoctors);
-      }
-    }
-  }, [user, userSpecificDoctorsKey, setDoctors]);
-
 
   // When user logs out, clear the doctors from state.
   useEffect(() => {

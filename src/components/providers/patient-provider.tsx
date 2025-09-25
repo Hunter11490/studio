@@ -5,26 +5,8 @@ import { useLocalStorage } from '@/hooks/use-local-storage';
 import { Patient } from '@/types';
 import { useAuth } from '@/hooks/use-auth';
 import { useDoctors } from '@/hooks/use-doctors';
-import { generateInitialData } from '@/lib/mock-patients';
 
 const BASE_PATIENTS_STORAGE_KEY = 'iraqi_doctors_patients_user';
-
-const { patients: initialMockPatients, doctors: initialMockDoctors } = generateInitialData();
-const initialDoctorsWithIds = initialMockDoctors.map((doc, i) => ({
-    ...doc,
-    id: new Date().toISOString() + Math.random() + doc.name + i,
-    createdAt: new Date().toISOString(),
-}));
-
-const initialPatients = initialMockPatients.map(p => {
-    const originalDoctor = initialDoctorsWithIds.find(d => d.id.includes(p.doctorId as string));
-    return {
-        ...p,
-        id: new Date().toISOString() + Math.random() + p.patientName,
-        doctorId: originalDoctor ? originalDoctor.id : undefined,
-    }
-});
-
 
 export type PatientContextType = {
   patients: Patient[];
@@ -36,25 +18,13 @@ export const PatientContext = createContext<PatientContextType | null>(null);
 
 export function PatientProvider({ children }: { children: React.ReactNode }) {
   const { user } = useAuth();
-  const { doctors, updateDoctor } = useDoctors();
+  const { updateDoctor } = useDoctors();
   const userSpecificPatientsKey = user ? `${BASE_PATIENTS_STORAGE_KEY}_${user.id}` : null;
   
   const [patients, setPatients] = useLocalStorage<Patient[]>(
     userSpecificPatientsKey || 'temp_patients_key', 
     []
   );
-
-  // Effect to load mock data for HUNTER user if it's the first time
-  useEffect(() => {
-    if (user?.username === 'HUNTER' && userSpecificPatientsKey) {
-      const storedPatients = window.localStorage.getItem(userSpecificPatientsKey);
-      if ((!storedPatients || JSON.parse(storedPatients).length === 0)) {
-        setPatients(initialPatients);
-      }
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user, userSpecificPatientsKey, setPatients]);
-
 
   useEffect(() => {
     if (!user) {
