@@ -1,27 +1,112 @@
 'use client';
 
-import { useMemo, useState, useEffect } from 'react';
-import { useDoctors } from '@/hooks/use-doctors';
-import { DoctorGrid } from '@/components/doctor/doctor-grid';
-import { DoctorList } from '@/components/doctor/doctor-list';
+import Link from 'next/link';
+import {
+  HeartPulse,
+  Stethoscope,
+  Baby,
+  Brain,
+  Bone,
+  Eye,
+  Cross,
+  FlaskConical,
+  PersonStanding,
+  Scissors,
+  Quote
+} from 'lucide-react';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { useLanguage } from '@/hooks/use-language';
-import { Frown, UserSearch, FileDown } from 'lucide-react';
-import { Doctor, PartnerExportData } from '@/types';
-import { Button } from '@/components/ui/button';
-import { DoctorFormDialog } from '@/components/doctor/doctor-form-dialog';
-import { useToast } from '@/hooks/use-toast';
-import { exportToExcel } from '@/lib/excel';
-import { translateText, DoctorInfo } from '@/ai/flows/translation-flow';
 import { useAuth } from '@/hooks/use-auth';
 import { WelcomeDialog } from '@/components/welcome-dialog';
+import { useState } from 'react';
+import { StethoscopeLogo } from '@/components/stethoscope-logo';
 
+const departments = [
+  {
+    name: 'Reception',
+    name_ar: 'الاستعلامات',
+    description: 'Patient registration and routing.',
+    description_ar: 'تسجيل المرضى وتوجيههم.',
+    icon: PersonStanding,
+    href: '/dashboard/reception',
+  },
+  {
+    name: 'Oncology',
+    name_ar: 'قسم الأورام',
+    description: 'Manage doctor directory and referrals.',
+    description_ar: 'إدارة دليل الأطباء والإحالات.',
+    icon: Quote,
+    href: '/dashboard/oncology',
+  },
+  {
+    name: 'Cardiology',
+    name_ar: 'قسم القلبية',
+    description: 'Heart and blood vessel diseases.',
+    description_ar: 'أمراض القلب والأوعية الدموية.',
+    icon: HeartPulse,
+    href: '#',
+  },
+  {
+    name: 'Pediatrics',
+    name_ar: 'قسم الأطفال',
+    description: 'Infants, children, and adolescents care.',
+    description_ar: 'رعاية الرضع والأطفال والمراهقين.',
+    icon: Baby,
+    href: '#',
+  },
+  {
+    name: 'Neurology',
+    name_ar: 'قسم الأعصاب',
+    description: 'Nervous system disorders.',
+    description_ar: 'اضطرابات الجهاز العصبي.',
+    icon: Brain,
+    href: '#',
+  },
+  {
+    name: 'Orthopedics',
+    name_ar: 'قسم العظام',
+    description: 'Musculoskeletal system issues.',
+    description_ar: 'مشاكل الجهاز العضلي الهيكلي.',
+    icon: Bone,
+    href: '#',
+  },
+   {
+    name: 'General Surgery',
+    name_ar: 'قسم الجراحة العامة',
+    description: 'Wide range of surgical procedures.',
+    description_ar: 'مجموعة واسعة من الإجراءات الجراحية.',
+    icon: Scissors,
+    href: '#',
+  },
+  {
+    name: 'Ophthalmology',
+    name_ar: 'قسم العيون',
+    description: 'Eye diseases and surgery.',
+    description_ar: 'أمراض العيون وجراحتها.',
+    icon: Eye,
+    href: '#',
+  },
+  {
+    name: 'Emergency',
+    name_ar: 'قسم الطوارئ',
+    description: 'Immediate medical care.',
+    description_ar: 'الرعاية الطبية الفورية.',
+    icon: Cross,
+    href: '#',
+  },
+  {
+    name: 'Laboratory',
+    name_ar: 'قسم المختبر',
+    description: 'Medical tests and analysis.',
+    description_ar: 'الفحوصات والتحاليل الطبية.',
+    icon: FlaskConical,
+    href: '#',
+  },
+];
 
-export default function DashboardPage() {
-  const { doctors, searchTerm, filterPartners, viewMode, sortOption } = useDoctors();
+export default function HospitalDashboardPage() {
+  const { lang, t } = useLanguage();
   const { user, updateUser, users } = useAuth();
-  const { t } = useLanguage();
-  const { toast } = useToast();
-  const [isAddDoctorOpen, setAddDoctorOpen] = useState(false);
   
   const currentUser = users.find(u => u.id === user?.id);
   const [showWelcome, setShowWelcome] = useState(currentUser?.isFirstLogin !== false && currentUser?.role !== 'admin');
@@ -32,148 +117,35 @@ export default function DashboardPage() {
     }
     setShowWelcome(false);
   };
-
-  const partnerDoctors = useMemo(() => {
-    return doctors.filter(d => d.isPartner)
-  }, [doctors]);
-
-  const filteredAndSortedDoctors = useMemo(() => {
-    
-    const sorted = [...doctors].sort((a: Doctor, b: Doctor) => {
-      switch (sortOption) {
-        case 'name':
-          return a.name.localeCompare(b.name);
-        case 'createdAt':
-          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-        case 'address':
-          return a.clinicAddress.localeCompare(b.clinicAddress);
-        default:
-          return 0;
-      }
-    });
-
-    return sorted
-      .filter(doctor => {
-        if (!filterPartners) return true;
-        return doctor.isPartner;
-      })
-      .filter(doctor => {
-        if (!searchTerm) return true;
-        const lowercasedTerm = searchTerm.toLowerCase();
-        return (
-          doctor.name.toLowerCase().includes(lowercasedTerm) ||
-          doctor.specialty.toLowerCase().includes(lowercasedTerm) ||
-          doctor.clinicAddress.toLowerCase().includes(lowercasedTerm)
-        );
-      });
-  }, [doctors, searchTerm, filterPartners, sortOption]);
-
-  const getTranslatedDoctorData = async (doctorsToTranslate: Doctor[]): Promise<PartnerExportData[]> => {
-    const doctorsInfo: DoctorInfo[] = doctorsToTranslate.map(d => ({
-        name: d.name,
-        specialty: d.specialty,
-        clinicAddress: d.clinicAddress
-    }));
-
-    let translatedDocs: DoctorInfo[] = [];
-    try {
-        const response = await translateText({ doctors: doctorsInfo, targetLanguage: 'Arabic' });
-        translatedDocs = response.doctors;
-    } catch (error) {
-        console.error("Batch translation failed, falling back to original data.", error);
-        translatedDocs = doctorsInfo; // Fallback to original
-    }
-
-    const headers: { [key: string]: string } = {
-        name: t('partnerDashboard.exportName'),
-        address: t('partnerDashboard.exportAddress'),
-        phone: t('partnerDashboard.exportPhone'),
-        referrals: t('partnerDashboard.exportReferrals'),
-        commission: t('partnerDashboard.exportCommission'),
-    };
-
-    return doctorsToTranslate.map((originalDoctor, index) => {
-        const translatedInfo = translatedDocs[index] || originalDoctor;
-        const referralCount = originalDoctor.referralCount;
-        return {
-            [headers.name]: translatedInfo.name,
-            [headers.address]: translatedInfo.clinicAddress,
-            [headers.phone]: originalDoctor.phoneNumber,
-            [headers.referrals]: referralCount,
-            [headers.commission]: referralCount * 100,
-        };
-    });
-  };
-
-  const handleExportPartners = async () => {
-    if (partnerDoctors.length === 0) {
-      toast({ title: t('partnerDashboard.noPartners') });
-      return;
-    }
-    try {
-      toast({title: t('toasts.exporting'), description: t('toasts.exportingDesc')});
-      const translatedData = await getTranslatedDoctorData(partnerDoctors);
-      const fileName = `${t('partnerDashboard.exportFileName')}_${new Date().toISOString().split('T')[0]}.xlsx`;
-      exportToExcel(translatedData, fileName);
-      toast({ title: t('toasts.exportSuccess') });
-    } catch (error) {
-      console.error(error);
-      toast({ title: t('toasts.exportError'), variant: 'destructive' });
-    }
-  };
   
+  const getDepartmentNode = (dept: (typeof departments)[0]) => {
+     const isClickable = dept.href !== '#';
+     const content = (
+        <Card className={`relative overflow-hidden transition-transform duration-300 ${isClickable ? 'hover:scale-105 hover:shadow-primary/20' : 'opacity-50 cursor-not-allowed'}`}>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">{lang === 'ar' ? dept.name_ar : dept.name}</CardTitle>
+              <dept.icon className="h-5 w-5 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold font-headline text-primary">{lang === 'ar' ? dept.name_ar : dept.name}</div>
+              <p className="text-xs text-muted-foreground">{lang === 'ar' ? dept.description_ar : dept.description}</p>
+            </CardContent>
+             <StethoscopeLogo className="absolute -right-4 -bottom-4 h-20 w-20 text-primary/5 opacity-50" />
+        </Card>
+     )
 
-  if (doctors.length === 0) {
-     return (
-        <>
-        <div className="flex flex-1 items-center justify-center rounded-lg border border-dashed shadow-sm">
-          <div className="flex flex-col items-center gap-2 text-center">
-            <UserSearch className="h-16 w-16 text-muted-foreground" />
-            <h3 className="text-2xl font-bold tracking-tight">{t('common.noResults')}</h3>
-            <p className="text-sm text-muted-foreground">
-              {t('header.addDoctor')} لبدء استخدام التطبيق.
-            </p>
-             <Button onClick={() => setAddDoctorOpen(true)} className="mt-4">
-              {t('header.addDoctor')}
-            </Button>
-          </div>
-        </div>
-        <DoctorFormDialog open={isAddDoctorOpen} onOpenChange={setAddDoctorOpen} />
-        <WelcomeDialog open={showWelcome} onOpenChange={setShowWelcome} onFinished={handleWelcomeClose} />
-        </>
-      )
-  }
-
-  if (filteredAndSortedDoctors.length === 0) {
-    return (
-      <>
-        <div className="flex flex-1 items-center justify-center">
-             <div className="flex flex-col items-center gap-2 text-center text-muted-foreground">
-                <Frown className="h-12 w-12" />
-                <p className="text-lg">{t('common.noResults')}</p>
-             </div>
-        </div>
-        <WelcomeDialog open={showWelcome} onOpenChange={setShowWelcome} onFinished={handleWelcomeClose} />
-      </>
-    )
+    return isClickable ? <Link href={dept.href} key={dept.name}>{content}</Link> : <div key={dept.name}>{content}</div>;
   }
 
   return (
     <>
-      {viewMode === 'grid' 
-        ? <DoctorGrid doctors={filteredAndSortedDoctors} />
-        : <DoctorList doctors={filteredAndSortedDoctors} />}
-
-      {viewMode === 'list' && partnerDoctors.length > 0 && (
-         <Button
-          onClick={handleExportPartners}
-          className="fixed bottom-6 right-6 z-40 h-14 w-14 rounded-full shadow-lg"
-          size="icon"
-        >
-          <FileDown className="h-6 w-6" />
-          <span className="sr-only">{t('partnerDashboard.exportExcel')}</span>
-        </Button>
-      )}
+      <div className="text-center mb-8">
+        <h1 className="text-3xl font-bold font-headline tracking-tight">{t('appName')}</h1>
+        <p className="text-muted-foreground">{t('appSubtitle')}</p>
+      </div>
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        {departments.map(getDepartmentNode)}
+      </div>
       <WelcomeDialog open={showWelcome} onOpenChange={setShowWelcome} onFinished={handleWelcomeClose} />
     </>
   );

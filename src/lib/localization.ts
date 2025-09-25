@@ -165,6 +165,7 @@ export const translations: Translations = {
       next: 'Next',
       previous: 'Previous',
       finish: 'Finish',
+      submit: 'Submit'
     },
      admin: {
       dashboardTitle: 'Admin Dashboard',
@@ -249,6 +250,29 @@ export const translations: Translations = {
       feature3: "Harness AI Power: Use AI to find new doctors or chat with a medical assistant.",
       feature4: "Secure Your Data: Backup and restore your data anytime.",
       start: "Let's Get Started"
+    },
+    departments: {
+      reception: 'Reception',
+      oncology: 'Oncology',
+      cardiology: 'Cardiology',
+      pediatrics: 'Pediatrics',
+      neurology: 'Neurology',
+      orthopedics: 'Orthopedics',
+      generalSurgery: 'General Surgery',
+      ophthalmology: 'Ophthalmology',
+      emergency: 'Emergency',
+      laboratory: 'Laboratory'
+    },
+    reception: {
+      title: 'Reception Desk',
+      description: 'Register new patients and assign them to departments and doctors.',
+      patientName: 'Patient Name',
+      patientAge: 'Patient Age',
+      assignDepartment: 'Assign to Department',
+      assignDoctor: 'Assign to Doctor',
+      noDoctor: 'No doctor selected',
+      addDoctor: 'Add New Doctor',
+      submitPatient: 'Register Patient'
     }
   },
   ar: {
@@ -415,6 +439,7 @@ export const translations: Translations = {
       next: 'التالي',
       previous: 'السابق',
       finish: 'إنهاء',
+      submit: 'إرسال'
     },
     admin: {
       dashboardTitle: 'لوحة تحكم المسؤول',
@@ -489,16 +514,39 @@ export const translations: Translations = {
     doctorList: {
       name: 'الاسم',
       specialty: 'التخصص',
-      actions: 'الإجراءات',
+      actions: 'Actions',
     },
     welcome: {
       title: "أهلاً بك في روح!",
-      description: "Your intelligent medical directory. Here are some key features to get you started:",
-      feature1: "Build Your Directory: Add, edit, and manage your list of doctors.",
-      feature2: "Manage Referrals: Easily track patient referrals and case notes.",
-      feature3: "Harness AI Power: Use AI to find new doctors or chat with a medical assistant.",
-      feature4: "Secure Your Data: Backup and restore your data anytime.",
-      start: "Let's Get Started"
+      description: "دليلك الطبي الذكي. إليك بعض الميزات الرئيسية لتبدأ:",
+      feature1: "ابنِ دليلك: أضف وحرر وأدر قائمة الأطباء الخاصة بك.",
+      feature2: "أدر الإحالات: تتبع إحالات المرضى وملاحظات الحالات بسهولة.",
+      feature3: "استخدم قوة الذكاء الاصطناعي: ابحث عن أطباء جدد أو تحدث مع مساعد طبي ذكي.",
+      feature4: "أمّن بياناتك: قم بعمل نسخة احتياطية واستعادة لبياناتك في أي وقت.",
+      start: "لنبدأ الآن"
+    },
+    departments: {
+      reception: 'الاستعلامات',
+      oncology: 'قسم الأورام',
+      cardiology: 'قسم القلبية',
+      pediatrics: 'قسم الأطفال',
+      neurology: 'قسم الأعصاب',
+      orthopedics: 'قسم العظام',
+      generalSurgery: 'الجراحة العامة',
+      ophthalmology: 'قسم العيون',
+      emergency: 'الطوارئ',
+      laboratory: 'المختبر'
+    },
+    reception: {
+      title: 'مكتب الاستعلامات',
+      description: 'تسجيل المرضى الجدد وتوجيههم إلى الأقسام والأطباء.',
+      patientName: 'اسم المريض',
+      patientAge: 'عمر المريض',
+      assignDepartment: 'تحويل إلى قسم',
+      assignDoctor: 'تحويل إلى طبيب',
+      noDoctor: 'لم يتم اختيار طبيب',
+      addDoctor: 'إضافة طبيب جديد',
+      submitPatient: 'تسجيل المريض'
     }
   },
 };

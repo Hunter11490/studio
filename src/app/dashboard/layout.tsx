@@ -1,18 +1,19 @@
 'use client';
 
 import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/use-auth';
-import { Header } from '@/components/layout/header';
 import { AuthLoader } from '@/components/auth-loader';
 import { BannedUser } from '@/components/banned-user';
 import { PendingApproval } from '@/components/pending-approval';
-import { SessionTimer } from '@/components/session-timer';
-
+import Link from 'next/link';
+import { ArrowLeft } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
-  const { user, sessionExpiresAt, logout } = useAuth();
+  const { user } = useAuth();
   const router = useRouter();
+  const pathname = usePathname();
 
   useEffect(() => {
     if (!user) {
@@ -32,16 +33,20 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     return <PendingApproval />;
   }
 
+  const showBackButton = pathname !== '/dashboard';
 
   return (
     <div className="flex min-h-screen w-full flex-col">
-      <Header />
-      <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
+       <main className="flex-grow p-4 md:p-8 relative">
+        {showBackButton && (
+          <Button asChild variant="outline" size="icon" className="absolute top-4 left-4 z-10">
+            <Link href="/dashboard">
+              <ArrowLeft className="h-4 w-4" />
+            </Link>
+          </Button>
+        )}
         {children}
       </main>
-      {user.username === 'Ahmed' && sessionExpiresAt && (
-        <SessionTimer expiryTimestamp={sessionExpiresAt} />
-      )}
     </div>
   );
 }
