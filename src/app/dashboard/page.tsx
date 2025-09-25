@@ -18,6 +18,22 @@ import {
   Palette,
   Laptop,
   User,
+  Ambulance,
+  BedDouble,
+  Scalpel,
+  Pill,
+  Beaker,
+  Scan,
+  Users,
+  ClipboardList,
+  BookUser,
+  Spray,
+  Utensils,
+  Calculator,
+  Ear,
+  Foot,
+  Pregnant,
+  Kidney,
 } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { useLanguage } from '@/hooks/use-language';
@@ -34,94 +50,72 @@ import { Separator } from '@/components/ui/separator';
 import { UserMenu } from '@/components/layout/user-menu';
 import { Logo } from '@/components/logo';
 
-const departments = [
+const mainDepts = [
   {
-    name: 'Reception',
-    name_ar: 'الاستعلامات',
-    description: 'Patient registration and routing.',
-    description_ar: 'تسجيل المرضى وتوجيههم.',
+    name: 'reception',
     icon: PersonStanding,
     href: '/dashboard/reception',
   },
   {
-    name: 'Oncology',
-    name_ar: 'قسم الأورام',
-    description: 'Manage doctor directory and referrals.',
-    description_ar: 'إدارة دليل الأطباء والإحالات.',
-    icon: Quote,
-    href: '/dashboard/oncology',
-  },
-  {
-    name: 'Cardiology',
-    name_ar: 'قسم القلبية',
-    description: 'Heart and blood vessel diseases.',
-    description_ar: 'أمراض القلب والأوعية الدموية.',
-    icon: HeartPulse,
-    href: '/dashboard/cardiology',
-  },
-  {
-    name: 'Pediatrics',
-    name_ar: 'قسم الأطفال',
-    description: 'Infants, children, and adolescents care.',
-    description_ar: 'رعاية الرضع والأطفال والمراهقين.',
-    icon: Baby,
-    href: '/dashboard/pediatrics',
-  },
-  {
-    name: 'Neurology',
-    name_ar: 'قسم الأعصاب',
-    description: 'Nervous system disorders.',
-    description_ar: 'اضطرابات الجهاز العصبي.',
-    icon: Brain,
+    name: 'emergency',
+    icon: Ambulance,
     href: '#',
   },
   {
-    name: 'Orthopedics',
-    name_ar: 'قسم العظام',
-    description: 'Musculoskeletal system issues.',
-    description_ar: 'مشاكل الجهاز العضلي الهيكلي.',
-    icon: Bone,
-    href: '#',
-  },
-   {
-    name: 'General Surgery',
-    name_ar: 'قسم الجراحة العامة',
-    description: 'Wide range of surgical procedures.',
-    description_ar: 'مجموعة واسعة من الإجراءات الجراحية.',
-    icon: Scissors,
-    href: '/dashboard/surgery',
-  },
-  {
-    name: 'Ophthalmology',
-    name_ar: 'قسم العيون',
-    description: 'Eye diseases and surgery.',
-    description_ar: 'أمراض العيون وجراحتها.',
-    icon: Eye,
-    href: '#',
-  },
-   {
-    name: 'Blood Bank',
-    name_ar: 'مصرف الدم',
-    icon: Droplets,
-    href: '/dashboard/blood-bank',
-  },
-  {
-    name: 'Emergency',
-    name_ar: 'قسم الطوارئ',
-    description: 'Immediate medical care.',
-    description_ar: 'الرعاية الطبية الفورية.',
-    icon: Cross,
+    name: 'icu',
+    icon: BedDouble,
     href: '#',
   },
   {
-    name: 'Laboratory',
-    name_ar: 'قسم المختبر',
-    description: 'Medical tests and analysis.',
-    description_ar: 'الفحوصات والتحاليل الطبية.',
-    icon: FlaskConical,
+    name: 'surgicalOperations',
+    icon: Scalpel,
+    href: '#',
+  },
+  {
+    name: 'pharmacy',
+    icon: Pill,
+    href: '#',
+  },
+  {
+    name: 'laboratories',
+    icon: Beaker,
+    href: '#',
+  },
+  {
+    name: 'radiology',
+    icon: Scan,
+    href: '#',
+  },
+  {
+    name: 'nursing',
+    icon: Users,
     href: '#',
   },
 ];
+
+const medicalDepts = [
+   { name: 'internalMedicine', icon: Stethoscope, href: '#' },
+   { name: 'generalSurgery', icon: Scissors, href: '/dashboard/surgery' },
+   { name: 'obGyn', icon: Pregnant, href: '#' },
+   { name: 'pediatrics', icon: Baby, href: '#' },
+   { name: 'orthopedics', icon: Bone, href: '#' },
+   { name: 'urology', icon: Foot, href: '#' },
+   { name: 'ent', icon: Ear, href: '#' },
+   { name: 'ophthalmology', icon: Eye, href: '#' },
+   { name: 'dermatology', icon: User, href: '#' },
+   { name: 'cardiology', icon: HeartPulse, href: '#' },
+   { name: 'neurology', icon: Brain, href: '#' },
+   { name: 'oncology', icon: Quote, href: '/dashboard/oncology' },
+   { name: 'nephrology', icon: Kidney, href: '#' },
+];
+
+const adminDepts = [
+  { name: 'accounts', icon: Calculator, href: '#' },
+  { name: 'medicalRecords', icon: BookUser, href: '#' },
+  { name: 'sterilization', icon: Spray, href: '#' },
+  { name: 'services', icon: Utensils, href: '#' },
+];
+
 
 export default function HospitalDashboardPage() {
   const { lang, setLang, t } = useLanguage();
@@ -138,12 +132,12 @@ export default function HospitalDashboardPage() {
     setShowWelcome(false);
   };
   
-  const getDepartmentNode = (dept: (typeof departments)[0]) => {
+  const getDepartmentNode = (dept: {name: string, icon: React.ElementType, href: string}) => {
      const isClickable = dept.href !== '#';
      const content = (
         <Card className={`flex flex-col justify-center items-center p-2 aspect-square text-center relative overflow-hidden transition-transform duration-300 ${isClickable ? 'hover:scale-105 hover:shadow-primary/20' : 'opacity-50 cursor-not-allowed'}`}>
             <dept.icon className="h-5 w-5 mb-1 text-primary" />
-            <CardTitle className="text-xs font-semibold tracking-tight leading-tight">{lang === 'ar' ? dept.name_ar : dept.name}</CardTitle>
+            <CardTitle className="text-xs font-semibold tracking-tight leading-tight">{t(`departments.${dept.name}`)}</CardTitle>
             <StethoscopeLogo className="absolute -right-4 -bottom-4 h-10 w-10 text-primary/5 opacity-50" />
         </Card>
      )
@@ -166,8 +160,24 @@ export default function HospitalDashboardPage() {
         </div>
       </header>
 
-       <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-7 xl:grid-cols-8 gap-2 p-4">
-        {departments.map(getDepartmentNode)}
+      <div className="p-4">
+        <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-8 gap-2">
+          {mainDepts.map(getDepartmentNode)}
+        </div>
+        
+        <Separator className="my-4" />
+        
+        <h2 className="text-sm font-semibold text-muted-foreground px-2 mb-2">{t('departments.medicalSections')}</h2>
+        <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-8 gap-2">
+          {medicalDepts.map(getDepartmentNode)}
+        </div>
+        
+        <Separator className="my-4" />
+        
+        <h2 className="text-sm font-semibold text-muted-foreground px-2 mb-2">{t('departments.adminSections')}</h2>
+        <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-8 gap-2">
+          {adminDepts.map(getDepartmentNode)}
+        </div>
       </div>
 
       <div className="px-4 mt-4 grid gap-4 md:grid-cols-2">
