@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
+import { usePathname } from 'next/navigation';
 import { PlusCircle, Users, SlidersHorizontal, LayoutGrid, List, ArrowUpDown, Maximize, Minimize, Languages, Loader2 } from 'lucide-react';
 import { useLanguage } from '@/hooks/use-language';
 import { useDoctors } from '@/hooks/use-doctors';
@@ -17,9 +18,17 @@ import { SortOption } from '@/components/providers/doctor-provider';
 import { useToast } from '@/hooks/use-toast';
 import { translateText, DoctorInfo } from '@/ai/flows/translation-flow';
 import { Doctor } from '@/types';
+import { translations } from '@/lib/localization';
+
+
+function capitalizeFirstLetter(string: string) {
+  if (!string) return string;
+  return string.charAt(0).toUpperCase() + string.slice(1);
+}
 
 export function Header() {
   const { lang, t } = useLanguage();
+  const pathname = usePathname();
   const { 
     doctors, 
     searchTerm, 
@@ -38,6 +47,19 @@ export function Header() {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isTranslating, setIsTranslating] = useState(false);
   const { toast } = useToast();
+
+  const departmentName = useMemo(() => {
+    const pathParts = pathname.split('/').filter(Boolean);
+    const deptSlug = pathParts[pathParts.length -1];
+    
+    // Find the key in translations.en.departments that matches the slug
+    const deptKey = Object.keys(translations.en.departments).find(key => 
+      key.toLowerCase() === deptSlug.toLowerCase()
+    );
+
+    return deptKey ? t(`departments.${deptKey}`) : capitalizeFirstLetter(deptSlug);
+  }, [pathname, t]);
+
 
   const handleFullscreenToggle = async () => {
     if (!document.fullscreenElement) {
@@ -111,7 +133,7 @@ export function Header() {
 
           {/* Centered App Name & Subtitle */}
           <div className="absolute left-1/2 -translate-x-1/2 flex flex-col items-center">
-            <h1 className="text-lg font-semibold tracking-tight whitespace-nowrap text-primary animate-glow">{t('departments.oncology')}</h1>
+            <h1 className="text-lg font-semibold tracking-tight whitespace-nowrap text-primary animate-glow">{departmentName}</h1>
           </div>
 
           {/* User Menu and right-aligned items */}

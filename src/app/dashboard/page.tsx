@@ -148,7 +148,7 @@ export default function HospitalDashboardPage() {
         <Card 
             onClick={() => isClickable && setLoadingDept(dept.name)}
             className={cn(
-                "flex flex-col justify-center items-center p-2 aspect-square text-center relative overflow-hidden transition-transform duration-300",
+                "flex flex-col justify-center items-center p-2 h-full aspect-square text-center relative overflow-hidden transition-transform duration-300",
                 isClickable ? 'hover:scale-105 hover:shadow-primary/20 cursor-pointer' : 'opacity-50 cursor-not-allowed',
                 isLoading && 'ring-2 ring-primary ring-offset-2 ring-offset-background'
             )}
