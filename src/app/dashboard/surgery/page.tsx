@@ -19,6 +19,7 @@ import { format, addDays, startOfWeek, eachDayOfInterval, isSameDay, setHours, s
 import { ar } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { NotificationsButton } from '@/components/notifications-button';
 
 type SurgeryBooking = {
     id: string;
@@ -110,14 +111,18 @@ export default function SurgeryPage() {
                 <div className="flex items-center gap-2">
                     <Logo className="h-8 w-8 text-primary" />
                 </div>
-                <div className="flex items-center gap-2">
-                    <Button variant="ghost" size="icon" onClick={() => changeWeek('prev')}><ChevronLeft className="h-4 w-4" /></Button>
-                    <h1 className="text-lg font-semibold text-center w-40 md:w-auto tabular-nums whitespace-nowrap">
-                        {format(weekStart, 'dd MMM yyyy', {locale: lang === 'ar' ? ar : undefined})}
-                    </h1>
-                    <Button variant="ghost" size="icon" onClick={() => changeWeek('next')}><ChevronRight className="h-4 w-4" /></Button>
+                <div className="flex flex-col items-center">
+                    <h1 className="text-lg font-semibold tracking-tight whitespace-nowrap text-primary animate-glow">{t('departments.surgicalOperations')}</h1>
+                    <div className="flex items-center gap-2">
+                        <Button variant="ghost" size="icon" onClick={() => changeWeek('prev')}><ChevronLeft className="h-4 w-4" /></Button>
+                        <span className="text-sm font-semibold text-center w-40 md:w-auto tabular-nums whitespace-nowrap">
+                            {format(weekStart, 'dd MMM yyyy', {locale: lang === 'ar' ? ar : undefined})}
+                        </span>
+                        <Button variant="ghost" size="icon" onClick={() => changeWeek('next')}><ChevronRight className="h-4 w-4" /></Button>
+                    </div>
                 </div>
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2">
+                    <NotificationsButton />
                     <UserMenu />
                 </div>
             </header>

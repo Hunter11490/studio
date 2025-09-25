@@ -15,6 +15,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Patient } from '@/types';
 import { Stethoscope } from 'lucide-react';
+import { NotificationsButton } from '@/components/notifications-button';
 
 function PatientItem({ patient }: { patient: Patient }) {
   const { t } = useLanguage();
@@ -92,7 +93,8 @@ export default function ReceptionPage() {
         <div className="flex flex-col items-center">
              <h1 className="text-lg font-semibold tracking-tight whitespace-nowrap text-primary animate-glow">{t('departments.reception')}</h1>
         </div>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2">
+            <NotificationsButton />
             <UserMenu />
         </div>
       </header>

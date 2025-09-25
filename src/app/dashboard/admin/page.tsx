@@ -8,6 +8,7 @@ import { AdminPanel } from '@/components/admin/admin-panel';
 import { Logo } from '@/components/logo';
 import { UserMenu } from '@/components/layout/user-menu';
 import { PatientStatsDashboard } from '@/components/admin/patient-stats-dashboard';
+import { NotificationsButton } from '@/components/notifications-button';
 
 export default function AdminPage() {
   const { user, isLoading } = useAuth();
@@ -38,7 +39,8 @@ export default function AdminPage() {
         <div className="flex flex-col items-center">
              <h1 className="text-lg font-semibold tracking-tight whitespace-nowrap text-primary animate-glow">{t('departments.admin')}</h1>
         </div>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2">
+            <NotificationsButton />
             <UserMenu />
         </div>
       </header>

@@ -51,6 +51,7 @@ import { UserMenu } from '@/components/layout/user-menu';
 import { Logo } from '@/components/logo';
 import { useSimulation } from '@/hooks/use-simulation';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { NotificationsButton } from '@/components/notifications-button';
 
 const mainDepts = [
   {
@@ -181,7 +182,8 @@ export default function HospitalDashboardPage() {
                 <p className="text-xs text-muted-foreground">{t('appSubtitle')}</p>
              </div>
         </div>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2">
+            <NotificationsButton />
             <UserMenu />
         </div>
       </header>

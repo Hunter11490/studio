@@ -18,6 +18,7 @@ import { ar } from 'date-fns/locale';
 import { Calculator, User, Search, FileText, PlusCircle, MinusCircle, DollarSign } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import { translations } from '@/lib/localization';
+import { NotificationsButton } from '@/components/notifications-button';
 
 
 const calculateBalance = (records: FinancialRecord[] = []) => {
@@ -56,7 +57,8 @@ export default function AccountsPage() {
                 <div className="flex flex-col items-center">
                     <h1 className="text-lg font-semibold tracking-tight whitespace-nowrap text-primary animate-glow">{t('departments.accounts')}</h1>
                 </div>
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2">
+                    <NotificationsButton />
                     <UserMenu />
                 </div>
             </header>

@@ -27,6 +27,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { useToast } from '@/hooks/use-toast';
+import { NotificationsButton } from '@/components/notifications-button';
 
 type Drug = {
     id: string;
@@ -156,7 +157,8 @@ export default function PharmacyPage() {
                 <div className="flex flex-col items-center">
                     <h1 className="text-lg font-semibold tracking-tight whitespace-nowrap text-primary animate-glow">{t('departments.pharmacy')}</h1>
                 </div>
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2">
+                    <NotificationsButton />
                     <UserMenu />
                 </div>
             </header>

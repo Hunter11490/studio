@@ -19,6 +19,7 @@ import { useToast } from '@/hooks/use-toast';
 import { translateText } from '@/ai/flows/translation-flow';
 import type { Doctor, DoctorInfo, ReferralCase } from '@/types';
 import { translations } from '@/lib/localization';
+import { NotificationsButton } from '../notifications-button';
 
 function capitalizeFirstLetter(string: string) {
   if (!string) return string;
@@ -176,7 +177,8 @@ export function Header({ onAddDoctor }: { onAddDoctor?: () => void }) {
             <h1 className="text-lg font-semibold tracking-tight whitespace-nowrap text-primary animate-glow">{departmentName}</h1>
           </div>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
+            <NotificationsButton />
             <UserMenu />
           </div>
         </div>

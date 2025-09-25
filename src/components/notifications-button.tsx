@@ -18,12 +18,12 @@ export function NotificationsButton() {
 
   return (
     <>
-      <div className="fixed bottom-40 left-6 z-40">
-        <Button onClick={() => setIsOpen(true)} variant="secondary" size="icon" className="h-14 w-14 rounded-full shadow-lg relative">
-          <Bell className="h-6 w-6" />
+      <div className="relative">
+        <Button onClick={() => setIsOpen(true)} variant="ghost" size="icon" className="relative">
+          <Bell className="h-5 w-5" />
           {unreadCount > 0 && (
-            <span className="absolute -top-1 -right-1 flex h-6 w-6 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground animate-pulse">
-              {unreadCount}
+            <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground animate-pulse">
+              {unreadCount > 9 ? '9+' : unreadCount}
             </span>
           )}
         </Button>

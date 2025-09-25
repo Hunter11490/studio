@@ -11,8 +11,6 @@ import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/hooks/use-language';
 import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
-import { NotificationsButton } from '@/components/notifications-button';
-
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const { user } = useAuth();
@@ -60,7 +58,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </TooltipProvider>
         )}
         {children}
-        <NotificationsButton />
       </main>
     </div>
   );
