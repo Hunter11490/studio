@@ -18,7 +18,7 @@ import { UserMenu } from '@/components/layout/user-menu';
 import { Logo } from '@/components/logo';
 
 const departments = [
-  'oncology', 'cardiology', 'pediatrics', 'neurology', 'orthopedics', 'generalSurgery', 'ophthalmology', 'emergency', 'laboratory', 'reception'
+  'oncology', 'cardiology', 'pediatrics', 'neurology', 'orthopedics', 'generalSurgery', 'ophthalmology', 'emergency', 'laboratory', 'bloodBank'
 ];
 
 const formSchema = z.object({

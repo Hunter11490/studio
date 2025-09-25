@@ -261,7 +261,8 @@ export const translations: Translations = {
       generalSurgery: 'General Surgery',
       ophthalmology: 'Ophthalmology',
       emergency: 'Emergency',
-      laboratory: 'Laboratory'
+      laboratory: 'Laboratory',
+      bloodBank: 'Blood Bank'
     },
     reception: {
       title: 'Reception Desk',
@@ -537,7 +538,8 @@ export const translations: Translations = {
       generalSurgery: 'الجراحة العامة',
       ophthalmology: 'العيون',
       emergency: 'الطوارئ',
-      laboratory: 'المختبر'
+      laboratory: 'المختبر',
+      bloodBank: 'مصرف الدم'
     },
     reception: {
       title: 'مكتب الاستعلامات',

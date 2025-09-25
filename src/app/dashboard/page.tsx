@@ -12,7 +12,8 @@ import {
   FlaskConical,
   PersonStanding,
   Scissors,
-  Quote
+  Quote,
+  Droplets
 } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { useLanguage } from '@/hooks/use-language';
@@ -86,6 +87,12 @@ const departments = [
     icon: Eye,
     href: '#',
   },
+   {
+    name: 'Blood Bank',
+    name_ar: 'مصرف الدم',
+    icon: Droplets,
+    href: '/dashboard/blood-bank',
+  },
   {
     name: 'Emergency',
     name_ar: 'قسم الطوارئ',
@@ -121,10 +128,10 @@ export default function HospitalDashboardPage() {
   const getDepartmentNode = (dept: (typeof departments)[0]) => {
      const isClickable = dept.href !== '#';
      const content = (
-        <Card className={`flex flex-col justify-center items-center p-4 aspect-square text-center relative overflow-hidden transition-transform duration-300 ${isClickable ? 'hover:scale-105 hover:shadow-primary/20' : 'opacity-50 cursor-not-allowed'}`}>
-            <dept.icon className="h-6 w-6 mb-2 text-primary" />
-            <CardTitle className="text-sm font-semibold tracking-tight">{lang === 'ar' ? dept.name_ar : dept.name}</CardTitle>
-            <StethoscopeLogo className="absolute -right-4 -bottom-4 h-12 w-12 text-primary/5 opacity-50" />
+        <Card className={`flex flex-col justify-center items-center p-2 aspect-square text-center relative overflow-hidden transition-transform duration-300 ${isClickable ? 'hover:scale-105 hover:shadow-primary/20' : 'opacity-50 cursor-not-allowed'}`}>
+            <dept.icon className="h-5 w-5 mb-1 text-primary" />
+            <CardTitle className="text-xs font-semibold tracking-tight leading-tight">{lang === 'ar' ? dept.name_ar : dept.name}</CardTitle>
+            <StethoscopeLogo className="absolute -right-4 -bottom-4 h-10 w-10 text-primary/5 opacity-50" />
         </Card>
      )
 
@@ -133,11 +140,11 @@ export default function HospitalDashboardPage() {
 
   return (
     <>
-      <div className="text-center mb-6">
-        <h1 className="text-3xl font-bold font-headline tracking-tight">{t('appName')}</h1>
-        <p className="text-muted-foreground">{t('appSubtitle')}</p>
+      <div className="text-center mb-4">
+        <h1 className="text-2xl font-bold font-headline tracking-tight">{t('appName')}</h1>
+        <p className="text-sm text-muted-foreground">{t('appSubtitle')}</p>
       </div>
-      <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3 p-4">
+      <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-7 xl:grid-cols-8 gap-2 p-2">
         {departments.map(getDepartmentNode)}
       </div>
       <WelcomeDialog open={showWelcome} onOpenChange={setShowWelcome} onFinished={handleWelcomeClose} />
