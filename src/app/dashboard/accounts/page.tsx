@@ -15,10 +15,11 @@ import { Badge } from '@/components/ui/badge';
 import { Patient, FinancialRecord } from '@/types';
 import { format } from 'date-fns';
 import { ar } from 'date-fns/locale';
-import { Calculator, User, Search, FileText, PlusCircle, MinusCircle, DollarSign } from 'lucide-react';
+import { Calculator, User, Search, FileText, PlusCircle, MinusCircle, DollarSign, Maximize, Minimize } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import { translations } from '@/lib/localization';
 import { NotificationsButton } from '@/components/notifications-button';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 
 const calculateBalance = (records: FinancialRecord[] = []) => {
@@ -30,6 +31,19 @@ export default function AccountsPage() {
     const { patients, addFinancialRecord } = usePatients();
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
+    const [isFullscreen, setIsFullscreen] = useState(false);
+
+    const handleFullscreenToggle = async () => {
+      if (typeof window !== 'undefined') {
+          if (!document.fullscreenElement) {
+              await document.documentElement.requestFullscreen();
+              setIsFullscreen(true);
+          } else if (document.exitFullscreen) {
+              await document.exitFullscreen();
+              setIsFullscreen(false);
+          }
+      }
+    };
 
     const filteredPatients = useMemo(() => {
         return patients
@@ -58,6 +72,20 @@ export default function AccountsPage() {
                     <h1 className="text-lg font-semibold tracking-tight whitespace-nowrap text-primary animate-glow">{t('departments.accounts')}</h1>
                 </div>
                 <div className="flex items-center gap-2">
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={handleFullscreenToggle}
+                          >
+                            {isFullscreen ? <Minimize className="h-5 w-5" /> : <Maximize className="h-5 w-5" />}
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent><p>{isFullscreen ? t('header.exitFullscreen') : t('header.enterFullscreen')}</p></TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
                     <NotificationsButton />
                     <UserMenu />
                 </div>

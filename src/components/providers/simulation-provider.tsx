@@ -38,7 +38,7 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
           const consultationFee = 25000;
           addPatient(newPatientData, {
             type: 'consultation',
-            description: `Consultation - ${newPatientData.department}`,
+            description: `${t('reception.title')} - ${t(`departments.${newPatientData.department}`)}`,
             amount: consultationFee
           });
           const notifTitle = t('simulation.patientAdded');
@@ -52,12 +52,12 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
           const testCost = 15000 + Math.floor(Math.random() * 50000);
           addFinancialRecord(randomPatient.id, {
             type: 'lab',
-            description: `Random Lab Test`,
+            description: `${t('lab.test')} ${t('common.random')}`,
             amount: testCost,
             date: new Date().toISOString()
           });
           const notifTitle = t('simulation.labTest');
-          const notifDesc = `${randomPatient.patientName} got a lab test.`;
+          const notifDesc = `${randomPatient.patientName} ${t('simulation.labTestDesc')}`;
           addNotification({ title: notifTitle, description: notifDesc });
         }
       },
@@ -67,12 +67,12 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
           const drugCost = 5000 + Math.floor(Math.random() * 100000);
           addFinancialRecord(randomPatient.id, {
             type: 'pharmacy',
-            description: `Random Medication`,
+            description: `${t('pharmacy.drugName')} ${t('common.random')}`,
             amount: drugCost,
             date: new Date().toISOString()
           });
            const notifTitle = t('simulation.pharmacyBill');
-           const notifDesc = `${randomPatient.patientName} bought medicine.`;
+           const notifDesc = `${randomPatient.patientName} ${t('simulation.pharmacyBillDesc')}`;
            addNotification({ title: notifTitle, description: notifDesc });
         }
       },
@@ -84,12 +84,12 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
             const paymentAmount = 10000 + Math.floor(Math.random() * 50000);
             addFinancialRecord(randomPatient.id, {
               type: 'payment',
-              description: `Payment Received`,
+              description: t('accounts.paymentReceived'),
               amount: -paymentAmount, // Negative amount for payment
               date: new Date().toISOString()
             });
             const notifTitle = t('simulation.paymentMade');
-            const notifDesc = `${randomPatient.patientName} paid ${paymentAmount.toLocaleString()} IQD.`;
+            const notifDesc = t('simulation.paymentMadeDesc', { patientName: randomPatient.patientName, amount: paymentAmount.toLocaleString() });
             addNotification({ title: notifTitle, description: notifDesc });
           }
         }
@@ -110,7 +110,7 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
             if(randomDoctor.referralCount !== newCount) {
                 updateDoctor(randomDoctor.id, { referralCount: newCount });
                 const notifTitle = t('simulation.referralUpdate');
-                const notifDesc = `${randomDoctor.name} now has ${newCount} referrals.`;
+                const notifDesc = t('simulation.referralUpdateDesc', { doctorName: randomDoctor.name, count: newCount });
                 addNotification({ title: notifTitle, description: notifDesc });
             }
          }

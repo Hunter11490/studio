@@ -167,7 +167,8 @@ export const translations: Translations = {
       finish: 'Finish',
       submit: 'Submit',
       save: 'Save',
-      backToMenu: 'Back to Main Menu'
+      backToMenu: 'Back to Main Menu',
+      random: 'Random'
     },
      admin: {
       dashboardTitle: 'Admin Dashboard',
@@ -425,6 +426,10 @@ export const translations: Translations = {
       labTest: 'Lab Test Ordered',
       pharmacyBill: 'Medication Dispensed',
       paymentMade: 'Patient Payment Received',
+      labTestDesc: 'got a lab test.',
+      pharmacyBillDesc: 'bought medicine.',
+      paymentMadeDesc: '{patientName} paid {amount} IQD.',
+      referralUpdateDesc: '{doctorName} now has {count} referrals.',
     },
     accounts: {
         patientBalances: "Patient Balances",
@@ -613,7 +618,8 @@ export const translations: Translations = {
       finish: 'إنهاء',
       submit: 'إرسال',
       save: 'حفظ',
-      backToMenu: 'العودة للقائمة الرئيسية'
+      backToMenu: 'العودة للقائمة الرئيسية',
+      random: 'عشوائي'
     },
     admin: {
       dashboardTitle: 'لوحة تحكم المسؤول',
@@ -871,6 +877,10 @@ export const translations: Translations = {
       labTest: 'تم طلب فحص مخبري',
       pharmacyBill: 'تم صرف دواء',
       paymentMade: 'تم استلام دفعة من المريض',
+      labTestDesc: 'طلب فحص مخبري',
+      pharmacyBillDesc: 'اشترى دواء',
+      paymentMadeDesc: '{patientName} دفع مبلغ {amount} دينار.',
+      referralUpdateDesc: '{doctorName} لديه الآن {count} إحالات.',
     },
     accounts: {
         patientBalances: "أرصدة المرضى",

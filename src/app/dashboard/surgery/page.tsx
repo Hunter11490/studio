@@ -14,12 +14,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
-import { Scissors, PlusCircle, ChevronLeft, ChevronRight, Clock } from 'lucide-react';
+import { Scissors, PlusCircle, ChevronLeft, ChevronRight, Clock, Maximize, Minimize } from 'lucide-react';
 import { format, addDays, startOfWeek, eachDayOfInterval, isSameDay, setHours, setMinutes, getHours, getMinutes } from 'date-fns';
 import { ar } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { NotificationsButton } from '@/components/notifications-button';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+
 
 type SurgeryBooking = {
     id: string;
@@ -54,6 +56,19 @@ export default function SurgeryPage() {
     const [isFormOpen, setFormOpen] = useState(false);
     const [bookingToEdit, setBookingToEdit] = useState<SurgeryBooking | null>(null);
     const [currentDate, setCurrentDate] = useState(new Date());
+    const [isFullscreen, setIsFullscreen] = useState(false);
+
+    const handleFullscreenToggle = async () => {
+      if (typeof window !== 'undefined') {
+          if (!document.fullscreenElement) {
+              await document.documentElement.requestFullscreen();
+              setIsFullscreen(true);
+          } else if (document.exitFullscreen) {
+              await document.exitFullscreen();
+              setIsFullscreen(false);
+          }
+      }
+    };
 
     const weekStart = startOfWeek(currentDate, { weekStartsOn: 6 }); // Saturday
     const weekDays = eachDayOfInterval({ start: weekStart, end: addDays(weekStart, 6) });
@@ -122,6 +137,20 @@ export default function SurgeryPage() {
                     </div>
                 </div>
                 <div className="flex items-center gap-2">
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={handleFullscreenToggle}
+                          >
+                            {isFullscreen ? <Minimize className="h-5 w-5" /> : <Maximize className="h-5 w-5" />}
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent><p>{isFullscreen ? t('header.exitFullscreen') : t('header.enterFullscreen')}</p></TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
                     <NotificationsButton />
                     <UserMenu />
                 </div>

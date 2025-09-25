@@ -10,7 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Beaker, PlusCircle, Trash2, Calculator, X, User } from 'lucide-react';
+import { Beaker, PlusCircle, Trash2, Calculator, X, User, Maximize, Minimize } from 'lucide-react';
 import { useLocalStorage } from '@/hooks/use-local-storage';
 import { usePatients } from '@/hooks/use-patients';
 import { Patient } from '@/types';
@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/select"
 import { useToast } from '@/hooks/use-toast';
 import { NotificationsButton } from '@/components/notifications-button';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 type LabTest = {
     id: string;
@@ -41,16 +42,54 @@ const initialLabTests: LabTest[] = [
   { id: '8', name: 'Vitamin D', price: 40000 },
   { id: '9', name: 'HbA1c', price: 20000 },
   { id: '10', name: 'Serum Ferritin', price: 25000 },
+  { id: '11', name: 'Serum Electrolytes', price: 15000 },
+  { id: '12', name: 'C-Reactive Protein (CRP)', price: 12000 },
+  { id: '13', name: 'Prothrombin Time (PT)', price: 10000 },
+  { id: '14', name: 'Erythrocyte Sedimentation Rate (ESR)', price: 8000 },
+  { id: '15', name: 'Blood Grouping & Rh Factor', price: 5000 },
+  { id: '16', name: 'Hepatitis B Surface Antigen (HBsAg)', price: 20000 },
+  { id: '17', name: 'Hepatitis C Virus (HCV)', price: 25000 },
+  { id: '18', name: 'HIV I & II', price: 30000 },
+  { id: '19', name: 'D-Dimer', price: 35000 },
+  { id: '20', name: 'Ferritin', price: 25000 },
+  { id: '21', name: 'Troponin-I', price: 45000 },
+  { id: '22', name: 'Creatine Kinase (CK-MB)', price: 22000 },
+  { id: '23', name: 'Uric Acid', price: 10000 },
+  { id: '24', name: 'Calcium', price: 10000 },
+  { id: '25', name: 'Magnesium', price: 12000 },
+  { id: '26', name: 'Phosphorus', price: 12000 },
+  { id: '27', name: 'Amylase', price: 18000 },
+  { id: '28', name: 'Lipase', price: 20000 },
+  { id: '29', name: 'Folic Acid', price: 25000 },
+  { id: '30', name: 'Vitamin B12', price: 30000 },
+  ...Array.from({ length: 100 }, (_, i) => ({
+    id: `test-${i + 31}`,
+    name: `Specialized Test #${i + 1}`,
+    price: 10000 + Math.floor(Math.random() * 90000)
+  }))
 ];
 
 export default function LaboratoriesPage() {
     const { t } = useLanguage();
-    const [tests, setTests] = useLocalStorage<LabTest[]>('lab_tests_list', initialLabTests);
+    const [tests, setTests] = useLocalStorage<LabTest[]>('lab_tests_list_v2', initialLabTests);
     const { patients, addFinancialRecord } = usePatients();
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedTests, setSelectedTests] = useState<LabTest[]>([]);
     const [selectedPatientId, setSelectedPatientId] = useState<string | null>(null);
     const { toast } = useToast();
+    const [isFullscreen, setIsFullscreen] = useState(false);
+
+    const handleFullscreenToggle = async () => {
+      if (typeof window !== 'undefined') {
+          if (!document.fullscreenElement) {
+              await document.documentElement.requestFullscreen();
+              setIsFullscreen(true);
+          } else if (document.exitFullscreen) {
+              await document.exitFullscreen();
+              setIsFullscreen(false);
+          }
+      }
+    };
 
     const filteredTests = useMemo(() => {
         return tests.filter(test => test.name.toLowerCase().includes(searchTerm.toLowerCase()));
@@ -102,6 +141,20 @@ export default function LaboratoriesPage() {
                     <h1 className="text-lg font-semibold tracking-tight whitespace-nowrap text-primary animate-glow">{t('departments.laboratories')}</h1>
                 </div>
                 <div className="flex items-center gap-2">
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={handleFullscreenToggle}
+                          >
+                            {isFullscreen ? <Minimize className="h-5 w-5" /> : <Maximize className="h-5 w-5" />}
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent><p>{isFullscreen ? t('header.exitFullscreen') : t('header.enterFullscreen')}</p></TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
                     <NotificationsButton />
                     <UserMenu />
                 </div>

@@ -34,6 +34,8 @@ import {
   Shield,
   Loader2,
   Zap,
+  Maximize,
+  Minimize
 } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { useLanguage } from '@/hooks/use-language';
@@ -132,6 +134,7 @@ export default function HospitalDashboardPage() {
   const currentUser = users.find(u => u.id === user?.id);
   const [showWelcome, setShowWelcome] = useState(currentUser?.isFirstLogin !== false && currentUser?.role !== 'admin');
   const [loadingDept, setLoadingDept] = useState<string | null>(null);
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   const handleWelcomeClose = () => {
     if (user) {
@@ -140,6 +143,18 @@ export default function HospitalDashboardPage() {
     setShowWelcome(false);
   };
   
+  const handleFullscreenToggle = async () => {
+    if (typeof window !== 'undefined') {
+        if (!document.fullscreenElement) {
+            await document.documentElement.requestFullscreen();
+            setIsFullscreen(true);
+        } else if (document.exitFullscreen) {
+            await document.exitFullscreen();
+            setIsFullscreen(false);
+        }
+    }
+  };
+
   const getDepartmentNode = (dept: {name: string, icon: React.ElementType, href: string}) => {
      // Admin section should only be visible to admin users
      if (dept.name === 'admin' && user?.role !== 'admin') {
@@ -183,6 +198,20 @@ export default function HospitalDashboardPage() {
              </div>
         </div>
         <div className="flex items-center gap-2">
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={handleFullscreenToggle}
+                  >
+                    {isFullscreen ? <Minimize className="h-5 w-5" /> : <Maximize className="h-5 w-5" />}
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent><p>{isFullscreen ? t('header.exitFullscreen') : t('header.enterFullscreen')}</p></TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
             <NotificationsButton />
             <UserMenu />
         </div>

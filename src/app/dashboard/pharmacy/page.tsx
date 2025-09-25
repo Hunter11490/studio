@@ -15,7 +15,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
-import { Pill, PlusCircle, Pencil, Trash2, ShoppingCart, User, X } from 'lucide-react';
+import { Pill, PlusCircle, Pencil, Trash2, ShoppingCart, User, X, Maximize, Minimize } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { usePatients } from '@/hooks/use-patients';
 import { Patient } from '@/types';
@@ -28,6 +28,7 @@ import {
 } from "@/components/ui/select"
 import { useToast } from '@/hooks/use-toast';
 import { NotificationsButton } from '@/components/notifications-button';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 type Drug = {
     id: string;
@@ -52,11 +53,18 @@ const initialDrugs: Drug[] = [
   { id: '5', name: 'Metformin 500mg', quantity: 150, price: 4000 },
   { id: '6', name: 'Atorvastatin 20mg', quantity: 95, price: 12000 },
   { id: '7', name: 'Amlodipine 5mg', quantity: 110, price: 6000 },
+  // Adding a massive amount of drugs as requested
+  ...Array.from({ length: 5000 }, (_, i) => ({
+    id: `drug-${i + 8}`,
+    name: `Generic Drug #${i + 1} - ${String.fromCharCode(65 + (i % 26))}${String.fromCharCode(65 + (Math.floor(i/26) % 26))}`,
+    quantity: Math.floor(Math.random() * 500),
+    price: 500 + Math.floor(Math.random() * 50000)
+  }))
 ];
 
 export default function PharmacyPage() {
     const { t } = useLanguage();
-    const [drugs, setDrugs] = useLocalStorage<Drug[]>('pharmacy_drugs', initialDrugs);
+    const [drugs, setDrugs] = useLocalStorage<Drug[]>('pharmacy_drugs_v2', initialDrugs);
     const { patients, addFinancialRecord } = usePatients();
     const [searchTerm, setSearchTerm] = useState('');
     const [isFormOpen, setFormOpen] = useState(false);
@@ -64,6 +72,19 @@ export default function PharmacyPage() {
     const [cart, setCart] = useState<CartItem[]>([]);
     const [selectedPatientId, setSelectedPatientId] = useState<string | null>(null);
     const { toast } = useToast();
+    const [isFullscreen, setIsFullscreen] = useState(false);
+
+    const handleFullscreenToggle = async () => {
+      if (typeof window !== 'undefined') {
+          if (!document.fullscreenElement) {
+              await document.documentElement.requestFullscreen();
+              setIsFullscreen(true);
+          } else if (document.exitFullscreen) {
+              await document.exitFullscreen();
+              setIsFullscreen(false);
+          }
+      }
+    };
 
 
     const filteredDrugs = useMemo(() => {
@@ -158,6 +179,20 @@ export default function PharmacyPage() {
                     <h1 className="text-lg font-semibold tracking-tight whitespace-nowrap text-primary animate-glow">{t('departments.pharmacy')}</h1>
                 </div>
                 <div className="flex items-center gap-2">
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={handleFullscreenToggle}
+                          >
+                            {isFullscreen ? <Minimize className="h-5 w-5" /> : <Maximize className="h-5 w-5" />}
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent><p>{isFullscreen ? t('header.exitFullscreen') : t('header.enterFullscreen')}</p></TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
                     <NotificationsButton />
                     <UserMenu />
                 </div>

@@ -10,12 +10,13 @@ import { UserMenu } from '@/components/layout/user-menu';
 import { Logo } from '@/components/logo';
 import { PatientRegistrationDialog } from '@/components/reception/patient-registration-dialog';
 import { Button } from '@/components/ui/button';
-import { Plus, Pencil, User } from 'lucide-react';
+import { Plus, Pencil, User, Maximize, Minimize } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Patient } from '@/types';
 import { Stethoscope } from 'lucide-react';
 import { NotificationsButton } from '@/components/notifications-button';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 function PatientItem({ patient }: { patient: Patient }) {
   const { t } = useLanguage();
@@ -60,6 +61,19 @@ export default function ReceptionPage() {
   const { t, lang } = useLanguage();
   const { patients } = usePatients();
   const [isFormOpen, setFormOpen] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
+  const handleFullscreenToggle = async () => {
+    if (typeof window !== 'undefined') {
+        if (!document.fullscreenElement) {
+            await document.documentElement.requestFullscreen();
+            setIsFullscreen(true);
+        } else if (document.exitFullscreen) {
+            await document.exitFullscreen();
+            setIsFullscreen(false);
+        }
+    }
+  };
 
   const groupedPatients = useMemo(() => {
     return patients.reduce((acc, patient) => {
@@ -94,6 +108,20 @@ export default function ReceptionPage() {
              <h1 className="text-lg font-semibold tracking-tight whitespace-nowrap text-primary animate-glow">{t('departments.reception')}</h1>
         </div>
         <div className="flex items-center gap-2">
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={handleFullscreenToggle}
+                  >
+                    {isFullscreen ? <Minimize className="h-5 w-5" /> : <Maximize className="h-5 w-5" />}
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent><p>{isFullscreen ? t('header.exitFullscreen') : t('header.enterFullscreen')}</p></TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
             <NotificationsButton />
             <UserMenu />
         </div>

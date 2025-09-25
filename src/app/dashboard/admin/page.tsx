@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/use-auth';
 import { useLanguage } from '@/hooks/use-language';
@@ -9,11 +9,27 @@ import { Logo } from '@/components/logo';
 import { UserMenu } from '@/components/layout/user-menu';
 import { PatientStatsDashboard } from '@/components/admin/patient-stats-dashboard';
 import { NotificationsButton } from '@/components/notifications-button';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Button } from '@/components/ui/button';
+import { Maximize, Minimize } from 'lucide-react';
 
 export default function AdminPage() {
   const { user, isLoading } = useAuth();
   const { t } = useLanguage();
   const router = useRouter();
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
+  const handleFullscreenToggle = async () => {
+    if (typeof window !== 'undefined') {
+        if (!document.fullscreenElement) {
+            await document.documentElement.requestFullscreen();
+            setIsFullscreen(true);
+        } else if (document.exitFullscreen) {
+            await document.exitFullscreen();
+            setIsFullscreen(false);
+        }
+    }
+  };
 
   useEffect(() => {
     if (!isLoading && user?.role !== 'admin') {
@@ -40,6 +56,20 @@ export default function AdminPage() {
              <h1 className="text-lg font-semibold tracking-tight whitespace-nowrap text-primary animate-glow">{t('departments.admin')}</h1>
         </div>
         <div className="flex items-center gap-2">
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={handleFullscreenToggle}
+                  >
+                    {isFullscreen ? <Minimize className="h-5 w-5" /> : <Maximize className="h-5 w-5" />}
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent><p>{isFullscreen ? t('header.exitFullscreen') : t('header.enterFullscreen')}</p></TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
             <NotificationsButton />
             <UserMenu />
         </div>
