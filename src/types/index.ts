@@ -46,11 +46,18 @@ export type Patient = {
   createdAt: string;
 };
 
-
 export type DoctorInfo = {
-  name: string;
-  specialty: string;
-  clinicAddress: string;
+    name: string;
+    specialty: string;
+    clinicAddress: string;
+    referralNotes?: {
+        patientName: string;
+        referralDate: string;
+        testDate: string;
+        testType: string;
+        patientAge: string;
+        chronicDiseases: string;
+    }[];
 };
 
 export type UserStatus = 'pending' | 'active' | 'banned';
@@ -84,3 +91,5 @@ export type Translations = {
 export type PartnerExportData = {
   [key:string]: string | number;
 };
+
+    
