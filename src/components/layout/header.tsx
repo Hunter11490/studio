@@ -59,7 +59,7 @@ export function Header({ onAddDoctor }: { onAddDoctor?: () => void }) {
 
   const departmentName = useMemo(() => {
     const lowercasedSlug = departmentSlug.toLowerCase();
-    const deptKey = Object.keys(translations.en.departments).find(key => 
+    const deptKey = Object.keys((translations.en as any).departments).find(key => 
       key.toLowerCase() === lowercasedSlug
     );
     return deptKey ? t(`departments.${deptKey as keyof typeof translations.en.departments}`) : capitalizeFirstLetter(departmentSlug);
@@ -75,12 +75,14 @@ export function Header({ onAddDoctor }: { onAddDoctor?: () => void }) {
   };
 
   const handleFullscreenToggle = async () => {
-    if (!document.fullscreenElement) {
-      await document.documentElement.requestFullscreen();
-      setIsFullscreen(true);
-    } else {
-      await document.exitFullscreen();
-      setIsFullscreen(false);
+    if (typeof window !== 'undefined') {
+        if (!document.fullscreenElement) {
+            await document.documentElement.requestFullscreen();
+            setIsFullscreen(true);
+        } else if (document.exitFullscreen) {
+            await document.exitFullscreen();
+            setIsFullscreen(false);
+        }
     }
   };
 
