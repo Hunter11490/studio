@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger } from '@/components/ui/dialog';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
@@ -174,14 +174,10 @@ const initialDrugs: Drug[] = [
     })
 ];
 
-
 export default function PharmacyPage() {
     const { t } = useLanguage();
     const [drugs, setDrugs] = useLocalStorage<Drug[]>('pharmacy_drugs_v2', initialDrugs);
     const { patients, addFinancialRecord } = usePatients();
-    const [searchTerm, setSearchTerm] = useState('');
-    const [isFormOpen, setFormOpen] = useState(false);
-    const [drugToEdit, setDrugToEdit] = useState<Drug | null>(null);
     const [cart, setCart] = useState<CartItem[]>([]);
     const [selectedPatientId, setSelectedPatientId] = useState<string | null>(null);
     const { toast } = useToast();
@@ -199,30 +195,13 @@ export default function PharmacyPage() {
       }
     };
 
-
-    const filteredDrugs = useMemo(() => {
-        return drugs.filter(drug => drug.name.toLowerCase().includes(searchTerm.toLowerCase()));
-    }, [drugs, searchTerm]);
-
-    const handleSaveDrug = (data: z.infer<typeof formSchema>) => {
+    const handleSaveDrug = (data: z.infer<typeof formSchema>, drugToEdit: Drug | null) => {
         if (drugToEdit) {
             setDrugs(prev => prev.map(d => d.id === drugToEdit.id ? { ...d, ...data } : d));
         } else {
             const newDrug: Drug = { id: new Date().toISOString(), ...data };
             setDrugs(prev => [newDrug, ...prev]);
         }
-        setFormOpen(false);
-        setDrugToEdit(null);
-    };
-    
-    const handleAddClick = () => {
-        setDrugToEdit(null);
-        setFormOpen(true);
-    };
-
-    const handleEditClick = (drug: Drug) => {
-        setDrugToEdit(drug);
-        setFormOpen(true);
     };
 
     const handleDeleteClick = (drugId: string) => {
@@ -311,53 +290,8 @@ export default function PharmacyPage() {
                 </div>
             </header>
 
-            <main className="flex-grow flex flex-col lg:flex-row gap-4 p-4 md:p-8">
-                <Card className="lg:w-2/3 flex flex-col">
-                    <CardHeader className="flex flex-row items-center justify-between">
-                        <CardTitle>{t('pharmacy.inventory')}</CardTitle>
-                        <Button onClick={handleAddClick} size="sm">
-                            <PlusCircle className="mr-2 h-4 w-4" />
-                            {t('pharmacy.addDrug')}
-                        </Button>
-                    </CardHeader>
-                    <CardContent className="flex-grow flex flex-col p-0">
-                        <div className="px-6 pb-4">
-                            <Input
-                                placeholder={t('pharmacy.searchPlaceholder')}
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                            />
-                        </div>
-                        <ScrollArea className="h-full min-h-0">
-                            <Table>
-                                <TableHeader>
-                                    <TableRow>
-                                        <TableHead>{t('pharmacy.drugName')}</TableHead>
-                                        <TableHead>{t('pharmacy.quantity')}</TableHead>
-                                        <TableHead>{t('pharmacy.price')}</TableHead>
-                                        <TableHead className="text-right">{t('common.actions')}</TableHead>
-                                    </TableRow>
-                                </TableHeader>
-                                <TableBody>
-                                    {filteredDrugs.map((drug) => (
-                                        <TableRow key={drug.id} className={drug.quantity < 10 ? 'bg-destructive/10' : ''}>
-                                            <TableCell className="font-medium">{drug.name}</TableCell>
-                                            <TableCell>{drug.quantity}</TableCell>
-                                            <TableCell dir="ltr">{drug.price.toLocaleString()} {t('pharmacy.iqd')}</TableCell>
-                                            <TableCell className="text-right">
-                                                <Button variant="ghost" size="icon" onClick={() => handleEditClick(drug)}><Pencil className="h-4 w-4" /></Button>
-                                                <Button variant="ghost" size="icon" onClick={() => handleDeleteClick(drug.id)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
-                                                <Button variant="ghost" size="icon" onClick={() => addToCart(drug)} disabled={drug.quantity === 0}><PlusCircle className="h-4 w-4 text-primary" /></Button>
-                                            </TableCell>
-                                        </TableRow>
-                                    ))}
-                                </TableBody>
-                            </Table>
-                        </ScrollArea>
-                    </CardContent>
-                </Card>
-
-                 <Card className="lg:w-1/3 flex flex-col">
+            <main className="flex-grow p-4 md:p-8">
+                 <Card className="h-full flex flex-col">
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2">
                             <ShoppingCart className="h-5 w-5" />
@@ -377,7 +311,7 @@ export default function PharmacyPage() {
                     <CardContent className="flex-grow p-0">
                          <ScrollArea className="h-full min-h-0">
                             {cart.length === 0 ? (
-                                <div className="p-6 text-center text-muted-foreground">{t('pharmacy.cartEmpty')}</div>
+                                <div className="p-6 text-center text-muted-foreground h-full flex items-center justify-center">{t('pharmacy.cartEmpty')}</div>
                             ) : (
                                 <div className="divide-y">
                                     {cart.map((item) => (
@@ -410,15 +344,102 @@ export default function PharmacyPage() {
                 </Card>
             </main>
 
+            <DrugInventoryDialog 
+                drugs={drugs} 
+                onAddToCart={addToCart} 
+                onDelete={handleDeleteClick} 
+                onSave={handleSaveDrug}
+            />
+        </div>
+    );
+}
+
+function DrugInventoryDialog({ drugs, onAddToCart, onDelete, onSave }: { drugs: Drug[], onAddToCart: (drug: Drug) => void, onDelete: (id: string) => void, onSave: (data: z.infer<typeof formSchema>, drug: Drug | null) => void }) {
+    const { t } = useLanguage();
+    const [searchTerm, setSearchTerm] = useState('');
+    const [isFormOpen, setFormOpen] = useState(false);
+    const [drugToEdit, setDrugToEdit] = useState<Drug | null>(null);
+
+    const filteredDrugs = useMemo(() => {
+        return drugs.filter(drug => drug.name.toLowerCase().includes(searchTerm.toLowerCase()));
+    }, [drugs, searchTerm]);
+
+    const handleAddClick = () => {
+        setDrugToEdit(null);
+        setFormOpen(true);
+    };
+
+    const handleEditClick = (drug: Drug) => {
+        setDrugToEdit(drug);
+        setFormOpen(true);
+    };
+    
+    const handleSave = (data: z.infer<typeof formSchema>) => {
+        onSave(data, drugToEdit);
+        setFormOpen(false);
+        setDrugToEdit(null);
+    }
+
+    return (
+        <>
+            <Dialog>
+                <DialogTrigger asChild>
+                    <Button variant="outline" size="icon" className="fixed bottom-6 right-6 z-40 h-12 w-12 rounded-full shadow-lg">
+                        <Pill className="h-5 w-5" />
+                    </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-4xl h-[80vh] flex flex-col">
+                     <DialogHeader className="flex flex-row items-center justify-between">
+                        <DialogTitle>{t('pharmacy.inventory')}</DialogTitle>
+                        <Button onClick={handleAddClick} size="sm">
+                            <PlusCircle className="mr-2 h-4 w-4" />
+                            {t('pharmacy.addDrug')}
+                        </Button>
+                    </DialogHeader>
+                     <div className="px-6 pb-4">
+                        <Input
+                            placeholder={t('pharmacy.searchPlaceholder')}
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                        />
+                    </div>
+                     <ScrollArea className="flex-grow">
+                        <Table>
+                            <TableHeader>
+                                <TableRow>
+                                    <TableHead>{t('pharmacy.drugName')}</TableHead>
+                                    <TableHead>{t('pharmacy.quantity')}</TableHead>
+                                    <TableHead>{t('pharmacy.price')}</TableHead>
+                                    <TableHead className="text-right">{t('common.actions')}</TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                {filteredDrugs.map((drug) => (
+                                    <TableRow key={drug.id} className={drug.quantity < 10 ? 'bg-destructive/10' : ''}>
+                                        <TableCell className="font-medium">{drug.name}</TableCell>
+                                        <TableCell>{drug.quantity}</TableCell>
+                                        <TableCell dir="ltr">{drug.price.toLocaleString()} {t('pharmacy.iqd')}</TableCell>
+                                        <TableCell className="text-right">
+                                            <Button variant="ghost" size="icon" onClick={() => handleEditClick(drug)}><Pencil className="h-4 w-4" /></Button>
+                                            <Button variant="ghost" size="icon" onClick={() => onDelete(drug.id)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
+                                            <Button variant="ghost" size="icon" onClick={() => onAddToCart(drug)} disabled={drug.quantity === 0}><PlusCircle className="h-4 w-4 text-primary" /></Button>
+                                        </TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    </ScrollArea>
+                </DialogContent>
+            </Dialog>
             <Dialog open={isFormOpen} onOpenChange={setFormOpen}>
                 <DialogContent>
                     <DialogHeader>
                         <DialogTitle>{drugToEdit ? t('pharmacy.editDrug') : t('pharmacy.addDrug')}</DialogTitle>
                     </DialogHeader>
-                    <DrugForm onSave={handleSaveDrug} drugToEdit={drugToEdit} />
+                    <DrugForm onSave={handleSave} drugToEdit={drugToEdit} />
                 </DialogContent>
             </Dialog>
-        </div>
+        </>
     );
 }
 
