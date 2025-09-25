@@ -23,6 +23,14 @@ export type Doctor = {
   isLoading?: boolean;
 };
 
+export type FinancialRecord = {
+  id: string;
+  type: 'lab' | 'pharmacy' | 'surgery' | 'payment';
+  description: string;
+  amount: number; // Can be positive (charges) or negative (payments)
+  date: string; // ISO date string
+};
+
 export type Patient = {
   id: string;
   patientName: string;
@@ -44,6 +52,7 @@ export type Patient = {
   department: string;
   doctorId?: string;
   createdAt: string;
+  financialRecords?: FinancialRecord[];
 };
 
 export type DoctorInfo = {
@@ -91,5 +100,3 @@ export type Translations = {
 export type PartnerExportData = {
   [key:string]: string | number;
 };
-
-    

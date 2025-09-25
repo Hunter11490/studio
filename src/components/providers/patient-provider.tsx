@@ -2,7 +2,7 @@
 
 import { createContext, useState, useMemo, useEffect, useCallback } from 'react';
 import { useLocalStorage } from '@/hooks/use-local-storage';
-import { Patient } from '@/types';
+import { Patient, FinancialRecord } from '@/types';
 import { useAuth } from '@/hooks/use-auth';
 import { useDoctors } from '@/hooks/use-doctors';
 import { generateInitialData } from '@/lib/mock-patients';
@@ -17,6 +17,7 @@ export type PatientContextType = {
   patients: Patient[];
   addPatient: (patient: Omit<Patient, 'id' | 'createdAt'>) => void;
   updatePatient: (id: string, updates: Partial<Omit<Patient, 'id'>>) => void;
+  addFinancialRecord: (patientId: string, record: Omit<FinancialRecord, 'id'>) => void;
 };
 
 export const PatientContext = createContext<PatientContextType | null>(null);
@@ -35,6 +36,7 @@ export function PatientProvider({ children }: { children: React.ReactNode }) {
       ...patientData,
       id: new Date().toISOString() + Math.random(),
       createdAt: new Date().toISOString(),
+      financialRecords: [], // Initialize with empty financial records
     };
     setPatients(prev => [newPatient, ...prev]);
 
@@ -61,12 +63,28 @@ export function PatientProvider({ children }: { children: React.ReactNode }) {
   const updatePatient = useCallback((id: string, updates: Partial<Omit<Patient, 'id'>>) => {
     setPatients(prev => prev.map(p => p.id === id ? { ...p, ...updates } : p));
   }, [setPatients]);
+  
+  const addFinancialRecord = useCallback((patientId: string, record: Omit<FinancialRecord, 'id'>) => {
+    const newRecord: FinancialRecord = {
+      ...record,
+      id: new Date().toISOString() + Math.random(),
+    };
+    
+    setPatients(prev => 
+      prev.map(p => 
+        p.id === patientId 
+          ? { ...p, financialRecords: [...(p.financialRecords || []), newRecord] } 
+          : p
+      )
+    );
+  }, [setPatients]);
 
   const value = useMemo(() => ({
     patients: user ? patients : [],
     addPatient,
     updatePatient,
-  }), [patients, user, addPatient, updatePatient]);
+    addFinancialRecord,
+  }), [patients, user, addPatient, updatePatient, addFinancialRecord]);
 
   return <PatientContext.Provider value={value}>{children}</PatientContext.Provider>;
 }

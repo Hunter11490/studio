@@ -97,7 +97,7 @@ const mainDepts = [
 
 const medicalDepts = [
    { name: 'internalMedicine', icon: Stethoscope, href: '/dashboard/internal-medicine' },
-   { name: 'generalSurgery', icon: Scissors, href: '/dashboard/surgery' },
+   { name: 'generalSurgery', icon: Scissors, href: '/dashboard/general-surgery' },
    { name: 'obGyn', icon: HeartHandshake, href: '/dashboard/ob-gyn' },
    { name: 'pediatrics', icon: Baby, href: '/dashboard/pediatrics' },
    { name: 'orthopedics', icon: Bone, href: '/dashboard/orthopedics' },
@@ -113,7 +113,7 @@ const medicalDepts = [
 ];
 
 const adminDepts = [
-  { name: 'accounts', icon: Calculator, href: '#' }, // TBD
+  { name: 'accounts', icon: Calculator, href: '/dashboard/accounts' }, // TBD
   { name: 'medicalRecords', icon: BookUser, href: '#' }, // TBD
   { name: 'sterilization', icon: SprayCan, href: '#' }, // TBD
   { name: 'services', icon: Utensils, href: '#' }, // TBD

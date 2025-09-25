@@ -366,6 +366,8 @@ export const translations: Translations = {
       surgeryType: 'Surgery Type',
       surgeonName: 'Surgeon Name',
       date: 'Date & Time',
+      duration: 'Duration (minutes)',
+      cost: 'Cost',
       noBookings: 'No bookings for this day.',
       status: {
         title: 'Status',
@@ -771,6 +773,8 @@ export const translations: Translations = {
       surgeryType: 'نوع العملية',
       surgeonName: 'اسم الجراح',
       date: 'التاريخ والوقت',
+      duration: 'المدة (دقائق)',
+      cost: 'التكلفة',
       noBookings: 'لا توجد حجوزات لهذا اليوم.',
       status: {
         title: 'الحالة',

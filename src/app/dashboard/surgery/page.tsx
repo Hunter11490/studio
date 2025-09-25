@@ -1,5 +1,3 @@
-
-
 'use client';
 
 import { useState, useMemo, useEffect, useCallback } from 'react';
@@ -29,6 +27,7 @@ type SurgeryBooking = {
     surgeonName: string;
     date: Date;
     duration: number; // Duration in minutes
+    cost: number; // Cost of the surgery
     status: 'scheduled' | 'completed' | 'canceled';
 };
 
@@ -38,18 +37,19 @@ const formSchema = z.object({
   surgeonName: z.string().min(1, 'Surgeon name is required'),
   date: z.date(),
   duration: z.coerce.number().min(30, 'Duration must be at least 30 minutes'),
+  cost: z.coerce.number().min(0, 'Cost cannot be negative'),
   status: z.enum(['scheduled', 'completed', 'canceled']),
 });
 
 const initialBookings: SurgeryBooking[] = [
-    { id: '1', patientName: 'علي حسن', surgeryType: 'استئصال الزائدة', surgeonName: 'د. أحمد الجميلي', date: setMinutes(setHours(new Date(), 9), 0), duration: 60, status: 'scheduled' },
-    { id: '2', patientName: 'نور محمد', surgeryType: 'جراحة القلب المفتوح', surgeonName: 'د. علي الساعدي', date: setMinutes(setHours(addDays(new Date(), 1), 11), 30), duration: 180, status: 'scheduled' },
-    { id: '3', patientName: 'سارة كريم', surgeryType: 'إزالة المرارة', surgeonName: 'د. خالد العامري', date: setMinutes(setHours(new Date(), 14), 0), duration: 90, status: 'completed' },
+    { id: '1', patientName: 'علي حسن', surgeryType: 'استئصال الزائدة', surgeonName: 'د. أحمد الجميلي', date: setMinutes(setHours(new Date(), 9), 0), duration: 60, cost: 500000, status: 'scheduled' },
+    { id: '2', patientName: 'نور محمد', surgeryType: 'جراحة القلب المفتوح', surgeonName: 'د. علي الساعدي', date: setMinutes(setHours(addDays(new Date(), 1), 11), 30), duration: 180, cost: 7500000, status: 'scheduled' },
+    { id: '3', patientName: 'سارة كريم', surgeryType: 'إزالة المرارة', surgeonName: 'د. خالد العامري', date: setMinutes(setHours(new Date(), 14), 0), duration: 90, cost: 1200000, status: 'completed' },
 ];
 
 export default function SurgeryPage() {
     const { t, lang } = useLanguage();
-    const [bookings, setBookings] = useLocalStorage<SurgeryBooking[]>('surgery_bookings_v2', initialBookings);
+    const [bookings, setBookings] = useLocalStorage<SurgeryBooking[]>('surgery_bookings_v3', initialBookings);
     const [isFormOpen, setFormOpen] = useState(false);
     const [bookingToEdit, setBookingToEdit] = useState<SurgeryBooking | null>(null);
     const [currentDate, setCurrentDate] = useState(new Date());
@@ -73,7 +73,7 @@ export default function SurgeryPage() {
         setBookingToEdit(null);
         const newDate = setMinutes(setHours(date, hour), 0);
         // This is a way to set default values for the form when adding.
-        setBookingToEdit({ id: '', patientName: '', surgeryType: '', surgeonName: '', date: newDate, duration: 60, status: 'scheduled' });
+        setBookingToEdit({ id: '', patientName: '', surgeryType: '', surgeonName: '', date: newDate, duration: 60, cost: 0, status: 'scheduled' });
         setFormOpen(true);
     };
 
@@ -196,6 +196,7 @@ function BookingForm({ onSave, bookingToEdit }: { onSave: (data: z.infer<typeof 
             surgeonName: '',
             date: new Date(),
             duration: 60,
+            cost: 0,
             status: 'scheduled',
         },
     });
@@ -231,9 +232,14 @@ function BookingForm({ onSave, bookingToEdit }: { onSave: (data: z.infer<typeof 
                         onChange={(e) => field.onChange(new Date(e.target.value))}
                     /></FormControl><FormMessage /></FormItem>
                 )} />
-                 <FormField control={form.control} name="duration" render={({ field }) => (
-                    <FormItem><FormLabel>Duration (minutes)</FormLabel><FormControl><Input type="number" step="15" {...field} /></FormControl><FormMessage /></FormItem>
-                )} />
+                <div className="grid grid-cols-2 gap-4">
+                     <FormField control={form.control} name="duration" render={({ field }) => (
+                        <FormItem><FormLabel>{t('surgery.duration')}</FormLabel><FormControl><Input type="number" step="15" {...field} /></FormControl><FormMessage /></FormItem>
+                    )} />
+                     <FormField control={form.control} name="cost" render={({ field }) => (
+                        <FormItem><FormLabel>{t('surgery.cost')}</FormLabel><FormControl><Input type="number" step="1000" {...field} /></FormControl><FormMessage /></FormItem>
+                    )} />
+                </div>
                  <FormField control={form.control} name="status" render={({ field }) => (
                     <FormItem><FormLabel>{t('surgery.status.title')}</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}>
                         <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
@@ -251,5 +257,3 @@ function BookingForm({ onSave, bookingToEdit }: { onSave: (data: z.infer<typeof 
         </Form>
     )
 }
-
-    
