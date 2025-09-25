@@ -8,7 +8,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 
 export function SessionTimer({ expiryTimestamp }: { expiryTimestamp: number }) {
-  const { logout, forceAhmedPasswordChange } = useAuth();
+  const { logout, checkAhmedSession } = useAuth();
   const { t } = useLanguage();
   const { toast } = useToast();
   const router = useRouter();
@@ -27,15 +27,14 @@ export function SessionTimer({ expiryTimestamp }: { expiryTimestamp: number }) {
 
       if (newRemainingTime <= 0) {
         clearInterval(interval);
-        // Force password change which will also trigger logout via effect in AuthProvider
-        forceAhmedPasswordChange(); 
+        // The checkAhmedSession in AuthProvider will handle the logout.
+        // We can show a toast here to inform the user.
         toast({
           title: t('admin.sessionExpiredTitle'),
           description: t('admin.sessionExpiredDesc'),
           variant: 'destructive',
         });
-        logout();
-        router.replace('/login');
+        // The redirect will happen automatically when the user state becomes null.
       }
     }, 1000);
 

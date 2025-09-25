@@ -23,8 +23,8 @@ export type AuthContextType = {
   updateUser: (userId: string, updates: Partial<Omit<StoredUser, 'id'>>) => boolean;
   isApprovalSystemEnabled: boolean;
   toggleApprovalSystem: () => void;
-  forceAhmedPasswordChange: () => void;
   checkAndDeactivateUsers: () => void;
+  checkAhmedSession: () => void;
 };
 
 const USERS_STORAGE_KEY = 'iraqi_doctors_users_v3';
@@ -91,23 +91,35 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [dynamicAdminPass, setDynamicAdminPass] = useLocalStorage<string>(DYNAMIC_ADMIN_PASS_KEY, '');
 
   
-  const forceAhmedPasswordChange = useCallback(() => {
+  const logout = useCallback(() => {
+    setUser(null);
+    setLoggedInUser(null);
+    setSessionExpiresAt(null);
+  }, [setLoggedInUser]);
+  
+  const checkAhmedSession = useCallback(() => {
     const currentTimestamp = Date.now();
     const startOfInterval = Math.floor(currentTimestamp / PASSWORD_LIFESPAN_MS) * PASSWORD_LIFESPAN_MS;
-    
-    // Only update if we've crossed into a new 24-hour interval
+    const expiration = passTimestamp + PASSWORD_LIFESPAN_MS;
+
+    // Check if the password needs to be rotated
     if (startOfInterval !== passTimestamp) {
         const newPass = generateDeterministicPassword(0);
         setDynamicAdminPass(newPass);
         setPassTimestamp(startOfInterval);
     }
-  }, [passTimestamp, setDynamicAdminPass, setPassTimestamp]);
+
+    // Check if the current session belongs to Ahmed and has expired.
+    if (loggedInUser?.username === 'Ahmed' && currentTimestamp > expiration) {
+        logout();
+    }
+  }, [passTimestamp, setDynamicAdminPass, setPassTimestamp, loggedInUser, logout]);
 
   useEffect(() => {
-    forceAhmedPasswordChange();
-    const interval = setInterval(forceAhmedPasswordChange, 1000 * 60); // Check every minute
+    checkAhmedSession(); // Initial check
+    const interval = setInterval(checkAhmedSession, 1000 * 60); // Check every minute
     return () => clearInterval(interval);
-  }, [forceAhmedPasswordChange]);
+  }, [checkAhmedSession]);
   
   const allUsers = useMemo(() => {
     const dynamicAdmin: StoredUser = {
@@ -138,9 +150,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             const expiration = passTimestamp + PASSWORD_LIFESPAN_MS;
             if (Date.now() > expiration) {
                 // Session expired because password changed
-                setLoggedInUser(null);
-                setUser(null);
-                setSessionExpiresAt(null);
+                logout();
             } else {
                 setUser(currentUserData);
                 setSessionExpiresAt(expiration);
@@ -150,7 +160,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             setSessionExpiresAt(null);
          }
       } else {
-        setLoggedInUser(null);
+        // Logged-in user doesn't exist anymore
+        logout();
       }
     } else {
         setUser(null);
@@ -298,13 +309,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return true;
   }, [allUsers, setStoredUsers]);
 
-
-  const logout = useCallback(() => {
-    setUser(null);
-    setLoggedInUser(null);
-    setSessionExpiresAt(null);
-  }, [setLoggedInUser]);
-
   const toggleApprovalSystem = useCallback(() => {
     setIsApprovalSystemEnabled(prev => !prev);
   }, [setIsApprovalSystemEnabled]);
@@ -342,9 +346,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     updateUser,
     isApprovalSystemEnabled,
     toggleApprovalSystem,
-    forceAhmedPasswordChange,
     checkAndDeactivateUsers,
-  }), [user, allUsers, isLoading, sessionExpiresAt, passTimestamp, login, signup, logout, addUserByAdmin, deleteUser, updateUserRole, toggleUserActiveStatus, approveUser, updateUser, isApprovalSystemEnabled, toggleApprovalSystem, forceAhmedPasswordChange, checkAndDeactivateUsers]);
+    checkAhmedSession,
+  }), [user, allUsers, isLoading, sessionExpiresAt, passTimestamp, login, signup, logout, addUserByAdmin, deleteUser, updateUserRole, toggleUserActiveStatus, approveUser, updateUser, isApprovalSystemEnabled, toggleApprovalSystem, checkAndDeactivateUsers, checkAhmedSession]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
