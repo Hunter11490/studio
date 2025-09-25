@@ -205,6 +205,16 @@ export const translations: Translations = {
       sessionExpiredTitle: 'Session Expired',
       sessionExpiredDesc: 'You have been logged out for security reasons.',
       deactivatesIn: 'Deactivates in {days}d {hours}h',
+      stats: {
+        vsYesterday: "vs. yesterday",
+        weeklyTotal: "Weekly Patients (Last 7 Days)",
+        vsLastWeek: "vs. last week",
+        busiestDepartment: "Busiest Department (7 Days)",
+        with: "with",
+        patients: "patients",
+        weeklyTraffic: "Weekly Patient Traffic",
+        noPatientData: "No patient data available to display charts."
+      }
     },
     partnerDashboard: {
       description: 'A quick overview of your partner doctors and their referrals.',
@@ -588,6 +598,16 @@ export const translations: Translations = {
       sessionExpiredTitle: 'انتهت صلاحية الجلسة',
       sessionExpiredDesc: 'تم تسجيل خروجك لأسباب أمنية.',
       deactivatesIn: 'ينتهي التفعيل خلال {days} يوم و {hours} ساعة',
+      stats: {
+        vsYesterday: "مقارنة بالأمس",
+        weeklyTotal: "مرضى الأسبوع (آخر 7 أيام)",
+        vsLastWeek: "مقارنة بالأسبوع الماضي",
+        busiestDepartment: "القسم الأكثر ازدحاماً (7 أيام)",
+        with: "بواقع",
+        patients: "مريض",
+        weeklyTraffic: "حركة المرضى الأسبوعية",
+        noPatientData: "لا توجد بيانات مرضى لعرض الرسوم البيانية."
+      }
     },
     partnerDashboard: {
       description: 'نظرة سريعة على الأطباء الشركاء وإحالاتهم.',

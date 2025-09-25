@@ -7,6 +7,7 @@ import { useLanguage } from '@/hooks/use-language';
 import { AdminPanel } from '@/components/admin/admin-panel';
 import { Logo } from '@/components/logo';
 import { UserMenu } from '@/components/layout/user-menu';
+import { PatientStatsDashboard } from '@/components/admin/patient-stats-dashboard';
 
 export default function AdminPage() {
   const { user, isLoading } = useAuth();
@@ -41,7 +42,8 @@ export default function AdminPage() {
             <UserMenu />
         </div>
       </header>
-      <div className="p-4 md:p-8">
+      <div className="p-4 md:p-8 space-y-8">
+        <PatientStatsDashboard />
         <AdminPanel />
       </div>
     </>
