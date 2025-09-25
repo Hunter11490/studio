@@ -168,7 +168,8 @@ export const translations: Translations = {
       submit: 'Submit',
       save: 'Save',
       backToMenu: 'Back to Main Menu',
-      random: 'Random'
+      random: 'Random',
+      actions: 'Actions'
     },
      admin: {
       dashboardTitle: 'Admin Dashboard',
@@ -358,6 +359,7 @@ export const translations: Translations = {
       editDrug: 'Edit Drug',
       drugName: 'Drug Name',
       quantity: 'Quantity',
+      quantityAvailable: 'Available',
       price: 'Price',
       searchPlaceholder: 'Search for a drug...',
       iqd: 'IQD',
@@ -368,7 +370,8 @@ export const translations: Translations = {
       confirmSale: 'Confirm Sale',
       selectPatientError: 'Please select a patient first.',
       cartEmptyError: 'The sales cart is empty.',
-      saleConfirmed: 'Sale confirmed and added to patient records.'
+      saleConfirmed: 'Sale confirmed and added to patient records.',
+      notEnoughStock: 'Not enough stock available.'
     },
     surgery: {
       newBooking: 'New Booking',
@@ -412,6 +415,7 @@ export const translations: Translations = {
       doctorList: 'Department Doctors',
       noDoctors: 'No doctors in this department.',
       addFirstDoctor: 'Add a doctor to get started.',
+      specializedTests: 'Specialized Oncology Tests & Procedures',
     },
     simulation: {
       start: 'Start Live Simulation',
@@ -619,7 +623,8 @@ export const translations: Translations = {
       submit: 'إرسال',
       save: 'حفظ',
       backToMenu: 'العودة للقائمة الرئيسية',
-      random: 'عشوائي'
+      random: 'عشوائي',
+      actions: 'إجراءات',
     },
     admin: {
       dashboardTitle: 'لوحة تحكم المسؤول',
@@ -809,6 +814,7 @@ export const translations: Translations = {
       editDrug: 'تعديل الدواء',
       drugName: 'اسم الدواء',
       quantity: 'الكمية',
+      quantityAvailable: 'المتوفر',
       price: 'السعر',
       searchPlaceholder: 'ابحث عن دواء...',
       iqd: 'دينار',
@@ -819,7 +825,8 @@ export const translations: Translations = {
       confirmSale: 'تأكيد البيع',
       selectPatientError: 'يرجى اختيار مريض أولاً.',
       cartEmptyError: 'سلة المبيعات فارغة.',
-      saleConfirmed: 'تم تأكيد البيع وإضافته لسجلات المريض.'
+      saleConfirmed: 'تم تأكيد البيع وإضافته لسجلات المريض.',
+      notEnoughStock: 'الكمية المطلوبة غير متوفرة في المخزون.'
     },
     surgery: {
       newBooking: 'حجز جديد',
@@ -863,6 +870,7 @@ export const translations: Translations = {
       doctorList: 'أطباء القسم',
       noDoctors: 'لا يوجد أطباء في هذا القسم.',
       addFirstDoctor: 'أضف طبيباً للبدء.',
+      specializedTests: 'فحوصات وعلاجات الأورام المتخصصة',
     },
     simulation: {
       start: 'بدء المحاكاة الحية',

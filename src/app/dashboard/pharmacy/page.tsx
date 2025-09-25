@@ -28,6 +28,8 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { NotificationsButton } from '@/components/notifications-button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Label } from '@/components/ui/label';
 
 type Drug = {
     id: string;
@@ -174,6 +176,51 @@ const initialDrugs: Drug[] = [
     })
 ];
 
+function QuantityPopover({ drug, onAddToCart }: { drug: Drug, onAddToCart: (drug: Drug, quantity: number) => void }) {
+    const [quantity, setQuantity] = useState(1);
+    const [isOpen, setIsOpen] = useState(false);
+    const { t } = useLanguage();
+
+    const handleAdd = () => {
+        onAddToCart(drug, quantity);
+        setIsOpen(false);
+        setQuantity(1);
+    }
+
+    return (
+        <Popover open={isOpen} onOpenChange={setIsOpen}>
+            <PopoverTrigger asChild>
+                <Button variant="ghost" size="icon" disabled={drug.quantity === 0}>
+                    <PlusCircle className="h-4 w-4 text-primary" />
+                </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-48">
+                <div className="grid gap-4">
+                    <div className="space-y-2">
+                        <h4 className="font-medium leading-none">{drug.name}</h4>
+                        <p className="text-sm text-muted-foreground">{t('pharmacy.quantityAvailable')}: {drug.quantity}</p>
+                    </div>
+                    <div className="grid gap-2">
+                        <Label htmlFor="quantity">{t('pharmacy.quantity')}</Label>
+                        <Input
+                            id="quantity"
+                            type="number"
+                            value={quantity}
+                            onChange={(e) => setQuantity(Math.min(drug.quantity, Math.max(1, Number(e.target.value))))}
+                            min="1"
+                            max={drug.quantity}
+                            className="col-span-2 h-8"
+                        />
+                    </div>
+                    <Button onClick={handleAdd} disabled={quantity > drug.quantity || quantity < 1}>
+                        {t('common.add')}
+                    </Button>
+                </div>
+            </PopoverContent>
+        </Popover>
+    );
+}
+
 export default function PharmacyPage() {
     const { t } = useLanguage();
     const [drugs, setDrugs] = useLocalStorage<Drug[]>('pharmacy_drugs_v2', initialDrugs);
@@ -208,15 +255,20 @@ export default function PharmacyPage() {
         setDrugs(prev => prev.filter(d => d.id !== drugId));
     };
 
-    const addToCart = (drug: Drug) => {
+    const addToCart = (drug: Drug, quantity: number) => {
         const existingItem = cart.find(item => item.id === drug.id);
         if (existingItem) {
-            if (existingItem.orderQuantity < drug.quantity) {
-                setCart(cart.map(item => item.id === drug.id ? { ...item, orderQuantity: item.orderQuantity + 1 } : item));
+            const newQuantity = existingItem.orderQuantity + quantity;
+            if (newQuantity <= drug.quantity) {
+                 setCart(cart.map(item => item.id === drug.id ? { ...item, orderQuantity: newQuantity } : item));
+            } else {
+                toast({ title: t('pharmacy.notEnoughStock'), variant: 'destructive'});
             }
         } else {
-            if (drug.quantity > 0) {
-                setCart([...cart, { ...drug, orderQuantity: 1 }]);
+            if (quantity <= drug.quantity) {
+                setCart([...cart, { ...drug, orderQuantity: quantity }]);
+            } else {
+                 toast({ title: t('pharmacy.notEnoughStock'), variant: 'destructive'});
             }
         }
     };
@@ -354,7 +406,7 @@ export default function PharmacyPage() {
     );
 }
 
-function DrugInventoryDialog({ drugs, onAddToCart, onDelete, onSave }: { drugs: Drug[], onAddToCart: (drug: Drug) => void, onDelete: (id: string) => void, onSave: (data: z.infer<typeof formSchema>, drug: Drug | null) => void }) {
+function DrugInventoryDialog({ drugs, onAddToCart, onDelete, onSave }: { drugs: Drug[], onAddToCart: (drug: Drug, quantity: number) => void, onDelete: (id: string) => void, onSave: (data: z.infer<typeof formSchema>, drug: Drug | null) => void }) {
     const { t } = useLanguage();
     const [searchTerm, setSearchTerm] = useState('');
     const [isFormOpen, setFormOpen] = useState(false);
@@ -419,10 +471,10 @@ function DrugInventoryDialog({ drugs, onAddToCart, onDelete, onSave }: { drugs: 
                                         <TableCell className="font-medium">{drug.name}</TableCell>
                                         <TableCell>{drug.quantity}</TableCell>
                                         <TableCell dir="ltr">{drug.price.toLocaleString()} {t('pharmacy.iqd')}</TableCell>
-                                        <TableCell className="text-right">
+                                        <TableCell className="text-right space-x-1">
                                             <Button variant="ghost" size="icon" onClick={() => handleEditClick(drug)}><Pencil className="h-4 w-4" /></Button>
                                             <Button variant="ghost" size="icon" onClick={() => onDelete(drug.id)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
-                                            <Button variant="ghost" size="icon" onClick={() => onAddToCart(drug)} disabled={drug.quantity === 0}><PlusCircle className="h-4 w-4 text-primary" /></Button>
+                                            <QuantityPopover drug={drug} onAddToCart={onAddToCart} />
                                         </TableCell>
                                     </TableRow>
                                 ))}
