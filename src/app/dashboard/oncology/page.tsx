@@ -133,7 +133,7 @@ export default function OncologyPage() {
   const renderContent = () => {
     if (departmentDoctors.length === 0 && !searchTerm) {
        return (
-          <div className="flex flex-1 items-center justify-center rounded-lg border border-dashed shadow-sm mt-8 col-span-1 md:col-span-2 lg:col-span-3">
+          <div className="flex flex-1 items-center justify-center rounded-lg border border-dashed shadow-sm mt-8 col-span-1 md:col-span-2 lg:col-span-3 py-20">
             <div className="flex flex-col items-center gap-2 text-center">
               <UserSearch className="h-16 w-16 text-muted-foreground" />
               <h3 className="text-2xl font-bold tracking-tight">{t('oncology.noDoctors')}</h3>
@@ -150,7 +150,7 @@ export default function OncologyPage() {
 
     if (filteredAndSortedDoctors.length === 0) {
       return (
-        <div className="col-span-1 md:col-span-2 lg:col-span-3 flex flex-1 items-center justify-center mt-8">
+        <div className="col-span-1 md:col-span-2 lg:col-span-3 flex flex-1 items-center justify-center mt-8 py-20">
              <div className="flex flex-col items-center gap-2 text-center text-muted-foreground">
                 <Frown className="h-12 w-12" />
                 <p className="text-lg">{t('common.noResults')}</p>
