@@ -6,6 +6,7 @@ import { AuthProvider } from './auth-provider';
 import { DoctorProvider } from './doctor-provider';
 import { PatientProvider } from './patient-provider';
 import { OfflineProvider } from './offline-provider';
+import { SimulationProvider } from './simulation-provider';
 
 export function AppProvider({ children }: { children: React.ReactNode }) {
   return (
@@ -15,7 +16,9 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
           <AuthProvider>
             <DoctorProvider>
               <PatientProvider>
-                {children}
+                <SimulationProvider>
+                  {children}
+                </SimulationProvider>
               </PatientProvider>
             </DoctorProvider>
           </AuthProvider>

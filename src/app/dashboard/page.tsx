@@ -33,6 +33,7 @@ import {
   HeartHandshake,
   Shield,
   Loader2,
+  Zap,
 } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { useLanguage } from '@/hooks/use-language';
@@ -48,6 +49,8 @@ import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { UserMenu } from '@/components/layout/user-menu';
 import { Logo } from '@/components/logo';
+import { useSimulation } from '@/hooks/use-simulation';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
 
 const mainDepts = [
   {
@@ -86,7 +89,7 @@ const mainDepts = [
     href: '#', // TBD
   },
   {
-    name: 'nursing',
+    name: 'representatives',
     icon: Users,
     href: '/dashboard/representatives',
   },
@@ -120,9 +123,10 @@ const adminDepts = [
 
 
 export default function HospitalDashboardPage() {
-  const { lang, setLang, t } = useLanguage();
+  const { lang, setLang, t, dir } = useLanguage();
   const { user, updateUser, users } = useAuth();
   const { theme, setTheme } = useTheme();
+  const { isSimulating, toggleSimulation } = useSimulation();
   
   const currentUser = users.find(u => u.id === user?.id);
   const [showWelcome, setShowWelcome] = useState(currentUser?.isFirstLogin !== false && currentUser?.role !== 'admin');
@@ -267,6 +271,19 @@ export default function HospitalDashboardPage() {
             </CardContent>
           </Card>
       </div>
+      
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+              <Button onClick={toggleSimulation} variant={isSimulating ? "destructive" : "default"} size="icon" className="fixed bottom-24 left-6 z-40 h-14 w-14 rounded-full shadow-lg animate-pulse-glow">
+                <Zap className="h-6 w-6" />
+              </Button>
+          </TooltipTrigger>
+          <TooltipContent side={dir === 'rtl' ? 'left' : 'right'}>
+            <p>{isSimulating ? t('simulation.stop') : t('simulation.start')}</p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
 
       <WelcomeDialog open={showWelcome} onOpenChange={setShowWelcome} onFinished={handleWelcomeClose} />
     </>

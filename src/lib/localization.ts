@@ -393,6 +393,17 @@ export const translations: Translations = {
       doctorList: 'Department Doctors',
       noDoctors: 'No doctors in this department.',
       addFirstDoctor: 'Add a doctor to get started.',
+    },
+    simulation: {
+      start: 'Start Live Simulation',
+      stop: 'Stop Live Simulation',
+      started: 'Live simulation started!',
+      stopped: 'Live simulation stopped.',
+      doctorAdded: 'New Doctor Added',
+      patientAdded: 'New Patient Registered',
+      doctorRemoved: 'Old Doctor Archived',
+      patientArchived: 'Old Patient Archived',
+      referralUpdate: 'Referral Count Updated',
     }
   },
   ar: {
@@ -787,6 +798,17 @@ export const translations: Translations = {
       doctorList: 'أطباء القسم',
       noDoctors: 'لا يوجد أطباء في هذا القسم.',
       addFirstDoctor: 'أضف طبيباً للبدء.',
+    },
+    simulation: {
+      start: 'بدء المحاكاة الحية',
+      stop: 'إيقاف المحاكاة الحية',
+      started: 'بدأت المحاكاة الحية!',
+      stopped: 'توقفت المحاكاة الحية.',
+      doctorAdded: 'تمت إضافة طبيب جديد',
+      patientAdded: 'تم تسجيل مريض جديد',
+      doctorRemoved: 'تمت أرشفة طبيب قديم',
+      patientArchived: 'تمت أرشفة مريض قديم',
+      referralUpdate: 'تم تحديث عدد الإحالات',
     }
   },
 };
