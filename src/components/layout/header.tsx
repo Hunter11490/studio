@@ -58,12 +58,15 @@ export function Header({ onAddDoctor }: { onAddDoctor?: () => void }) {
   }, [pathname]);
 
   const departmentName = useMemo(() => {
-    const lowercasedSlug = departmentSlug.toLowerCase();
+    // Converts slug like 'internal-medicine' to 'internalMedicine'
+    const camelCaseSlug = departmentSlug.replace(/-([a-z])/g, g => g[1].toUpperCase());
     const deptTranslations = (translations[lang] as any).departments || {};
+    
     // Find the key in the translations object that matches the slug (case-insensitive)
     const deptKey = Object.keys(deptTranslations).find(key => 
-      key.toLowerCase() === lowercasedSlug
+      key.toLowerCase() === camelCaseSlug.toLowerCase()
     );
+
     return deptKey ? t(`departments.${deptKey}`) : capitalizeFirstLetter(departmentSlug);
   }, [departmentSlug, t, lang]);
 
