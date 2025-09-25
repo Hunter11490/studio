@@ -372,6 +372,16 @@ export const translations: Translations = {
       costCalculator: 'Cost Calculator',
       noTestsSelected: 'Add tests from the list to calculate the cost.',
       totalCost: 'Total Cost',
+    },
+    oncology: {
+      totalDoctors: 'Total Doctors',
+      totalReferrals: 'Total Referrals',
+      mostActive: 'Most Active Doctor',
+      recentCases: 'Recent Cases',
+      noRecentCases: 'No recent cases for this department.',
+      doctorList: 'Department Doctors',
+      noDoctors: 'No doctors in this department.',
+      addFirstDoctor: 'Add a doctor to get started.',
     }
   },
   ar: {
@@ -745,6 +755,16 @@ export const translations: Translations = {
       costCalculator: 'حاسبة التكلفة',
       noTestsSelected: 'أضف فحوصات من القائمة لحساب التكلفة.',
       totalCost: 'التكلفة الإجمالية',
+    },
+    oncology: {
+      totalDoctors: 'إجمالي الأطباء',
+      totalReferrals: 'إجمالي الإحالات',
+      mostActive: 'الطبيب الأكثر نشاطًا',
+      recentCases: 'أحدث الحالات',
+      noRecentCases: 'لا توجد حالات حديثة في هذا القسم.',
+      doctorList: 'أطباء القسم',
+      noDoctors: 'لا يوجد أطباء في هذا القسم.',
+      addFirstDoctor: 'أضف طبيباً للبدء.',
     }
   },
 };
