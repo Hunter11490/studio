@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useCallback } from 'react';
 import { useLocalStorage } from '@/hooks/use-local-storage';
 import { UserMenu } from '@/components/layout/user-menu';
 import { Logo } from '@/components/logo';
@@ -45,22 +45,136 @@ const formSchema = z.object({
   price: z.coerce.number().min(0, 'Price cannot be negative'),
 });
 
+const getRandomElement = <T,>(arr: T[]): T => arr[Math.floor(Math.random() * arr.length)];
+
 const initialDrugs: Drug[] = [
-  { id: '1', name: 'Amoxicillin 500mg', quantity: 120, price: 5000 },
-  { id: '2', name: 'Paracetamol 500mg', quantity: 300, price: 1000 },
-  { id: '3', name: 'Ibuprofen 400mg', quantity: 250, price: 1500 },
-  { id: '4', name: 'Lisinopril 10mg', quantity: 80, price: 7000 },
-  { id: '5', name: 'Metformin 500mg', quantity: 150, price: 4000 },
-  { id: '6', name: 'Atorvastatin 20mg', quantity: 95, price: 12000 },
-  { id: '7', name: 'Amlodipine 5mg', quantity: 110, price: 6000 },
-  // Adding a massive amount of drugs as requested
-  ...Array.from({ length: 5000 }, (_, i) => ({
-    id: `drug-${i + 8}`,
-    name: `Generic Drug #${i + 1} - ${String.fromCharCode(65 + (i % 26))}${String.fromCharCode(65 + (Math.floor(i/26) % 26))}`,
-    quantity: Math.floor(Math.random() * 500),
-    price: 500 + Math.floor(Math.random() * 50000)
-  }))
+    // Analgesics & Anti-inflammatory
+    { id: 'drug-1', name: 'Paracetamol 500mg (Panadol)', quantity: 450, price: 1000 },
+    { id: 'drug-2', name: 'Ibuprofen 400mg (Brufen)', quantity: 380, price: 1500 },
+    { id: 'drug-3', name: 'Diclofenac Sodium 50mg (Voltaren)', quantity: 250, price: 2000 },
+    { id: 'drug-4', name: 'Aspirin 100mg', quantity: 300, price: 1000 },
+    { id: 'drug-5', name: 'Mefenamic Acid 500mg (Ponstan Forte)', quantity: 180, price: 2500 },
+    { id: 'drug-6', name: 'Naproxen 250mg', quantity: 150, price: 3000 },
+    { id: 'drug-7', name: 'Celecoxib 200mg (Celebrex)', quantity: 100, price: 10000 },
+    { id: 'drug-8', name: 'Tramadol 50mg', quantity: 80, price: 4000 },
+    { id: 'drug-9', name: 'Paracetamol + Caffeine (Panadol Extra)', quantity: 200, price: 1500 },
+    { id: 'drug-10', name: 'Diclofenac Potassium 50mg (Cataflam)', quantity: 220, price: 2500 },
+
+    // Antibiotics
+    { id: 'drug-11', name: 'Amoxicillin 500mg', quantity: 300, price: 5000 },
+    { id: 'drug-12', name: 'Amoxicillin/Clavulanic Acid 625mg (Augmentin)', quantity: 180, price: 12000 },
+    { id: 'drug-13', name: 'Azithromycin 500mg (Zithromax)', quantity: 150, price: 10000 },
+    { id: 'drug-14', name: 'Ciprofloxacin 500mg', quantity: 120, price: 6000 },
+    { id: 'drug-15', name: 'Doxycycline 100mg', quantity: 200, price: 4000 },
+    { id: 'drug-16', name: 'Cephalexin 500mg', quantity: 140, price: 7000 },
+    { id: 'drug-17', name: 'Metronidazole 500mg (Flagyl)', quantity: 250, price: 3000 },
+    { id: 'drug-18', name: 'Clarithromycin 500mg', quantity: 90, price: 15000 },
+    { id: 'drug-19', name: 'Levofloxacin 500mg', quantity: 100, price: 9000 },
+    { id: 'drug-20', name: 'Cefixime 400mg (Suprax)', quantity: 80, price: 18000 },
+
+    // Cardiovascular
+    { id: 'drug-21', name: 'Lisinopril 10mg', quantity: 150, price: 7000 },
+    { id: 'drug-22', name: 'Amlodipine 5mg', quantity: 200, price: 6000 },
+    { id: 'drug-23', name: 'Atorvastatin 20mg (Lipitor)', quantity: 180, price: 12000 },
+    { id: 'drug-24', name: 'Metoprolol 50mg', quantity: 130, price: 8000 },
+    { id: 'drug-25', name: 'Furosemide 40mg (Lasix)', quantity: 220, price: 2000 },
+    { id: 'drug-26', name: 'Clopidogrel 75mg (Plavix)', quantity: 100, price: 15000 },
+    { id: 'drug-27', name: 'Warfarin 5mg', quantity: 70, price: 5000 },
+    { id: 'drug-28', name: 'Losartan 50mg', quantity: 160, price: 9000 },
+    { id: 'drug-29', name: 'Hydrochlorothiazide 25mg', quantity: 180, price: 2500 },
+    { id: 'drug-30', name: 'Bisoprolol 5mg (Concor)', quantity: 140, price: 10000 },
+
+    // Diabetes
+    { id: 'drug-31', name: 'Metformin 500mg (Glucophage)', quantity: 400, price: 4000 },
+    { id: 'drug-32', name: 'Glibenclamide 5mg', quantity: 200, price: 3000 },
+    { id: 'drug-33', name: 'Gliclazide 80mg (Diamicron)', quantity: 150, price: 7000 },
+    { id: 'drug-34', name: 'Sitagliptin 100mg (Januvia)', quantity: 80, price: 35000 },
+    { id: 'drug-35', name: 'Insulin Glargine (Lantus) SoloStar Pen', quantity: 50, price: 30000 },
+    { id: 'drug-36', name: 'Insulin Aspart (NovoRapid) FlexPen', quantity: 60, price: 28000 },
+    { id: 'drug-37', name: 'Pioglitazone 30mg', quantity: 90, price: 11000 },
+    { id: 'drug-38', name: 'Empagliflozin 25mg (Jardiance)', quantity: 40, price: 45000 },
+    { id: 'drug-39', name: 'Liraglutide (Victoza) Pen', quantity: 20, price: 150000 },
+    { id: 'drug-40', name: 'Metformin 850mg', quantity: 350, price: 5000 },
+
+    // Respiratory
+    { id: 'drug-41', name: 'Salbutamol Inhaler (Ventolin)', quantity: 150, price: 5000 },
+    { id: 'drug-42', name: 'Loratadine 10mg (Claritin)', quantity: 250, price: 3000 },
+    { id: 'drug-43', name: 'Cetirizine 10mg (Zyrtec)', quantity: 300, price: 2500 },
+    { id: 'drug-44', name: 'Montelukast 10mg (Singulair)', quantity: 120, price: 15000 },
+    { id: 'drug-45', name: 'Fluticasone/Salmeterol Inhaler (Seretide)', quantity: 80, price: 25000 },
+    { id: 'drug-46', name: 'Budesonide/Formoterol Inhaler (Symbicort)', quantity: 70, price: 30000 },
+    { id: 'drug-47', name: 'Ambroxol Syrup 100ml', quantity: 180, price: 4000 },
+    { id: 'drug-48', name: 'Dextromethorphan Syrup 100ml', quantity: 200, price: 3500 },
+    { id: 'drug-49', name: 'Prednisolone 5mg', quantity: 280, price: 2000 },
+    { id: 'drug-50', name: 'Theophylline 100mg', quantity: 100, price: 5000 },
+
+    // Gastrointestinal
+    { id: 'drug-51', name: 'Omeprazole 20mg (Losec)', quantity: 250, price: 8000 },
+    { id: 'drug-52', name: 'Ranitidine 150mg (Zantac)', quantity: 180, price: 4000 },
+    { id: 'drug-53', name: 'Domperidone 10mg (Motilium)', quantity: 200, price: 3500 },
+    { id: 'drug-54', name: 'Loperamide 2mg (Imodium)', quantity: 150, price: 2500 },
+    { id: 'drug-55', name: 'Hyoscine Butylbromide 10mg (Buscopan)', quantity: 220, price: 4500 },
+    { id: 'drug-56', name: 'Lactulose Syrup 200ml', quantity: 130, price: 7000 },
+    { id: 'drug-57', name: 'Esomeprazole 40mg (Nexium)', quantity: 110, price: 18000 },
+    { id: 'drug-58', name: 'Simethicone 40mg', quantity: 190, price: 2000 },
+    { id: 'drug-59', name: 'Mebeverine 135mg (Duspatalin)', quantity: 100, price: 9000 },
+    { id: 'drug-60', name: 'Oral Rehydration Salts (ORS) Sachet', quantity: 500, price: 500 },
+
+    // Vitamins & Supplements
+    { id: 'drug-61', name: 'Vitamin C 500mg', quantity: 400, price: 3000 },
+    { id: 'drug-62', name: 'Vitamin D3 5000 IU', quantity: 250, price: 8000 },
+    { id: 'drug-63', name: 'Folic Acid 5mg', quantity: 300, price: 1500 },
+    { id: 'drug-64', name: 'Ferrous Sulphate (Iron) 200mg', quantity: 350, price: 2000 },
+    { id: 'drug-65', name: 'Calcium Carbonate 500mg + Vitamin D', quantity: 280, price: 5000 },
+    { id: 'drug-66', name: 'Multivitamin Tablets (e.g., Centrum)', quantity: 150, price: 15000 },
+    { id: 'drug-67', name: 'Vitamin B-Complex', quantity: 320, price: 4000 },
+    { id: 'drug-68', name: 'Omega-3 Fish Oil 1000mg', quantity: 120, price: 12000 },
+    { id: 'drug-69', name: 'Glucosamine/Chondroitin', quantity: 90, price: 20000 },
+    { id: 'drug-70', name: 'Ginkgo Biloba 60mg', quantity: 80, price: 10000 },
+    
+    // Hormonal
+    { id: 'drug-71', name: 'Levothyroxine 50mcg (Eltroxin)', quantity: 150, price: 4000 },
+    { id: 'drug-72', name: 'Combined Oral Contraceptive (e.g., Yasmin)', quantity: 100, price: 9000 },
+    { id: 'drug-73', name: 'Testosterone Gel', quantity: 30, price: 40000 },
+    { id: 'drug-74', name: 'Medroxyprogesterone Acetate Injection (Depo-Provera)', quantity: 50, price: 15000 },
+    
+    // Neurological & Psychiatric
+    { id: 'drug-75', name: 'Sertraline 50mg (Lustral)', quantity: 100, price: 12000 },
+    { id: 'drug-76', name: 'Escitalopram 10mg (Cipralex)', quantity: 90, price: 18000 },
+    { id: 'drug-77', name: 'Alprazolam 0.5mg (Xanax)', quantity: 70, price: 5000 },
+    { id: 'drug-78', name: 'Pregabalin 75mg (Lyrica)', quantity: 120, price: 20000 },
+    { id: 'drug-79', name: 'Carbamazepine 200mg (Tegretol)', quantity: 110, price: 6000 },
+    { id: 'drug-80', name: 'Olanzapine 5mg', quantity: 60, price: 25000 },
+
+    // Topical Preparations
+    { id: 'drug-81', name: 'Hydrocortisone Cream 1%', quantity: 150, price: 2500 },
+    { id: 'drug-82', name: 'Miconazole Cream 2% (Daktarin)', quantity: 120, price: 4000 },
+    { id: 'drug-83', name: 'Fusidic Acid Cream (Fucidin)', quantity: 100, price: 7000 },
+    { id: 'drug-84', name: 'Diclofenac Gel (Voltarol)', quantity: 180, price: 5000 },
+    { id: 'drug-85', name: 'Povidone-Iodine Ointment (Betadine)', quantity: 200, price: 3000 },
+
+    // Eye/Ear Drops
+    { id: 'drug-86', name: 'Hypromellose Eye Drops (Artificial Tears)', quantity: 130, price: 3500 },
+    { id: 'drug-87', name: 'Chloramphenicol Eye Ointment', quantity: 90, price: 4000 },
+    { id: 'drug-88', name: 'Ciprofloxacin Eye/Ear Drops', quantity: 100, price: 5000 },
+    { id: 'drug-89', name: 'Timolol Eye Drops 0.5%', quantity: 70, price: 8000 },
+    { id: 'drug-90', name: 'Olive Oil Ear Drops', quantity: 150, price: 2000 },
+    
+    // Auto-generated bulk drugs
+    ...Array.from({ length: 4910 }, (_, i) => {
+        const drugTypes = ['Tablets', 'Capsules', 'Syrup', 'Injection', 'Cream', 'Ointment', 'Drops'];
+        const strengths = ['10mg', '25mg', '50mg', '100mg', '250mg', '500mg', '1g'];
+        const basePrice = (Math.floor(Math.random() * 20) + 1) * 1000;
+        const quantity = Math.floor(Math.random() * 500);
+        return {
+            id: `drug-${i + 91}`,
+            name: `Generic Drug ${String.fromCharCode(65 + (i % 26))}${i} ${getRandomElement(strengths)} ${getRandomElement(drugTypes)}`,
+            quantity: quantity,
+            price: basePrice
+        };
+    })
 ];
+
 
 export default function PharmacyPage() {
     const { t } = useLanguage();
@@ -198,8 +312,8 @@ export default function PharmacyPage() {
                 </div>
             </header>
 
-            <main className="flex-grow grid md:grid-cols-3 gap-4 p-4 md:p-8">
-                <Card className="md:col-span-2 flex flex-col">
+            <main className="flex-grow flex flex-col lg:flex-row gap-4 p-4 md:p-8">
+                <Card className="lg:w-2/3 flex flex-col">
                     <CardHeader className="flex flex-row items-center justify-between">
                         <CardTitle>{t('pharmacy.inventory')}</CardTitle>
                         <Button onClick={handleAddClick} size="sm">
@@ -244,7 +358,7 @@ export default function PharmacyPage() {
                     </CardContent>
                 </Card>
 
-                 <Card className="flex flex-col">
+                 <Card className="lg:w-1/3 flex flex-col">
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2">
                             <ShoppingCart className="h-5 w-5" />
@@ -262,7 +376,7 @@ export default function PharmacyPage() {
                         </Select>
                     </CardHeader>
                     <CardContent className="flex-grow p-0">
-                         <ScrollArea className="h-[calc(100vh-380px)]">
+                         <ScrollArea className="h-full min-h-0">
                             {cart.length === 0 ? (
                                 <div className="p-6 text-center text-muted-foreground">{t('pharmacy.cartEmpty')}</div>
                             ) : (
@@ -343,3 +457,7 @@ function DrugForm({ onSave, drugToEdit }: { onSave: (data: z.infer<typeof formSc
         </Form>
     );
 }
+
+
+    
+    
