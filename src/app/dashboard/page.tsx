@@ -8,7 +8,7 @@ import {
   Brain,
   Bone,
   Eye,
-  Cross,
+  Heart,
   FlaskConical,
   PersonStanding,
   Scissors,
@@ -31,9 +31,8 @@ import {
   Utensils,
   Calculator,
   Ear,
-  Foot,
+  Footprints,
   Pregnant,
-  Kidney,
 } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { useLanguage } from '@/hooks/use-language';
@@ -99,14 +98,15 @@ const medicalDepts = [
    { name: 'obGyn', icon: Pregnant, href: '#' },
    { name: 'pediatrics', icon: Baby, href: '#' },
    { name: 'orthopedics', icon: Bone, href: '#' },
-   { name: 'urology', icon: Foot, href: '#' },
+   { name: 'urology', icon: Footprints, href: '#' },
    { name: 'ent', icon: Ear, href: '#' },
    { name: 'ophthalmology', icon: Eye, href: '#' },
    { name: 'dermatology', icon: User, href: '#' },
    { name: 'cardiology', icon: HeartPulse, href: '#' },
    { name: 'neurology', icon: Brain, href: '#' },
    { name: 'oncology', icon: Quote, href: '/dashboard/oncology' },
-   { name: 'nephrology', icon: Kidney, href: '#' },
+   { name: 'nephrology', icon: Droplets, href: '#' },
+   { name: 'bloodBank', icon: Heart, href: '/dashboard/blood-bank'},
 ];
 
 const adminDepts = [
