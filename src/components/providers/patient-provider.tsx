@@ -9,7 +9,22 @@ import { generateInitialData } from '@/lib/mock-patients';
 
 const BASE_PATIENTS_STORAGE_KEY = 'iraqi_doctors_patients_user';
 
-const initialPatients: Patient[] = [];
+const { patients: initialMockPatients, doctors: initialMockDoctors } = generateInitialData();
+const initialDoctorsWithIds = initialMockDoctors.map((doc, i) => ({
+    ...doc,
+    id: new Date().toISOString() + Math.random() + doc.name + i,
+    createdAt: new Date().toISOString(),
+}));
+
+const initialPatients = initialMockPatients.map(p => {
+    const originalDoctor = initialDoctorsWithIds.find(d => d.id.includes(p.doctorId as string));
+    return {
+        ...p,
+        id: new Date().toISOString() + Math.random() + p.patientName,
+        doctorId: originalDoctor ? originalDoctor.id : undefined,
+    }
+});
+
 
 export type PatientContextType = {
   patients: Patient[];
@@ -33,34 +48,17 @@ export function PatientProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (user?.username === 'HUNTER' && userSpecificPatientsKey) {
       const storedPatients = window.localStorage.getItem(userSpecificPatientsKey);
-      const storedDoctors = window.localStorage.getItem(`iraqi_doctors_list_user_${user.id}`);
-      
-      if ((!storedPatients || JSON.parse(storedPatients).length === 0) && storedDoctors && JSON.parse(storedDoctors).length > 0) {
-        const { patients: initialMockPatients } = generateInitialData();
-        // The doctor list is already populated with referral counts, so we just need to set the patients
-        const doctorsInStorage = JSON.parse(storedDoctors);
-        
-        // Remap patient doctor IDs to match the final IDs in storage
-        const finalPatients = initialMockPatients.map(p => {
-          if (p.doctorId) { // doctorId is the temp ID from generation
-            const originalDoctor = doctorsInStorage.find((doc: Doctor) => doc.id.includes(p.doctorId!.split('_')[3])); // Match by name part of temp ID
-            if(originalDoctor) {
-              return { ...p, doctorId: originalDoctor.id };
-            }
-          }
-          return { ...p, doctorId: undefined };
-        });
-
-        setPatients(finalPatients);
+      if ((!storedPatients || JSON.parse(storedPatients).length === 0)) {
+        setPatients(initialPatients);
       }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user, userSpecificPatientsKey, setPatients, doctors]);
+  }, [user, userSpecificPatientsKey, setPatients]);
 
 
   useEffect(() => {
     if (!user) {
-      setPatients(initialPatients);
+      setPatients([]);
     }
   }, [user, setPatients]);
 

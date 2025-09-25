@@ -10,15 +10,21 @@ const BASE_DOCTORS_STORAGE_KEY = 'iraqi_doctors_list_user';
 const VIEW_MODE_STORAGE_KEY = 'iraqi_doctors_view_mode_v1';
 const SORT_OPTION_STORAGE_KEY = 'iraqi_doctors_sort_option_v1';
 
-export type SortOption = 'name' | 'createdAt' | 'address';
+const { doctors: initialMockDoctors } = generateInitialData();
+const initialDoctors: Doctor[] = initialMockDoctors.map((doc, i) => ({
+    ...doc,
+    id: new Date().toISOString() + Math.random() + doc.name + i,
+    createdAt: new Date().toISOString(),
+}));
 
-const initialDoctors: Doctor[] = [];
 
 // This allows for functional updates, e.g., setCount(c => c + 1)
 type UpdateFunction<T> = (prev: T) => T;
 type PartialDoctorWithFunction = {
   [K in keyof Doctor]?: Doctor[K] | UpdateFunction<Doctor[K]>;
 };
+
+export type SortOption = 'name' | 'createdAt' | 'address';
 
 export type DoctorContextType = {
   doctors: Doctor[];
@@ -63,13 +69,7 @@ export function DoctorProvider({ children }: { children: React.ReactNode }) {
     if (user?.username === 'HUNTER' && userSpecificDoctorsKey) {
       const storedData = window.localStorage.getItem(userSpecificDoctorsKey);
       if (!storedData || JSON.parse(storedData).length === 0) {
-        const { doctors: initialMockDoctors } = generateInitialData();
-        const finalizedDoctors = initialMockDoctors.map(doc => ({
-           ...doc,
-           id: new Date().toISOString() + Math.random() + doc.name, // Final, unique ID
-           createdAt: new Date().toISOString(),
-        }));
-        setDoctors(finalizedDoctors);
+        setDoctors(initialDoctors);
       }
     }
   }, [user, userSpecificDoctorsKey, setDoctors]);
@@ -78,7 +78,7 @@ export function DoctorProvider({ children }: { children: React.ReactNode }) {
   // When user logs out, clear the doctors from state.
   useEffect(() => {
     if (!user) {
-      setDoctors(initialDoctors);
+      setDoctors([]);
     }
   }, [user, setDoctors]);
 
