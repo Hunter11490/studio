@@ -60,6 +60,7 @@ export function Header({ onAddDoctor }: { onAddDoctor?: () => void }) {
   const departmentName = useMemo(() => {
     const lowercasedSlug = departmentSlug.toLowerCase();
     const deptTranslations = (translations[lang] as any).departments || {};
+    // Find the key in the translations object that matches the slug (case-insensitive)
     const deptKey = Object.keys(deptTranslations).find(key => 
       key.toLowerCase() === lowercasedSlug
     );
@@ -98,18 +99,29 @@ export function Header({ onAddDoctor }: { onAddDoctor?: () => void }) {
     toast({ title: t('toasts.translatingTitle') });
     try {
         const response = await translateText({
-            doctors: doctors,
+            doctors: doctors.map(d => ({
+                name: d.name,
+                specialty: d.specialty,
+                clinicAddress: d.clinicAddress,
+                referralNotes: d.referralNotes?.map(note => ({
+                    patientName: note.patientName,
+                    referralDate: note.referralDate,
+                    testDate: note.testDate,
+                    testType: note.testType,
+                    patientAge: note.patientAge,
+                    chronicDiseases: note.chronicDiseases,
+                }))
+            })),
             targetLanguage: 'Arabic',
         });
 
-        const translatedDoctorsMap = new Map<string, DoctorInfo>();
+        const translatedDoctorsMap = new Map<number, DoctorInfo>();
         response.doctors.forEach((translatedDoc, index) => {
-            const originalId = doctors[index].id;
-            translatedDoctorsMap.set(originalId, translatedDoc);
+            translatedDoctorsMap.set(index, translatedDoc);
         });
 
-        const updatedDoctors: Doctor[] = doctors.map(originalDoctor => {
-            const translatedInfo = translatedDoctorsMap.get(originalDoctor.id);
+        const updatedDoctors: Doctor[] = doctors.map((originalDoctor, index) => {
+            const translatedInfo = translatedDoctorsMap.get(index);
             if (translatedInfo) {
                 const updatedNotes = originalDoctor.referralNotes?.map((originalNote, noteIndex) => {
                     const translatedNote = translatedInfo.referralNotes?.[noteIndex];
