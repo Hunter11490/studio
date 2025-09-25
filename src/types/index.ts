@@ -25,7 +25,7 @@ export type Doctor = {
 
 export type FinancialRecord = {
   id: string;
-  type: 'lab' | 'pharmacy' | 'surgery' | 'payment';
+  type: 'lab' | 'pharmacy' | 'surgery' | 'payment' | 'consultation';
   description: string;
   amount: number; // Can be positive (charges) or negative (payments)
   date: string; // ISO date string
@@ -52,7 +52,7 @@ export type Patient = {
   department: string;
   doctorId?: string;
   createdAt: string;
-  financialRecords: FinancialRecord[];
+  financialRecords?: FinancialRecord[];
 };
 
 export type DoctorInfo = {

@@ -1,20 +1,22 @@
-import { Doctor, Patient } from '@/types';
+'use client';
 
-const arabicFirstNames = ["د. جاسم", "د. كريم", "د. سعيد", "د. رنا", "د. آلاء", "د. بلال", "د. سندس"];
-const arabicLastNames = ["العاني", "البياتي", "الحمداني", "الجبوري", "الكبيسي", "الأسدي", "المالكي"];
+import { Doctor, Patient, FinancialRecord } from '@/types';
+import { usePatients } from '@/hooks/use-patients';
+
+const arabicFirstNames = ["د. جاسم", "د. كريم", "د. سعيد", "د. رنا", "د. آلاء", "د. بلال", "د. سندس", "د. ليث", "د. غيث", "د. سارة"];
+const arabicLastNames = ["العاني", "البياتي", "الحمداني", "الجبوري", "الكبيسي", "الأسدي", "المالكي", "الزبيدي", "الدليمي"];
 const medicalSpecialties = [
     "Internal Medicine", "General Surgery", "Obstetrics and Gynecology", "Pediatrics", "Orthopedics",
     "Urology", "ENT", "Ophthalmology", "Dermatology", "Cardiology", "Neurology",
     "Oncology", "Nephrology"
 ];
 const departments = [
-  'internalMedicine', 'generalSurgery', 'obGyn', 'pediatrics', 'orthopedics', 'urology', 'ent', 'ophthalmology', 'dermatology', 'cardiology', 'neurology', 'oncology', 'nephrology',
+  'internalMedicine', 'generalSurgery', 'obGyn', 'pediatrics', 'orthopedics', 'urology', 'ent', 'ophthalmology', 'dermatology', 'cardiology', 'neurology', 'oncology', 'nephrology', 'laboratories', 'pharmacy'
 ];
 
-const patientFirstNames = ["علي", "محمد", "حسن", "حسين", "فاطمة", "زينب", "مريم", "نور"];
-const patientLastNames = ["الساعدي", "العبيدي", "الطائي", "اللامي", "الكعبي", "الركابي", "الخالدي"];
+const patientFirstNames = ["علي", "محمد", "حسن", "حسين", "فاطمة", "زينب", "مريم", "نور", "عباس", "حيدر"];
+const patientLastNames = ["الساعدي", "العبيدي", "الطائي", "اللامي", "الكعبي", "الركابي", "الخالدي", "الموسوي", "الجنابي"];
 const governorates = ["بغداد", "البصرة", "نينوى", "أربيل", "الأنبار", "كربلاء", "كركوك", "النجف", "ذي قار", "ديالى"];
-
 
 const getRandomElement = <T,>(arr: T[]): T => arr[Math.floor(Math.random() * arr.length)];
 
@@ -33,7 +35,7 @@ export const createRandomDoctor = (): Omit<Doctor, 'id' | 'createdAt'> => {
   };
 };
 
-export const createRandomPatient = (doctors: Doctor[]): Omit<Patient, 'id' | 'createdAt'> => {
+export const createRandomPatient = (doctors: Doctor[]): Omit<Patient, 'id' | 'createdAt' | 'financialRecords'> => {
     const dobYear = 1960 + Math.floor(Math.random() * 50);
     const dobMonth = 1 + Math.floor(Math.random() * 12);
     const dobDay = 1 + Math.floor(Math.random() * 28);
