@@ -1,9 +1,10 @@
 'use client';
 
-import { createContext, useState, useMemo, useEffect } from 'react';
+import { createContext, useState, useMemo, useEffect, useCallback } from 'react';
 import { useLocalStorage } from '@/hooks/use-local-storage';
 import { Doctor } from '@/types';
 import { useAuth } from '@/hooks/use-auth';
+import { MOCK_DOCTORS } from '@/lib/mock-doctors';
 
 const BASE_DOCTORS_STORAGE_KEY = 'iraqi_doctors_list_user';
 const VIEW_MODE_STORAGE_KEY = 'iraqi_doctors_view_mode_v1';
@@ -13,11 +14,17 @@ export type SortOption = 'name' | 'createdAt' | 'address';
 
 const initialDoctors: Doctor[] = [];
 
+// This allows for functional updates, e.g., setCount(c => c + 1)
+type UpdateFunction<T> = (prev: T) => T;
+type PartialDoctorWithFunction = {
+  [K in keyof Doctor]?: Doctor[K] | UpdateFunction<Doctor[K]>;
+};
+
 export type DoctorContextType = {
   doctors: Doctor[];
   addDoctor: (doctor: Omit<Doctor, 'id' | 'createdAt'>) => void;
   addMultipleDoctors: (doctors: Omit<Doctor, 'id' | 'createdAt'>[]) => void;
-  updateDoctor: (id: string, updates: Partial<Doctor>) => void;
+  updateDoctor: (id: string, updates: PartialDoctorWithFunction>) => void;
   updateMultipleDoctors: (updatedDoctors: Doctor[]) => void;
   deleteDoctor: (id: string) => void;
   deleteAllDoctors: () => void;
@@ -41,11 +48,33 @@ export function DoctorProvider({ children }: { children: React.ReactNode }) {
   const { user } = useAuth();
   const userSpecificDoctorsKey = user ? `${BASE_DOCTORS_STORAGE_KEY}_${user.id}` : null;
   
-  const [doctors, setDoctors] = useLocalStorage<Doctor[]>(userSpecificDoctorsKey || 'temp_doctors_key', initialDoctors);
+  const [doctors, setDoctors] = useLocalStorage<Doctor[]>(
+    userSpecificDoctorsKey || 'temp_doctors_key', 
+    []
+  );
+
   const [searchTerm, setSearchTerm] = useState('');
   const [filterPartners, setFilterPartners] = useState(false);
   const [viewMode, setViewMode] = useLocalStorage<'grid' | 'list'>(VIEW_MODE_STORAGE_KEY, 'grid');
-  const [sortOption, setSortOption] = useLocalStorage<SortOption>(SORT_OPTION_STORAGE_KEY, 'createdAt');
+  const [sortOption, setSortOption] = useLocalStorage<SortOption>(SORT_OPTION_STORAGE_KEY, 'name');
+
+  // Effect to load mock data for HUNTER user if it's the first time
+  useEffect(() => {
+    if (user?.username === 'HUNTER' && userSpecificDoctorsKey) {
+      const storedData = window.localStorage.getItem(userSpecificDoctorsKey);
+      if (!storedData || JSON.parse(storedData).length === 0) {
+        setDoctors(MOCK_DOCTORS.map(doc => ({
+          ...doc,
+          id: new Date().toISOString() + Math.random() + doc.name,
+          createdAt: new Date().toISOString(),
+          referralNotes: Array((doc.referralCount || 0)).fill(null).map(() => ({
+            patientName: '', referralDate: '', testDate: '', testType: '', patientAge: '', chronicDiseases: ''
+          })),
+        })));
+      }
+    }
+  }, [user, userSpecificDoctorsKey, setDoctors]);
+
 
   // When user logs out, clear the doctors from state.
   useEffect(() => {
@@ -65,6 +94,7 @@ export function DoctorProvider({ children }: { children: React.ReactNode }) {
       referralNotes: Array(referralCount).fill(null).map(() => ({
         patientName: '',
         referralDate: '',
+        testDate: new Date().toISOString().split('T')[0],
         testType: '',
         patientAge: '',
         chronicDiseases: '',
@@ -84,6 +114,7 @@ export function DoctorProvider({ children }: { children: React.ReactNode }) {
           referralNotes: Array(referralCount).fill(null).map(() => ({
             patientName: '',
             referralDate: '',
+            testDate: new Date().toISOString().split('T')[0],
             testType: '',
             patientAge: '',
             chronicDiseases: '',
@@ -93,9 +124,23 @@ export function DoctorProvider({ children }: { children: React.ReactNode }) {
     setDoctors(prev => [...newDoctors, ...prev]);
   };
 
-  const updateDoctor = (id: string, updates: Partial<Doctor>) => {
-    setDoctors(prev => prev.map(doc => (doc.id === id ? { ...doc, ...updates } : doc)));
-  };
+  const updateDoctor = useCallback((id: string, updates: PartialDoctorWithFunction) => {
+    setDoctors(prev => prev.map(doc => {
+      if (doc.id === id) {
+        const newDoc = { ...doc };
+        for (const key in updates) {
+          const updateValue = updates[key as keyof typeof updates];
+          if (typeof updateValue === 'function') {
+            (newDoc as any)[key] = updateValue((doc as any)[key]);
+          } else {
+            (newDoc as any)[key] = updateValue;
+          }
+        }
+        return newDoc;
+      }
+      return doc;
+    }));
+  }, [setDoctors]);
 
   const updateMultipleDoctors = (updatedDoctors: Doctor[]) => {
     setDoctors(updatedDoctors);
@@ -145,7 +190,7 @@ export function DoctorProvider({ children }: { children: React.ReactNode }) {
     setViewMode,
     sortOption,
     setSortOption,
-  }), [doctors, user, searchTerm, filterPartners, viewMode, sortOption, setDoctors, setViewMode, setSortOption]);
+  }), [doctors, user, searchTerm, filterPartners, viewMode, sortOption, addMultipleDoctors, updateDoctor, updateMultipleDoctors, deleteDoctor, deleteAllDoctors, getDoctorById, importDoctors, uncheckAllPartners, resetAllReferrals, setViewMode, setSortOption]);
 
   return <DoctorContext.Provider value={value}>{children}</DoctorContext.Provider>;
 }

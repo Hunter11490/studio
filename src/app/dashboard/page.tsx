@@ -57,12 +57,12 @@ const mainDepts = [
   {
     name: 'emergency',
     icon: Ambulance,
-    href: '#',
+    href: '/dashboard/reception', // Placeholder link
   },
   {
     name: 'icu',
     icon: BedDouble,
-    href: '#',
+    href: '/dashboard/reception', // Placeholder link
   },
   {
     name: 'surgicalOperations',
@@ -72,40 +72,40 @@ const mainDepts = [
   {
     name: 'pharmacy',
     icon: Pill,
-    href: '#',
+    href: '/dashboard/oncology', // Placeholder link
   },
   {
     name: 'laboratories',
     icon: Beaker,
-    href: '#',
+    href: '/dashboard/oncology', // Placeholder link
   },
   {
     name: 'radiology',
     icon: Scan,
-    href: '#',
+    href: '/dashboard/oncology', // Placeholder link
   },
   {
     name: 'nursing',
     icon: Users,
-    href: '#',
+    href: '/dashboard/representatives', // Placeholder link
   },
 ];
 
 const medicalDepts = [
-   { name: 'internalMedicine', icon: Stethoscope, href: '#' },
+   { name: 'internalMedicine', icon: Stethoscope, href: '/dashboard/oncology' },
    { name: 'generalSurgery', icon: Scissors, href: '/dashboard/surgery' },
-   { name: 'obGyn', icon: HeartHandshake, href: '#' },
-   { name: 'pediatrics', icon: Baby, href: '#' },
-   { name: 'orthopedics', icon: Bone, href: '#' },
-   { name: 'urology', icon: Footprints, href: '#' },
-   { name: 'ent', icon: Ear, href: '#' },
-   { name: 'ophthalmology', icon: Eye, href: '#' },
-   { name: 'dermatology', icon: User, href: '#' },
+   { name: 'obGyn', icon: HeartHandshake, href: '/dashboard/oncology' },
+   { name: 'pediatrics', icon: Baby, href: '/dashboard/oncology' },
+   { name: 'orthopedics', icon: Bone, href: '/dashboard/oncology' },
+   { name: 'urology', icon: Footprints, href: '/dashboard/oncology' },
+   { name: 'ent', icon: Ear, href: '/dashboard/oncology' },
+   { name: 'ophthalmology', icon: Eye, href: '/dashboard/oncology' },
+   { name: 'dermatology', icon: User, href: '/dashboard/oncology' },
    { name: 'cardiology', icon: HeartPulse, href: '/dashboard/oncology' },
-   { name: 'neurology', icon: Brain, href: '#' },
+   { name: 'neurology', icon: Brain, href: '/dashboard/oncology' },
    { name: 'oncology', icon: Quote, href: '/dashboard/oncology' },
-   { name: 'nephrology', icon: Droplets, href: '#' },
-   { name: 'bloodBank', icon: Heart, href: '/dashboard/blood-bank' },
+   { name: 'nephrology', icon: Droplets, href: '/dashboard/oncology' },
+   { name: 'bloodBank', icon: Heart, href: '/dashboard/oncology' },
 ];
 
 const adminDepts = [
