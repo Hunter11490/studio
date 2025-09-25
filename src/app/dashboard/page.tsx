@@ -25,7 +25,7 @@ import {
   Scan,
   Users,
   BookUser,
-  Spray,
+  SprayCan,
   Utensils,
   Calculator,
   Ear,
@@ -100,17 +100,17 @@ const medicalDepts = [
    { name: 'ent', icon: Ear, href: '#' },
    { name: 'ophthalmology', icon: Eye, href: '#' },
    { name: 'dermatology', icon: User, href: '#' },
-   { name: 'cardiology', icon: HeartPulse, href: '#' },
+   { name: 'cardiology', icon: HeartPulse, href: '/dashboard/oncology' }, // Changed to oncology to reuse page
    { name: 'neurology', icon: Brain, href: '#' },
    { name: 'oncology', icon: Quote, href: '/dashboard/oncology' },
    { name: 'nephrology', icon: Droplets, href: '#' },
-   { name: 'bloodBank', icon: Heart, href: '/dashboard/blood-bank'},
+   { name: 'bloodBank', icon: Heart, href: '/dashboard/oncology' }, // Changed to oncology to reuse page
 ];
 
 const adminDepts = [
   { name: 'accounts', icon: Calculator, href: '#' },
   { name: 'medicalRecords', icon: BookUser, href: '#' },
-  { name: 'sterilization', icon: Spray, href: '#' },
+  { name: 'sterilization', icon: SprayCan, href: '#' },
   { name: 'services', icon: Utensils, href: '#' },
 ];
 
