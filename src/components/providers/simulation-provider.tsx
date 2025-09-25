@@ -1,3 +1,4 @@
+
 'use client';
 
 import { createContext, useState, useEffect, useCallback, ReactNode } from 'react';
@@ -121,16 +122,23 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
   }, [isSimulating, performRandomAction]);
 
   const toggleSimulation = () => {
-    setIsSimulating(prev => {
-        const newState = !prev;
-        if (newState) {
-            toast({ title: t('simulation.started') });
-        } else {
-            toast({ title: t('simulation.stopped'), variant: 'destructive' });
-        }
-        return newState;
-    });
+    setIsSimulating(prev => !prev);
   };
+  
+  useEffect(() => {
+    // We use a useEffect to show the toast after the state has been updated.
+    // This prevents the "cannot update a component while rendering another" error.
+    if (isSimulating) {
+      toast({ title: t('simulation.started') });
+    } else {
+      // Don't show "stopped" on initial render
+      const wasSimulating = isSimulating;
+      if (wasSimulating) {
+        toast({ title: t('simulation.stopped'), variant: 'destructive' });
+      }
+    }
+  }, [isSimulating, t, toast]);
+
 
   return (
     <SimulationContext.Provider value={{ isSimulating, toggleSimulation }}>
