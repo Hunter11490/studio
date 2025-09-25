@@ -59,11 +59,12 @@ export function Header({ onAddDoctor }: { onAddDoctor?: () => void }) {
 
   const departmentName = useMemo(() => {
     const lowercasedSlug = departmentSlug.toLowerCase();
-    const deptKey = Object.keys((translations.en as any).departments).find(key => 
+    const deptTranslations = (translations[lang] as any).departments || {};
+    const deptKey = Object.keys(deptTranslations).find(key => 
       key.toLowerCase() === lowercasedSlug
     );
-    return deptKey ? t(`departments.${deptKey as keyof typeof translations.en.departments}`) : capitalizeFirstLetter(departmentSlug);
-  }, [departmentSlug, t]);
+    return deptKey ? t(`departments.${deptKey}`) : capitalizeFirstLetter(departmentSlug);
+  }, [departmentSlug, t, lang]);
 
 
   const handleAddClick = () => {
