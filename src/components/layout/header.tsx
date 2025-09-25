@@ -52,15 +52,19 @@ export function Header({ onAddDoctor }: { onAddDoctor?: () => void }) {
   const departmentSlug = useMemo(() => {
     const pathParts = pathname.split('/').filter(Boolean);
     const lastPart = pathParts[pathParts.length - 1];
-    return lastPart === 'dashboard' ? 'representatives' : lastPart;
+    // Special case for the main dashboard page to show 'Representatives'
+    if (lastPart === 'dashboard') return 'representatives';
+    return lastPart;
   }, [pathname]);
 
   const departmentName = useMemo(() => {
+    const lowercasedSlug = departmentSlug.toLowerCase();
     const deptKey = Object.keys(translations.en.departments).find(key => 
-      key.toLowerCase() === departmentSlug.toLowerCase()
+      key.toLowerCase() === lowercasedSlug
     );
     return deptKey ? t(`departments.${deptKey as keyof typeof translations.en.departments}`) : capitalizeFirstLetter(departmentSlug);
   }, [departmentSlug, t]);
+
 
   const handleAddClick = () => {
     if (onAddDoctor) {
@@ -90,16 +94,13 @@ export function Header({ onAddDoctor }: { onAddDoctor?: () => void }) {
     setIsTranslating(true);
     toast({ title: t('toasts.translatingTitle') });
     try {
-        // We send the full doctor object, Genkit will only use the fields defined in the input schema
         const response = await translateText({
             doctors: doctors,
             targetLanguage: 'Arabic',
         });
 
-        // Create a map for faster lookup of translated data
         const translatedDoctorsMap = new Map<string, DoctorInfo>();
         response.doctors.forEach((translatedDoc, index) => {
-            // Use original doctor's ID as the key
             const originalId = doctors[index].id;
             translatedDoctorsMap.set(originalId, translatedDoc);
         });
@@ -107,7 +108,6 @@ export function Header({ onAddDoctor }: { onAddDoctor?: () => void }) {
         const updatedDoctors: Doctor[] = doctors.map(originalDoctor => {
             const translatedInfo = translatedDoctorsMap.get(originalDoctor.id);
             if (translatedInfo) {
-                // Ensure referral notes are correctly mapped and preserve non-translated fields
                 const updatedNotes = originalDoctor.referralNotes?.map((originalNote, noteIndex) => {
                     const translatedNote = translatedInfo.referralNotes?.[noteIndex];
                     return {
@@ -126,7 +126,7 @@ export function Header({ onAddDoctor }: { onAddDoctor?: () => void }) {
                     referralNotes: updatedNotes,
                 };
             }
-            return originalDoctor; // Fallback to original if something goes wrong
+            return originalDoctor;
         });
 
         updateMultipleDoctors(updatedDoctors);
@@ -139,8 +139,6 @@ export function Header({ onAddDoctor }: { onAddDoctor?: () => void }) {
     }
   };
 
-  // Determine if the current page should show a generic add doctor button
-  // vs. a department-specific one.
   const isGenericAddPage = departmentSlug === 'representatives' || departmentSlug === 'admin';
 
 
@@ -148,7 +146,6 @@ export function Header({ onAddDoctor }: { onAddDoctor?: () => void }) {
     <>
       <header className="sticky top-0 z-30 flex h-auto flex-col gap-2 border-b bg-card px-4 py-2 md:px-6">
         <div className="flex items-center justify-between gap-4">
-          {/* Logo and left-aligned items */}
           <div className="flex items-center gap-2">
             <Logo className="h-8 w-8 text-primary" />
             <Button size="sm" className="gap-1" onClick={handleAddClick}>
@@ -157,18 +154,15 @@ export function Header({ onAddDoctor }: { onAddDoctor?: () => void }) {
             </Button>
           </div>
 
-          {/* Centered App Name & Subtitle */}
           <div className="absolute left-1/2 -translate-x-1/2 flex flex-col items-center">
             <h1 className="text-lg font-semibold tracking-tight whitespace-nowrap text-primary animate-glow">{departmentName}</h1>
           </div>
 
-          {/* User Menu and right-aligned items */}
           <div className="flex items-center gap-4">
             <UserMenu />
           </div>
         </div>
 
-        {/* Search and stats for all screen sizes */}
         <div className="flex flex-col items-center gap-2">
           <div className="w-full lg:w-[320px] relative">
             <Input
@@ -192,7 +186,6 @@ export function Header({ onAddDoctor }: { onAddDoctor?: () => void }) {
               </Button>
             </div>
             
-            {/* Controls */}
             <div className="flex items-center gap-1 rounded-md border p-0.5 bg-secondary">
                <TooltipProvider>
                 <Tooltip>
@@ -293,7 +286,6 @@ export function Header({ onAddDoctor }: { onAddDoctor?: () => void }) {
           </div>
         </div>
       </header>
-      {/* Conditionally render the DoctorFormDialog for generic additions */}
       {isGenericAddPage && <DoctorFormDialog open={isAddDoctorOpen} onOpenChange={setAddDoctorOpen} />}
       <PartnerDashboard open={isPartnerDashboardOpen} onOpenChange={setPartnerDashboardOpen} />
     </>
