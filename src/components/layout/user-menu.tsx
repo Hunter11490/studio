@@ -241,68 +241,6 @@ export function UserMenu() {
               />
 
               <Separator className="my-2" />
-              
-              <div className="p-2 space-y-2">
-                <Label><Languages className="inline-block mr-2 h-4 w-4" />{t('userMenu.changeLanguage')}</Label>
-                <RadioGroup value={lang} onValueChange={(value) => setLang(value as 'en' | 'ar')} className="grid grid-cols-2 gap-2">
-                  <div>
-                    <RadioGroupItem value="en" id="lang-en-sheet" className="peer sr-only" />
-                    <Label htmlFor="lang-en-sheet" className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary">
-                      {t('userMenu.english')}
-                    </Label>
-                  </div>
-                  <div>
-                    <RadioGroupItem value="ar" id="lang-ar-sheet" className="peer sr-only" />
-                    <Label htmlFor="lang-ar-sheet" className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary">
-                      {t('userMenu.arabic')}
-                    </Label>
-                  </div>
-                </RadioGroup>
-              </div>
-
-
-              <div className="p-2 space-y-2">
-                <Label className="flex items-center">
-                  <Palette className="h-4 w-4 mr-2" />
-                  {t('userMenu.toggleTheme')}
-                </Label>
-                <div className="grid grid-cols-4 gap-2">
-                  {(['light', 'dark', 'pink', 'blue', 'brown', 'emerald', 'amethyst', 'system'] as const).map((themeName) => {
-                    const isActive = theme === themeName;
-                    return (
-                      <Button
-                        key={themeName}
-                        variant="outline"
-                        size="icon"
-                        className={cn(
-                          'h-12 w-full flex items-center justify-center',
-                          isActive && 'border-primary ring-2 ring-primary'
-                        )}
-                        onClick={() => setTheme(themeName)}
-                      >
-                        <div className="flex flex-col items-center gap-1">
-                          <div className={cn('h-5 w-5 rounded-full flex items-center justify-center', 
-                            {
-                              'bg-background border': themeName === 'light',
-                              'bg-[#090c10] border': themeName === 'dark',
-                              'bg-[#fbe8f0] border border-[#f4a8c4]': themeName === 'pink',
-                              'bg-[#e8f0f9] border border-[#a8c4f4]': themeName === 'blue',
-                              'bg-[#f5f0e8] border border-[#c4a884]': themeName === 'brown',
-                              'bg-[#e8f9f0] border border-[#84c4a8]': themeName === 'emerald',
-                              'bg-[#f0e8f9] border border-[#c4a8f4]': themeName === 'amethyst',
-                              'border': themeName === 'system'
-                            }
-                          )}>
-                            {themeName === 'system' && <Laptop className="h-3 w-3 text-muted-foreground" />}
-                          </div>
-                          <span className="text-xs capitalize">{t(`userMenu.${themeName}`)}</span>
-                        </div>
-                      </Button>
-                    )
-                  })}
-                </div>
-              </div>
-
             </div>
           </ScrollArea>
            <div className="p-2 border-t mt-auto">
