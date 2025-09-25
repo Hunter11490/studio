@@ -16,8 +16,8 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/
 import { DropdownMenu, DropdownMenuContent, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuSeparator, DropdownMenuTrigger } from '../ui/dropdown-menu';
 import { SortOption } from '@/components/providers/doctor-provider';
 import { useToast } from '@/hooks/use-toast';
-import { translateText, DoctorInfo } from '@/ai/flows/translation-flow';
-import { Doctor } from '@/types';
+import { translateText } from '@/ai/flows/translation-flow';
+import type { Doctor, DoctorInfo } from '@/types';
 import { translations } from '@/lib/localization';
 
 
@@ -92,10 +92,8 @@ export function Header() {
             targetLanguage: 'Arabic',
         });
 
-        const translatedDoctorsMap = new Map(response.doctors.map((d, i) => [i, d]));
-
         const updatedDoctors: Doctor[] = doctors.map((originalDoctor, index) => {
-            const translatedInfo = translatedDoctorsMap.get(index);
+            const translatedInfo = response.doctors[index];
             if (translatedInfo) {
                 return {
                     ...originalDoctor,

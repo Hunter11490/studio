@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Doctor } from '@/types';
+import { Doctor, ReferralCase } from '@/types';
 import { useLanguage } from '@/hooks/use-language';
 import { useDoctors } from '@/hooks/use-doctors';
 import { Button } from '@/components/ui/button';
@@ -47,16 +47,20 @@ function DoctorRow({ doctor }: { doctor: Doctor }) {
 
   const handleReferralChange = (amount: number) => {
     const newCount = Math.max(0, referralCount + amount);
-    const newNotes = [...(doctor.referralNotes || [])];
-    
-    while (newNotes.length < newCount) {
-        newNotes.push({ patientName: '', referralDate: '', testDate: getTodayDateString(), testType: '', patientAge: '', chronicDiseases: '' });
-    }
-    if (newNotes.length > newCount) {
-        newNotes.length = newCount;
-    }
-
-    updateDoctor(doctor.id, { referralCount: newCount, referralNotes: newNotes });
+    updateDoctor(doctor.id, { 
+      referralCount: newCount,
+      referralNotes: (prevNotes = []) => {
+        const newNotes: ReferralCase[] = [...prevNotes];
+        if (amount > 0) { // Adding referrals
+            for (let i = 0; i < amount; i++) {
+                newNotes.push({ patientName: '', referralDate: '', testDate: getTodayDateString(), testType: '', patientAge: '', chronicDiseases: '' });
+            }
+        } else { // Removing referrals
+            newNotes.length = newCount;
+        }
+        return newNotes;
+      }
+    });
   };
 
   const handlePartnerToggle = (e: React.MouseEvent<HTMLButtonElement>) => {

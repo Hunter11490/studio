@@ -21,7 +21,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Users, FileDown, X, Plus, Minus } from 'lucide-react';
 import { ScrollArea } from '../ui/scroll-area';
-import type { Doctor, DoctorInfo } from '@/types';
+import type { Doctor, DoctorInfo, ReferralCase } from '@/types';
 import { translateText } from '@/ai/flows/translation-flow';
 import { exportToExcel } from '@/lib/excel';
 import { useToast } from '@/hooks/use-toast';
@@ -35,13 +35,31 @@ type PartnerExportData = {
   [key: string]: string | number;
 };
 
+const getTodayDateString = () => {
+    const today = new Date();
+    return today.toISOString().split('T')[0];
+};
+
 function PartnerDoctorItem({ doctor }: { doctor: Doctor }) {
   const { t } = useLanguage();
   const { updateDoctor } = useDoctors();
 
   const handleReferralChange = (amount: number) => {
     const newCount = Math.max(0, doctor.referralCount + amount);
-    updateDoctor(doctor.id, { referralCount: newCount });
+    updateDoctor(doctor.id, { 
+      referralCount: newCount,
+      referralNotes: (prevNotes = []) => {
+        const newNotes: ReferralCase[] = [...prevNotes];
+        if (amount > 0) { // Adding referrals
+            for (let i = 0; i < amount; i++) {
+                newNotes.push({ patientName: '', referralDate: '', testDate: getTodayDateString(), testType: '', patientAge: '', chronicDiseases: '' });
+            }
+        } else { // Removing referrals
+            newNotes.length = newCount;
+        }
+        return newNotes;
+      }
+    });
   };
   
   const commission = doctor.referralCount * 100;

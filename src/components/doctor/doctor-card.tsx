@@ -14,7 +14,7 @@ import {
   MoreVertical,
   Map as MapIcon,
 } from 'lucide-react';
-import { Doctor } from '@/types';
+import { Doctor, ReferralCase } from '@/types';
 import { useDoctors } from '@/hooks/use-doctors';
 import { useLanguage } from '@/hooks/use-language';
 import { useToast } from '@/hooks/use-toast';
@@ -75,16 +75,21 @@ export function DoctorCard({ doctor }: { doctor: Doctor }) {
   
   const handleReferralChange = (amount: number) => {
     const newCount = Math.max(0, referralCount + amount);
-    const newNotes = [...(doctor.referralNotes || [])];
-    
-    while (newNotes.length < newCount) {
-        newNotes.push({ patientName: '', referralDate: '', testDate: getTodayDateString(), testType: '', patientAge: '', chronicDiseases: '' });
-    }
-    if (newNotes.length > newCount) {
-        newNotes.length = newCount;
-    }
 
-    updateDoctor(doctor.id, { referralCount: newCount, referralNotes: newNotes });
+    updateDoctor(doctor.id, { 
+      referralCount: newCount,
+      referralNotes: (prevNotes = []) => {
+        const newNotes: ReferralCase[] = [...prevNotes];
+        if (amount > 0) { // Adding referrals
+            for (let i = 0; i < amount; i++) {
+                newNotes.push({ patientName: '', referralDate: '', testDate: getTodayDateString(), testType: '', patientAge: '', chronicDiseases: '' });
+            }
+        } else { // Removing referrals
+            newNotes.length = newCount;
+        }
+        return newNotes;
+      }
+    });
   };
   
   const handleDeleteDoctor = () => {
