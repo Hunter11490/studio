@@ -58,12 +58,12 @@ const mainDepts = [
   {
     name: 'emergency',
     icon: Ambulance,
-    href: '/dashboard/reception', // Placeholder link
+    href: '/dashboard/reception',
   },
   {
     name: 'icu',
     icon: BedDouble,
-    href: '/dashboard/reception', // Placeholder link
+    href: '/dashboard/reception',
   },
   {
     name: 'surgicalOperations',
@@ -73,22 +73,22 @@ const mainDepts = [
   {
     name: 'pharmacy',
     icon: Pill,
-    href: '/dashboard/oncology', // Placeholder link
+    href: '/dashboard/oncology',
   },
   {
     name: 'laboratories',
     icon: Beaker,
-    href: '/dashboard/oncology', // Placeholder link
+    href: '/dashboard/oncology',
   },
   {
     name: 'radiology',
     icon: Scan,
-    href: '/dashboard/oncology', // Placeholder link
+    href: '/dashboard/oncology',
   },
   {
     name: 'nursing',
     icon: Users,
-    href: '/dashboard/representatives', // Placeholder link
+    href: '/dashboard/representatives',
   },
 ];
 
@@ -110,10 +110,10 @@ const medicalDepts = [
 ];
 
 const adminDepts = [
-  { name: 'accounts', icon: Calculator, href: '#' },
-  { name: 'medicalRecords', icon: BookUser, href: '#' },
-  { name: 'sterilization', icon: SprayCan, href: '#' },
-  { name: 'services', icon: Utensils, href: '#' },
+  { name: 'accounts', icon: Calculator, href: '/dashboard/oncology' },
+  { name: 'medicalRecords', icon: BookUser, href: '/dashboard/oncology' },
+  { name: 'sterilization', icon: SprayCan, href: '/dashboard/oncology' },
+  { name: 'services', icon: Utensils, href: '/dashboard/oncology' },
   { name: 'representatives', icon: Users, href: '/dashboard/representatives' },
   { name: 'admin', icon: Shield, href: '/dashboard/admin' },
 ];

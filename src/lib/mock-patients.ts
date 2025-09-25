@@ -15,21 +15,23 @@ const generateRandomDate = (start: Date, end: Date): Date => {
     return new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()));
 };
 
-const createMockPatient = (i: number): Patient => {
+const createMockPatient = (i: number, doctors: Omit<Doctor, 'id' | 'createdAt'>[]): Patient => {
     const today = new Date();
     const lastWeek = new Date(today);
     lastWeek.setDate(today.getDate() - 7);
     
     const createdAtDate = generateRandomDate(lastWeek, today);
 
-    // Generate random DOB
     const dobYear = 1950 + Math.floor(Math.random() * 60);
     const dobMonth = 1 + Math.floor(Math.random() * 12);
     const dobDay = 1 + Math.floor(Math.random() * 28);
 
-    const randomDoctor = getRandomElement(MOCK_DOCTORS);
-    const doctorId = MOCK_DOCTORS.find(d => d.name === randomDoctor.name) ? randomDoctor.name : undefined;
-
+    const assignedDepartment = getRandomElement(departments);
+    const doctorsInDept = doctors.filter(d => d.specialty.toLowerCase().replace(/ /g, '') === assignedDepartment.toLowerCase());
+    const randomDoctor = doctorsInDept.length > 0 ? getRandomElement(doctorsInDept) : getRandomElement(doctors);
+    
+    // We need a temporary unique ID for the doctor to link them before they get real IDs. Let's use their name.
+    const doctorId = randomDoctor.name;
 
     return {
         id: `mock_patient_${Date.now()}_${i}`,
@@ -47,35 +49,46 @@ const createMockPatient = (i: number): Patient => {
             zuqaq: String(1 + i % 50),
             dar: String(1 + i % 100),
         },
-        department: getRandomElement(departments),
-        doctorId: doctorId,
+        department: assignedDepartment,
+        doctorId: doctorId, // Link by name initially
         createdAt: createdAtDate.toISOString(),
     };
 };
 
+export const generateInitialData = () => {
+    const doctorsWithTempId = MOCK_DOCTORS.map((doc, index) => ({
+      ...doc,
+      id: `temp_doctor_id_${index}_${doc.name}` // Assign a temporary but unique ID
+    }));
 
-export const MOCK_PATIENTS: Patient[] = Array.from({ length: 500 }, (_, i) => createMockPatient(i));
+    const patients = Array.from({ length: 500 }, (_, i) => createMockPatient(i, doctorsWithTempId));
+    
+    patients.forEach(patient => {
+        if (patient.doctorId) { // doctorId here is the name
+            const doctorIndex = doctorsWithTempId.findIndex(d => d.name === patient.doctorId);
+            if (doctorIndex !== -1) {
+                doctorsWithTempId[doctorIndex].referralCount++;
 
-// Add referrals to mock doctors based on mock patients
-MOCK_PATIENTS.forEach(patient => {
-    const assignedDoctorName = patient.doctorId;
-    if (assignedDoctorName) {
-        const doctorIndex = MOCK_DOCTORS.findIndex(d => d.name === assignedDoctorName);
-        if (doctorIndex !== -1) {
-            MOCK_DOCTORS[doctorIndex].referralCount++;
-            
-            if (!MOCK_DOCTORS[doctorIndex].referralNotes) {
-                MOCK_DOCTORS[doctorIndex].referralNotes = [];
+                if (!doctorsWithTempId[doctorIndex].referralNotes) {
+                    doctorsWithTempId[doctorIndex].referralNotes = [];
+                }
+                
+                doctorsWithTempId[doctorIndex].referralNotes!.push({
+                    patientName: patient.patientName,
+                    referralDate: patient.receptionDate,
+                    testDate: new Date().toISOString().split('T')[0],
+                    testType: 'فحص أولي',
+                    patientAge: String(new Date().getFullYear() - parseInt(patient.dob.year)),
+                    chronicDiseases: 'لا يوجد'
+                });
+
+                // Update patient's doctorId to the temporary ID
+                patient.doctorId = doctorsWithTempId[doctorIndex].id;
+            } else {
+                 patient.doctorId = undefined;
             }
-            
-            MOCK_DOCTORS[doctorIndex].referralNotes!.push({
-                patientName: patient.patientName,
-                referralDate: patient.receptionDate,
-                testDate: new Date().toISOString().split('T')[0],
-                testType: 'فحص أولي',
-                patientAge: String(new Date().getFullYear() - parseInt(patient.dob.year)),
-                chronicDiseases: 'لا يوجد'
-            });
         }
-    }
-});
+    });
+
+    return { doctors: doctorsWithTempId, patients };
+};

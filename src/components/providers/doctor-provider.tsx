@@ -4,7 +4,7 @@ import { createContext, useState, useMemo, useEffect, useCallback } from 'react'
 import { useLocalStorage } from '@/hooks/use-local-storage';
 import { Doctor } from '@/types';
 import { useAuth } from '@/hooks/use-auth';
-import { MOCK_DOCTORS } from '@/lib/mock-doctors';
+import { generateInitialData } from '@/lib/mock-patients';
 
 const BASE_DOCTORS_STORAGE_KEY = 'iraqi_doctors_list_user';
 const VIEW_MODE_STORAGE_KEY = 'iraqi_doctors_view_mode_v1';
@@ -63,14 +63,13 @@ export function DoctorProvider({ children }: { children: React.ReactNode }) {
     if (user?.username === 'HUNTER' && userSpecificDoctorsKey) {
       const storedData = window.localStorage.getItem(userSpecificDoctorsKey);
       if (!storedData || JSON.parse(storedData).length === 0) {
-        setDoctors(MOCK_DOCTORS.map(doc => ({
-          ...doc,
-          id: new Date().toISOString() + Math.random() + doc.name,
-          createdAt: new Date().toISOString(),
-          referralNotes: Array((doc.referralCount || 0)).fill(null).map(() => ({
-            patientName: '', referralDate: '', testDate: '', testType: '', patientAge: '', chronicDiseases: ''
-          })),
-        })));
+        const { doctors: initialMockDoctors } = generateInitialData();
+        const finalizedDoctors = initialMockDoctors.map(doc => ({
+           ...doc,
+           id: new Date().toISOString() + Math.random() + doc.name, // Final, unique ID
+           createdAt: new Date().toISOString(),
+        }));
+        setDoctors(finalizedDoctors);
       }
     }
   }, [user, userSpecificDoctorsKey, setDoctors]);

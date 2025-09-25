@@ -5,7 +5,7 @@ import { useLocalStorage } from '@/hooks/use-local-storage';
 import { Patient } from '@/types';
 import { useAuth } from '@/hooks/use-auth';
 import { useDoctors } from '@/hooks/use-doctors';
-import { MOCK_PATIENTS } from '@/lib/mock-patients';
+import { generateInitialData } from '@/lib/mock-patients';
 
 const BASE_PATIENTS_STORAGE_KEY = 'iraqi_doctors_patients_user';
 
@@ -21,10 +21,9 @@ export const PatientContext = createContext<PatientContextType | null>(null);
 
 export function PatientProvider({ children }: { children: React.ReactNode }) {
   const { user } = useAuth();
-  const { updateDoctor } = useDoctors();
+  const { doctors, updateDoctor } = useDoctors();
   const userSpecificPatientsKey = user ? `${BASE_PATIENTS_STORAGE_KEY}_${user.id}` : null;
   
-  // Conditionally set initial data to MOCK_PATIENTS for the main admin user (HUNTER) on first load
   const [patients, setPatients] = useLocalStorage<Patient[]>(
     userSpecificPatientsKey || 'temp_patients_key', 
     []
@@ -33,12 +32,30 @@ export function PatientProvider({ children }: { children: React.ReactNode }) {
   // Effect to load mock data for HUNTER user if it's the first time
   useEffect(() => {
     if (user?.username === 'HUNTER' && userSpecificPatientsKey) {
-      const storedData = window.localStorage.getItem(userSpecificPatientsKey);
-      if (!storedData || JSON.parse(storedData).length === 0) {
-        setPatients(MOCK_PATIENTS);
+      const storedPatients = window.localStorage.getItem(userSpecificPatientsKey);
+      const storedDoctors = window.localStorage.getItem(`iraqi_doctors_list_user_${user.id}`);
+      
+      if ((!storedPatients || JSON.parse(storedPatients).length === 0) && storedDoctors && JSON.parse(storedDoctors).length > 0) {
+        const { patients: initialMockPatients } = generateInitialData();
+        // The doctor list is already populated with referral counts, so we just need to set the patients
+        const doctorsInStorage = JSON.parse(storedDoctors);
+        
+        // Remap patient doctor IDs to match the final IDs in storage
+        const finalPatients = initialMockPatients.map(p => {
+          if (p.doctorId) { // doctorId is the temp ID from generation
+            const originalDoctor = doctorsInStorage.find((doc: Doctor) => doc.id.includes(p.doctorId!.split('_')[3])); // Match by name part of temp ID
+            if(originalDoctor) {
+              return { ...p, doctorId: originalDoctor.id };
+            }
+          }
+          return { ...p, doctorId: undefined };
+        });
+
+        setPatients(finalPatients);
       }
     }
-  }, [user, userSpecificPatientsKey, setPatients]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user, userSpecificPatientsKey, setPatients, doctors]);
 
 
   useEffect(() => {
@@ -58,15 +75,15 @@ export function PatientProvider({ children }: { children: React.ReactNode }) {
     // If a doctor is assigned, update their referral count
     if (patientData.doctorId && updateDoctor) {
       updateDoctor(patientData.doctorId, {
-        referralCount: (currentCount) => (currentCount || 0) + 1,
-        referralNotes: (currentNotes) => [
+        referralCount: (currentCount: number | undefined) => (currentCount || 0) + 1,
+        referralNotes: (currentNotes: any[] | undefined) => [
           ...(currentNotes || []),
           {
             patientName: patientData.patientName,
             referralDate: patientData.receptionDate,
             testDate: new Date().toISOString().split('T')[0],
             testType: '',
-            patientAge: '',
+            patientAge: String(new Date().getFullYear() - parseInt(patientData.dob.year)),
             chronicDiseases: '',
           },
         ]

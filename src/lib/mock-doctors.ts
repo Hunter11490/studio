@@ -1,9 +1,11 @@
+
 import { Doctor } from '@/types';
 
+// Specialties aligned with the main dashboard departments
 const medicalSpecialties = [
     "Internal Medicine", "General Surgery", "Obstetrics and Gynecology", "Pediatrics", "Orthopedics",
     "Urology", "ENT", "Ophthalmology", "Dermatology", "Cardiology", "Neurology",
-    "Oncology", "Nephrology", "Blood Bank", "Emergency Medicine", "Anesthesiology"
+    "Oncology", "Nephrology"
 ];
 
 const arabicFirstNames = [
@@ -37,7 +39,7 @@ export const MOCK_DOCTORS: Omit<Doctor, 'id' | 'createdAt'>[] = [
     mapLocation: "",
     clinicCardImageUrl: "",
     isPartner: true,
-    referralCount: 15,
+    referralCount: 0,
     availableDays: ["Sat", "Mon", "Wed"],
     referralNotes: []
   },
@@ -49,7 +51,7 @@ export const MOCK_DOCTORS: Omit<Doctor, 'id' | 'createdAt'>[] = [
     mapLocation: "",
     clinicCardImageUrl: "",
     isPartner: false,
-    referralCount: 5,
+    referralCount: 0,
     availableDays: ["Sun", "Tue", "Thu"],
     referralNotes: []
   },
@@ -61,7 +63,7 @@ export const MOCK_DOCTORS: Omit<Doctor, 'id' | 'createdAt'>[] = [
     mapLocation: "",
     clinicCardImageUrl: "",
     isPartner: true,
-    referralCount: 25,
+    referralCount: 0,
     availableDays: ["Sat", "Sun", "Mon", "Tue", "Wed"],
     referralNotes: []
   },
@@ -73,7 +75,7 @@ export const MOCK_DOCTORS: Omit<Doctor, 'id' | 'createdAt'>[] = [
     mapLocation: "",
     clinicCardImageUrl: "",
     isPartner: false,
-    referralCount: 8,
+    referralCount: 0,
     availableDays: ["Mon", "Wed", "Fri"],
     referralNotes: []
   },
@@ -85,7 +87,7 @@ export const MOCK_DOCTORS: Omit<Doctor, 'id' | 'createdAt'>[] = [
     mapLocation: "",
     clinicCardImageUrl: "",
     isPartner: true,
-    referralCount: 12,
+    referralCount: 0,
     availableDays: ["Sun", "Tue"],
     referralNotes: []
   },
@@ -97,7 +99,7 @@ export const MOCK_DOCTORS: Omit<Doctor, 'id' | 'createdAt'>[] = [
     mapLocation: "",
     clinicCardImageUrl: "",
     isPartner: false,
-    referralCount: 3,
+    referralCount: 0,
     availableDays: ["Mon", "Thu"],
     referralNotes: []
   },
@@ -109,7 +111,7 @@ export const MOCK_DOCTORS: Omit<Doctor, 'id' | 'createdAt'>[] = [
     mapLocation: "",
     clinicCardImageUrl: "",
     isPartner: true,
-    referralCount: 30,
+    referralCount: 0,
     availableDays: ["Tue", "Thu", "Sat"],
     referralNotes: []
   },
@@ -121,7 +123,7 @@ export const MOCK_DOCTORS: Omit<Doctor, 'id' | 'createdAt'>[] = [
     mapLocation: "",
     clinicCardImageUrl: "",
     isPartner: false,
-    referralCount: 22,
+    referralCount: 0,
     availableDays: ["Sun", "Wed"],
     referralNotes: []
   },
@@ -133,7 +135,7 @@ export const MOCK_DOCTORS: Omit<Doctor, 'id' | 'createdAt'>[] = [
     mapLocation: "",
     clinicCardImageUrl: "",
     isPartner: true,
-    referralCount: 18,
+    referralCount: 0,
     availableDays: ["Mon", "Fri"],
     referralNotes: []
   },
@@ -145,7 +147,7 @@ export const MOCK_DOCTORS: Omit<Doctor, 'id' | 'createdAt'>[] = [
     mapLocation: "",
     clinicCardImageUrl: "",
     isPartner: false,
-    referralCount: 11,
+    referralCount: 0,
     availableDays: ["Tue", "Wed", "Thu"],
     referralNotes: []
   },
@@ -157,7 +159,7 @@ export const MOCK_DOCTORS: Omit<Doctor, 'id' | 'createdAt'>[] = [
     mapLocation: "",
     clinicCardImageUrl: "",
     isPartner: true,
-    referralCount: 9,
+    referralCount: 0,
     availableDays: ["Sat", "Tue"],
     referralNotes: []
   },
@@ -169,11 +171,47 @@ export const MOCK_DOCTORS: Omit<Doctor, 'id' | 'createdAt'>[] = [
     mapLocation: "",
     clinicCardImageUrl: "",
     isPartner: false,
-    referralCount: 14,
+    referralCount: 0,
     availableDays: ["Sun", "Mon", "Wed"],
     referralNotes: []
   },
-  ...Array.from({ length: 138 }, (_, i) => {
+  {
+    name: "د. حسن الجنابي",
+    specialty: "Nephrology",
+    phoneNumber: "07741234567",
+    clinicAddress: "الكاظمية، بغداد",
+    mapLocation: "",
+    clinicCardImageUrl: "",
+    isPartner: true,
+    referralCount: 0,
+    availableDays: ["Sun", "Thu"],
+    referralNotes: []
+  },
+  {
+    name: "د. آية العزاوي",
+    specialty: "Cardiology",
+    phoneNumber: "07847654321",
+    clinicAddress: "الغزالية، بغداد",
+    mapLocation: "",
+    clinicCardImageUrl: "",
+    isPartner: false,
+    referralCount: 0,
+    availableDays: ["Mon", "Wed"],
+    referralNotes: []
+  },
+  {
+    name: "د. مصطفى الطائي",
+    specialty: "Pediatrics",
+    phoneNumber: "07941122334",
+    clinicAddress: "حي الجامعة، بغداد",
+    mapLocation: "",
+    clinicCardImageUrl: "",
+    isPartner: true,
+    referralCount: 0,
+    availableDays: ["Sat", "Tue", "Thu"],
+    referralNotes: []
+  },
+  ...Array.from({ length: 135 }, (_, i) => {
     return {
         name: `${getRandomArabicName(i)}`,
         specialty: getRandomSpecialty(),
@@ -182,7 +220,7 @@ export const MOCK_DOCTORS: Omit<Doctor, 'id' | 'createdAt'>[] = [
         mapLocation: "",
         clinicCardImageUrl: "",
         isPartner: Math.random() > 0.5,
-        referralCount: Math.floor(Math.random() * 30),
+        referralCount: 0,
         availableDays: ["Sat", "Mon", "Wed"],
         referralNotes: []
     }
