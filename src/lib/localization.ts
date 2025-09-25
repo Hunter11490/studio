@@ -279,6 +279,7 @@ export const translations: Translations = {
       sterilization: 'Sterilization',
       services: 'Services',
       representatives: 'Representatives',
+      admin: 'Admin',
       medicalSections: 'Medical Departments',
       adminSections: 'Administrative & Service Departments'
     },
@@ -610,6 +611,7 @@ export const translations: Translations = {
       sterilization: 'التعقيم',
       services: 'الخدمات',
       representatives: 'المندوبين',
+      admin: 'الإدارة',
       medicalSections: 'الأقسام الطبية',
       adminSections: 'الأقسام الإدارية والخدمية'
     },

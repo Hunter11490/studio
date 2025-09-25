@@ -31,6 +31,7 @@ import {
   Ear,
   Footprints,
   HeartHandshake,
+  Shield,
 } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { useLanguage } from '@/hooks/use-language';
@@ -113,6 +114,7 @@ const adminDepts = [
   { name: 'sterilization', icon: SprayCan, href: '#' },
   { name: 'services', icon: Utensils, href: '#' },
   { name: 'representatives', icon: Users, href: '/dashboard/representatives' },
+  { name: 'admin', icon: Shield, href: '/dashboard/admin' },
 ];
 
 
@@ -132,6 +134,11 @@ export default function HospitalDashboardPage() {
   };
   
   const getDepartmentNode = (dept: {name: string, icon: React.ElementType, href: string}) => {
+     // Admin section should only be visible to admin users
+     if (dept.name === 'admin' && user?.role !== 'admin') {
+      return null;
+     }
+
      const isClickable = dept.href !== '#';
      const content = (
         <Card className={`flex flex-col justify-center items-center p-2 aspect-square text-center relative overflow-hidden transition-transform duration-300 ${isClickable ? 'hover:scale-105 hover:shadow-primary/20' : 'opacity-50 cursor-not-allowed'}`}>
