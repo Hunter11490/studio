@@ -235,7 +235,7 @@ export default function SurgeryPage() {
                 </div>
             </header>
 
-            <div className="flex-grow flex p-2 md:p-4 overflow-hidden">
+            <div className="flex-grow flex p-2 md:p-4 overflow-y-hidden">
                 {/* Time Gutter */}
                 <div className="w-16 text-center text-sm text-muted-foreground flex-shrink-0">
                     <div className="h-10"></div> {/* Header space */}
@@ -243,49 +243,51 @@ export default function SurgeryPage() {
                 </div>
 
                 {/* Schedule Grid */}
-                <ScrollArea className="flex-grow overflow-x-auto whitespace-nowrap">
-                    <div className="grid grid-cols-7 min-w-[900px] gap-px bg-border rounded-lg border overflow-hidden h-full">
-                        {weekDays.map(day => (
-                            <div key={day.toString()} className="bg-background relative">
-                                <div className="p-2 border-b text-center font-semibold text-sm h-10 sticky top-0 bg-background z-10">
-                                    {format(day, 'EEE dd', {locale: lang === 'ar' ? ar : undefined})}
-                                </div>
-                                <div className="relative">
-                                    {/* Hour lines */}
-                                    {timeSlots.map((time, i) => (
-                                      <div 
-                                        key={i} 
-                                        className="h-[60px] border-t border-dashed hover:bg-primary/10 cursor-pointer"
-                                        onClick={() => handleAddClick(day, 8 + i)}
-                                      ></div>
-                                    ))}
-                                    
-                                    {/* Bookings */}
-                                    {bookings
-                                        .filter(b => isSameDay(new Date(b.date), day))
-                                        .map(booking => {
-                                            const { top, height, className } = getBookingStyle(booking);
-                                            return (
-                                                <div 
-                                                    key={booking.id}
-                                                    style={{ top, height }}
-                                                    className={className}
-                                                    onClick={() => { setBookingToEdit(booking); setFormOpen(true) }}
-                                                >
-                                                    <p className="font-bold truncate">{booking.patientName}</p>
-                                                    <p className="truncate text-white/80">{booking.surgeryType}</p>
-                                                    <div className="flex items-center gap-1 opacity-80 mt-1">
-                                                        <Clock className="h-3 w-3" />
-                                                        <span>{booking.duration} min</span>
+                <div className="flex-grow overflow-auto">
+                    <ScrollArea className="h-full">
+                        <div className="grid grid-cols-7 min-w-[900px] gap-px bg-border rounded-lg border overflow-hidden">
+                            {weekDays.map(day => (
+                                <div key={day.toString()} className="bg-background relative">
+                                    <div className="p-2 border-b text-center font-semibold text-sm h-10 sticky top-0 bg-background z-10">
+                                        {format(day, 'EEE dd', {locale: lang === 'ar' ? ar : undefined})}
+                                    </div>
+                                    <div className="relative">
+                                        {/* Hour lines */}
+                                        {timeSlots.map((time, i) => (
+                                          <div 
+                                            key={i} 
+                                            className="h-[60px] border-t border-dashed hover:bg-primary/10 cursor-pointer"
+                                            onClick={() => handleAddClick(day, 8 + i)}
+                                          ></div>
+                                        ))}
+                                        
+                                        {/* Bookings */}
+                                        {bookings
+                                            .filter(b => isSameDay(new Date(b.date), day))
+                                            .map(booking => {
+                                                const { top, height, className } = getBookingStyle(booking);
+                                                return (
+                                                    <div 
+                                                        key={booking.id}
+                                                        style={{ top, height }}
+                                                        className={className}
+                                                        onClick={() => { setBookingToEdit(booking); setFormOpen(true) }}
+                                                    >
+                                                        <p className="font-bold truncate">{booking.patientName}</p>
+                                                        <p className="truncate text-white/80">{booking.surgeryType}</p>
+                                                        <div className="flex items-center gap-1 opacity-80 mt-1">
+                                                            <Clock className="h-3 w-3" />
+                                                            <span>{booking.duration} min</span>
+                                                        </div>
                                                     </div>
-                                                </div>
-                                            );
-                                    })}
+                                                );
+                                        })}
+                                    </div>
                                 </div>
-                            </div>
-                        ))}
-                    </div>
-                </ScrollArea>
+                            ))}
+                        </div>
+                    </ScrollArea>
+                </div>
             </div>
             
              <TooltipProvider>
