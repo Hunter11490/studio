@@ -276,6 +276,7 @@ export const translations: Translations = {
       reception: 'Reception',
       emergency: 'Emergency',
       icu: 'ICU',
+      wards: 'Inpatient Wards',
       surgicalOperations: 'Surgical Operations',
       pharmacy: 'Pharmacy',
       laboratories: 'Laboratories',
@@ -457,6 +458,10 @@ export const translations: Translations = {
       pharmacyBillDesc: 'bought medicine.',
       paymentMadeDesc: '{patientName} paid {amount} IQD.',
       referralUpdateDesc: '{doctorName} now has {count} referrals.',
+      patientAdmitted: 'Patient Admitted to Ward',
+      patientAdmittedDesc: '{patientName} was admitted to Floor {floor}, Room {room}.',
+      dailyCharge: 'Daily Inpatient Charge',
+      dailyChargeDesc: 'Daily charge of {amount} IQD added for {patientName}.'
     },
     accounts: {
         patientBalances: "Patient Balances",
@@ -547,6 +552,17 @@ export const translations: Translations = {
       moveToProgress: "Move to In Progress",
       moveToCompleted: "Move to Completed",
       moveToNew: "Return to New"
+    },
+    wards: {
+      title: "Inpatient Wards",
+      selectFloor: "Select Floor",
+      floor: "Floor",
+      room: "Room",
+      vacant: "Vacant",
+      occupiedBy: "Occupied by",
+      patientDetails: "Patient Details",
+      admitted: "Admitted",
+      attendingDoctor: "Attending Doctor"
     }
   },
   ar: {
@@ -824,6 +840,7 @@ export const translations: Translations = {
       reception: 'الاستعلامات',
       emergency: 'الطوارئ',
       icu: 'العناية المركزة',
+      wards: 'غرف الرقود',
       surgicalOperations: 'العمليات الجراحية',
       pharmacy: 'الصيدلية',
       laboratories: 'المختبرات',
@@ -1005,6 +1022,10 @@ export const translations: Translations = {
       pharmacyBillDesc: 'اشترى دواء',
       paymentMadeDesc: '{patientName} دفع مبلغ {amount} دينار.',
       referralUpdateDesc: '{doctorName} لديه الآن {count} إحالات.',
+      patientAdmitted: 'تم إدخال مريض إلى الردهة',
+      patientAdmittedDesc: 'تم إدخال {patientName} إلى الطابق {floor}، غرفة {room}.',
+      dailyCharge: 'تكلفة الإقامة اليومية',
+      dailyChargeDesc: 'تمت إضافة تكلفة يومية بقيمة {amount} دينار للمريض {patientName}.'
     },
     accounts: {
         patientBalances: "أرصدة المرضى",
@@ -1095,6 +1116,17 @@ export const translations: Translations = {
       moveToProgress: "نقل إلى قيد التنفيذ",
       moveToCompleted: "نقل إلى مكتملة",
       moveToNew: "إرجاع إلى جديد"
+    },
+    wards: {
+      title: "ردهات الرقود",
+      selectFloor: "اختر الطابق",
+      floor: "الطابق",
+      room: "غرفة",
+      vacant: "شاغرة",
+      occupiedBy: "مشغولة بواسطة",
+      patientDetails: "تفاصيل المريض",
+      admitted: "تاريخ الدخول",
+      attendingDoctor: "الطبيب المشرف"
     }
   },
 };

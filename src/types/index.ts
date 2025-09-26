@@ -25,7 +25,7 @@ export type Doctor = {
 
 export type FinancialRecord = {
   id: string;
-  type: 'lab' | 'pharmacy' | 'surgery' | 'payment' | 'consultation';
+  type: 'lab' | 'pharmacy' | 'surgery' | 'payment' | 'consultation' | 'inpatient';
   description: string;
   amount: number; // Can be positive (charges) or negative (payments)
   date: string; // ISO date string
@@ -67,6 +67,11 @@ export type Patient = {
   triageLevel?: TriageLevel;
   status?: 'Waiting' | 'In Treatment' | 'Observation' | 'Admitted' | 'Discharged';
   vitalSigns?: VitalSigns;
+  
+  // New fields for inpatient wards
+  floor?: number;
+  room?: number;
+  admittedAt?: string; // ISO date string
 };
 
 export type DoctorInfo = {
@@ -122,3 +127,21 @@ export type AppNotification = {
   createdAt: string;
   isRead: boolean;
 };
+
+export type ServiceRequest = {
+  id: string;
+  type: 'maintenance' | 'cleaning' | 'catering';
+  description: string;
+  department: string;
+  status: 'new' | 'in-progress' | 'completed';
+  createdAt: string;
+}
+
+export type InstrumentSet = {
+    id: string;
+    name: string;
+    department: string;
+    status: 'cleaning' | 'packaging' | 'sterilizing' | 'storage';
+    cycleStartTime: number;
+    cycleDuration: number; // in seconds
+}

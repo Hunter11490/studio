@@ -35,7 +35,8 @@ import {
   Loader2,
   Zap,
   Maximize,
-  Minimize
+  Minimize,
+  Hotel
 } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { useLanguage } from '@/hooks/use-language';
@@ -58,7 +59,7 @@ import { NotificationsButton } from '@/components/notifications-button';
 const mainDepts = [
   {
     name: 'reception',
-    icon: BookUser, // Changed from PersonStanding
+    icon: BookUser,
     href: '/dashboard/reception',
   },
   {
@@ -70,6 +71,11 @@ const mainDepts = [
     name: 'icu',
     icon: BedDouble,
     href: '/dashboard/icu',
+  },
+  {
+    name: 'wards',
+    icon: Hotel,
+    href: '/dashboard/wards',
   },
   {
     name: 'surgicalOperations',
@@ -217,7 +223,7 @@ export default function HospitalDashboardPage() {
       </header>
 
       <div className="p-4">
-        <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-8 gap-2">
+        <div className="grid grid-cols-3 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-9 gap-2">
           {mainDepts.map(getDepartmentNode)}
         </div>
         
@@ -289,11 +295,11 @@ export default function HospitalDashboardPage() {
                               'bg-[#f0e8f9] border border-[#c4a8f4]': themeName === 'amethyst',
                               'bg-[#fbe8e8] border border-[#f4a8a8]': themeName === 'ruby',
                               'bg-[#fef8e2] border border-[#f4d4a8]': themeName === 'citrine',
-                              'bg-[#f5f2ff] border border-[#d6c9ff]': themeName === 'lavender',
-                              'bg-[#f0fff8] border border-[#a6f4d0]': themeName === 'mint',
-                              'bg-[#eff8ff] border border-[#a7d7ff]': themeName === 'ocean',
-                              'bg-[#fff4f2] border border-[#ffcbbd]': themeName === 'sunset',
-                              'bg-[#fffaf2] border border-[#ffe1b5]': themeName === 'sandstone',
+                              'bg-lavender-200 border border-lavender-400': themeName === 'lavender',
+                              'bg-mint-200 border border-mint-400': themeName === 'mint',
+                              'bg-ocean-200 border border-ocean-400': themeName === 'ocean',
+                              'bg-sunset-200 border border-sunset-400': themeName === 'sunset',
+                              'bg-sandstone-200 border border-sandstone-400': themeName === 'sandstone',
                               'border': themeName === 'system'
                             }
                           )}>

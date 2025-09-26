@@ -24,7 +24,7 @@ import { useLocalStorage } from '@/hooks/use-local-storage';
 
 
 const departments = [
-  'reception', 'emergency', 'icu', 'surgicalOperations', 'pharmacy', 'laboratories', 'radiology', 'nursing', 'internalMedicine', 'generalSurgery', 'obGyn', 'pediatrics', 'orthopedics', 'urology', 'ent', 'ophthalmology', 'dermatology', 'cardiology', 'neurology', 'oncology', 'nephrology', 'bloodBank', 'accounts', 'medicalRecords', 'sterilization', 'services', 'representatives', 'admin'
+  'reception', 'emergency', 'icu', 'wards', 'surgicalOperations', 'pharmacy', 'laboratories', 'radiology', 'nursing', 'internalMedicine', 'generalSurgery', 'obGyn', 'pediatrics', 'orthopedics', 'urology', 'ent', 'ophthalmology', 'dermatology', 'cardiology', 'neurology', 'oncology', 'nephrology', 'bloodBank', 'accounts', 'medicalRecords', 'sterilization', 'services', 'representatives', 'admin'
 ];
 
 const formSchema = z.object({
