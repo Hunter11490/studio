@@ -12,7 +12,7 @@ export type PatientContextType = {
   patients: Patient[];
   addPatient: (patient: Omit<Patient, 'id' | 'createdAt'>, initialRecord?: Omit<FinancialRecord, 'id' | 'date'>) => void;
   updatePatient: (id: string, updates: Partial<Omit<Patient, 'id'>>) => void;
-  addFinancialRecord: (patientId: string, record: Omit<FinancialRecord, 'id'>) => void;
+  addFinancialRecord: (patientId: string, record: Omit<FinancialRecord, 'id' | 'date'>) => void;
 };
 
 export const PatientContext = createContext<PatientContextType | null>(null);
@@ -22,7 +22,7 @@ export function PatientProvider({ children }: { children: React.ReactNode }) {
   
   const [patients, setPatients] = useState<Patient[]>(initialPatients);
 
-  const addFinancialRecord = useCallback((patientId: string, record: Omit<FinancialRecord, 'id'>) => {
+  const addFinancialRecord = useCallback((patientId: string, record: Omit<FinancialRecord, 'id' | 'date'>) => {
     const newRecord: FinancialRecord = {
       ...record,
       id: new Date().toISOString() + Math.random(),
@@ -40,21 +40,23 @@ export function PatientProvider({ children }: { children: React.ReactNode }) {
 
 
   const addPatient = useCallback((patientData: Omit<Patient, 'id' | 'createdAt'>, initialRecord?: Omit<FinancialRecord, 'id' | 'date'>) => {
-    const financialRecords: FinancialRecord[] = [];
-    if(initialRecord) {
-        financialRecords.push({
-            ...initialRecord,
-            id: new Date().toISOString() + Math.random() + '_initial',
-            date: new Date().toISOString()
-        })
-    }
-
     const newPatient: Patient = {
       ...patientData,
       id: new Date().toISOString() + Math.random(),
       createdAt: new Date().toISOString(),
-      financialRecords,
+      financialRecords: [],
     };
+
+    if(initialRecord) {
+       const newRecord: FinancialRecord = {
+            ...initialRecord,
+            id: new Date().toISOString() + Math.random() + '_initial',
+            date: new Date().toISOString()
+        }
+        newPatient.financialRecords!.push(newRecord);
+    }
+
+
     setPatients(prev => [newPatient, ...prev]);
 
     // If a doctor is assigned, update their referral count

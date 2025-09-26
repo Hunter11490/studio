@@ -58,7 +58,7 @@ const calculateBalance = (records: FinancialRecord[] = []) => {
     return records.reduce((acc, record) => acc + record.amount, 0);
 };
 
-function PatientFinancialDialog({ patient, onOpenChange }: { patient: Patient | null; onOpenChange: () => void; }) {
+function PatientHistoryDialog({ patient, onOpenChange }: { patient: Patient | null; onOpenChange: () => void; }) {
     const { t, lang } = useLanguage();
     
     if (!patient) return null;
@@ -203,7 +203,7 @@ export default function WardsPage() {
                 </Card>
             </main>
             
-            <PatientFinancialDialog patient={selectedPatient} onOpenChange={() => setSelectedPatient(null)} />
+            <PatientHistoryDialog patient={selectedPatient} onOpenChange={() => setSelectedPatient(null)} />
             
             <InpatientAdmissionDialog
               open={isFormOpen} 

@@ -579,6 +579,9 @@ export const translations: Translations = {
       admitPatient: 'Admit Patient',
       admissionSuccessTitle: 'Patient Admitted',
       admissionSuccessDesc: '{patientName} has been admitted to floor {floor}, room {room}.',
+      selectPatientForRoom: 'Select a patient to admit into room {room}.',
+      selectPatientPlaceholder: 'Select an available patient',
+      noAvailablePatients: 'No patients available for admission.',
     }
   },
   ar: {
@@ -1153,6 +1156,9 @@ export const translations: Translations = {
       admitPatient: 'إدخال المريض',
       admissionSuccessTitle: 'تم إدخال المريض',
       admissionSuccessDesc: 'تم إدخال {patientName} إلى الطابق {floor}، غرفة رقم {room}.',
+      selectPatientForRoom: 'اختر مريضًا لإدخاله إلى الغرفة رقم {room}.',
+      selectPatientPlaceholder: 'اختر مريضاً متاحاً',
+      noAvailablePatients: 'لا يوجد مرضى متاحون للإدخال.',
     }
   },
 };

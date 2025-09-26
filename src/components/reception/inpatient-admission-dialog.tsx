@@ -9,28 +9,14 @@ import { usePatients } from '@/hooks/use-patients';
 import { useToast } from '@/hooks/use-toast';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { UserPlus, Send } from 'lucide-react';
-import { IRAQI_GOVERNORATES } from '@/lib/constants';
-import { differenceInYears, isValid, parse } from 'date-fns';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { FinancialRecord } from '@/types';
+import { FinancialRecord, Patient } from '@/types';
+import { ScrollArea } from '../ui/scroll-area';
 
 const formSchema = z.object({
-  patientName: z.string().min(1, { message: 'reception.validation.patientNameRequired' }),
-  dob: z.object({
-    day: z.string().min(1, { message: 'reception.validation.dayRequired' }),
-    month: z.string().min(1, { message: 'reception.validation.monthRequired' }),
-    year: z.string().min(1, { message: 'reception.validation.yearRequired' }),
-  }),
-  address: z.object({
-    governorate: z.string().min(1, { message: 'reception.validation.governorateRequired' }),
-    region: z.string().min(1, { message: 'reception.validation.regionRequired' }),
-    mahalla: z.string().min(1, { message: 'reception.validation.mahallaRequired' }),
-    zuqaq: z.string().min(1, { message: 'reception.validation.zuqaqRequired' }),
-    dar: z.string().min(1, { message: 'reception.validation.darRequired' }),
-  }),
+  patientId: z.string().min(1, { message: 'reception.validation.patientNameRequired' }),
   floor: z.number(),
   room: z.number(),
 });
@@ -43,154 +29,108 @@ type InpatientAdmissionDialogProps = {
 
 export function InpatientAdmissionDialog({ open, onOpenChange, prefilledRoom }: InpatientAdmissionDialogProps) {
   const { t, dir } = useLanguage();
-  const { addPatient } = usePatients();
+  const { patients, updatePatient, addFinancialRecord } = usePatients();
   const { toast } = useToast();
-  const [calculatedAge, setCalculatedAge] = useState<number | null>(null);
-
-  const getTodayDateString = () => {
-    const today = new Date();
-    const year = today.getFullYear();
-    const month = String(today.getMonth() + 1).padStart(2, '0');
-    const day = String(today.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
-  };
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      patientName: '',
-      dob: { day: '', month: '', year: '' },
-      address: { governorate: '', region: '', mahalla: '', zuqaq: '', dar: '' },
+      patientId: '',
       floor: 1,
       room: 1,
     },
   });
 
+  const availablePatients = useMemo(() => {
+    return patients.filter(p => !p.floor && !p.room && p.status !== 'Discharged');
+  }, [patients]);
+
   useEffect(() => {
     if (open && prefilledRoom) {
       form.reset({
-        patientName: '',
-        dob: { day: '', month: '', year: '' },
-        address: { governorate: 'بغداد', region: '', mahalla: '', zuqaq: '', dar: '' },
+        patientId: '',
         floor: prefilledRoom.floor,
         room: prefilledRoom.room,
       });
     }
   }, [prefilledRoom, open, form]);
-
-  const dob = form.watch('dob');
-  useEffect(() => {
-    const { day, month, year } = dob;
-    if (day && month && year && year.length === 4) {
-      const date = parse(`${year}-${month}-${day}`, 'yyyy-MM-dd', new Date());
-      if (isValid(date)) {
-        setCalculatedAge(differenceInYears(new Date(), date));
-      } else {
-        setCalculatedAge(null);
-      }
-    } else {
-      setCalculatedAge(null);
-    }
-  }, [dob]);
   
   useEffect(() => {
     if (!open) {
       form.reset();
-      setCalculatedAge(null);
     }
   }, [open, form]);
 
   const onSubmit = (values: z.infer<typeof formSchema>) => {
-    const initialRecord: Omit<FinancialRecord, 'id' | 'date'> = {
+    const { patientId, floor, room } = values;
+
+    // Update patient record with floor and room
+    updatePatient(patientId, {
+      floor,
+      room,
+      admittedAt: new Date().toISOString(),
+      status: 'Admitted',
+      department: 'wards'
+    });
+    
+    // Add admission fee to financial records
+    addFinancialRecord(patientId, {
         type: 'inpatient',
         description: t('wards.admissionFee'),
-        amount: 150000 // Example admission fee
-    };
+        amount: 150000, // Example admission fee
+        date: new Date().toISOString()
+    });
+    
+    const patient = patients.find(p => p.id === patientId);
 
-    const patientData = { 
-        ...values, 
-        receptionDate: getTodayDateString(),
-        department: 'wards'
-    };
-
-    addPatient(patientData, initialRecord);
     toast({
       title: t('wards.admissionSuccessTitle'),
-      description: t('wards.admissionSuccessDesc', { patientName: values.patientName, floor: values.floor, room: values.room }),
+      description: t('wards.admissionSuccessDesc', { patientName: patient?.patientName || 'Patient', floor: values.floor, room: values.floor * 100 + values.room }),
     });
     onOpenChange(false);
   };
 
   return (
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="sm:max-w-lg flex flex-col h-full sm:h-auto" dir={dir}>
+        <DialogContent className="sm:max-w-md" dir={dir}>
           <DialogHeader>
             <DialogTitle>{t('wards.directAdmissionTitle')}</DialogTitle>
-            <DialogDescription>{t('wards.directAdmissionDesc', { room: prefilledRoom ? (prefilledRoom.floor * 100 + prefilledRoom.room) : '' })}</DialogDescription>
+            <DialogDescription>{t('wards.selectPatientForRoom', { room: prefilledRoom ? (prefilledRoom.floor * 100 + prefilledRoom.room) : '' })}</DialogDescription>
           </DialogHeader>
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col flex-grow min-h-0">
-             <ScrollArea className="flex-grow pr-6 -mr-6">
-              <div className="space-y-6 py-4">
-                <FormField
-                    control={form.control}
-                    name="patientName"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>{t('reception.patientName')}</FormLabel>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 py-4">
+              <FormField
+                control={form.control}
+                name="patientId"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t('reception.patientName')}</FormLabel>
+                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                         <FormControl>
-                          <Input placeholder={t('reception.patientNamePlaceholder')} {...field} />
+                          <SelectTrigger>
+                            <SelectValue placeholder={t('wards.selectPatientPlaceholder')} />
+                          </SelectTrigger>
                         </FormControl>
-                        <FormMessage>{t(form.formState.errors.patientName?.message || '')}</FormMessage>
-                      </FormItem>
-                    )}
-                  />
+                        <SelectContent>
+                            {availablePatients.length > 0 ? (
+                                availablePatients.map(p => (
+                                    <SelectItem key={p.id} value={p.id}>{p.patientName}</SelectItem>
+                                ))
+                            ) : (
+                                <div className="p-4 text-center text-sm text-muted-foreground">{t('wards.noAvailablePatients')}</div>
+                            )}
+                        </SelectContent>
+                      </Select>
+                    <FormMessage>{t(form.formState.errors.patientId?.message || '')}</FormMessage>
+                  </FormItem>
+                )}
+              />
 
-                <div className="space-y-2">
-                  <FormLabel>{t('reception.dob')}</FormLabel>
-                  <div className="grid grid-cols-3 md:grid-cols-4 gap-2 items-start">
-                    <FormField
-                      control={form.control}
-                      name="dob.day"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormControl><Input placeholder={t('reception.day')} {...field} /></FormControl>
-                          <FormMessage>{t(form.formState.errors.dob?.day?.message || '')}</FormMessage>
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="dob.month"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormControl><Input placeholder={t('reception.month')} {...field} /></FormControl>
-                          <FormMessage>{t(form.formState.errors.dob?.month?.message || '')}</FormMessage>
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="dob.year"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormControl><Input placeholder={t('reception.year')} {...field} /></FormControl>
-                          <FormMessage>{t(form.formState.errors.dob?.year?.message || '')}</FormMessage>
-                        </FormItem>
-                      )}
-                    />
-                    <div className="flex items-center h-10 px-3 rounded-md border bg-muted">
-                      <span className="text-sm font-medium text-muted-foreground">{t('reception.age')}: {calculatedAge !== null ? `${calculatedAge} ${t('reception.years')}`: '...'}</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-             </ScrollArea>
               <DialogFooter className="mt-4 pt-4 border-t">
                 <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
                   {t('doctorForm.cancel')}
                 </Button>
-                <Button type="submit">
+                <Button type="submit" disabled={!form.watch('patientId')}>
                   <Send className="mr-2 h-4 w-4" />
                   {t('wards.admitPatient')}
                 </Button>
