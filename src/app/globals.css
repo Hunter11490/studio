@@ -284,6 +284,86 @@
     --input: 270 30% 20%;
     --ring: 265 80% 68%;
   }
+
+  .ruby {
+    --background: 0 20% 96%;
+    --foreground: 0 40% 10%;
+    --card: 0 30% 99%;
+    --card-foreground: 0 40% 10%;
+    --popover: 0 20% 96%;
+    --popover-foreground: 0 40% 10%;
+    --primary: 0 85% 60%;
+    --primary-foreground: 0 85% 98%;
+    --secondary: 0 50% 92%;
+    --secondary-foreground: 0 85% 30%;
+    --muted: 0 50% 92%;
+    --muted-foreground: 0 20% 50%;
+    --accent: 240 70% 65%;
+    --accent-foreground: 240 70% 98%;
+    --border: 0 40% 88%;
+    --input: 0 40% 88%;
+    --ring: 0 85% 60%;
+  }
+
+  .dark.ruby {
+    --background: 0 40% 8%;
+    --foreground: 0 20% 94%;
+    --card: 0 40% 12%;
+    --card-foreground: 0 20% 94%;
+    --popover: 0 40% 8%;
+    --popover-foreground: 0 20% 94%;
+    --primary: 0 80% 68%;
+    --primary-foreground: 0 80% 8%;
+    --secondary: 0 30% 20%;
+    --secondary-foreground: 0 20% 94%;
+    --muted: 0 30% 20%;
+    --muted-foreground: 0 20% 70%;
+    --accent: 240 75% 70%;
+    --accent-foreground: 240 75% 98%;
+    --border: 0 30% 20%;
+    --input: 0 30% 20%;
+    --ring: 0 80% 68%;
+  }
+
+  .citrine {
+    --background: 40 50% 95%;
+    --foreground: 45 40% 10%;
+    --card: 40 60% 98%;
+    --card-foreground: 45 40% 10%;
+    --popover: 40 50% 95%;
+    --popover-foreground: 45 40% 10%;
+    --primary: 45 90% 55%;
+    --primary-foreground: 45 90% 5%;
+    --secondary: 40 60% 90%;
+    --secondary-foreground: 45 90% 30%;
+    --muted: 40 60% 90%;
+    --muted-foreground: 45 25% 50%;
+    --accent: 200 80% 55%;
+    --accent-foreground: 200 80% 98%;
+    --border: 40 50% 85%;
+    --input: 40 50% 85%;
+    --ring: 45 90% 55%;
+  }
+
+  .dark.citrine {
+    --background: 40 20% 8%;
+    --foreground: 40 50% 94%;
+    --card: 40 20% 12%;
+    --card-foreground: 40 50% 94%;
+    --popover: 40 20% 8%;
+    --popover-foreground: 40 50% 94%;
+    --primary: 45 90% 60%;
+    --primary-foreground: 45 90% 5%;
+    --secondary: 40 25% 20%;
+    --secondary-foreground: 40 50% 94%;
+    --muted: 40 25% 20%;
+    --muted-foreground: 40 20% 70%;
+    --accent: 200 80% 60%;
+    --accent-foreground: 200 80% 5%;
+    --border: 40 25% 20%;
+    --input: 40 25% 20%;
+    --ring: 45 90% 60%;
+  }
 }
 
 
@@ -310,10 +390,10 @@
      background-image: linear-gradient(to bottom right, hsl(var(--background)), hsl(var(--primary) / 0.1));
   }
   
-  html.brown body, html.blue body, html.emerald body, html.amethyst body {
+  html.brown body, html.blue body, html.emerald body, html.amethyst body, html.ruby body, html.citrine body {
     background-image: linear-gradient(to bottom right, hsl(var(--background)), hsl(var(--primary) / 0.07));
   }
-   html.dark.brown body, html.dark.blue body, html.dark.emerald body, html.dark.amethyst body {
+   html.dark.brown body, html.dark.blue body, html.dark.emerald body, html.dark.amethyst body, html.dark.ruby body, html.dark.citrine body {
     background-image: linear-gradient(to bottom right, hsl(var(--background)), hsl(var(--primary) / 0.1));
   }
 }

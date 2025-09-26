@@ -263,8 +263,8 @@ export default function HospitalDashboardPage() {
                 <CardTitle className="flex items-center gap-2 text-base"><Palette /> {t('userMenu.toggleTheme')}</CardTitle>
             </CardHeader>
             <CardContent>
-                 <div className="grid grid-cols-4 gap-2">
-                  {(['light', 'dark', 'pink', 'blue', 'brown', 'emerald', 'amethyst', 'system'] as const).map((themeName) => {
+                 <div className="grid grid-cols-5 gap-2">
+                  {(['light', 'dark', 'pink', 'blue', 'brown', 'emerald', 'amethyst', 'ruby', 'citrine', 'system'] as const).map((themeName) => {
                     const isActive = theme === themeName;
                     return (
                       <Button
@@ -287,6 +287,8 @@ export default function HospitalDashboardPage() {
                               'bg-[#f5f0e8] border border-[#c4a884]': themeName === 'brown',
                               'bg-[#e8f9f0] border border-[#84c4a8]': themeName === 'emerald',
                               'bg-[#f0e8f9] border border-[#c4a8f4]': themeName === 'amethyst',
+                              'bg-[#fbe8e8] border border-[#f4a8a8]': themeName === 'ruby',
+                              'bg-[#fef8e2] border border-[#f4d4a8]': themeName === 'citrine',
                               'border': themeName === 'system'
                             }
                           )}>
