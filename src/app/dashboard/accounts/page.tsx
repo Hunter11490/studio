@@ -21,8 +21,6 @@ import { translations } from '@/lib/localization';
 import { NotificationsButton } from '@/components/notifications-button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useReactToPrint } from 'react-to-print';
-import { generateInvoiceHtml, InvoiceHtmlInput } from '@/ai/flows/invoice-flow';
-import { AILoader } from '@/components/ai/ai-loader';
 
 const calculateBalance = (records: FinancialRecord[] = []) => {
     return records.reduce((acc, record) => acc + record.amount, 0);
@@ -157,69 +155,116 @@ export default function AccountsPage() {
     );
 }
 
+const PrintableInvoice = React.forwardRef<HTMLDivElement, { patient: Patient, labels: Record<string,string> }>(({ patient, labels }, ref) => {
+    const totalCharges = (patient.financialRecords || []).filter(r => r.amount > 0).reduce((acc, r) => acc + r.amount, 0);
+    const totalPayments = (patient.financialRecords || []).filter(r => r.amount < 0).reduce((acc, r) => acc + Math.abs(r.amount), 0);
+    const balanceDue = totalCharges - totalPayments;
+
+    return (
+        <div ref={ref} className="p-8 font-sans text-sm text-black bg-white">
+            <div className="flex justify-between items-start pb-4 border-b">
+                <div className="flex items-center gap-4">
+                     <Logo className="h-16 w-16 text-black" />
+                    <div>
+                        <h1 className="text-2xl font-bold">{labels.hospitalName}</h1>
+                        <p className="text-gray-500">{labels.appSubtitle}</p>
+                    </div>
+                </div>
+                <div className="text-right">
+                    <h2 className="text-2xl font-bold uppercase">{labels.invoiceTitle}</h2>
+                    <p className="text-gray-500">{labels.invoiceDate}: {format(new Date(), 'PPP')}</p>
+                </div>
+            </div>
+
+            <div className="flex justify-between mt-8">
+                <div>
+                    <p className="font-bold">{labels.patientName}</p>
+                    <p>{patient.patientName}</p>
+                    <p>{patient.address?.governorate}, {patient.address?.region}</p>
+                </div>
+                <div className="text-right">
+                    <p className="font-bold">{labels.patientId}</p>
+                    <p>{patient.id.slice(-10)}</p>
+                </div>
+            </div>
+            
+            <div className="mt-8">
+                <table className="w-full text-left">
+                    <thead>
+                        <tr className="bg-gray-100">
+                            <th className="p-2">{labels.date}</th>
+                            <th className="p-2">{labels.itemDescription}</th>
+                            <th className="p-2 text-right">{labels.amount} ({labels.iqd})</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {(patient.financialRecords || []).map(record => (
+                            <tr key={record.id} className="border-b">
+                                <td className="p-2">{format(new Date(record.date), 'yyyy-MM-dd')}</td>
+                                <td className="p-2">{record.description}</td>
+                                <td className="p-2 text-right font-mono">{record.amount.toLocaleString()}</td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
+
+            <div className="flex justify-end mt-8">
+                <div className="w-1/2">
+                    <div className="flex justify-between p-2 bg-gray-100">
+                        <span className="font-bold">{labels.totalCharges}</span>
+                        <span className="font-mono">{totalCharges.toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between p-2">
+                        <span className="font-bold">{labels.totalPayments}</span>
+                        <span className="font-mono">{totalPayments.toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between p-2 bg-gray-200 font-bold text-lg">
+                        <span>{labels.balanceDue}</span>
+                        <span className="font-mono">{balanceDue.toLocaleString()}</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div className="mt-16 pt-4 border-t text-center text-xs text-gray-500">
+                <p>{labels.footerNotes}</p>
+            </div>
+        </div>
+    );
+});
+PrintableInvoice.displayName = 'PrintableInvoice';
+
+
 function PatientInvoiceDialog({ patient, onOpenChange, onAddPayment }: { patient: Patient | null; onOpenChange: (open:boolean) => void; onAddPayment: (patientId: string, amount: number) => void; }) {
     const { t, lang } = useLanguage();
     const [paymentAmount, setPaymentAmount] = useState('');
-    const [isExporting, setIsExporting] = useState(false);
-    const [invoiceHtml, setInvoiceHtml] = useState<string | null>(null);
+    const invoiceRef = useRef<HTMLDivElement>(null);
+    const [isPrinting, setIsPrinting] = useState(false);
 
     const handlePrint = useReactToPrint({
-        content: () => {
-            const printElement = document.getElementById('printable-invoice');
-            return printElement;
-        },
+        content: () => invoiceRef.current,
         documentTitle: `Invoice-${patient?.patientName}-${new Date().toISOString().split('T')[0]}`,
-        onAfterPrint: () => setInvoiceHtml(null) // Clean up after printing
+        onBeforeGetContent: () => setIsPrinting(true),
+        onAfterPrint: () => setIsPrinting(false),
     });
 
-    const handleExport = async () => {
-        if (!patient) return;
-        setIsExporting(true);
-        setInvoiceHtml(null);
-
-        const input: InvoiceHtmlInput = {
-          patientName: patient.patientName,
-          patientId: patient.id,
-          records: patient.financialRecords || [],
-          hospitalName: t('appName'),
-          hospitalLogoUrl: 'https://raw.githubusercontent.com/aaldah/my-iraqi-doctors/main/public/logo.svg', // Placeholder
-          lang: lang,
-          labels: {
-            invoiceTitle: t('accounts.invoiceTitle'),
-            patientName: t('reception.patientName'),
-            patientId: t('accounts.patientId'),
-            invoiceDate: t('accounts.invoiceDate'),
-            totalCharges: t('accounts.totalCharges'),
-            totalPayments: t('accounts.totalPayments'),
-            balanceDue: t('accounts.balanceDue'),
-            itemDescription: t('accounts.itemDescription'),
-            date: t('accounts.date'),
-            amount: t('accounts.amount'),
-            iqd: t('lab.iqd'),
-            summary: t('accounts.summary'),
-            footerNotes: t('accounts.footerNotes'),
-          }
-        };
-
-        try {
-            const result = await generateInvoiceHtml(input);
-            setInvoiceHtml(result.html);
-        } catch (error) {
-            console.error("Failed to generate invoice HTML", error);
-        } finally {
-            setIsExporting(false);
-        }
+    const labels = {
+        invoiceTitle: t('accounts.invoiceTitle'),
+        patientName: t('reception.patientName'),
+        patientId: t('accounts.patientId'),
+        invoiceDate: t('accounts.invoiceDate'),
+        totalCharges: t('accounts.totalCharges'),
+        totalPayments: t('accounts.totalPayments'),
+        balanceDue: t('accounts.balanceDue'),
+        itemDescription: t('accounts.itemDescription'),
+        date: t('accounts.date'),
+        amount: t('accounts.amount'),
+        iqd: t('lab.iqd'),
+        summary: t('accounts.summary'),
+        footerNotes: t('accounts.footerNotes'),
+        hospitalName: t('appName'),
+        appSubtitle: t('appSubtitle'),
     };
-    
-    useEffect(() => {
-        if (invoiceHtml) {
-            // Use a timeout to allow the DOM to update before printing
-            setTimeout(() => {
-                handlePrint();
-            }, 300);
-        }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [invoiceHtml]);
     
     if (!patient) return null;
 
@@ -282,8 +327,8 @@ function PatientInvoiceDialog({ patient, onOpenChange, onAddPayment }: { patient
                                 </Button>
                             </div>
                         </div>
-                        <Button onClick={handleExport} disabled={isExporting} className="w-full" variant="outline">
-                            {isExporting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <FileDown className="mr-2 h-4 w-4" />}
+                        <Button onClick={handlePrint} disabled={isPrinting} className="w-full" variant="outline">
+                            {isPrinting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <FileDown className="mr-2 h-4 w-4" />}
                             {t('accounts.exportPdf')}
                         </Button>
                     </DialogFooter>
@@ -292,10 +337,7 @@ function PatientInvoiceDialog({ patient, onOpenChange, onAddPayment }: { patient
 
             {/* Hidden printable component */}
              <div className="hidden">
-                 <div id="printable-invoice">
-                    {isExporting && <AILoader text={t('accounts.generatingInvoice')} />}
-                    {invoiceHtml && <div dangerouslySetInnerHTML={{ __html: invoiceHtml }} />}
-                 </div>
+                {patient && <PrintableInvoice ref={invoiceRef} patient={patient} labels={labels} />}
             </div>
         </>
     );
@@ -316,7 +358,7 @@ Object.assign(translations.en, {
         paymentAmount: "Payment Amount",
         paymentReceived: "Payment Received",
         exportPdf: "Export as PDF",
-        generatingInvoice: "AI is generating the invoice...",
+        generatingInvoice: "Generating the invoice...",
         invoiceTitle: "Patient Invoice",
         patientId: "Patient ID",
         invoiceDate: "Invoice Date",
@@ -345,7 +387,7 @@ Object.assign(translations.ar, {
         paymentAmount: "مبلغ الدفعة",
         paymentReceived: "دفعة مستلمة",
         exportPdf: "تصدير كملف PDF",
-        generatingInvoice: "الذكاء الاصطناعي يقوم بإعداد الفاتورة...",
+        generatingInvoice: "جاري إعداد الفاتورة...",
         invoiceTitle: "فاتورة مريض",
         patientId: "رقم المريض",
         invoiceDate: "تاريخ الفاتورة",
