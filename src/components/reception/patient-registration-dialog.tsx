@@ -47,6 +47,8 @@ const formSchema = z.object({
   department: z.string().min(1, { message: 'reception.validation.departmentRequired' }),
   doctorId: z.string().optional(),
   serviceId: z.string().optional(), // For lab tests, drugs, etc.
+  floor: z.number().optional(),
+  room: z.number().optional(),
 });
 
 type LabTest = { id: string; name: string; price: number; };
@@ -56,9 +58,10 @@ type PatientRegistrationDialogProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   patientToEdit?: Patient;
+  prefilledRoom?: { floor: number; room: number } | null;
 };
 
-export function PatientRegistrationDialog({ open, onOpenChange, patientToEdit }: PatientRegistrationDialogProps) {
+export function PatientRegistrationDialog({ open, onOpenChange, patientToEdit, prefilledRoom }: PatientRegistrationDialogProps) {
   const { t, dir } = useLanguage();
   const { doctors } = useDoctors();
   const { addPatient, updatePatient } = usePatients();
@@ -91,6 +94,8 @@ export function PatientRegistrationDialog({ open, onOpenChange, patientToEdit }:
       department: '',
       doctorId: '',
       serviceId: '',
+      floor: undefined,
+      room: undefined,
     },
   });
   
@@ -105,29 +110,49 @@ export function PatientRegistrationDialog({ open, onOpenChange, patientToEdit }:
 
 
   useEffect(() => {
-    if (patientToEdit) {
-      const dobParts = patientToEdit.dob || { day: '', month: '', year: '' };
-      form.reset({
-        ...patientToEdit,
-        dob: dobParts,
-      });
-      setIdFrontPreview(patientToEdit.idFront || null);
-      setIdBackPreview(patientToEdit.idBack || null);
-    } else {
-      form.reset({
-        patientName: '',
-        dob: { day: '', month: '', year: '' },
-        receptionDate: getTodayDateString(),
-        address: { governorate: '', region: '', mahalla: '', zuqaq: '', dar: '' },
-        idFront: '',
-        idBack: '',
-        department: '',
-        doctorId: '',
-      });
-      setIdFrontPreview(null);
-      setIdBackPreview(null);
+    if (open) {
+        if (patientToEdit) {
+            const dobParts = patientToEdit.dob || { day: '', month: '', year: '' };
+            form.reset({
+                ...patientToEdit,
+                dob: dobParts,
+            });
+            setIdFrontPreview(patientToEdit.idFront || null);
+            setIdBackPreview(patientToEdit.idBack || null);
+        } else if (prefilledRoom) {
+             form.reset({
+                patientName: '',
+                dob: { day: '', month: '', year: '' },
+                receptionDate: getTodayDateString(),
+                address: { governorate: 'بغداد', region: '', mahalla: '', zuqaq: '', dar: '' },
+                idFront: '',
+                idBack: '',
+                department: 'wards',
+                doctorId: '',
+                floor: prefilledRoom.floor,
+                room: prefilledRoom.room,
+            });
+            setIdFrontPreview(null);
+            setIdBackPreview(null);
+        }
+        else {
+            form.reset({
+                patientName: '',
+                dob: { day: '', month: '', year: '' },
+                receptionDate: getTodayDateString(),
+                address: { governorate: '', region: '', mahalla: '', zuqaq: '', dar: '' },
+                idFront: '',
+                idBack: '',
+                department: '',
+                doctorId: '',
+                floor: undefined,
+                room: undefined,
+            });
+            setIdFrontPreview(null);
+            setIdBackPreview(null);
+        }
     }
-  }, [patientToEdit, open, form]);
+  }, [patientToEdit, prefilledRoom, open, form]);
 
 
   const dob = form.watch('dob');
@@ -180,7 +205,14 @@ export function PatientRegistrationDialog({ open, onOpenChange, patientToEdit }:
                 amount: service.price
             }
         }
+    } else if (values.department === 'wards' || prefilledRoom) {
+         initialRecord = {
+            type: 'inpatient',
+            description: t('wards.admissionFee'),
+            amount: 150000 // Example admission fee
+        }
     }
+
 
     const patientData = { ...values };
     delete patientData.serviceId;
@@ -411,7 +443,7 @@ export function PatientRegistrationDialog({ open, onOpenChange, patientToEdit }:
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>{t('reception.assignDepartment')}</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value} dir={dir}>
+                      <Select onValueChange={field.onChange} defaultValue={field.value} dir={dir} disabled={!!prefilledRoom}>
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder={t('reception.assignDepartmentPlaceholder')} />

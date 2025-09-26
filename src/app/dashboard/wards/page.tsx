@@ -4,35 +4,46 @@ import { useState, useMemo } from 'react';
 import { useLanguage } from '@/hooks/use-language';
 import { usePatients } from '@/hooks/use-patients';
 import { useDoctors } from '@/hooks/use-doctors';
-import { Patient } from '@/types';
+import { Patient, FinancialRecord } from '@/types';
 import { UserMenu } from '@/components/layout/user-menu';
 import { Logo } from '@/components/logo';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { Maximize, Minimize, Bed, BedDouble, User, Stethoscope } from 'lucide-react';
+import { Maximize, Minimize, BedDouble, User, Stethoscope, Bed, FileText, X } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { NotificationsButton } from '@/components/notifications-button';
 import { cn } from '@/lib/utils';
 import { format, formatDistanceToNow } from 'date-fns';
 import { ar } from 'date-fns/locale';
+import { PatientRegistrationDialog } from '@/components/reception/patient-registration-dialog';
+import { Badge } from '@/components/ui/badge';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 const TOTAL_FLOORS = 20;
 const ROOMS_PER_FLOOR = 10;
 
-function RoomCard({ floor, room, patient, onSelectPatient }: { floor: number; room: number; patient: Patient | null; onSelectPatient: (p: Patient) => void; }) {
+function RoomCard({ floor, room, patient, onSelectPatient, onAddPatient }: { floor: number; room: number; patient: Patient | null; onSelectPatient: (p: Patient) => void; onAddPatient: (floor: number, room: number) => void; }) {
     const { t } = useLanguage();
     const isOccupied = !!patient;
     const roomNumber = floor * 100 + room;
 
+    const handleClick = () => {
+        if (isOccupied) {
+            onSelectPatient(patient);
+        } else {
+            onAddPatient(floor, room);
+        }
+    };
+
     return (
         <Card
             className={cn(
-                "flex flex-col items-center justify-center p-4 transition-all aspect-square",
-                isOccupied ? "bg-blue-500/10 border-blue-500/30 cursor-pointer hover:shadow-lg" : "bg-green-500/10 border-green-500/30"
+                "flex flex-col items-center justify-center p-4 transition-all aspect-square cursor-pointer",
+                isOccupied ? "bg-blue-500/10 border-blue-500/30 hover:shadow-lg" : "bg-green-500/10 border-green-500/30 hover:bg-green-500/20"
             )}
-            onClick={() => isOccupied && onSelectPatient(patient)}
+            onClick={handleClick}
         >
             <div className="flex flex-col items-center gap-2 text-center">
                 <BedDouble className={cn("h-8 w-8", isOccupied ? "text-blue-500" : "text-green-500")} />
@@ -43,32 +54,55 @@ function RoomCard({ floor, room, patient, onSelectPatient }: { floor: number; ro
     );
 }
 
-function PatientDetailsDialog({ patient, onOpenChange }: { patient: Patient | null; onOpenChange: () => void; }) {
-    const { t, lang } = useLanguage();
-    const { doctors } = useDoctors();
 
+const calculateBalance = (records: FinancialRecord[] = []) => {
+    return records.reduce((acc, record) => acc + record.amount, 0);
+};
+
+function PatientFinancialDialog({ patient, onOpenChange }: { patient: Patient | null; onOpenChange: () => void; }) {
+    const { t, lang } = useLanguage();
+    
     if (!patient) return null;
 
-    const attendingDoctor = patient.doctorId ? doctors.find(d => d.id === patient.doctorId) : null;
-    const roomNumber = patient.floor && patient.room ? patient.floor * 100 + patient.room : 'N/A';
+    const balance = calculateBalance(patient.financialRecords);
 
     return (
         <Dialog open={!!patient} onOpenChange={onOpenChange}>
-            <DialogContent>
+            <DialogContent className="max-w-2xl">
                 <DialogHeader>
-                    <DialogTitle>{t('wards.patientDetails')} - {t('wards.room')} {roomNumber}</DialogTitle>
-                    <DialogDescription>{patient.patientName}</DialogDescription>
+                    <DialogTitle>{t('medicalRecords.patientHistoryFor')} {patient.patientName}</DialogTitle>
+                    <DialogDescription>{t('accounts.invoiceDesc')}</DialogDescription>
                 </DialogHeader>
-                <div className="space-y-4 py-4">
-                    <div className="flex items-center gap-2"><User className="h-4 w-4 text-muted-foreground" /> {patient.patientName}</div>
-                    {attendingDoctor && <div className="flex items-center gap-2"><Stethoscope className="h-4 w-4 text-muted-foreground" /> {attendingDoctor.name}</div>}
-                    {patient.admittedAt && (
-                        <div className="flex items-center gap-2">
-                            <Bed className="h-4 w-4 text-muted-foreground" />
-                            <span>{t('wards.admitted')}: {formatDistanceToNow(new Date(patient.admittedAt), { addSuffix: true, locale: lang === 'ar' ? ar : undefined })}</span>
-                        </div>
-                    )}
-                </div>
+                <ScrollArea className="max-h-[60vh] my-4 pr-4">
+                    <div className="space-y-4">
+                        {(patient.financialRecords || []).map(record => (
+                            <div key={record.id} className="flex justify-between items-center p-2 rounded-md bg-secondary/50">
+                                <div>
+                                    <p className="font-medium">{record.description}</p>
+                                    <p className="text-xs text-muted-foreground">
+                                        {format(new Date(record.date), 'PPP', { locale: lang === 'ar' ? ar : undefined })}
+                                    </p>
+                                </div>
+                                <Badge variant={record.amount >= 0 ? 'destructive' : 'success'} className="font-mono">
+                                    {record.amount.toLocaleString()} {t('lab.iqd')}
+                                </Badge>
+                            </div>
+                        ))}
+                         {(!patient.financialRecords || patient.financialRecords.length === 0) && (
+                            <p className="text-center text-muted-foreground py-8">{t('accounts.noRecords')}</p>
+                        )}
+                    </div>
+                </ScrollArea>
+                <DialogFooter className="flex-col items-start gap-2 border-t pt-4">
+                    <div className="w-full flex justify-between font-bold text-lg">
+                        <span>{t('accounts.totalBalance')}:</span>
+                        <span className="font-mono" dir="ltr">{balance.toLocaleString()} {t('lab.iqd')}</span>
+                    </div>
+                     <Button onClick={() => onOpenChange()} variant="outline" className="w-full">
+                        <X className="mr-2 h-4 w-4" />
+                        {t('common.close')}
+                    </Button>
+                </DialogFooter>
             </DialogContent>
         </Dialog>
     );
@@ -80,6 +114,8 @@ export default function WardsPage() {
     const { patients } = usePatients();
     const [selectedFloor, setSelectedFloor] = useState(1);
     const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
+    const [isFormOpen, setFormOpen] = useState(false);
+    const [prefilledRoom, setPrefilledRoom] = useState<{floor: number, room: number} | null>(null);
     const [isFullscreen, setIsFullscreen] = useState(false);
 
     const handleFullscreenToggle = async () => {
@@ -103,6 +139,11 @@ export default function WardsPage() {
         });
         return map;
     }, [patients]);
+    
+    const handleAddPatientToRoom = (floor: number, room: number) => {
+        setPrefilledRoom({ floor, room });
+        setFormOpen(true);
+    };
 
     return (
         <div className="flex flex-col h-screen">
@@ -155,13 +196,21 @@ export default function WardsPage() {
                                     room={i + 1}
                                     patient={patientsByRoom.get(`${selectedFloor}-${i + 1}`) || null}
                                     onSelectPatient={setSelectedPatient}
+                                    onAddPatient={handleAddPatientToRoom}
                                 />
                             ))}
                         </div>
                     </CardContent>
                 </Card>
             </main>
-            <PatientDetailsDialog patient={selectedPatient} onOpenChange={() => setSelectedPatient(null)} />
+            
+            <PatientFinancialDialog patient={selectedPatient} onOpenChange={() => setSelectedPatient(null)} />
+            
+            <PatientRegistrationDialog 
+              open={isFormOpen} 
+              onOpenChange={setFormOpen} 
+              prefilledRoom={prefilledRoom}
+            />
         </div>
     );
 }
