@@ -20,7 +20,8 @@ import { Label } from '@/components/ui/label';
 import { translations } from '@/lib/localization';
 import { NotificationsButton } from '@/components/notifications-button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { useReactToPrint } from 'react-to-print';
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
 
 const calculateBalance = (records: FinancialRecord[] = []) => {
     return records.reduce((acc, record) => acc + record.amount, 0);
@@ -241,17 +242,41 @@ function PatientInvoiceDialog({ patient, onOpenChange, onAddPayment }: { patient
     const invoiceRef = useRef<HTMLDivElement>(null);
     const [isPrinting, setIsPrinting] = useState(false);
 
-    const handlePrint = useReactToPrint({
-        content: () => invoiceRef.current,
-        documentTitle: `Invoice-${patient?.patientName}-${new Date().toISOString().split('T')[0]}`,
-        onAfterPrint: () => setIsPrinting(false),
-    });
-    
-    const triggerPrint = () => {
-      setIsPrinting(true);
-      handlePrint();
-    }
+    const handleExportPdf = async () => {
+        if (!invoiceRef.current || !patient) return;
+        setIsPrinting(true);
 
+        const canvas = await html2canvas(invoiceRef.current, {
+            scale: 2, // Higher scale for better quality
+        });
+        
+        const imgData = canvas.toDataURL('image/png');
+        
+        // A4 dimensions in mm: 210 x 297
+        const pdf = new jsPDF('p', 'mm', 'a4');
+        const pdfWidth = pdf.internal.pageSize.getWidth();
+        const pdfHeight = pdf.internal.pageSize.getHeight();
+        
+        const canvasWidth = canvas.width;
+        const canvasHeight = canvas.height;
+        const ratio = canvasWidth / canvasHeight;
+        
+        let imgWidth = pdfWidth;
+        let imgHeight = imgWidth / ratio;
+
+        if (imgHeight > pdfHeight) {
+            imgHeight = pdfHeight;
+            imgWidth = imgHeight * ratio;
+        }
+
+        const x = (pdfWidth - imgWidth) / 2;
+        const y = 0; // Start from top
+        
+        pdf.addImage(imgData, 'PNG', x, y, imgWidth, imgHeight);
+        pdf.save(`Invoice-${patient.patientName}-${new Date().toISOString().split('T')[0]}.pdf`);
+        
+        setIsPrinting(false);
+    };
 
     const labels = {
         invoiceTitle: t('accounts.invoiceTitle'),
@@ -332,7 +357,7 @@ function PatientInvoiceDialog({ patient, onOpenChange, onAddPayment }: { patient
                                 </Button>
                             </div>
                         </div>
-                        <Button onClick={triggerPrint} disabled={isPrinting} className="w-full" variant="outline">
+                        <Button onClick={handleExportPdf} disabled={isPrinting} className="w-full" variant="outline">
                             {isPrinting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <FileDown className="mr-2 h-4 w-4" />}
                             {t('accounts.exportPdf')}
                         </Button>
@@ -341,7 +366,7 @@ function PatientInvoiceDialog({ patient, onOpenChange, onAddPayment }: { patient
             </Dialog>
 
             {/* Hidden printable component */}
-             <div className="hidden">
+             <div className="fixed -left-[9999px] top-0">
                 {patient && <PrintableInvoice ref={invoiceRef} patient={patient} labels={labels} />}
             </div>
         </>
