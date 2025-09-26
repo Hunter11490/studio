@@ -193,7 +193,7 @@ export default function HospitalDashboardPage() {
             <Logo className="h-8 w-8 text-primary" />
              <div className="flex flex-col items-start">
                 <h1 className="text-lg font-semibold tracking-tight whitespace-nowrap text-primary animate-glow">{t('appName')}</h1>
-                <p className="text-xs text-muted-foreground">{t('appSubtitle')}</p>
+                <p className="text-sm text-muted-foreground">{t('appSubtitle')}</p>
              </div>
         </div>
         <div className="flex items-center gap-2">
