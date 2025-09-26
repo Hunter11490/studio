@@ -3,21 +3,20 @@
 import { useState, useMemo } from 'react';
 import { useLanguage } from '@/hooks/use-language';
 import { usePatients } from '@/hooks/use-patients';
-import { useDoctors } from '@/hooks/use-doctors';
 import { Patient, FinancialRecord } from '@/types';
 import { UserMenu } from '@/components/layout/user-menu';
 import { Logo } from '@/components/logo';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { Maximize, Minimize, BedDouble, User, Stethoscope, Bed, FileText, X } from 'lucide-react';
+import { Maximize, Minimize, BedDouble, X } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { NotificationsButton } from '@/components/notifications-button';
 import { cn } from '@/lib/utils';
-import { format, formatDistanceToNow } from 'date-fns';
+import { format } from 'date-fns';
 import { ar } from 'date-fns/locale';
-import { PatientRegistrationDialog } from '@/components/reception/patient-registration-dialog';
+import { InpatientAdmissionDialog } from '@/components/reception/inpatient-admission-dialog';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
@@ -206,7 +205,7 @@ export default function WardsPage() {
             
             <PatientFinancialDialog patient={selectedPatient} onOpenChange={() => setSelectedPatient(null)} />
             
-            <PatientRegistrationDialog 
+            <InpatientAdmissionDialog
               open={isFormOpen} 
               onOpenChange={setFormOpen} 
               prefilledRoom={prefilledRoom}

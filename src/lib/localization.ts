@@ -206,6 +206,10 @@ export const translations: Translations = {
         pending: 'Pending',
         active: 'Active',
         deactivated: 'Deactivated',
+        all: "All",
+        admitted: "Admitted",
+        discharged: "Discharged",
+        title: "Status",
       },
       pendingDesc: 'Your account is awaiting approval. Please contact the administrator to activate it.',
       contactAdmin: 'Contact: {phoneNumber}',
@@ -511,7 +515,7 @@ export const translations: Translations = {
     medicalRecords: {
       title: "Medical Records",
       description: "Search and manage the central patient archive.",
-      searchPlaceholder: "Search by patient name, ID, or phone number...",
+      searchPlaceholder: "Search by patient name or ID...",
       fullName: "Full Name",
       age: "Age",
       sex: "Sex",
@@ -526,7 +530,13 @@ export const translations: Translations = {
       exportMonthly: "Export Monthly Report",
       exportPatient: "Export Patient Report",
       selectPatientPlaceholder: "Select a patient to export",
-      noDataToExport: "No data found for the selected criteria."
+      noDataToExport: "No data found for the selected criteria.",
+      status: {
+        title: "Status",
+        all: "All",
+        admitted: "Admitted",
+        discharged: "Discharged"
+      }
     },
     sterilization: {
       title: "Central Sterilization",
@@ -562,7 +572,13 @@ export const translations: Translations = {
       occupiedBy: "Occupied by",
       patientDetails: "Patient Details",
       admitted: "Admitted",
-      attendingDoctor: "Attending Doctor"
+      attendingDoctor: "Attending Doctor",
+      admissionFee: 'Ward Admission Fee',
+      directAdmissionTitle: 'Direct Patient Admission',
+      directAdmissionDesc: 'Register a new patient directly into room {room}.',
+      admitPatient: 'Admit Patient',
+      admissionSuccessTitle: 'Patient Admitted',
+      admissionSuccessDesc: '{patientName} has been admitted to floor {floor}, room {room}.',
     }
   },
   ar: {
@@ -770,6 +786,10 @@ export const translations: Translations = {
         pending: 'في انتظار المراجعة',
         active: 'نشط',
         deactivated: 'غير نشط',
+        all: "الكل",
+        admitted: "راقد",
+        discharged: "مُخرَّج",
+        title: "الحالة",
       },
       pendingDesc: 'حسابك في انتظار الموافقة. يرجى التواصل مع المسؤول لتفعيل حسابك.',
       contactAdmin: 'للتواصل: {phoneNumber}',
@@ -1126,7 +1146,13 @@ export const translations: Translations = {
       occupiedBy: "مشغولة بواسطة",
       patientDetails: "تفاصيل المريض",
       admitted: "تاريخ الدخول",
-      attendingDoctor: "الطبيب المشرف"
+      attendingDoctor: "الطبيب المشرف",
+      admissionFee: 'رسوم دخول الردهة',
+      directAdmissionTitle: 'إدخال مباشر للمريض',
+      directAdmissionDesc: 'تسجيل مريض جديد مباشرة في الغرفة رقم {room}.',
+      admitPatient: 'إدخال المريض',
+      admissionSuccessTitle: 'تم إدخال المريض',
+      admissionSuccessDesc: 'تم إدخال {patientName} إلى الطابق {floor}، غرفة رقم {room}.',
     }
   },
 };

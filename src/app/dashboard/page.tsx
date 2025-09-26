@@ -42,7 +42,7 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { useLanguage } from '@/hooks/use-language';
 import { useAuth } from '@/hooks/use-auth';
 import { WelcomeDialog } from '@/components/welcome-dialog';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { StethoscopeLogo } from '@/components/stethoscope-logo';
 import { useTheme } from '@/components/providers/theme-provider';
 import { cn } from '@/lib/utils';
@@ -137,9 +137,18 @@ export default function HospitalDashboardPage() {
   const { isSimulating, toggleSimulation } = useSimulation();
   
   const currentUser = users.find(u => u.id === user?.id);
-  const [showWelcome, setShowWelcome] = useState(currentUser?.isFirstLogin !== false && currentUser?.role !== 'admin');
+  const [isClient, setIsClient] = useState(false);
+  const [showWelcome, setShowWelcome] = useState(false);
   const [loadingDept, setLoadingDept] = useState<string | null>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  
+  useEffect(() => {
+    setIsClient(true);
+    if(currentUser?.isFirstLogin !== false && currentUser?.role !== 'admin'){
+      setShowWelcome(true);
+    }
+  }, [currentUser]);
+
 
   const handleWelcomeClose = () => {
     if (user) {
@@ -328,7 +337,7 @@ export default function HospitalDashboardPage() {
         </Tooltip>
       </TooltipProvider>
 
-      <WelcomeDialog open={showWelcome} onOpenChange={setShowWelcome} onFinished={handleWelcomeClose} />
+      {isClient && <WelcomeDialog open={showWelcome} onOpenChange={setShowWelcome} onFinished={handleWelcomeClose} />}
     </>
   );
 }
