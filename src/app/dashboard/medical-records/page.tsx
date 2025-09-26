@@ -25,6 +25,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
 import { Label } from '@/components/ui/label';
 import { translations } from '@/lib/localization';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 
 const calculateBalance = (records: FinancialRecord[] = []) => {
@@ -38,6 +39,7 @@ export default function MedicalRecordsPage() {
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
     const { toast } = useToast();
+    const [statusFilter, setStatusFilter] = useState<'all' | 'admitted' | 'discharged'>('all');
 
     const handleFullscreenToggle = async () => {
         if (typeof window !== 'undefined') {
@@ -52,11 +54,21 @@ export default function MedicalRecordsPage() {
     };
     
     const filteredPatients = useMemo(() => {
-        return patients.filter(p => 
-            p.patientName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            (p.id && p.id.toLowerCase().includes(searchTerm.toLowerCase()))
-        );
-    }, [patients, searchTerm]);
+        return patients.filter(p => {
+          const searchMatch = p.patientName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                              (p.id && p.id.toLowerCase().includes(searchTerm.toLowerCase()));
+          
+          if (!searchMatch) return false;
+
+          if (statusFilter === 'admitted') {
+            return p.status !== 'Discharged';
+          }
+          if (statusFilter === 'discharged') {
+            return p.status === 'Discharged';
+          }
+          return true; // 'all'
+        });
+    }, [patients, searchTerm, statusFilter]);
     
     const formatDataForExport = (data: Patient[]) => {
       if (data.length === 0) {
@@ -124,24 +136,34 @@ export default function MedicalRecordsPage() {
                 <Card>
                     <CardHeader>
                         <CardTitle>{t('medicalRecords.title')}</CardTitle>
-                        <div className="relative mt-2">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                            <Input
-                                placeholder={t('medicalRecords.searchPlaceholder')}
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                                className="pl-10"
-                            />
+                        <div className="mt-2 flex flex-col sm:flex-row gap-4">
+                            <div className="relative flex-grow">
+                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                                <Input
+                                    placeholder={t('medicalRecords.searchPlaceholder')}
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                    className="pl-10"
+                                />
+                            </div>
+                            <Tabs value={statusFilter} onValueChange={(value) => setStatusFilter(value as any)} className="w-full sm:w-auto">
+                              <TabsList>
+                                <TabsTrigger value="all">{t('medicalRecords.status.all')}</TabsTrigger>
+                                <TabsTrigger value="admitted">{t('medicalRecords.status.admitted')}</TabsTrigger>
+                                <TabsTrigger value="discharged">{t('medicalRecords.status.discharged')}</TabsTrigger>
+                              </TabsList>
+                            </Tabs>
                         </div>
                     </CardHeader>
                     <CardContent className="p-0">
-                        <ScrollArea className="h-[calc(100vh-250px)]">
+                        <ScrollArea className="h-[calc(100vh-280px)]">
                             <Table>
                                 <TableHeader>
                                     <TableRow>
                                         <TableHead>{t('medicalRecords.fullName')}</TableHead>
                                         <TableHead>{t('medicalRecords.age')}</TableHead>
                                         <TableHead>{t('medicalRecords.lastVisit')}</TableHead>
+                                        <TableHead>{t('medicalRecords.status.title')}</TableHead>
                                         <TableHead className="text-right"></TableHead>
                                     </TableRow>
                                 </TableHeader>
@@ -152,19 +174,23 @@ export default function MedicalRecordsPage() {
                                             const dobString = `${patient.dob.year}-${patient.dob.month}-${patient.dob.day}`;
                                             const dobDate = parseISO(dobString);
                                             if (isValid(dobDate)) {
-                                                const calculatedAge = differenceInYears(new Date(), dobDate);
-                                                if (!isNaN(calculatedAge)) {
-                                                    age = calculatedAge;
-                                                }
+                                                age = differenceInYears(new Date(), dobDate);
                                             }
                                         }
 
+                                        const isDischarged = patient.status === 'Discharged';
+
                                         return (
-                                            <TableRow key={patient.id}>
+                                            <TableRow key={patient.id} className={isDischarged ? 'opacity-60' : ''}>
                                                 <TableCell className="font-medium">{patient.patientName}</TableCell>
                                                 <TableCell>{age}</TableCell>
                                                 <TableCell>
                                                     {format(new Date(patient.createdAt), 'PPP', { locale: lang === 'ar' ? ar : undefined })}
+                                                </TableCell>
+                                                <TableCell>
+                                                  <Badge variant={isDischarged ? 'secondary' : 'success'}>
+                                                    {isDischarged ? t('medicalRecords.status.discharged') : t('medicalRecords.status.admitted')}
+                                                  </Badge>
                                                 </TableCell>
                                                 <TableCell className="text-right">
                                                     <Button size="sm" variant="outline" onClick={() => setSelectedPatient(patient)}>
@@ -177,7 +203,7 @@ export default function MedicalRecordsPage() {
                                     })}
                                     {filteredPatients.length === 0 && (
                                         <TableRow>
-                                            <TableCell colSpan={4} className="h-24 text-center">
+                                            <TableCell colSpan={5} className="h-24 text-center">
                                                 {t('medicalRecords.noRecords')}
                                             </TableCell>
                                         </TableRow>
@@ -340,7 +366,7 @@ function ExportReportsPopover({ allPatients, onExport }: { allPatients: Patient[
 Object.assign(translations.en.medicalRecords, {
     title: "Medical Records",
     description: "Search and manage the central patient archive.",
-    searchPlaceholder: "Search by patient name, ID, or phone number...",
+    searchPlaceholder: "Search by patient name or ID...",
     fullName: "Full Name",
     age: "Age",
     sex: "Sex",
@@ -355,13 +381,19 @@ Object.assign(translations.en.medicalRecords, {
     exportMonthly: "Export Monthly Report",
     exportPatient: "Export Patient Report",
     selectPatientPlaceholder: "Select a patient to export",
-    noDataToExport: "No data found for the selected criteria."
+    noDataToExport: "No data found for the selected criteria.",
+    status: {
+      title: "Status",
+      all: "All",
+      admitted: "Admitted",
+      discharged: "Discharged"
+    }
 });
 
 Object.assign(translations.ar.medicalRecords, {
     title: "السجلات الطبية",
     description: "ابحث وأدر الأرشيف المركزي للمرضى.",
-    searchPlaceholder: "ابحث بالاسم، الرقم التعريفي، أو رقم الهاتف...",
+    searchPlaceholder: "ابحث بالاسم أو الرقم التعريفي...",
     fullName: "الاسم الكامل",
     age: "العمر",
     sex: "الجنس",
@@ -376,5 +408,11 @@ Object.assign(translations.ar.medicalRecords, {
     exportMonthly: "تصدير تقرير شهري",
     exportPatient: "تصدير تقرير مريض",
     selectPatientPlaceholder: "اختر مريضاً للتصدير",
-    noDataToExport: "لا توجد بيانات للمعايير المحددة."
+    noDataToExport: "لا توجد بيانات للمعايير المحددة.",
+    status: {
+      title: "الحالة",
+      all: "الكل",
+      admitted: "راقد",
+      discharged: "مُخرَّج"
+    }
 });
