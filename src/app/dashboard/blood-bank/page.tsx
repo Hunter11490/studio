@@ -25,6 +25,7 @@ import { Patient } from '@/types';
 import { translations } from '@/lib/localization';
 import { NotificationsButton } from '@/components/notifications-button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Badge } from '@/components/ui/badge';
 
 type BloodGroup = 'A+' | 'A-' | 'B+' | 'B-' | 'AB+' | 'AB-' | 'O+' | 'O-';
 
@@ -351,4 +352,3 @@ Object.assign(translations.ar, {
         bloodUnit: 'وحدة دم'
     }
 });
-
