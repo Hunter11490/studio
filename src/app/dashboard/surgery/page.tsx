@@ -7,20 +7,23 @@ import { useLanguage } from '@/hooks/use-language';
 import { useLocalStorage } from '@/hooks/use-local-storage';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
-import { Scissors, PlusCircle, ChevronLeft, ChevronRight, Clock, Maximize, Minimize } from 'lucide-react';
+import { Scissors, PlusCircle, ChevronLeft, ChevronRight, Clock, Maximize, Minimize, SprayCan, Loader2 } from 'lucide-react';
 import { format, addDays, startOfWeek, eachDayOfInterval, isSameDay, setHours, setMinutes, getHours, getMinutes } from 'date-fns';
 import { ar } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { NotificationsButton } from '@/components/notifications-button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { requestSterilization } from '@/ai/flows/sterilization-flow';
+import { useToast } from '@/hooks/use-toast';
+import { InstrumentSet } from '@/types';
 
 
 type SurgeryBooking = {
@@ -50,10 +53,72 @@ const initialBookings: SurgeryBooking[] = [
     { id: '3', patientName: 'سارة كريم', surgeryType: 'إزالة المرارة', surgeonName: 'د. خالد العامري', date: setMinutes(setHours(new Date(), 14), 0), duration: 90, cost: 1200000, status: 'completed' },
 ];
 
+function SterilizationRequestDialog({ open, onOpenChange }: { open: boolean, onOpenChange: (open: boolean) => void }) {
+    const { t } = useLanguage();
+    const { toast } = useToast();
+    const [instrumentSets, setInstrumentSets] = useLocalStorage<InstrumentSet[]>('sterilization_sets', []);
+    const [isLoading, setIsLoading] = useState(false);
+    const [description, setDescription] = useState('');
+
+    const handleRequest = async () => {
+        if (!description) return;
+        setIsLoading(true);
+        try {
+            const result = await requestSterilization({
+                description: description,
+                department: 'surgicalOperations'
+            });
+            
+            setInstrumentSets(prev => [result.newInstrumentSet, ...prev]);
+
+            toast({
+                title: t('sterilization.requestSentTitle'),
+                description: t('sterilization.requestSentDesc', { name: result.newInstrumentSet.name }),
+            });
+            onOpenChange(false);
+            setDescription('');
+        } catch (error) {
+            console.error("Sterilization request failed:", error);
+            toast({ title: t('common.error'), variant: 'destructive' });
+        } finally {
+            setIsLoading(false);
+        }
+    };
+    
+    return (
+        <Dialog open={open} onOpenChange={onOpenChange}>
+            <DialogContent>
+                <DialogHeader>
+                    <DialogTitle>{t('sterilization.newRequestTitle')}</DialogTitle>
+                    <DialogDescription>{t('sterilization.newRequestDesc')}</DialogDescription>
+                </DialogHeader>
+                <div className="space-y-2">
+                    <Input 
+                        value={description}
+                        onChange={(e) => setDescription(e.target.value)}
+                        placeholder={t('sterilization.instrumentPlaceholder')}
+                        disabled={isLoading}
+                    />
+                </div>
+                <DialogFooter>
+                    <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isLoading}>
+                        {t('doctorForm.cancel')}
+                    </Button>
+                    <Button onClick={handleRequest} disabled={isLoading || !description}>
+                        {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                        {t('sterilization.sendRequest')}
+                    </Button>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
+    )
+}
+
 export default function SurgeryPage() {
     const { t, lang } = useLanguage();
     const [bookings, setBookings] = useLocalStorage<SurgeryBooking[]>('surgery_bookings_v3', initialBookings);
     const [isFormOpen, setFormOpen] = useState(false);
+    const [isSterilizationRequestOpen, setSterilizationRequestOpen] = useState(false);
     const [bookingToEdit, setBookingToEdit] = useState<SurgeryBooking | null>(null);
     const [currentDate, setCurrentDate] = useState(new Date());
     const [isFullscreen, setIsFullscreen] = useState(false);
@@ -203,10 +268,21 @@ export default function SurgeryPage() {
                 </div>
             </div>
             
-             <Button onClick={() => handleAddClick(new Date(), 9)} className="fixed bottom-6 right-6 z-40 h-14 w-14 rounded-full shadow-lg animate-pulse-glow" size="icon">
+             <Button onClick={() => handleAddClick(new Date(), 9)} className="fixed bottom-24 right-6 z-40 h-14 w-14 rounded-full shadow-lg animate-pulse-glow" size="icon">
                 <PlusCircle className="h-6 w-6" />
                 <span className="sr-only">{t('surgery.newBooking')}</span>
             </Button>
+            
+            <TooltipProvider>
+                <Tooltip>
+                    <TooltipTrigger asChild>
+                        <Button onClick={() => setSterilizationRequestOpen(true)} className="fixed bottom-6 right-6 z-40 h-14 w-14 rounded-full shadow-lg" size="icon">
+                            <SprayCan className="h-6 w-6" />
+                        </Button>
+                    </TooltipTrigger>
+                    <TooltipContent side="left"><p>{t('sterilization.newRequestTitle')}</p></TooltipContent>
+                </Tooltip>
+            </TooltipProvider>
 
              <Dialog open={isFormOpen} onOpenChange={setFormOpen}>
                 <DialogContent>
@@ -216,6 +292,7 @@ export default function SurgeryPage() {
                     <BookingForm onSave={handleSaveBooking} bookingToEdit={bookingToEdit} />
                 </DialogContent>
             </Dialog>
+            <SterilizationRequestDialog open={isSterilizationRequestOpen} onOpenChange={setSterilizationRequestOpen} />
         </div>
     );
 }

@@ -176,7 +176,8 @@ export const translations: Translations = {
       save: 'Save',
       backToMenu: 'Back to Main Menu',
       random: 'Random',
-      actions: 'Actions'
+      actions: 'Actions',
+      error: 'Error'
     },
      admin: {
       dashboardTitle: 'Admin Dashboard',
@@ -550,7 +551,13 @@ export const translations: Translations = {
       cycle: "Cycle",
       inCycle: "In Cycle",
       cycleComplete: "Sterilization Cycle Complete",
-      nowInStorage: "is now in sterile storage."
+      nowInStorage: "is now in sterile storage.",
+      newRequestTitle: "New Sterilization Request",
+      newRequestDesc: "Request a new set of instruments to be prepared and sterilized.",
+      instrumentPlaceholder: "e.g., General Surgery Tray, Dental Kit...",
+      sendRequest: "Send Request",
+      requestSentTitle: "Request Sent",
+      requestSentDesc: "New set '{name}' has been added to the cleaning queue."
     },
     services: {
       title: "Hospital Services",
@@ -760,6 +767,7 @@ export const translations: Translations = {
       backToMenu: 'العودة للقائمة الرئيسية',
       random: 'عشوائي',
       actions: 'إجراءات',
+      error: 'خطأ'
     },
     admin: {
       dashboardTitle: 'لوحة تحكم المسؤول',
@@ -1112,8 +1120,7 @@ export const translations: Translations = {
       exportDaily: "تصدير تقرير يومي",
       exportMonthly: "تصدير تقرير شهري",
       exportPatient: "تصدير تقرير مريض",
-      selectPatientPlaceholder: "اختر مريضاً للتصدير",
-      noDataToExport: "لا توجد بيانات للمعايير المحددة."
+      selectPatientPlaceholder: "اختر مريضاً للتصدير"
     },
     sterilization: {
       title: "وحدة التعقيم المركزية",
@@ -1127,7 +1134,13 @@ export const translations: Translations = {
       cycle: "دورة",
       inCycle: "في الدورة",
       cycleComplete: "اكتملت دورة التعقيم",
-      nowInStorage: "أصبحت الآن في المخزن المعقم."
+      nowInStorage: "أصبحت الآن في المخزن المعقم.",
+      newRequestTitle: "طلب تعقيم جديد",
+      newRequestDesc: "اطلب مجموعة أدوات جديدة ليتم تحضيرها وتعقيمها.",
+      instrumentPlaceholder: "مثال: مجموعة جراحة عامة، أدوات أسنان...",
+      sendRequest: "إرسال الطلب",
+      requestSentTitle: "تم إرسال الطلب",
+      requestSentDesc: "تمت إضافة المجموعة الجديدة '{name}' إلى قائمة التنظيف."
     },
     services: {
       title: "الخدمات المساندة",
