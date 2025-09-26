@@ -399,7 +399,7 @@ Object.assign(translations.en, {
         date: "Date",
         amount: "Amount",
         summary: "Account Summary",
-        footerNotes: "Thank you for choosing our hospital. Please settle the balance at your earliest convenience."
+        footerNotes: "Wishing you a speedy recovery and good health."
     }
 });
 
@@ -428,6 +428,6 @@ Object.assign(translations.ar, {
         date: "التاريخ",
         amount: "المبلغ",
         summary: "ملخص الحساب",
-        footerNotes: "شكراً لاختياركم مستشفانا. يرجى تسوية المبلغ المستحق في أقرب وقت ممكن."
+        footerNotes: "نتمنى لكم الشفاء العاجل ودوام الصحة والعافية."
     }
 });
