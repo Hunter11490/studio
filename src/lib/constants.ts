@@ -27,6 +27,7 @@ export const MEDICAL_SPECIALTIES = [
     "Cardiology",
     "Dermatology",
     "Emergency Medicine",
+    "Intensive Care Medicine",
     "Endocrinology",
     "Family Medicine",
     "Gastroenterology",

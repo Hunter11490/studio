@@ -59,7 +59,8 @@ export type Patient = {
   idFront?: string;
   idBack?: string;
   department: string;
-  doctorId?: string;
+  doctorId?: string; // Referring doctor
+  attendingDoctorId?: string; // Doctor handling the case in ER/ICU/Ward
   createdAt: string;
   financialRecords?: FinancialRecord[];
 

@@ -518,6 +518,7 @@ export const translations: Translations = {
       admitToICU: "Admit to ICU",
       admitToWard: "Admit to Ward",
       discharge: "Discharge",
+      assignDoctor: "Assign Doctor",
       triage: {
         title: "Triage Level",
         critical: "Critical",
@@ -536,6 +537,7 @@ export const translations: Translations = {
       bed: "Bed",
       vacant: "Vacant",
       monitorFor: "Live Monitor for",
+      assignDoctor: "Assign Doctor",
     },
     medicalRecords: {
       title: "Medical Records",
@@ -603,7 +605,8 @@ export const translations: Translations = {
       occupiedBy: "Occupied by",
       patientDetails: "Patient Details",
       admitted: "Admitted",
-      attendingDoctor: "Attending Doctor",
+      attendingPhysician: "Attending Physician",
+      assignDoctor: "Assign Doctor",
       admissionFee: 'Ward Admission Fee',
       directAdmissionTitle: 'Direct Patient Admission',
       directAdmissionDesc: 'Register a new patient directly into room {room}.',
@@ -1132,6 +1135,7 @@ export const translations: Translations = {
       admitToICU: "إدخال للعناية المركزة",
       admitToWard: "إدخال للردهة",
       discharge: "تخريج",
+      assignDoctor: "تعيين طبيب",
       triage: {
         title: "مستوى الخطورة",
         critical: "حرجة",
@@ -1150,6 +1154,7 @@ export const translations: Translations = {
       bed: "سرير",
       vacant: "شاغر",
       monitorFor: "مراقبة حية للمريض",
+      assignDoctor: "تعيين طبيب",
     },
     medicalRecords: {
       title: "السجلات الطبية",
@@ -1210,7 +1215,8 @@ export const translations: Translations = {
       occupiedBy: "مشغولة بواسطة",
       patientDetails: "تفاصيل المريض",
       admitted: "تاريخ الدخول",
-      attendingDoctor: "الطبيب المشرف",
+      attendingPhysician: "الطبيب المشرف",
+      assignDoctor: "تعيين طبيب",
       admissionFee: 'رسوم دخول الردهة',
       directAdmissionTitle: 'إدخال مباشر للمريض',
       directAdmissionDesc: 'تسجيل مريض جديد مباشرة في الغرفة رقم {room}.',

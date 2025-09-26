@@ -3,6 +3,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import { usePatients } from '@/hooks/use-patients';
 import { useLanguage } from '@/hooks/use-language';
+import { useDoctors } from '@/hooks/use-doctors';
 import { UserMenu } from '@/components/layout/user-menu';
 import { Logo } from '@/components/logo';
 import { Button } from '@/components/ui/button';
@@ -14,6 +15,7 @@ import { cn } from '@/lib/utils';
 import { ResponsiveContainer, LineChart, Line } from 'recharts';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { PatientRegistrationDialog } from '@/components/reception/patient-registration-dialog';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 const TOTAL_ICU_BEDS = 12;
 
@@ -27,10 +29,15 @@ const generateEcgData = () => {
 
 function BedCard({ bedNumber, patient, onAddPatient }: { bedNumber: number; patient: Patient | null; onAddPatient: (bedNumber: number) => void; }) {
     const { t } = useLanguage();
+    const { doctors, updateDoctor } = useDoctors();
+    const { updatePatient } = usePatients();
     const [isMonitorOpen, setMonitorOpen] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
     const [ecgData, setEcgData] = useState(generateEcgData());
     const isOccupied = !!patient;
+
+    const icuDoctors = useMemo(() => doctors.filter(d => d.specialty === 'Intensive Care Medicine'), [doctors]);
+    const attendingDoctor = patient?.attendingDoctorId ? doctors.find(d => d.id === patient.attendingDoctorId) : null;
 
     useEffect(() => {
         if (isMonitorOpen) {
@@ -73,7 +80,20 @@ function BedCard({ bedNumber, patient, onAddPatient }: { bedNumber: number; pati
                         <div className="space-y-4">
                             <div className="grid grid-cols-2 gap-4 text-sm">
                                 <div className="flex items-center gap-2"><User className="h-4 w-4 text-muted-foreground"/> {patient.patientName}</div>
-                                <div className="flex items-center gap-2"><Stethoscope className="h-4 w-4 text-muted-foreground"/> Dr. {patient.doctorId ? 'Assigned' : 'N/A'}</div>
+                                {attendingDoctor ? (
+                                    <div className="flex items-center gap-2 text-sm text-muted-foreground"><Stethoscope className="h-4 w-4"/> {attendingDoctor.name}</div>
+                                ) : (
+                                    <Select onValueChange={(docId) => updatePatient(patient.id, { attendingDoctorId: docId })} value={patient.attendingDoctorId}>
+                                        <SelectTrigger className="h-8 text-xs">
+                                            <SelectValue placeholder={t('icu.assignDoctor')} />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {icuDoctors.map(doc => (
+                                                <SelectItem key={doc.id} value={doc.id}>{doc.name}</SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                )}
                             </div>
                             <div className="h-48 w-full bg-black rounded-lg p-2">
                                 <ResponsiveContainer>

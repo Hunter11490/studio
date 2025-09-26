@@ -3,10 +3,11 @@
 import { useState, useMemo } from 'react';
 import { usePatients } from '@/hooks/use-patients';
 import { useLanguage } from '@/hooks/use-language';
+import { useDoctors } from '@/hooks/use-doctors';
 import { UserMenu } from '@/components/layout/user-menu';
 import { Logo } from '@/components/logo';
 import { Button } from '@/components/ui/button';
-import { Maximize, Minimize, HeartPulse, Thermometer, Wind, Activity, Pencil, PlusCircle } from 'lucide-react';
+import { Maximize, Minimize, HeartPulse, Thermometer, Wind, Activity, Pencil, PlusCircle, User as UserIcon } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { NotificationsButton } from '@/components/notifications-button';
 import { Patient, TriageLevel } from '@/types';
@@ -17,6 +18,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { PatientRegistrationDialog } from '@/components/reception/patient-registration-dialog';
 
@@ -47,47 +49,70 @@ function VitalSign({ icon: Icon, value, unit, label }: { icon: React.ElementType
 
 function PatientCard({ patient, onUpdatePatient }: { patient: Patient, onUpdatePatient: (id: string, updates: Partial<Patient>) => void }) {
   const { t } = useLanguage();
+  const { doctors } = useDoctors();
   const [isEditing, setIsEditing] = useState(false);
   const config = triageConfig[patient.triageLevel as TriageLevel] || triageConfig.minor;
   const { vitalSigns } = patient;
+
+  const emergencyDoctors = useMemo(() => doctors.filter(d => d.specialty === 'Emergency Medicine'), [doctors]);
+  const attendingDoctor = patient.attendingDoctorId ? doctors.find(d => d.id === patient.attendingDoctorId) : null;
 
   return (
     <>
         <div className="p-3 mb-2 rounded-lg border bg-card shadow-sm">
             <div className="flex items-center justify-between mb-2">
-            <div className="flex flex-col">
-                <span className="text-sm font-semibold">{patient.patientName}</span>
-                <div className="flex items-center gap-2 mt-1">
-                    <div className={cn("w-3 h-3 rounded-full", config.color)}></div>
-                    <span className="text-xs font-medium">{t(`emergency.triage.${patient.triageLevel}`)}</span>
+                <div className="flex flex-col">
+                    <span className="text-sm font-semibold">{patient.patientName}</span>
+                    <div className="flex items-center gap-2 mt-1">
+                        <div className={cn("w-3 h-3 rounded-full", config.color)}></div>
+                        <span className="text-xs font-medium">{t(`emergency.triage.${patient.triageLevel}`)}</span>
+                    </div>
                 </div>
+                <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="xs">{t('common.actions')}</Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent>
+                        <DropdownMenuItem onClick={() => setIsEditing(true)}>
+                            <Pencil className="mr-2 h-4 w-4" />
+                            {t('doctorCard.edit')}
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => onUpdatePatient(patient.id, { department: 'icu', status: 'Admitted' })}>
+                        {t('emergency.admitToICU')}
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => onUpdatePatient(patient.id, { department: 'wards', status: 'Admitted' })}>
+                        {t('emergency.admitToWard')}
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => onUpdatePatient(patient.id, { status: 'Discharged' })}>
+                        {t('emergency.discharge')}
+                        </DropdownMenuItem>
+                    </DropdownMenuContent>
+                </DropdownMenu>
             </div>
-            <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="xs">{t('common.actions')}</Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent>
-                    <DropdownMenuItem onClick={() => setIsEditing(true)}>
-                        <Pencil className="mr-2 h-4 w-4" />
-                        {t('doctorCard.edit')}
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => onUpdatePatient(patient.id, { department: 'icu', status: 'Admitted' })}>
-                    {t('emergency.admitToICU')}
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => onUpdatePatient(patient.id, { department: 'wards', status: 'Admitted' })}>
-                    {t('emergency.admitToWard')}
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => onUpdatePatient(patient.id, { status: 'Discharged' })}>
-                    {t('emergency.discharge')}
-                    </DropdownMenuItem>
-                </DropdownMenuContent>
-            </DropdownMenu>
-            </div>
-            <div className="grid grid-cols-2 gap-2 text-xs">
+            <div className="grid grid-cols-2 gap-2 text-xs mb-3">
                 <VitalSign icon={HeartPulse} value={vitalSigns?.heartRate || 'N/A'} unit="bpm" label={t('emergency.vitals.heartRate')} />
                 <VitalSign icon={Activity} value={vitalSigns?.bloodPressure || 'N/A'} unit="mmHg" label={t('emergency.vitals.bloodPressure')} />
                 <VitalSign icon={Wind} value={vitalSigns?.spo2 || 'N/A'} unit="%" label={t('emergency.vitals.spo2')} />
                 <VitalSign icon={Thermometer} value={vitalSigns?.temperature ? vitalSigns.temperature.toFixed(1) : 'N/A'} unit="°C" label={t('emergency.vitals.temperature')} />
+            </div>
+             <div className="space-y-1">
+                {attendingDoctor ? (
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                        <UserIcon className="h-3 w-3" />
+                        <span>{attendingDoctor.name}</span>
+                    </div>
+                ) : (
+                    <Select onValueChange={(docId) => onUpdatePatient(patient.id, { attendingDoctorId: docId })} value={patient.attendingDoctorId}>
+                        <SelectTrigger className="h-8 text-xs">
+                            <SelectValue placeholder={t('emergency.assignDoctor')} />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {emergencyDoctors.map(doc => (
+                                <SelectItem key={doc.id} value={doc.id}>{doc.name}</SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                )}
             </div>
         </div>
         <PatientRegistrationDialog 

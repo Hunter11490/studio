@@ -3,12 +3,13 @@
 import { useState, useMemo } from 'react';
 import { useLanguage } from '@/hooks/use-language';
 import { usePatients } from '@/hooks/use-patients';
+import { useDoctors } from '@/hooks/use-doctors';
 import { Patient, FinancialRecord } from '@/types';
 import { UserMenu } from '@/components/layout/user-menu';
 import { Logo } from '@/components/logo';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { Maximize, Minimize, BedDouble, X } from 'lucide-react';
+import { Maximize, Minimize, BedDouble, X, User } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
@@ -60,6 +61,11 @@ const calculateBalance = (records: FinancialRecord[] = []) => {
 
 function PatientHistoryDialog({ patient, onOpenChange }: { patient: Patient | null; onOpenChange: () => void; }) {
     const { t, lang } = useLanguage();
+    const { doctors, updateDoctor } = useDoctors();
+    const { updatePatient } = usePatients();
+
+    const wardDoctors = useMemo(() => doctors.filter(d => d.specialty === 'Internal Medicine'), [doctors]);
+    const attendingDoctor = patient?.attendingDoctorId ? doctors.find(d => d.id === patient.attendingDoctorId) : null;
     
     if (!patient) return null;
 
@@ -72,7 +78,26 @@ function PatientHistoryDialog({ patient, onOpenChange }: { patient: Patient | nu
                     <DialogTitle>{t('medicalRecords.patientHistoryFor')} {patient.patientName}</DialogTitle>
                     <DialogDescription>{t('accounts.invoiceDesc')}</DialogDescription>
                 </DialogHeader>
-                <ScrollArea className="max-h-[60vh] my-4 pr-4">
+
+                <div className='p-4 border rounded-md my-4 space-y-2'>
+                    <h4 className="text-sm font-medium">{t('wards.attendingPhysician')}</h4>
+                     {attendingDoctor ? (
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground"><User className="h-4 w-4"/> {attendingDoctor.name}</div>
+                    ) : (
+                        <Select onValueChange={(docId) => updatePatient(patient.id, { attendingDoctorId: docId })} value={patient.attendingDoctorId}>
+                            <SelectTrigger className="h-8 text-xs">
+                                <SelectValue placeholder={t('wards.assignDoctor')} />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {wardDoctors.map(doc => (
+                                    <SelectItem key={doc.id} value={doc.id}>{doc.name}</SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    )}
+                </div>
+
+                <ScrollArea className="max-h-[50vh] pr-4">
                     <div className="space-y-4">
                         {(patient.financialRecords || []).map(record => (
                             <div key={record.id} className="flex justify-between items-center p-2 rounded-md bg-secondary/50">
