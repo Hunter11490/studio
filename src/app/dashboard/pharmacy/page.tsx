@@ -8,7 +8,6 @@ import { useLanguage } from '@/hooks/use-language';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger } from '@/components/ui/dialog';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -318,7 +317,7 @@ export default function PharmacyPage() {
             </header>
 
             <main className="flex-grow flex flex-col md:flex-row gap-4 p-4 md:p-6 overflow-hidden">
-                <div className="flex flex-col h-1/2 md:h-full md:w-2/3">
+                <div className="flex flex-col md:h-full md:w-2/3 h-1/2">
                     <Card className="flex-grow flex flex-col overflow-hidden">
                         <CardHeader className="p-2">
                             <CardTitle className="flex justify-between items-center text-sm">
@@ -337,37 +336,29 @@ export default function PharmacyPage() {
                         </CardHeader>
                         <CardContent className="p-0 flex-grow overflow-hidden">
                             <ScrollArea className="h-full">
-                                <Table>
-                                    <TableHeader>
-                                        <TableRow>
-                                            <TableHead className="py-1 text-xs">{t('pharmacy.drugName')}</TableHead>
-                                            <TableHead className="py-1 text-xs">{t('pharmacy.quantity')}</TableHead>
-                                            <TableHead className="text-right py-1 text-xs">{t('pharmacy.price')}</TableHead>
-                                            <TableHead className="w-[70px] py-1"></TableHead>
-                                        </TableRow>
-                                    </TableHeader>
-                                    <TableBody>
-                                        {filteredDrugs.map((drug) => (
-                                        <TableRow key={drug.id} className={drug.quantity < 10 ? 'bg-destructive/10' : ''}>
-                                                <TableCell className="font-medium text-xs py-1.5">{drug.name}</TableCell>
-                                                <TableCell className="text-xs py-1.5">{drug.quantity}</TableCell>
-                                                <TableCell className="text-right text-xs py-1.5" dir="ltr">{drug.price.toLocaleString()}</TableCell>
-                                                <TableCell className="text-right space-x-1 py-1.5">
-                                                    <Button size="xs" variant="outline" onClick={() => addToCart(drug)}>
-                                                        <PlusCircle className="mr-1 h-3 w-3" />
-                                                        {t('common.add')}
-                                                    </Button>
-                                                </TableCell>
-                                            </TableRow>
-                                        ))}
-                                    </TableBody>
-                                </Table>
+                                <div className="divide-y">
+                                    {filteredDrugs.map((drug) => (
+                                        <div key={drug.id} className={`p-2 space-y-1 ${drug.quantity < 10 ? 'bg-destructive/10' : ''}`}>
+                                            <div className="flex justify-between items-center text-xs">
+                                                <p className="font-medium">{drug.name}</p>
+                                                <div className="flex gap-2 items-center">
+                                                    <span>{t('pharmacy.quantityAvailable')}: {drug.quantity}</span>
+                                                    <span className="font-mono" dir="ltr">{drug.price.toLocaleString()}</span>
+                                                </div>
+                                            </div>
+                                            <Button size="xs" variant="outline" className="w-full" onClick={() => addToCart(drug)}>
+                                                <PlusCircle className="mr-1 h-3 w-3" />
+                                                {t('common.add')}
+                                            </Button>
+                                        </div>
+                                    ))}
+                                </div>
                             </ScrollArea>
                         </CardContent>
                     </Card>
                 </div>
 
-                 <div className="flex flex-col h-1/2 md:h-full md:w-1/3 gap-2">
+                 <div className="flex flex-col md:h-full md:w-1/3 h-1/2 gap-2">
                     <div className="space-y-1">
                         <Label className="text-xs">{t('pharmacy.selectPatient')}</Label>
                         <Select onValueChange={setSelectedPatientId} value={selectedPatientId || ''}>
@@ -472,5 +463,3 @@ function DrugForm({ onSave, drugToEdit }: { onSave: (data: z.infer<typeof formSc
         </Form>
     );
 }
-
-    
