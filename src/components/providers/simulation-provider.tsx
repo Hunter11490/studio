@@ -7,7 +7,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useLanguage } from '@/hooks/use-language';
 import { createRandomDoctor, createRandomPatient, createRandomServiceRequest, moveInstrumentSet } from '@/lib/simulation-utils';
 import { useNotifications } from '@/hooks/use-notifications';
-import { TriageLevel, ServiceRequest, InstrumentSet } from '@/types';
+import { TriageLevel, ServiceRequest, InstrumentSet, Patient } from '@/types';
 import { useLocalStorage } from '@/hooks/use-local-storage';
 
 type SimulationContextType = {
@@ -16,6 +16,11 @@ type SimulationContextType = {
 };
 
 export const SimulationContext = createContext<SimulationContextType | undefined>(undefined);
+
+const DAILY_CHARGE_KEY_PREFIX = 'daily_charge_applied_';
+const DAILY_CHARGE_AMOUNT = 50000; // Example daily charge
+
+const getRandomElement = <T,>(arr: T[]): T => arr[Math.floor(Math.random() * arr.length)];
 
 export function SimulationProvider({ children }: { children: ReactNode }) {
   const [isSimulating, setIsSimulating] = useState(false);
@@ -83,6 +88,72 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
     }
   }, [instrumentSets, setInstrumentSets, addNotification, t]);
 
+  const simulateInpatientAdmission = useCallback(() => {
+    // Find patients eligible for admission (not already in a room)
+    const eligiblePatients = patients.filter(p => !p.floor && !p.room && p.status !== 'Discharged' && p.department !== 'emergency' && p.department !== 'icu');
+    if (eligiblePatients.length === 0) return;
+
+    // Find all occupied rooms to identify available ones
+    const occupiedRooms = new Set(patients.filter(p => p.floor && p.room).map(p => `${p.floor}-${p.room}`));
+    const availableRooms: {floor: number, room: number}[] = [];
+    for (let floor = 1; floor <= 20; floor++) {
+        for (let room = 1; room <= 10; room++) {
+            if (!occupiedRooms.has(`${floor}-${room}`)) {
+                availableRooms.push({ floor, room });
+            }
+        }
+    }
+
+    if (availableRooms.length === 0) return;
+
+    const patientToAdmit = getRandomElement(eligiblePatients);
+    const roomToAdmit = getRandomElement(availableRooms);
+    
+    updatePatient(patientToAdmit.id, {
+        floor: roomToAdmit.floor,
+        room: roomToAdmit.room,
+        admittedAt: new Date().toISOString(),
+        status: 'Admitted',
+        department: 'wards'
+    });
+    
+    addFinancialRecord(patientToAdmit.id, {
+        type: 'inpatient',
+        description: t('wards.admissionFee'),
+        amount: 150000,
+        date: new Date().toISOString()
+    });
+
+    addNotification({ 
+        title: t('simulation.patientAdmitted'), 
+        description: t('simulation.patientAdmittedDesc', { patientName: patientToAdmit.patientName, floor: roomToAdmit.floor, room: roomToAdmit.floor * 100 + roomToAdmit.room })
+    });
+  }, [patients, updatePatient, addFinancialRecord, addNotification, t]);
+  
+  const simulateDailyCharges = useCallback(() => {
+      const todayStr = new Date().toISOString().split('T')[0];
+      const admittedPatients = patients.filter(p => p.status === 'Admitted' && p.floor && p.room);
+      
+      admittedPatients.forEach(patient => {
+          const lastChargeKey = `${DAILY_CHARGE_KEY_PREFIX}${patient.id}`;
+          const lastChargeDate = localStorage.getItem(lastChargeKey);
+
+          if (lastChargeDate !== todayStr) {
+              addFinancialRecord(patient.id, {
+                  type: 'inpatient',
+                  description: t('simulation.dailyCharge'),
+                  amount: DAILY_CHARGE_AMOUNT,
+                  date: new Date().toISOString()
+              });
+              localStorage.setItem(lastChargeKey, todayStr);
+              addNotification({
+                  title: t('simulation.dailyCharge'),
+                  description: t('simulation.dailyChargeDesc', { patientName: patient.patientName, amount: DAILY_CHARGE_AMOUNT.toLocaleString() })
+              });
+          }
+      });
+  }, [patients, addFinancialRecord, addNotification, t]);
+
 
   const performRandomAction = useCallback(() => {
     const actions = [
@@ -109,6 +180,8 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
       movePatientInEmergency,
       simulateServiceRequest,
       simulateSterilizationCycle,
+      simulateInpatientAdmission,
+      simulateDailyCharges,
        () => { // Patient gets a lab test
         if(patients.length > 0) {
           const randomPatient = patients[Math.floor(Math.random() * patients.length)];
@@ -166,11 +239,11 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
         }
       },
     ];
-
-    const randomAction = actions[Math.floor(Math.random() * actions.length)];
+    
+    const randomAction = getRandomElement(actions);
     randomAction();
 
-  }, [doctors, patients, addDoctor, deleteDoctor, addPatient, updateDoctor, addFinancialRecord, t, addNotification, movePatientInEmergency, simulateServiceRequest, simulateSterilizationCycle]);
+  }, [doctors, patients, addDoctor, deleteDoctor, addPatient, updateDoctor, addFinancialRecord, t, addNotification, movePatientInEmergency, simulateServiceRequest, simulateSterilizationCycle, simulateInpatientAdmission, simulateDailyCharges]);
 
   useEffect(() => {
     let intervalId: NodeJS.Timeout | null = null;
