@@ -104,8 +104,8 @@ export function DoctorCard({ doctor }: { doctor: Doctor }) {
         )}>
         <CardHeader className="p-4">
           <div className="flex items-start justify-between gap-4">
-            <div className="flex-grow">
-                <CardTitle className="font-headline text-xl text-primary flex items-center gap-2">
+            <div className="flex-grow min-w-0">
+                <CardTitle className="font-headline text-lg md:text-xl text-primary flex items-center gap-2">
                     <Button variant="ghost" size="icon" onClick={handlePartnerToggle} className="h-7 w-7 rounded-full flex-shrink-0">
                         <Star className={cn(
                           "h-5 w-5 transition-colors",
@@ -157,18 +157,18 @@ export function DoctorCard({ doctor }: { doctor: Doctor }) {
           </div>
         </CardHeader>
 
-        <CardContent className="p-4 pt-0 flex-grow space-y-4 text-sm">
+        <CardContent className="p-4 pt-0 flex-grow space-y-3 text-sm">
           <div className="space-y-2 rounded-lg border p-3 bg-secondary/50">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2 text-muted-foreground">
+              <div className="flex items-center gap-2 text-muted-foreground text-xs sm:text-sm">
                 <BadgePercent className="h-4 w-4" />
                 <span>{t('doctorCard.referrals')}</span>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1 sm:gap-2">
                 <Button size="icon" variant="ghost" className="h-6 w-6 rounded-full" onClick={() => handleReferralChange(-1)} disabled={referralCount <= 0}>
                   <Minus className="h-4 w-4" />
                 </Button>
-                <span className="font-bold w-4 text-center text-base">{referralCount}</span>
+                <span className="font-bold w-4 text-center text-sm sm:text-base">{referralCount}</span>
                 <Button size="icon" variant="ghost" className="h-6 w-6 rounded-full" onClick={() => handleReferralChange(1)}>
                   <Plus className="h-4 w-4" />
                 </Button>
@@ -181,14 +181,14 @@ export function DoctorCard({ doctor }: { doctor: Doctor }) {
             </div>
           </div>
           
-           <div className="space-y-2 text-xs">
+           <div className="space-y-2 text-xs sm:text-sm">
               <div className="flex items-center gap-3">
                   <Phone className="h-3 w-3 shrink-0 text-muted-foreground" /> 
-                  <a href={`tel:${doctor.phoneNumber}`} className="hover:underline" dir="ltr">{doctor.phoneNumber}</a>
+                  <a href={`tel:${doctor.phoneNumber}`} className="hover:underline truncate" dir="ltr">{doctor.phoneNumber}</a>
               </div>
-              <div className="flex items-center gap-3">
-                  <MapPin className="h-3 w-3 shrink-0 text-muted-foreground" />
-                  <span>{doctor.clinicAddress}</span>
+              <div className="flex items-start gap-3">
+                  <MapPin className="h-3 w-3 shrink-0 text-muted-foreground mt-0.5" />
+                  <span className="truncate">{doctor.clinicAddress}</span>
               </div>
            </div>
         </CardContent>
