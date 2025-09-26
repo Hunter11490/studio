@@ -13,7 +13,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Maximize, Minimize, Search, User, FileClock } from 'lucide-react';
-import { format, differenceInYears, parseISO } from 'date-fns';
+import { format, differenceInYears, parseISO, isValid } from 'date-fns';
 import { ar } from 'date-fns/locale';
 import { NotificationsButton } from '@/components/notifications-button';
 
@@ -94,7 +94,16 @@ export default function MedicalRecordsPage() {
                                 </TableHeader>
                                 <TableBody>
                                     {filteredPatients.map((patient) => {
-                                        const age = differenceInYears(new Date(), parseISO(`${patient.dob.year}-${patient.dob.month}-${patient.dob.day}`));
+                                        let age: number | string = 'N/A';
+                                        const dobString = `${patient.dob.year}-${patient.dob.month}-${patient.dob.day}`;
+                                        const dobDate = parseISO(dobString);
+                                        if (isValid(dobDate)) {
+                                            const calculatedAge = differenceInYears(new Date(), dobDate);
+                                            if (!isNaN(calculatedAge)) {
+                                                age = calculatedAge;
+                                            }
+                                        }
+
                                         return (
                                             <TableRow key={patient.id}>
                                                 <TableCell className="font-medium">{patient.patientName}</TableCell>
