@@ -500,7 +500,7 @@ export function PatientRegistrationDialog({ open, onOpenChange, patientToEdit, p
                 
                  {(department === 'emergency' || patientToEdit?.department === 'emergency' || patientToEdit?.department === 'icu') && (
                     <div className="p-4 border rounded-lg space-y-4">
-                        {department === 'emergency' &&
+                        {(department === 'emergency' || patientToEdit?.department === 'emergency') &&
                             <FormField
                                 control={form.control}
                                 name="triageLevel"
@@ -519,10 +519,10 @@ export function PatientRegistrationDialog({ open, onOpenChange, patientToEdit, p
                             )}/>
                         }
                         <div className="grid grid-cols-2 gap-4">
-                            <FormField control={form.control} name="vitalSigns.heartRate" render={({ field }) => (<FormItem><FormLabel className="text-xs flex items-center gap-1"><HeartPulse className="h-3 w-3"/>{t('emergency.vitals.heartRate')}</FormLabel><FormControl><Input type="number" {...field} /></FormControl></FormItem>)} />
-                            <FormField control={form.control} name="vitalSigns.bloodPressure" render={({ field }) => (<FormItem><FormLabel className="text-xs flex items-center gap-1"><Activity className="h-3 w-3"/>{t('emergency.vitals.bloodPressure')}</FormLabel><FormControl><Input {...field} /></FormControl></FormItem>)} />
-                            <FormField control={form.control} name="vitalSigns.spo2" render={({ field }) => (<FormItem><FormLabel className="text-xs flex items-center gap-1"><Wind className="h-3 w-3"/>{t('emergency.vitals.spo2')}</FormLabel><FormControl><Input type="number" {...field} /></FormControl></FormItem>)} />
-                            <FormField control={form.control} name="vitalSigns.temperature" render={({ field }) => (<FormItem><FormLabel className="text-xs flex items-center gap-1"><Thermometer className="h-3 w-3"/>{t('emergency.vitals.temperature')}</FormLabel><FormControl><Input type="number" step="0.1" {...field} /></FormControl></FormItem>)} />
+                            <FormField control={form.control} name="vitalSigns.heartRate" render={({ field }) => (<FormItem><FormLabel className="text-xs flex items-center gap-1"><HeartPulse className="h-3 w-3"/>{t('emergency.vitals.heartRate')}</FormLabel><FormControl><Input type="number" {...field} value={field.value ?? ''} /></FormControl></FormItem>)} />
+                            <FormField control={form.control} name="vitalSigns.bloodPressure" render={({ field }) => (<FormItem><FormLabel className="text-xs flex items-center gap-1"><Activity className="h-3 w-3"/>{t('emergency.vitals.bloodPressure')}</FormLabel><FormControl><Input {...field} value={field.value ?? ''} /></FormControl></FormItem>)} />
+                            <FormField control={form.control} name="vitalSigns.spo2" render={({ field }) => (<FormItem><FormLabel className="text-xs flex items-center gap-1"><Wind className="h-3 w-3"/>{t('emergency.vitals.spo2')}</FormLabel><FormControl><Input type="number" {...field} value={field.value ?? ''} /></FormControl></FormItem>)} />
+                            <FormField control={form.control} name="vitalSigns.temperature" render={({ field }) => (<FormItem><FormLabel className="text-xs flex items-center gap-1"><Thermometer className="h-3 w-3"/>{t('emergency.vitals.temperature')}</FormLabel><FormControl><Input type="number" step="0.1" {...field} value={field.value ?? ''} /></FormControl></FormItem>)} />
                         </div>
                     </div>
                  )}
