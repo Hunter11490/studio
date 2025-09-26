@@ -155,13 +155,15 @@ export default function AccountsPage() {
     );
 }
 
-const PrintableInvoice = React.forwardRef<HTMLDivElement, { patient: Patient, labels: Record<string,string> }>(({ patient, labels }, ref) => {
+class PrintableInvoice extends React.Component<{ patient: Patient; labels: Record<string, string> }> {
+  render() {
+    const { patient, labels } = this.props;
     const totalCharges = (patient.financialRecords || []).filter(r => r.amount > 0).reduce((acc, r) => acc + r.amount, 0);
     const totalPayments = (patient.financialRecords || []).filter(r => r.amount < 0).reduce((acc, r) => acc + Math.abs(r.amount), 0);
     const balanceDue = totalCharges - totalPayments;
 
     return (
-        <div ref={ref} className="p-8 font-sans text-sm text-black bg-white">
+        <div className="p-8 font-sans text-sm text-black bg-white">
             <div className="flex justify-between items-start pb-4 border-b">
                 <div className="flex items-center gap-4">
                      <Logo className="h-16 w-16 text-black" />
@@ -231,20 +233,23 @@ const PrintableInvoice = React.forwardRef<HTMLDivElement, { patient: Patient, la
             </div>
         </div>
     );
-});
-PrintableInvoice.displayName = 'PrintableInvoice';
+  }
+}
 
 
 function PatientInvoiceDialog({ patient, onOpenChange, onAddPayment }: { patient: Patient | null; onOpenChange: (open:boolean) => void; onAddPayment: (patientId: string, amount: number) => void; }) {
     const { t, lang } = useLanguage();
     const [paymentAmount, setPaymentAmount] = useState('');
-    const invoiceRef = useRef<HTMLDivElement>(null);
+    const invoiceRef = useRef<PrintableInvoice>(null);
     const [isPrinting, setIsPrinting] = useState(false);
 
     const handlePrint = useReactToPrint({
         content: () => invoiceRef.current,
         documentTitle: `Invoice-${patient?.patientName}-${new Date().toISOString().split('T')[0]}`,
-        onBeforeGetContent: () => setIsPrinting(true),
+        onBeforeGetContent: () => new Promise<void>((resolve) => {
+            setIsPrinting(true);
+            resolve();
+        }),
         onAfterPrint: () => setIsPrinting(false),
     });
 
