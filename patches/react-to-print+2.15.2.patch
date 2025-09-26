@@ -1,0 +1,63 @@
+diff --git a/node_modules/react-to-print/lib/index.js b/node_modules/react-to-print/lib/index.js
+index 9a61d15..b1f1f23 100644
+--- a/node_modules/react-to-print/lib/index.js
++++ b/node_modules/react-to-print/lib/index.js
+@@ -102,7 +102,7 @@ module.exports = exports.default;
+ 
+ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+ 
+-var PrintContext = /*#__PURE__*/_react.default.createContext(null);
++var PrintContext = /* #__PURE__ */_react.default.createContext(null);
+ 
+ function useReactToPrint(props) {
+   var copyStyles = props.copyStyles,
+@@ -213,7 +213,10 @@ function useReactToPrint(props) {
+   }, [handlePrint, handlePrintResolve]);
+   return handlePrint;
+ }
+-
+-var ReactToPrint = /*#__PURE__*/function (_React$Component) {
++/**
++ * Class component wrapper for useReactToPrint
++ */
++
++var ReactToPrint = /* #__PURE__ */function (_React$Component) {
+   (0, _inherits2.default)(ReactToPrint, _React$Component);
+ 
+   var _super = _createSuper(ReactToPrint);
+@@ -226,7 +229,7 @@ var ReactToPrint = /*#__PURE__*/function (_React$Component) {
+ 
+   (0, _createClass2.default)(ReactToPrint, [{
+     key: "render",
+-    value: function render() {
++    value: function render$$1() {
+       var _this$props2 = this.props,
+           bodyClass = _this$props2.bodyClass,
+           content = _this$props2.content,
+@@ -250,7 +253,7 @@ var ReactToPrint = /*#__PURE__*/function (_React$Component) {
+           onAfterPrint: onAfterPrint,
+           onBeforeGetContent: onBeforeGetContent,
+           onBeforePrint: onBeforePrint,
+-          onPrintError: onPrintError,
++          onPrintError: onPrintError
+         }),
+             trigger = _this$props2.trigger;
+ 
+@@ -275,7 +278,7 @@ var ReactToPrint = /*#__PURE__*/function (_React$Component) {
+           return /*#__PURE__*/_react.default.cloneElement(trigger(), {
+             onClick: function onClick() {
+               if (trigger().props.onClick) {
+-                trigger().props.onClick();
++                trigger().props.onClick(); // eslint-disable-line @typescript-eslint/no-non-null-assertion
+               }
+ 
+               handlePrint();
+@@ -288,4 +291,5 @@ var ReactToPrint = /*#__PURE__*/function (_React$Component) {
+ }(_react.default.Component);
+ 
+ var _default = ReactToPrint;
+-exports.default = _default;
+\ No newline at end of file
++exports.default = _default;
++//# sourceMappingURL=index.js.map
+\ No newline at end of file
