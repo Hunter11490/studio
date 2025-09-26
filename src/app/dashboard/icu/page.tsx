@@ -6,13 +6,14 @@ import { useLanguage } from '@/hooks/use-language';
 import { UserMenu } from '@/components/layout/user-menu';
 import { Logo } from '@/components/logo';
 import { Button } from '@/components/ui/button';
-import { Maximize, Minimize, Bed, User, Stethoscope, HeartPulse, Activity, Wind, Thermometer } from 'lucide-react';
+import { Maximize, Minimize, Bed, User, Stethoscope, HeartPulse, Activity, Wind, Thermometer, Pencil } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { NotificationsButton } from '@/components/notifications-button';
 import { Patient } from '@/types';
 import { cn } from '@/lib/utils';
 import { ResponsiveContainer, LineChart, Line } from 'recharts';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { PatientRegistrationDialog } from '@/components/reception/patient-registration-dialog';
 
 const TOTAL_ICU_BEDS = 12;
 
@@ -27,6 +28,7 @@ const generateEcgData = () => {
 function BedCard({ bedNumber, patient }: { bedNumber: number; patient: Patient | null }) {
     const { t } = useLanguage();
     const [isMonitorOpen, setMonitorOpen] = useState(false);
+    const [isEditing, setIsEditing] = useState(false);
     const [ecgData, setEcgData] = useState(generateEcgData());
     const isOccupied = !!patient;
 
@@ -91,8 +93,21 @@ function BedCard({ bedNumber, patient }: { bedNumber: number; patient: Patient |
                                 </div>
                             </div>
                         </div>
+                        <DialogFooter>
+                            <Button variant="outline" onClick={() => setIsEditing(true)}>
+                                <Pencil className="mr-2 h-4 w-4" />
+                                {t('doctorCard.edit')} {t('reception.patientName')}
+                            </Button>
+                        </DialogFooter>
                     </DialogContent>
                  </Dialog>
+            )}
+            {patient && (
+                <PatientRegistrationDialog
+                    open={isEditing}
+                    onOpenChange={setIsEditing}
+                    patientToEdit={patient}
+                />
             )}
         </>
     );
