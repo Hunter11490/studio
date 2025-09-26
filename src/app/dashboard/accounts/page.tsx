@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { usePatients } from '@/hooks/use-patients';
 import { useLanguage } from '@/hooks/use-language';
 import { UserMenu } from '@/components/layout/user-menu';
@@ -32,6 +32,17 @@ export default function AccountsPage() {
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
     const [isFullscreen, setIsFullscreen] = useState(false);
+
+    useEffect(() => {
+        // When patients data changes, find the updated version of the selected patient and update the state
+        if (selectedPatient) {
+            const updatedPatient = patients.find(p => p.id === selectedPatient.id);
+            if (updatedPatient) {
+                setSelectedPatient(updatedPatient);
+            }
+        }
+    }, [patients, selectedPatient]);
+
 
     const handleFullscreenToggle = async () => {
       if (typeof window !== 'undefined') {
