@@ -514,6 +514,14 @@ export const translations: Translations = {
       lastVisit: "Last Visit",
       noRecords: "No patient records found.",
       viewHistory: "View History",
+      patientHistoryFor: "Patient History for",
+      exportReports: "Export Reports",
+      exportDesc: "Export patient data to Excel.",
+      exportDaily: "Export Daily Report",
+      exportMonthly: "Export Monthly Report",
+      exportPatient: "Export Patient Report",
+      selectPatientPlaceholder: "Select a patient to export",
+      noDataToExport: "No data found for the selected criteria."
     },
     sterilization: {
       title: "Central Sterilization",
@@ -1054,6 +1062,14 @@ export const translations: Translations = {
       lastVisit: "آخر زيارة",
       noRecords: "لا توجد سجلات مرضى.",
       viewHistory: "عرض السجل",
+      patientHistoryFor: "السجل المرضي للمريض",
+      exportReports: "تصدير التقارير",
+      exportDesc: "تصدير بيانات المرضى إلى ملف إكسل.",
+      exportDaily: "تصدير تقرير يومي",
+      exportMonthly: "تصدير تقرير شهري",
+      exportPatient: "تصدير تقرير مريض",
+      selectPatientPlaceholder: "اختر مريضاً للتصدير",
+      noDataToExport: "لا توجد بيانات للمعايير المحددة."
     },
     sterilization: {
       title: "وحدة التعقيم المركزية",
