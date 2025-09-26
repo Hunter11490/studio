@@ -14,8 +14,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
-import { Scissors, PlusCircle, ChevronLeft, ChevronRight, Clock, Maximize, Minimize, SprayCan, Loader2 } from 'lucide-react';
-import { format, addDays, startOfWeek, eachDayOfInterval, isSameDay, setHours, setMinutes, getHours, getMinutes } from 'date-fns';
+import { Scissors, PlusCircle, Pencil, Clock, Maximize, Minimize, SprayCan, Loader2, User, Calendar } from 'lucide-react';
+import { format, isPast } from 'date-fns';
 import { ar } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -25,17 +25,18 @@ import { requestSterilization } from '@/ai/flows/sterilization-flow';
 import { useToast } from '@/hooks/use-toast';
 import { InstrumentSet, Patient } from '@/types';
 import { usePatients } from '@/hooks/use-patients';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 
 type SurgeryBooking = {
     id: string;
     patientId: string;
-    patientName: string; // Keep patientName for display purposes
+    patientName: string; 
     surgeryType: string;
     surgeonName: string;
     date: Date;
-    duration: number; // Duration in minutes
-    cost: number; // Cost of the surgery
+    duration: number; 
+    cost: number; 
     status: 'scheduled' | 'completed' | 'canceled';
 };
 
@@ -49,11 +50,7 @@ const formSchema = z.object({
   status: z.enum(['scheduled', 'completed', 'canceled']),
 });
 
-const initialBookings: SurgeryBooking[] = [
-    { id: '1', patientId: 'mock_patient_1', patientName: 'علي حسن', surgeryType: 'استئصال الزائدة', surgeonName: 'د. أحمد الجميلي', date: setMinutes(setHours(new Date(), 9), 0), duration: 60, cost: 500000, status: 'scheduled' },
-    { id: '2', patientId: 'mock_patient_2', patientName: 'نور محمد', surgeryType: 'جراحة القلب المفتوح', surgeonName: 'د. علي الساعدي', date: setMinutes(setHours(addDays(new Date(), 1), 11), 30), duration: 180, cost: 7500000, status: 'scheduled' },
-    { id: '3', patientId: 'mock_patient_3', patientName: 'سارة كريم', surgeryType: 'إزالة المرارة', surgeonName: 'د. خالد العامري', date: setMinutes(setHours(new Date(), 14), 0), duration: 90, cost: 1200000, status: 'completed' },
-];
+const initialBookings: SurgeryBooking[] = [];
 
 function SterilizationRequestDialog({ open, onOpenChange }: { open: boolean, onOpenChange: (open: boolean) => void }) {
     const { t } = useLanguage();
@@ -116,14 +113,56 @@ function SterilizationRequestDialog({ open, onOpenChange }: { open: boolean, onO
     )
 }
 
+function SurgeryCard({ booking, onEdit }: { booking: SurgeryBooking, onEdit: (booking: SurgeryBooking) => void }) {
+    const { t, lang } = useLanguage();
+    const surgeryIsInThePast = isPast(new Date(booking.date));
+    const statusConfig = {
+      scheduled: 'bg-blue-500/80 border-blue-700',
+      completed: 'bg-green-500/80 border-green-700',
+      canceled: 'bg-red-500/80 border-red-700',
+    };
+
+    return (
+        <Card className={cn("overflow-hidden", surgeryIsInThePast && "opacity-70")}>
+             <div className={cn("w-full h-1.5", statusConfig[booking.status])}></div>
+             <CardHeader className="p-4">
+                <div className="flex justify-between items-start">
+                    <div>
+                        <CardTitle className="text-lg">{booking.patientName}</CardTitle>
+                        <p className="text-sm text-muted-foreground">{booking.surgeryType}</p>
+                    </div>
+                    {!surgeryIsInThePast && (
+                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => onEdit(booking)}>
+                            <Pencil className="h-4 w-4" />
+                        </Button>
+                    )}
+                </div>
+             </CardHeader>
+             <CardContent className="p-4 pt-0 text-sm space-y-2">
+                <div className="flex items-center gap-2">
+                    <User className="h-4 w-4 text-muted-foreground" />
+                    <span>{booking.surgeonName}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                    <Calendar className="h-4 w-4 text-muted-foreground" />
+                    <span>{format(new Date(booking.date), 'PPP p', { locale: lang === 'ar' ? ar : undefined })}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                    <Clock className="h-4 w-4 text-muted-foreground" />
+                    <span>{booking.duration} {t('surgery.minutes')}</span>
+                </div>
+             </CardContent>
+        </Card>
+    );
+}
+
 export default function SurgeryPage() {
     const { t, lang } = useLanguage();
-    const [bookings, setBookings] = useLocalStorage<SurgeryBooking[]>('surgery_bookings_v4', initialBookings);
+    const [bookings, setBookings] = useLocalStorage<SurgeryBooking[]>('surgery_bookings_v5', initialBookings);
     const { patients, addFinancialRecord } = usePatients();
     const [isFormOpen, setFormOpen] = useState(false);
     const [isSterilizationRequestOpen, setSterilizationRequestOpen] = useState(false);
     const [bookingToEdit, setBookingToEdit] = useState<SurgeryBooking | null>(null);
-    const [currentDate, setCurrentDate] = useState(new Date());
     const [isFullscreen, setIsFullscreen] = useState(false);
 
     const handleFullscreenToggle = async () => {
@@ -138,17 +177,13 @@ export default function SurgeryPage() {
       }
     };
 
-    const weekStart = startOfWeek(currentDate, { weekStartsOn: 6 }); // Saturday
-    const weekDays = eachDayOfInterval({ start: weekStart, end: addDays(weekStart, 6) });
-    const timeSlots = Array.from({ length: 12 }, (_, i) => `${i + 8}:00`); // 8 AM to 7 PM
-
     const handleSaveBooking = (data: z.infer<typeof formSchema>) => {
         const patient = patients.find(p => p.id === data.patientId);
         if (!patient) return;
 
         const bookingData = { ...data, patientName: patient.patientName };
         
-        if (bookingToEdit && bookingToEdit.patientId) {
+        if (bookingToEdit) {
             setBookings(prev => prev.map(b => b.id === bookingToEdit.id ? { ...b, ...bookingData } : b));
         } else {
             const newBooking: SurgeryBooking = { id: new Date().toISOString(), ...bookingData };
@@ -156,64 +191,40 @@ export default function SurgeryPage() {
             addFinancialRecord(data.patientId, {
                 type: 'surgery',
                 description: `${t('surgery.surgeryType')}: ${data.surgeryType}`,
-                amount: data.cost
+                amount: data.cost,
+                date: new Date().toISOString()
             });
         }
         setFormOpen(false);
         setBookingToEdit(null);
     };
     
-    const handleAddClick = (date: Date, hour: number) => {
-        setBookingToEdit(null); // Clear any existing edit data
-        const newDate = setMinutes(setHours(date, hour), 0);
-        // This is a way to set default values for the form when adding.
-        const defaultBookingData: Partial<SurgeryBooking> = { date: newDate, duration: 60, cost: 1000000, status: 'scheduled' };
-        // We open the form, but let the user select the patient.
+    const handleAddClick = () => {
+        setBookingToEdit(null);
         setFormOpen(true);
     };
 
-    const changeWeek = (direction: 'next' | 'prev') => {
-        setCurrentDate(prev => addDays(prev, direction === 'next' ? 7 : -7));
+    const handleEditClick = (booking: SurgeryBooking) => {
+        setBookingToEdit(booking);
+        setFormOpen(true);
     };
-    
-    const getBookingStyle = (booking: SurgeryBooking) => {
-        const startHour = getHours(new Date(booking.date));
-        const startMinute = getMinutes(new Date(booking.date));
-        const top = ((startHour - 8) * 60 + startMinute); // 60px per hour, starting from 8 AM
-        const height = booking.duration;
-        
-        const statusClasses = {
-          scheduled: 'bg-blue-500/80 border-blue-700',
-          completed: 'bg-green-500/80 border-green-700',
-          canceled: 'bg-red-500/80 border-red-700',
-        };
 
+    const { scheduledBookings, completedBookings } = useMemo(() => {
+        const sorted = [...bookings].sort((a,b) => new Date(b.date).getTime() - new Date(a.date).getTime());
         return {
-            top: `${top}px`,
-            height: `${height}px`,
-            className: cn(
-                "absolute left-1 right-1 p-2 rounded-lg text-white text-xs overflow-hidden border-l-4",
-                "cursor-pointer hover:opacity-90 transition-opacity",
-                statusClasses[booking.status]
-            ),
+            scheduledBookings: sorted.filter(b => !isPast(new Date(b.date)) && b.status === 'scheduled'),
+            completedBookings: sorted.filter(b => isPast(new Date(b.date)) || b.status !== 'scheduled'),
         };
-    };
+    }, [bookings]);
 
     return (
-        <div className="flex flex-col h-screen bg-secondary/50">
+        <div className="flex flex-col h-screen">
             <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b bg-card px-4 md:px-6 shrink-0">
                 <div className="flex items-center gap-2">
                     <Logo className="h-8 w-8 text-primary" />
                 </div>
                 <div className="flex flex-col items-center">
                     <h1 className="text-lg font-semibold tracking-tight whitespace-nowrap text-primary animate-glow">{t('departments.surgicalOperations')}</h1>
-                    <div className="flex items-center gap-2">
-                        <Button variant="ghost" size="icon" onClick={() => changeWeek('prev')}><ChevronLeft className="h-4 w-4" /></Button>
-                        <span className="text-sm font-semibold text-center w-40 md:w-auto tabular-nums whitespace-nowrap">
-                            {format(weekStart, 'dd MMM yyyy', {locale: lang === 'ar' ? ar : undefined})}
-                        </span>
-                        <Button variant="ghost" size="icon" onClick={() => changeWeek('next')}><ChevronRight className="h-4 w-4" /></Button>
-                    </div>
                 </div>
                 <div className="flex items-center gap-2">
                     <TooltipProvider>
@@ -235,62 +246,43 @@ export default function SurgeryPage() {
                 </div>
             </header>
 
-            <main className="flex-grow p-2 md:p-4 grid grid-cols-[auto_1fr] gap-0 overflow-hidden">
-                {/* Time Gutter */}
-                <div className="w-16 text-center text-sm text-muted-foreground flex-shrink-0 pt-10">
-                    {timeSlots.map(time => <div key={time} className="h-[60px] relative"><span className="absolute -top-2 rtl:right-0 ltr:left-0 w-full text-center">{time}</span></div>)}
-                </div>
-
-                {/* Schedule Grid */}
-                <div className="flex-grow overflow-auto">
-                    <div className="grid grid-cols-7 min-w-[900px] gap-px bg-border rounded-lg border overflow-hidden h-full">
-                        {weekDays.map(day => (
-                            <div key={day.toString()} className="bg-background relative">
-                                <div className="p-2 border-b text-center font-semibold text-sm h-10 sticky top-0 bg-background z-10">
-                                    {format(day, 'EEE dd', {locale: lang === 'ar' ? ar : undefined})}
-                                </div>
-                                <div className="relative">
-                                    {/* Hour lines */}
-                                    {timeSlots.map((time, i) => (
-                                      <div 
-                                        key={i} 
-                                        className="h-[60px] border-t border-dashed hover:bg-primary/10 cursor-pointer"
-                                        onClick={() => handleAddClick(day, 8 + i)}
-                                      ></div>
-                                    ))}
-                                    
-                                    {/* Bookings */}
-                                    {bookings
-                                        .filter(b => isSameDay(new Date(b.date), day))
-                                        .map(booking => {
-                                            const { top, height, className } = getBookingStyle(booking);
-                                            return (
-                                                <div 
-                                                    key={booking.id}
-                                                    style={{ top, height }}
-                                                    className={className}
-                                                    onClick={() => { setBookingToEdit(booking); setFormOpen(true) }}
-                                                >
-                                                    <p className="font-bold truncate">{booking.patientName}</p>
-                                                    <p className="truncate text-white/80">{booking.surgeryType}</p>
-                                                    <div className="flex items-center gap-1 opacity-80 mt-1">
-                                                        <Clock className="h-3 w-3" />
-                                                        <span>{booking.duration} min</span>
-                                                    </div>
-                                                </div>
-                                            );
-                                    })}
-                                </div>
-                            </div>
-                        ))}
+            <main className="flex-grow p-4 md:p-6 overflow-hidden">
+                <Tabs defaultValue="scheduled" className="h-full flex flex-col">
+                    <div className="flex justify-center">
+                        <TabsList>
+                            <TabsTrigger value="scheduled">{t('surgery.tabs.scheduled')}</TabsTrigger>
+                            <TabsTrigger value="completed">{t('surgery.tabs.completed')}</TabsTrigger>
+                        </TabsList>
                     </div>
-                </div>
+                    <TabsContent value="scheduled" className="flex-grow overflow-hidden mt-4">
+                        <ScrollArea className="h-full">
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 p-1">
+                                {scheduledBookings.length > 0 ? (
+                                    scheduledBookings.map(b => <SurgeryCard key={b.id} booking={b} onEdit={handleEditClick} />)
+                                ) : (
+                                    <div className="col-span-full text-center py-16 text-muted-foreground">{t('surgery.noScheduled')}</div>
+                                )}
+                            </div>
+                        </ScrollArea>
+                    </TabsContent>
+                    <TabsContent value="completed" className="flex-grow overflow-hidden mt-4">
+                        <ScrollArea className="h-full">
+                           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 p-1">
+                                {completedBookings.length > 0 ? (
+                                    completedBookings.map(b => <SurgeryCard key={b.id} booking={b} onEdit={handleEditClick} />)
+                                ) : (
+                                    <div className="col-span-full text-center py-16 text-muted-foreground">{t('surgery.noCompleted')}</div>
+                                )}
+                            </div>
+                        </ScrollArea>
+                    </TabsContent>
+                </Tabs>
             </main>
             
              <TooltipProvider>
                  <Tooltip>
                     <TooltipTrigger asChild>
-                         <Button onClick={() => handleAddClick(new Date(), 9)} className="fixed bottom-24 right-6 z-40 h-14 w-14 rounded-full shadow-lg animate-pulse-glow" size="icon">
+                         <Button onClick={handleAddClick} className="fixed bottom-24 right-6 z-40 h-14 w-14 rounded-full shadow-lg" size="icon">
                             <PlusCircle className="h-6 w-6" />
                         </Button>
                     </TooltipTrigger>
@@ -312,7 +304,7 @@ export default function SurgeryPage() {
              <Dialog open={isFormOpen} onOpenChange={setFormOpen}>
                 <DialogContent>
                     <DialogHeader>
-                        <DialogTitle>{bookingToEdit && bookingToEdit.patientId ? t('surgery.editBooking') : t('surgery.newBooking')}</DialogTitle>
+                        <DialogTitle>{bookingToEdit ? t('surgery.editBooking') : t('surgery.newBooking')}</DialogTitle>
                     </DialogHeader>
                     <BookingForm 
                       onSave={handleSaveBooking} 
@@ -325,7 +317,7 @@ export default function SurgeryPage() {
     );
 }
 
-function BookingForm({ onSave, bookingToEdit }: { onSave: (data: z.infer<typeof formSchema>) => void; bookingToEdit?: Partial<SurgeryBooking> | null }) {
+function BookingForm({ onSave, bookingToEdit }: { onSave: (data: z.infer<typeof formSchema>) => void; bookingToEdit?: SurgeryBooking | null }) {
     const { t } = useLanguage();
     const { patients } = usePatients();
 
@@ -350,8 +342,17 @@ function BookingForm({ onSave, bookingToEdit }: { onSave: (data: z.infer<typeof 
         if (bookingToEdit) {
             form.reset({
                 ...bookingToEdit,
-                patientId: bookingToEdit.patientId || '',
-                date: bookingToEdit.date ? new Date(bookingToEdit.date) : new Date(), // Make sure it's a Date object
+                date: new Date(bookingToEdit.date),
+            });
+        } else {
+             form.reset({
+                patientId: '',
+                surgeryType: '',
+                surgeonName: '',
+                date: new Date(),
+                duration: 60,
+                cost: 1000000,
+                status: 'scheduled',
             });
         }
     }, [bookingToEdit, form]);
@@ -369,7 +370,7 @@ function BookingForm({ onSave, bookingToEdit }: { onSave: (data: z.infer<typeof 
                     render={({ field }) => (
                      <FormItem>
                          <FormLabel>{t('surgery.patientName')}</FormLabel>
-                         <Select onValueChange={field.onChange} defaultValue={field.value} disabled={!!bookingToEdit?.patientId}>
+                         <Select onValueChange={field.onChange} value={field.value} disabled={!!bookingToEdit}>
                              <FormControl>
                                 <SelectTrigger>
                                     <SelectValue placeholder={t('wards.selectPatientPlaceholder')} />
@@ -405,7 +406,7 @@ function BookingForm({ onSave, bookingToEdit }: { onSave: (data: z.infer<typeof 
                     )} />
                 </div>
                  <FormField control={form.control} name="status" render={({ field }) => (
-                    <FormItem><FormLabel>{t('surgery.status.title')}</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormItem><FormLabel>{t('surgery.status.title')}</FormLabel><Select onValueChange={field.onChange} value={field.value}>
                         <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
                         <SelectContent>
                             <SelectItem value="scheduled">{t('surgery.status.scheduled')}</SelectItem>

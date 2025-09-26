@@ -393,9 +393,16 @@ export const translations: Translations = {
       surgeryType: 'Surgery Type',
       surgeonName: 'Surgeon Name',
       date: 'Date & Time',
-      duration: 'Duration (minutes)',
+      duration: 'Duration',
+      minutes: 'minutes',
       cost: 'Cost',
       noBookings: 'No bookings for this day.',
+      noScheduled: 'No scheduled surgeries.',
+      noCompleted: 'No completed or canceled surgeries yet.',
+      tabs: {
+        scheduled: 'Scheduled',
+        completed: 'History'
+      },
       status: {
         title: 'Status',
         scheduled: 'Scheduled',
@@ -983,9 +990,16 @@ export const translations: Translations = {
       surgeryType: 'نوع العملية',
       surgeonName: 'اسم الجراح',
       date: 'التاريخ والوقت',
-      duration: 'المدة (دقائق)',
+      duration: 'المدة',
+      minutes: 'دقيقة',
       cost: 'التكلفة',
       noBookings: 'لا توجد حجوزات لهذا اليوم.',
+      noScheduled: 'لا توجد عمليات مجدولة.',
+      noCompleted: 'لا توجد عمليات مكتملة أو ملغاة بعد.',
+      tabs: {
+        scheduled: 'العمليات المجدولة',
+        completed: 'سجل العمليات'
+      },
       status: {
         title: 'الحالة',
         scheduled: 'مجدولة',
