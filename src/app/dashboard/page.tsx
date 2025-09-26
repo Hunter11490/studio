@@ -58,7 +58,7 @@ import { NotificationsButton } from '@/components/notifications-button';
 const mainDepts = [
   {
     name: 'reception',
-    icon: PersonStanding,
+    icon: BookUser, // Changed from PersonStanding
     href: '/dashboard/reception',
   },
   {
@@ -112,15 +112,14 @@ const medicalDepts = [
    { name: 'neurology', icon: Brain, href: '/dashboard/neurology' },
    { name: 'oncology', icon: Quote, href: '/dashboard/oncology' },
    { name: 'nephrology', icon: Droplets, href: '/dashboard/nephrology' },
-   { name: 'bloodBank', icon: Heart, href: '/dashboard/blood-bank' },
+   { name: 'bloodBank', icon: Droplets, href: '/dashboard/blood-bank' }, // Changed from Heart
 ];
 
 const adminDepts = [
-  { name: 'accounts', icon: Calculator, href: '/dashboard/accounts' }, // TBD
-  { name: 'medicalRecords', icon: BookUser, href: '#' }, // TBD
-  { name: 'sterilization', icon: SprayCan, href: '#' }, // TBD
-  { name: 'services', icon: Utensils, href: '#' }, // TBD
-  { name: 'representatives', icon: Users, href: '/dashboard/representatives' },
+  { name: 'accounts', icon: Calculator, href: '/dashboard/accounts' },
+  { name: 'medicalRecords', icon: BookUser, href: '/dashboard/medical-records' },
+  { name: 'sterilization', icon: SprayCan, href: '/dashboard/sterilization' },
+  { name: 'services', icon: Utensils, href: '/dashboard/services' },
   { name: 'admin', icon: Shield, href: '/dashboard/admin' },
 ];
 
