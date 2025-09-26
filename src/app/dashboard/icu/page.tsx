@@ -1,13 +1,12 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { usePatients } from '@/hooks/use-patients';
 import { useLanguage } from '@/hooks/use-language';
 import { UserMenu } from '@/components/layout/user-menu';
 import { Logo } from '@/components/logo';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
-import { Maximize, Minimize, Bed, User, Stethoscope, HeartPulse } from 'lucide-react';
+import { Maximize, Minimize, Bed, User, Stethoscope, HeartPulse, Activity, Wind, Thermometer } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { NotificationsButton } from '@/components/notifications-button';
 import { Patient } from '@/types';
@@ -28,13 +27,23 @@ const generateEcgData = () => {
 function BedCard({ bedNumber, patient }: { bedNumber: number; patient: Patient | null }) {
     const { t } = useLanguage();
     const [isMonitorOpen, setMonitorOpen] = useState(false);
+    const [ecgData, setEcgData] = useState(generateEcgData());
     const isOccupied = !!patient;
+
+    useEffect(() => {
+        if (isMonitorOpen) {
+            const interval = setInterval(() => {
+                setEcgData(generateEcgData());
+            }, 500);
+            return () => clearInterval(interval);
+        }
+    }, [isMonitorOpen]);
 
     return (
         <>
-            <Card 
+            <div 
                 className={cn(
-                    "flex flex-col items-center justify-center p-4 transition-all",
+                    "flex flex-col items-center justify-center p-4 transition-all rounded-lg border",
                     isOccupied ? "bg-red-500/10 border-red-500/30 cursor-pointer hover:shadow-lg" : "bg-green-500/10 border-green-500/30"
                 )}
                 onClick={() => isOccupied && setMonitorOpen(true)}
@@ -44,7 +53,7 @@ function BedCard({ bedNumber, patient }: { bedNumber: number; patient: Patient |
                     <span className="font-bold text-lg">{t('icu.bed')} {bedNumber}</span>
                     <span className="text-sm text-muted-foreground">{isOccupied ? patient.patientName : t('icu.vacant')}</span>
                 </div>
-            </Card>
+            </div>
             {isOccupied && (
                  <Dialog open={isMonitorOpen} onOpenChange={setMonitorOpen}>
                     <DialogContent className="max-w-2xl">
@@ -56,33 +65,29 @@ function BedCard({ bedNumber, patient }: { bedNumber: number; patient: Patient |
                                 <div className="flex items-center gap-2"><User className="h-4 w-4 text-muted-foreground"/> {patient.patientName}</div>
                                 <div className="flex items-center gap-2"><Stethoscope className="h-4 w-4 text-muted-foreground"/> Dr. {patient.doctorId ? 'Assigned' : 'N/A'}</div>
                             </div>
-                            <div className="h-48 w-full">
+                            <div className="h-48 w-full bg-black rounded-lg p-2">
                                 <ResponsiveContainer>
-                                    <LineChart data={generateEcgData()} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}>
-                                        <ChartTooltip 
-                                            contentStyle={{ backgroundColor: 'hsl(var(--background))', border: '1px solid hsl(var(--border))' }}
-                                            labelStyle={{ display: 'none' }}
-                                        />
-                                        <Line type="monotone" dataKey="uv" stroke="hsl(var(--primary))" strokeWidth={2} dot={false} isAnimationActive={false} />
+                                    <LineChart data={ecgData} margin={{ top: 5, right: 5, left: -25, bottom: 5 }}>
+                                        <Line type="monotone" dataKey="uv" stroke="#34D399" strokeWidth={2} dot={false} isAnimationActive={false} />
                                     </LineChart>
                                 </ResponsiveContainer>
                             </div>
-                            <div className="grid grid-cols-4 gap-2 text-center">
+                            <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 text-center">
                                 <div className="p-2 rounded-lg bg-secondary">
-                                    <p className="text-xs text-muted-foreground">{t('emergency.vitals.heartRate')}</p>
+                                    <p className="text-xs text-muted-foreground flex items-center justify-center gap-1"><HeartPulse className="h-3 w-3"/> {t('emergency.vitals.heartRate')}</p>
                                     <p className="font-bold text-lg">{patient.vitalSigns?.heartRate}</p>
                                 </div>
                                 <div className="p-2 rounded-lg bg-secondary">
-                                    <p className="text-xs text-muted-foreground">{t('emergency.vitals.bloodPressure')}</p>
+                                    <p className="text-xs text-muted-foreground flex items-center justify-center gap-1"><Activity className="h-3 w-3"/> {t('emergency.vitals.bloodPressure')}</p>
                                     <p className="font-bold text-lg">{patient.vitalSigns?.bloodPressure}</p>
                                 </div>
                                  <div className="p-2 rounded-lg bg-secondary">
-                                    <p className="text-xs text-muted-foreground">{t('emergency.vitals.spo2')}</p>
+                                    <p className="text-xs text-muted-foreground flex items-center justify-center gap-1"><Wind className="h-3 w-3"/> {t('emergency.vitals.spo2')}</p>
                                     <p className="font-bold text-lg">{patient.vitalSigns?.spo2}%</p>
                                 </div>
                                  <div className="p-2 rounded-lg bg-secondary">
-                                    <p className="text-xs text-muted-foreground">{t('emergency.vitals.temperature')}</p>
-                                    <p className="font-bold text-lg">{patient.vitalSigns?.temperature}°C</p>
+                                    <p className="text-xs text-muted-foreground flex items-center justify-center gap-1"><Thermometer className="h-3 w-3"/> {t('emergency.vitals.temperature')}</p>
+                                    <p className="font-bold text-lg">{patient.vitalSigns?.temperature.toFixed(1)}°C</p>
                                 </div>
                             </div>
                         </div>

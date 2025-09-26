@@ -6,7 +6,6 @@ import { useLanguage } from '@/hooks/use-language';
 import { UserMenu } from '@/components/layout/user-menu';
 import { Logo } from '@/components/logo';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Maximize, Minimize, HeartPulse, Thermometer, Wind, Activity } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { NotificationsButton } from '@/components/notifications-button';
@@ -44,46 +43,52 @@ function VitalSign({ icon: Icon, value, unit, label }: { icon: React.ElementType
   )
 }
 
-function PatientCard({ patient }: { patient: Patient }) {
+function PatientCard({ patient, onUpdatePatient }: { patient: Patient, onUpdatePatient: (id: string, updates: Partial<Patient>) => void }) {
   const { t } = useLanguage();
   const config = triageConfig[patient.triageLevel as TriageLevel] || triageConfig.minor;
   const { vitalSigns } = patient;
 
   return (
-    <Card className="mb-2">
-      <CardHeader className="p-3">
-        <CardTitle className="text-sm font-semibold flex items-center justify-between">
-          <span>{patient.patientName}</span>
+    <div className="p-3 mb-2 rounded-lg border bg-card shadow-sm">
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex flex-col">
+            <span className="text-sm font-semibold">{patient.patientName}</span>
+            <div className="flex items-center gap-2 mt-1">
+                <div className={cn("w-3 h-3 rounded-full", config.color)}></div>
+                <span className="text-xs font-medium">{t(`emergency.triage.${patient.triageLevel}`)}</span>
+            </div>
+          </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="xs">Actions</Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
-                <DropdownMenuItem>{t('emergency.admitToICU')}</DropdownMenuItem>
-                <DropdownMenuItem>{t('emergency.admitToWard')}</DropdownMenuItem>
-                <DropdownMenuItem>{t('emergency.discharge')}</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => onUpdatePatient(patient.id, { department: 'icu', status: 'Admitted' })}>
+                  {t('emergency.admitToICU')}
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => onUpdatePatient(patient.id, { department: 'wards', status: 'Admitted' })}>
+                  {t('emergency.admitToWard')}
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => onUpdatePatient(patient.id, { status: 'Discharged' })}>
+                  {t('emergency.discharge')}
+                </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-        </CardTitle>
-        <div className="flex items-center gap-2">
-            <div className={cn("w-3 h-3 rounded-full", config.color)}></div>
-            <span className="text-xs font-medium">{t(`emergency.triage.${patient.triageLevel}`)}</span>
         </div>
-      </CardHeader>
-      <CardContent className="p-3 pt-0 grid grid-cols-2 gap-2">
-        <VitalSign icon={HeartPulse} value={vitalSigns?.heartRate || 'N/A'} unit="bpm" label={t('emergency.vitals.heartRate')} />
-        <VitalSign icon={Activity} value={vitalSigns?.bloodPressure || 'N/A'} unit="mmHg" label={t('emergency.vitals.bloodPressure')} />
-        <VitalSign icon={Wind} value={vitalSigns?.spo2 || 'N/A'} unit="%" label={t('emergency.vitals.spo2')} />
-        <VitalSign icon={Thermometer} value={vitalSigns?.temperature || 'N/A'} unit="°C" label={t('emergency.vitals.temperature')} />
-      </CardContent>
-    </Card>
+        <div className="grid grid-cols-2 gap-2 text-xs">
+            <VitalSign icon={HeartPulse} value={vitalSigns?.heartRate || 'N/A'} unit="bpm" label={t('emergency.vitals.heartRate')} />
+            <VitalSign icon={Activity} value={vitalSigns?.bloodPressure || 'N/A'} unit="mmHg" label={t('emergency.vitals.bloodPressure')} />
+            <VitalSign icon={Wind} value={vitalSigns?.spo2 || 'N/A'} unit="%" label={t('emergency.vitals.spo2')} />
+            <VitalSign icon={Thermometer} value={vitalSigns?.temperature ? vitalSigns.temperature.toFixed(1) : 'N/A'} unit="°C" label={t('emergency.vitals.temperature')} />
+        </div>
+    </div>
   );
 }
 
 
 export default function EmergencyPage() {
   const { t } = useLanguage();
-  const { patients } = usePatients();
+  const { patients, updatePatient } = usePatients();
   const [isFullscreen, setIsFullscreen] = useState(false);
 
   const handleFullscreenToggle = async () => {
@@ -99,7 +104,7 @@ export default function EmergencyPage() {
   };
 
   const emergencyPatients = useMemo(() => {
-    return patients.filter(p => p.department === 'emergency');
+    return patients.filter(p => p.department === 'emergency' && p.status !== 'Discharged');
   }, [patients]);
   
   const waitingPatients = emergencyPatients.filter(p => p.status === 'Waiting');
@@ -132,22 +137,22 @@ export default function EmergencyPage() {
       </header>
       
       <main className="flex-grow grid grid-cols-1 md:grid-cols-3 gap-4 p-4 overflow-auto">
-          <div className="bg-card rounded-lg flex flex-col p-2">
-              <h2 className="font-bold p-2">{t('emergency.waiting')} ({waitingPatients.length})</h2>
-              <div className="flex-grow overflow-y-auto">
-                  {waitingPatients.map(p => <PatientCard key={p.id} patient={p} />)}
+          <div className="bg-card/50 rounded-lg flex flex-col">
+              <h2 className="font-bold p-2 border-b">{t('emergency.waiting')} ({waitingPatients.length})</h2>
+              <div className="flex-grow overflow-y-auto p-2">
+                  {waitingPatients.map(p => <PatientCard key={p.id} patient={p} onUpdatePatient={updatePatient} />)}
               </div>
           </div>
-          <div className="bg-card rounded-lg flex flex-col p-2">
-              <h2 className="font-bold p-2">{t('emergency.inTreatment')} ({treatmentPatients.length})</h2>
-              <div className="flex-grow overflow-y-auto">
-                  {treatmentPatients.map(p => <PatientCard key={p.id} patient={p} />)}
+          <div className="bg-card/50 rounded-lg flex flex-col">
+              <h2 className="font-bold p-2 border-b">{t('emergency.inTreatment')} ({treatmentPatients.length})</h2>
+              <div className="flex-grow overflow-y-auto p-2">
+                  {treatmentPatients.map(p => <PatientCard key={p.id} patient={p} onUpdatePatient={updatePatient} />)}
               </div>
           </div>
-          <div className="bg-card rounded-lg flex flex-col p-2">
-              <h2 className="font-bold p-2">{t('emergency.observation')} ({observationPatients.length})</h2>
-              <div className="flex-grow overflow-y-auto">
-                  {observationPatients.map(p => <PatientCard key={p.id} patient={p} />)}
+          <div className="bg-card/50 rounded-lg flex flex-col">
+              <h2 className="font-bold p-2 border-b">{t('emergency.observation')} ({observationPatients.length})</h2>
+              <div className="flex-grow overflow-y-auto p-2">
+                  {observationPatients.map(p => <PatientCard key={p.id} patient={p} onUpdatePatient={updatePatient} />)}
               </div>
           </div>
       </main>
