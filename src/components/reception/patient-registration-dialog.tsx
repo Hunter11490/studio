@@ -498,24 +498,26 @@ export function PatientRegistrationDialog({ open, onOpenChange, patientToEdit, p
                   )}
                 />
                 
-                 {department === 'emergency' && (
+                 {(department === 'emergency' || patientToEdit?.department === 'emergency' || patientToEdit?.department === 'icu') && (
                     <div className="p-4 border rounded-lg space-y-4">
-                        <FormField
-                            control={form.control}
-                            name="triageLevel"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>{t('emergency.triage.title')}</FormLabel>
-                                    <Select onValueChange={field.onChange} defaultValue={field.value} dir={dir}>
-                                        <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
-                                        <SelectContent>
-                                            {triageLevels.map(level => (
-                                                <SelectItem key={level} value={level}>{t(`emergency.triage.${level}`)}</SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-                                </FormItem>
-                        )}/>
+                        {department === 'emergency' &&
+                            <FormField
+                                control={form.control}
+                                name="triageLevel"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>{t('emergency.triage.title')}</FormLabel>
+                                        <Select onValueChange={field.onChange} defaultValue={field.value} dir={dir}>
+                                            <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
+                                            <SelectContent>
+                                                {triageLevels.map(level => (
+                                                    <SelectItem key={level} value={level}>{t(`emergency.triage.${level}`)}</SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                    </FormItem>
+                            )}/>
+                        }
                         <div className="grid grid-cols-2 gap-4">
                             <FormField control={form.control} name="vitalSigns.heartRate" render={({ field }) => (<FormItem><FormLabel className="text-xs flex items-center gap-1"><HeartPulse className="h-3 w-3"/>{t('emergency.vitals.heartRate')}</FormLabel><FormControl><Input type="number" {...field} /></FormControl></FormItem>)} />
                             <FormField control={form.control} name="vitalSigns.bloodPressure" render={({ field }) => (<FormItem><FormLabel className="text-xs flex items-center gap-1"><Activity className="h-3 w-3"/>{t('emergency.vitals.bloodPressure')}</FormLabel><FormControl><Input {...field} /></FormControl></FormItem>)} />
