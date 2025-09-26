@@ -12,6 +12,7 @@ import { NotificationsButton } from '@/components/notifications-button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Button } from '@/components/ui/button';
 import { Maximize, Minimize } from 'lucide-react';
+import { AuthLoader } from '@/components/auth-loader';
 
 export default function AdminPage() {
   const { user, isLoading } = useAuth();
@@ -37,13 +38,8 @@ export default function AdminPage() {
     }
   }, [user, isLoading, router]);
 
-  if (isLoading || user?.role !== 'admin') {
-    return (
-      <div className="flex h-screen w-full items-center justify-center">
-        {/* You can add a proper loader here */}
-        <p>Loading or redirecting...</p>
-      </div>
-    );
+  if (isLoading || !user || user.role !== 'admin') {
+    return <AuthLoader />;
   }
 
   return (

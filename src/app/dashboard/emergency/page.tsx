@@ -17,6 +17,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 
 const triageConfig = {
@@ -136,24 +137,30 @@ export default function EmergencyPage() {
           </div>
       </header>
       
-      <main className="flex-grow grid grid-cols-1 md:grid-cols-3 gap-4 p-4 overflow-auto">
-          <div className="bg-card/50 rounded-lg flex flex-col">
+      <main className="flex-grow grid grid-cols-1 md:grid-cols-3 gap-4 p-4 overflow-hidden">
+          <div className="bg-card rounded-lg flex flex-col p-2">
               <h2 className="font-bold p-2 border-b">{t('emergency.waiting')} ({waitingPatients.length})</h2>
-              <div className="flex-grow overflow-y-auto p-2">
+              <ScrollArea className="flex-grow">
+                <div className="p-2">
                   {waitingPatients.map(p => <PatientCard key={p.id} patient={p} onUpdatePatient={updatePatient} />)}
-              </div>
+                </div>
+              </ScrollArea>
           </div>
-          <div className="bg-card/50 rounded-lg flex flex-col">
+          <div className="bg-card rounded-lg flex flex-col p-2">
               <h2 className="font-bold p-2 border-b">{t('emergency.inTreatment')} ({treatmentPatients.length})</h2>
-              <div className="flex-grow overflow-y-auto p-2">
-                  {treatmentPatients.map(p => <PatientCard key={p.id} patient={p} onUpdatePatient={updatePatient} />)}
-              </div>
+              <ScrollArea className="flex-grow">
+                <div className="p-2">
+                    {treatmentPatients.map(p => <PatientCard key={p.id} patient={p} onUpdatePatient={updatePatient} />)}
+                </div>
+              </ScrollArea>
           </div>
-          <div className="bg-card/50 rounded-lg flex flex-col">
+          <div className="bg-card rounded-lg flex flex-col p-2">
               <h2 className="font-bold p-2 border-b">{t('emergency.observation')} ({observationPatients.length})</h2>
-              <div className="flex-grow overflow-y-auto p-2">
-                  {observationPatients.map(p => <PatientCard key={p.id} patient={p} onUpdatePatient={updatePatient} />)}
-              </div>
+              <ScrollArea className="flex-grow">
+                <div className="p-2">
+                    {observationPatients.map(p => <PatientCard key={p.id} patient={p} onUpdatePatient={updatePatient} />)}
+                </div>
+              </ScrollArea>
           </div>
       </main>
     </div>

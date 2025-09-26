@@ -11,7 +11,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { NotificationsButton } from '@/components/notifications-button';
 import { Patient } from '@/types';
 import { cn } from '@/lib/utils';
-import { ResponsiveContainer, LineChart, Line, Tooltip as ChartTooltip } from 'recharts';
+import { ResponsiveContainer, LineChart, Line } from 'recharts';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 const TOTAL_ICU_BEDS = 12;
@@ -54,7 +54,7 @@ function BedCard({ bedNumber, patient }: { bedNumber: number; patient: Patient |
                     <span className="text-sm text-muted-foreground">{isOccupied ? patient.patientName : t('icu.vacant')}</span>
                 </div>
             </div>
-            {isOccupied && (
+            {isOccupied && patient.vitalSigns && (
                  <Dialog open={isMonitorOpen} onOpenChange={setMonitorOpen}>
                     <DialogContent className="max-w-2xl">
                         <DialogHeader>
@@ -75,19 +75,19 @@ function BedCard({ bedNumber, patient }: { bedNumber: number; patient: Patient |
                             <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 text-center">
                                 <div className="p-2 rounded-lg bg-secondary">
                                     <p className="text-xs text-muted-foreground flex items-center justify-center gap-1"><HeartPulse className="h-3 w-3"/> {t('emergency.vitals.heartRate')}</p>
-                                    <p className="font-bold text-lg">{patient.vitalSigns?.heartRate}</p>
+                                    <p className="font-bold text-lg">{patient.vitalSigns.heartRate}</p>
                                 </div>
                                 <div className="p-2 rounded-lg bg-secondary">
                                     <p className="text-xs text-muted-foreground flex items-center justify-center gap-1"><Activity className="h-3 w-3"/> {t('emergency.vitals.bloodPressure')}</p>
-                                    <p className="font-bold text-lg">{patient.vitalSigns?.bloodPressure}</p>
+                                    <p className="font-bold text-lg">{patient.vitalSigns.bloodPressure}</p>
                                 </div>
                                  <div className="p-2 rounded-lg bg-secondary">
                                     <p className="text-xs text-muted-foreground flex items-center justify-center gap-1"><Wind className="h-3 w-3"/> {t('emergency.vitals.spo2')}</p>
-                                    <p className="font-bold text-lg">{patient.vitalSigns?.spo2}%</p>
+                                    <p className="font-bold text-lg">{patient.vitalSigns.spo2}%</p>
                                 </div>
                                  <div className="p-2 rounded-lg bg-secondary">
                                     <p className="text-xs text-muted-foreground flex items-center justify-center gap-1"><Thermometer className="h-3 w-3"/> {t('emergency.vitals.temperature')}</p>
-                                    <p className="font-bold text-lg">{patient.vitalSigns?.temperature.toFixed(1)}°C</p>
+                                    <p className="font-bold text-lg">{patient.vitalSigns.temperature.toFixed(1)}°C</p>
                                 </div>
                             </div>
                         </div>
