@@ -249,8 +249,7 @@ function PatientInvoiceDialog({ patient, onOpenChange, onAddPayment }: { patient
     
     const triggerPrint = () => {
       setIsPrinting(true);
-      // Adding a small timeout to allow the state to update before printing
-      setTimeout(() => handlePrint(), 0);
+      handlePrint();
     }
 
 
