@@ -18,13 +18,16 @@ import { DoctorFormDialog } from '@/components/doctor/doctor-form-dialog';
 import { IRAQI_GOVERNORATES } from '@/lib/constants';
 import { differenceInYears, isValid, parse } from 'date-fns';
 import Image from 'next/image';
-import { ScrollArea } from '@/components/ui/scroll-area';
+import { ScrollArea } from '../ui/scroll-area';
 import { Patient, FinancialRecord } from '@/types';
 import { useLocalStorage } from '@/hooks/use-local-storage';
 
-
 const departments = [
   'reception', 'emergency', 'icu', 'wards', 'surgicalOperations', 'pharmacy', 'laboratories', 'radiology', 'nursing', 'internalMedicine', 'generalSurgery', 'obGyn', 'pediatrics', 'orthopedics', 'urology', 'ent', 'ophthalmology', 'dermatology', 'cardiology', 'neurology', 'oncology', 'nephrology', 'bloodBank', 'accounts', 'medicalRecords', 'sterilization', 'services', 'representatives', 'admin'
+];
+
+const medicalDepartments = [
+  'internalMedicine', 'generalSurgery', 'obGyn', 'pediatrics', 'orthopedics', 'urology', 'ent', 'ophthalmology', 'dermatology', 'cardiology', 'neurology', 'oncology', 'nephrology'
 ];
 
 const formSchema = z.object({
@@ -46,7 +49,9 @@ const formSchema = z.object({
   idBack: z.string().optional(),
   department: z.string().min(1, { message: 'reception.validation.departmentRequired' }),
   doctorId: z.string().optional(),
-  serviceId: z.string().optional(), // For lab tests, drugs, etc.
+  serviceId: z.string().optional(),
+  examiningDoctorId: z.string().optional(),
+  consultationFee: z.coerce.number().optional(),
   floor: z.number().optional(),
   room: z.number().optional(),
 });
@@ -94,6 +99,8 @@ export function PatientRegistrationDialog({ open, onOpenChange, patientToEdit, p
       department: '',
       doctorId: '',
       serviceId: '',
+      examiningDoctorId: '',
+      consultationFee: 25000,
       floor: undefined,
       room: undefined,
     },
@@ -107,7 +114,13 @@ export function PatientRegistrationDialog({ open, onOpenChange, patientToEdit, p
     if (department === 'pharmacy') return drugs;
     return [];
   }, [department, labTests, drugs]);
+  
+  const isMedicalDepartment = medicalDepartments.includes(department);
 
+  const doctorsForDepartment = useMemo(() => {
+    if (!department) return [];
+    return doctors.filter(d => d.specialty.toLowerCase().replace(/ /g, '') === department.toLowerCase());
+  }, [department, doctors]);
 
   useEffect(() => {
     if (open) {
@@ -145,8 +158,9 @@ export function PatientRegistrationDialog({ open, onOpenChange, patientToEdit, p
                 idBack: '',
                 department: '',
                 doctorId: '',
-                floor: undefined,
-                room: undefined,
+                serviceId: '',
+                examiningDoctorId: '',
+                consultationFee: 25000,
             });
             setIdFrontPreview(null);
             setIdBackPreview(null);
@@ -200,23 +214,33 @@ export function PatientRegistrationDialog({ open, onOpenChange, patientToEdit, p
         const service = servicesForDepartment.find(s => s.id === values.serviceId);
         if(service) {
             initialRecord = {
-                type: department as any, // 'lab' or 'pharmacy' etc.
+                type: department as any,
                 description: service.name,
                 amount: service.price
+            }
+        }
+    } else if (isMedicalDepartment) {
+        const examiningDoctor = doctors.find(d => d.id === values.examiningDoctorId);
+        if (examiningDoctor && values.consultationFee) {
+            initialRecord = {
+                type: 'consultation',
+                description: `${t('reception.consultationFee')} - ${examiningDoctor.name}`,
+                amount: values.consultationFee
             }
         }
     } else if (values.department === 'wards' || prefilledRoom) {
          initialRecord = {
             type: 'inpatient',
             description: t('wards.admissionFee'),
-            amount: 150000 // Example admission fee
+            amount: 150000
         }
     }
 
 
     const patientData = { ...values };
     delete patientData.serviceId;
-
+    delete patientData.examiningDoctorId;
+    delete patientData.consultationFee;
 
     if (patientToEdit) {
       updatePatient(patientToEdit.id, patientData);
@@ -461,6 +485,44 @@ export function PatientRegistrationDialog({ open, onOpenChange, patientToEdit, p
                     </FormItem>
                   )}
                 />
+                
+                {isMedicalDepartment && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 border rounded-lg">
+                    <FormField
+                      control={form.control}
+                      name="examiningDoctorId"
+                      render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>{t('reception.examiningDoctor')}</FormLabel>
+                            <Select onValueChange={field.onChange} defaultValue={field.value} dir={dir} disabled={doctorsForDepartment.length === 0}>
+                                <FormControl>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder={t('reception.examiningDoctorPlaceholder')} />
+                                    </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                    {doctorsForDepartment.map((doc) => (
+                                        <SelectItem key={doc.id} value={doc.id}>{doc.name}</SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                            <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="consultationFee"
+                      render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>{t('reception.consultationFee')}</FormLabel>
+                            <FormControl><Input type="number" {...field} /></FormControl>
+                            <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                )}
                 
                 {servicesForDepartment.length > 0 && (
                      <FormField

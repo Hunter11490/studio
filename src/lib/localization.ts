@@ -339,6 +339,9 @@ export const translations: Translations = {
       assignDepartmentPlaceholder: 'Select a department',
       referredBy: 'Referred by Doctor',
       referredByPlaceholder: 'Select referring doctor (optional)',
+      examiningDoctor: 'Examining Doctor',
+      examiningDoctorPlaceholder: 'Select examining doctor',
+      consultationFee: 'Consultation Fee',
       addDoctor: 'Add New Doctor',
       addPatient: 'Add Patient',
       submitPatient: 'Register Patient',
@@ -499,7 +502,7 @@ export const translations: Translations = {
         date: "Date",
         amount: "Amount",
         summary: "Account Summary",
-        footerNotes: "Thank you for choosing our hospital. Please settle the balance at your earliest convenience."
+        footerNotes: "Wishing you a speedy recovery and good health."
     },
     notifications: {
       title: "Notifications",
@@ -949,6 +952,9 @@ export const translations: Translations = {
       assignDepartmentPlaceholder: 'اختر قسماً',
       referredBy: 'محال من طبيب',
       referredByPlaceholder: 'اختر الطبيب المُحيل (اختياري)',
+      examiningDoctor: 'الطبيب الفاحص',
+      examiningDoctorPlaceholder: 'اختر الطبيب الفاحص',
+      consultationFee: 'أجور المعاينة',
       addDoctor: 'إضافة طبيب جديد',
       addPatient: 'إضافة مريض',
       submitPatient: 'تسجيل المريض',
@@ -1109,7 +1115,7 @@ export const translations: Translations = {
         date: "التاريخ",
         amount: "المبلغ",
         summary: "ملخص الحساب",
-        footerNotes: "شكراً لاختياركم مستشفانا. يرجى تسوية المبلغ المستحق في أقرب وقت ممكن."
+        footerNotes: "نتمنى لكم الشفاء العاجل ودوام الصحة والعافية."
     },
     notifications: {
       title: "الإشعارات",

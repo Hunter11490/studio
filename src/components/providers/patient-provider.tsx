@@ -59,7 +59,7 @@ export function PatientProvider({ children }: { children: React.ReactNode }) {
 
     setPatients(prev => [newPatient, ...prev]);
 
-    // If a doctor is assigned, update their referral count
+    // If a referring doctor is assigned, update their referral count
     if (patientData.doctorId && updateDoctor) {
       updateDoctor(patientData.doctorId, {
         referralCount: (currentCount: number | undefined) => (currentCount || 0) + 1,
