@@ -436,8 +436,8 @@ function DrugInventoryDialog({ drugs, onAddToCart, onDelete, onSave }: { drugs: 
         <>
             <Dialog>
                 <DialogTrigger asChild>
-                    <Button variant="outline" size="icon" className="fixed bottom-6 right-6 z-40 h-12 w-12 rounded-full shadow-lg">
-                        <Pill className="h-5 w-5" />
+                    <Button variant="outline" size="icon" className="fixed bottom-6 right-6 z-40 h-14 w-14 rounded-full shadow-lg">
+                        <Pill className="h-6 w-6" />
                     </Button>
                 </DialogTrigger>
                 <DialogContent className="max-w-4xl h-[80vh] flex flex-col">
