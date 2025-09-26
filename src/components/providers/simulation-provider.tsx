@@ -5,9 +5,10 @@ import { useDoctors } from '@/hooks/use-doctors';
 import { usePatients } from '@/hooks/use-patients';
 import { useToast } from '@/hooks/use-toast';
 import { useLanguage } from '@/hooks/use-language';
-import { createRandomDoctor, createRandomPatient } from '@/lib/simulation-utils';
+import { createRandomDoctor, createRandomPatient, createRandomServiceRequest, moveInstrumentSet } from '@/lib/simulation-utils';
 import { useNotifications } from '@/hooks/use-notifications';
-import { TriageLevel } from '@/types';
+import { TriageLevel, ServiceRequest, InstrumentSet } from '@/types';
+import { useLocalStorage } from '@/hooks/use-local-storage';
 
 type SimulationContextType = {
   isSimulating: boolean;
@@ -20,11 +21,12 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
   const [isSimulating, setIsSimulating] = useState(false);
   const { doctors, addDoctor, deleteDoctor, updateDoctor } = useDoctors();
   const { patients, addPatient, updatePatient, addFinancialRecord } = usePatients();
+  const [serviceRequests, setServiceRequests] = useLocalStorage<ServiceRequest[]>('hospital_services_requests', []);
+  const [instrumentSets, setInstrumentSets] = useLocalStorage<InstrumentSet[]>('sterilization_sets', []);
   const { toast } = useToast();
   const { t } = useLanguage();
   const { addNotification } = useNotifications();
   
-  // Automatically start simulation on component mount
   useEffect(() => {
     setIsSimulating(true);
   }, []);
@@ -62,6 +64,25 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
     }
 }, [patients, updatePatient, addNotification]);
 
+  const simulateServiceRequest = useCallback(() => {
+    const newRequest = createRandomServiceRequest();
+    setServiceRequests(prev => [newRequest, ...prev].slice(0, 50));
+    addNotification({ title: t('services.newRequest'), description: `${newRequest.description} (${t(`departments.${newRequest.department}`)})` });
+  }, [setServiceRequests, addNotification, t]);
+
+  const simulateSterilizationCycle = useCallback(() => {
+    const setToMove = instrumentSets[Math.floor(Math.random() * instrumentSets.length)];
+    if (!setToMove) return;
+
+    const newStatus = moveInstrumentSet(setToMove.status);
+    if (newStatus !== setToMove.status) {
+      setInstrumentSets(prev => prev.map(s => s.id === setToMove.id ? { ...s, status: newStatus, cycleStartTime: Date.now() } : s));
+       if (newStatus === 'storage') {
+        addNotification({ title: t('sterilization.cycleComplete'), description: `${setToMove.name} ${t('sterilization.nowInStorage')}` });
+      }
+    }
+  }, [instrumentSets, setInstrumentSets, addNotification, t]);
+
 
   const performRandomAction = useCallback(() => {
     const actions = [
@@ -85,7 +106,9 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
           addNotification({ title: notifTitle, description: notifDesc });
         }
       },
-      movePatientInEmergency, // Add new action to the list
+      movePatientInEmergency,
+      simulateServiceRequest,
+      simulateSterilizationCycle,
        () => { // Patient gets a lab test
         if(patients.length > 0) {
           const randomPatient = patients[Math.floor(Math.random() * patients.length)];
@@ -142,25 +165,12 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
           addNotification({ title: notifTitle, description: oldestDoctor.name });
         }
       },
-       () => { // Update Referral Count
-         if (doctors.length > 0) {
-            const randomDoctor = doctors[Math.floor(Math.random() * doctors.length)];
-            const change = Math.random() > 0.6 ? 1 : -1;
-            const newCount = Math.max(0, randomDoctor.referralCount + change);
-            if(randomDoctor.referralCount !== newCount) {
-                updateDoctor(randomDoctor.id, { referralCount: newCount });
-                const notifTitle = t('simulation.referralUpdate');
-                const notifDesc = t('simulation.referralUpdateDesc', { doctorName: randomDoctor.name, count: newCount });
-                addNotification({ title: notifTitle, description: notifDesc });
-            }
-         }
-      }
     ];
 
     const randomAction = actions[Math.floor(Math.random() * actions.length)];
     randomAction();
 
-  }, [doctors, patients, addDoctor, deleteDoctor, addPatient, updateDoctor, addFinancialRecord, t, addNotification, movePatientInEmergency]);
+  }, [doctors, patients, addDoctor, deleteDoctor, addPatient, updateDoctor, addFinancialRecord, t, addNotification, movePatientInEmergency, simulateServiceRequest, simulateSterilizationCycle]);
 
   useEffect(() => {
     let intervalId: NodeJS.Timeout | null = null;
@@ -177,7 +187,6 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
   const toggleSimulation = () => {
     const wasSimulating = isSimulating;
     setIsSimulating(prev => !prev);
-     // Show toast only when manually toggling, not on initial auto-start
      if(wasSimulating) {
         toast({ title: t('simulation.stopped') });
      } else {

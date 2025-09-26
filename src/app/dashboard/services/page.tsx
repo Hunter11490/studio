@@ -6,22 +6,20 @@ import { UserMenu } from '@/components/layout/user-menu';
 import { Logo } from '@/components/logo';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { Maximize, Minimize, Wrench, Utensils, Trash2, Check, Clock } from 'lucide-react';
+import { Maximize, Minimize, Wrench, Utensils, Trash2, Check, Clock, ChevronsRight, Undo } from 'lucide-react';
 import { NotificationsButton } from '@/components/notifications-button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { formatDistanceToNow } from 'date-fns';
 import { ar } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import { useLocalStorage } from '@/hooks/use-local-storage';
-
-type ServiceRequest = {
-  id: string;
-  type: 'maintenance' | 'cleaning' | 'catering';
-  description: string;
-  department: string;
-  status: 'new' | 'in-progress' | 'completed';
-  createdAt: string;
-};
+import { ServiceRequest } from '@/types';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
 const initialRequests: ServiceRequest[] = [
   { id: '1', type: 'maintenance', description: 'Leaking faucet in Room 302', department: 'icu', status: 'new', createdAt: new Date().toISOString() },
@@ -48,6 +46,16 @@ function RequestCard({ request, onUpdateStatus }: { request: ServiceRequest; onU
             <Icon className={cn("h-4 w-4", color)} />
             <span>{t(`departments.${request.department}`)}</span>
           </div>
+           <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="xs">Actions</Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+                {request.status !== 'in-progress' && <DropdownMenuItem onClick={() => onUpdateStatus(request.id, 'in-progress')}><ChevronsRight className="mr-2 h-4 w-4" />{t('services.moveToProgress')}</DropdownMenuItem>}
+                {request.status !== 'completed' && <DropdownMenuItem onClick={() => onUpdateStatus(request.id, 'completed')}><Check className="mr-2 h-4 w-4" />{t('services.moveToCompleted')}</DropdownMenuItem>}
+                {request.status !== 'new' && <DropdownMenuItem onClick={() => onUpdateStatus(request.id, 'new')}><Undo className="mr-2 h-4 w-4" />{t('services.moveToNew')}</DropdownMenuItem>}
+            </DropdownMenuContent>
+          </DropdownMenu>
         </CardTitle>
       </CardHeader>
       <CardContent className="p-3 pt-0">
@@ -82,9 +90,9 @@ export default function ServicesPage() {
       setRequests(prev => prev.map(r => r.id === id ? { ...r, status } : r));
     };
 
-    const newRequests = useMemo(() => requests.filter(r => r.status === 'new'), [requests]);
-    const inProgressRequests = useMemo(() => requests.filter(r => r.status === 'in-progress'), [requests]);
-    const completedRequests = useMemo(() => requests.filter(r => r.status === 'completed'), [requests]);
+    const newRequests = useMemo(() => requests.filter(r => r.status === 'new').sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()), [requests]);
+    const inProgressRequests = useMemo(() => requests.filter(r => r.status === 'in-progress').sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()), [requests]);
+    const completedRequests = useMemo(() => requests.filter(r => r.status === 'completed').sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()), [requests]);
     
     return (
         <div className="flex flex-col h-screen bg-secondary/40">

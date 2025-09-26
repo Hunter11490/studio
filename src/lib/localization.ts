@@ -519,6 +519,8 @@ export const translations: Translations = {
       instrumentSet: "Instrument Set",
       cycle: "Cycle",
       inCycle: "In Cycle",
+      cycleComplete: "Sterilization Cycle Complete",
+      nowInStorage: "is now in sterile storage."
     },
     services: {
       title: "Hospital Services",
@@ -527,6 +529,9 @@ export const translations: Translations = {
       inProgress: "In Progress",
       completed: "Completed",
       requestFrom: "Request from",
+      moveToProgress: "Move to In Progress",
+      moveToCompleted: "Move to Completed",
+      moveToNew: "Return to New"
     }
   },
   ar: {
@@ -1047,6 +1052,8 @@ export const translations: Translations = {
       instrumentSet: "مجموعة أدوات",
       cycle: "دورة",
       inCycle: "في الدورة",
+      cycleComplete: "اكتملت دورة التعقيم",
+      nowInStorage: "أصبحت الآن في المخزن المعقم."
     },
     services: {
       title: "الخدمات المساندة",
@@ -1055,6 +1062,9 @@ export const translations: Translations = {
       inProgress: "قيد التنفيذ",
       completed: "مكتملة",
       requestFrom: "طلب من",
+      moveToProgress: "نقل إلى قيد التنفيذ",
+      moveToCompleted: "نقل إلى مكتملة",
+      moveToNew: "إرجاع إلى جديد"
     }
   },
 };

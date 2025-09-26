@@ -6,20 +6,12 @@ import { UserMenu } from '@/components/layout/user-menu';
 import { Logo } from '@/components/logo';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { Maximize, Minimize, SprayCan, CheckCircle, Package, Wind, Archive } from 'lucide-react';
+import { Maximize, Minimize, SprayCan, Package, Wind, Archive } from 'lucide-react';
 import { NotificationsButton } from '@/components/notifications-button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { useLocalStorage } from '@/hooks/use-local-storage';
-
-type InstrumentSet = {
-  id: string;
-  name: string;
-  department: string;
-  status: 'cleaning' | 'packaging' | 'sterilizing' | 'storage';
-  cycleStartTime: number;
-  cycleDuration: number; // in seconds
-};
+import { InstrumentSet } from '@/types';
 
 const departments = ['surgicalOperations', 'icu', 'emergency', 'ent', 'obGyn'];
 const instrumentTypes = ['General Surgery Tray', 'Laparoscopy Set', 'Orthopedic Set', 'Dental Kit', 'Cardiac Set'];
@@ -30,8 +22,8 @@ const generateInitialSets = (): InstrumentSet[] => {
         name: `${instrumentTypes[i % instrumentTypes.length]} #${Math.floor(i / instrumentTypes.length) + 1}`,
         department: departments[i % departments.length],
         status: ['cleaning', 'packaging', 'sterilizing', 'storage'][i % 4] as any,
-        cycleStartTime: Date.now() - Math.random() * 1000 * 60 * 60, // Sometime in the last hour
-        cycleDuration: (30 + Math.random() * 60) * 60 // 30-90 minutes
+        cycleStartTime: Date.now() - Math.random() * 1000 * 60 * 30, // Sometime in the last 30 mins
+        cycleDuration: (15 + Math.random() * 15) * 60 // 15-30 minutes cycle
     }));
 };
 
@@ -40,14 +32,17 @@ function InstrumentCard({ instrument }: { instrument: InstrumentSet }) {
     const [progress, setProgress] = useState(0);
 
     useEffect(() => {
-        const updateProgress = () => {
+        if (instrument.status !== 'sterilizing') {
+            setProgress(0);
+            return;
+        }
+
+        const interval = setInterval(() => {
             const elapsedTime = (Date.now() - instrument.cycleStartTime) / 1000;
             const calculatedProgress = Math.min(100, (elapsedTime / instrument.cycleDuration) * 100);
             setProgress(calculatedProgress);
-        };
-        
-        updateProgress();
-        const interval = setInterval(updateProgress, 1000);
+        }, 1000);
+
         return () => clearInterval(interval);
 
     }, [instrument]);
@@ -59,7 +54,10 @@ function InstrumentCard({ instrument }: { instrument: InstrumentSet }) {
                 <p className="text-xs text-muted-foreground">{t(`departments.${instrument.department}`)}</p>
                 {instrument.status === 'sterilizing' && (
                     <div className="mt-2 space-y-1">
-                        <span className="text-xs font-mono">{t('sterilization.cycle')}: {Math.round(progress)}%</span>
+                        <div className="flex justify-between items-center">
+                            <span className="text-xs font-mono">{t('sterilization.cycle')}</span>
+                            <span className="text-xs font-mono">{Math.round(progress)}%</span>
+                        </div>
                         <Progress value={progress} className="h-1" />
                     </div>
                 )}

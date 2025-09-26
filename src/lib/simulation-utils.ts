@@ -1,6 +1,6 @@
 'use client';
 
-import { Doctor, Patient, FinancialRecord, TriageLevel, VitalSigns } from '@/types';
+import { Doctor, Patient, FinancialRecord, TriageLevel, VitalSigns, ServiceRequest, InstrumentSet } from '@/types';
 
 const arabicFirstNames = ["د. جاسم", "د. كريم", "د. سعيد", "د. رنا", "د. آلاء", "د. بلال", "د. سندس", "د. ليث", "د. غيث", "د. سارة"];
 const arabicLastNames = ["العاني", "البياتي", "الحمداني", "الجبوري", "الكبيسي", "الأسدي", "المالكي", "الزبيدي", "الدليمي"];
@@ -12,6 +12,14 @@ const medicalSpecialties = [
 const departments = [
   'internalMedicine', 'generalSurgery', 'obGyn', 'pediatrics', 'orthopedics', 'urology', 'ent', 'ophthalmology', 'dermatology', 'cardiology', 'neurology', 'oncology', 'nephrology', 'laboratories', 'pharmacy'
 ];
+const serviceDepartments = ['surgicalOperations', 'icu', 'emergency', 'radiology', 'laboratories', 'reception', 'pharmacy'];
+const requestTypes: ServiceRequest['type'][] = ['maintenance', 'cleaning', 'catering'];
+const requestDescriptions = {
+    maintenance: ['AC unit not working', 'Leaking faucet', 'Power outlet faulty', 'Bed mechanism broken'],
+    cleaning: ['Spill cleanup required', 'Standard room cleaning', 'Sanitization for procedure room'],
+    catering: ['Special dietary meal needed', 'Extra meal for guest', 'Water bottle request']
+};
+
 
 const patientFirstNames = ["علي", "محمد", "حسن", "حسين", "فاطمة", "زينب", "مريم", "نور", "عباس", "حيدر"];
 const patientLastNames = ["الساعدي", "العبيدي", "الطائي", "اللامي", "الكعبي", "الركابي", "الخالدي", "الموسوي", "الجنابي"];
@@ -94,4 +102,31 @@ export const createRandomPatient = (doctors: Doctor[]): Omit<Patient, 'id' | 'cr
     }
     
     return patientData;
+};
+
+export const createRandomServiceRequest = (): ServiceRequest => {
+  const type = getRandomElement(requestTypes);
+  return {
+    id: `service_req_${Date.now()}_${Math.random()}`,
+    type: type,
+    description: getRandomElement(requestDescriptions[type]),
+    department: getRandomElement(serviceDepartments),
+    status: 'new',
+    createdAt: new Date().toISOString(),
+  };
+};
+
+export const moveInstrumentSet = (currentStatus: InstrumentSet['status']): InstrumentSet['status'] => {
+  switch (currentStatus) {
+    case 'cleaning':
+      return 'packaging';
+    case 'packaging':
+      return 'sterilizing';
+    case 'sterilizing':
+      return 'storage';
+    case 'storage':
+      return 'cleaning'; // Cycle back
+    default:
+      return 'cleaning';
+  }
 };
