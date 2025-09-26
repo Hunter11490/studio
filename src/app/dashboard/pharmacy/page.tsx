@@ -28,7 +28,6 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { NotificationsButton } from '@/components/notifications-button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Label } from '@/components/ui/label';
 
 type Drug = {
@@ -318,12 +317,12 @@ export default function PharmacyPage() {
                 </div>
             </header>
 
-            <main className="flex-grow grid md:grid-cols-3 gap-4 p-4 md:p-8">
+            <main className="flex-grow grid md:grid-cols-3 gap-4 p-4 md:p-6 overflow-hidden">
                 <Card className="md:col-span-2 flex flex-col">
-                    <CardHeader>
-                        <CardTitle className="flex justify-between items-center">
+                    <CardHeader className="p-4">
+                        <CardTitle className="flex justify-between items-center text-base">
                             {t('pharmacy.inventory')}
-                            <Button onClick={handleAddClick} size="sm">
+                            <Button onClick={handleAddClick} size="xs">
                                 <PlusCircle className="mr-2 h-4 w-4" />
                                 {t('pharmacy.addDrug')}
                             </Button>
@@ -332,28 +331,29 @@ export default function PharmacyPage() {
                             placeholder={t('pharmacy.searchPlaceholder')}
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
+                            className="h-9"
                         />
                     </CardHeader>
                     <CardContent className="p-0 flex-grow">
-                        <ScrollArea className="h-[calc(100vh-250px)]">
+                        <ScrollArea className="h-[calc(100vh-240px)]">
                             <Table>
                                 <TableHeader>
                                     <TableRow>
-                                        <TableHead>{t('pharmacy.drugName')}</TableHead>
-                                        <TableHead>{t('pharmacy.quantity')}</TableHead>
-                                        <TableHead className="text-right">{t('pharmacy.price')}</TableHead>
-                                        <TableHead className="w-[100px]"></TableHead>
+                                        <TableHead className="py-2 text-xs">{t('pharmacy.drugName')}</TableHead>
+                                        <TableHead className="py-2 text-xs">{t('pharmacy.quantity')}</TableHead>
+                                        <TableHead className="text-right py-2 text-xs">{t('pharmacy.price')}</TableHead>
+                                        <TableHead className="w-[80px] py-2"></TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
                                     {filteredDrugs.map((drug) => (
                                        <TableRow key={drug.id} className={drug.quantity < 10 ? 'bg-destructive/10' : ''}>
-                                            <TableCell className="font-medium">{drug.name}</TableCell>
-                                            <TableCell>{drug.quantity}</TableCell>
-                                            <TableCell className="text-right" dir="ltr">{drug.price.toLocaleString()} {t('pharmacy.iqd')}</TableCell>
-                                            <TableCell className="text-right space-x-1">
-                                                <Button size="sm" variant="outline" onClick={() => addToCart(drug)}>
-                                                    <PlusCircle className="mr-2 h-4 w-4" />
+                                            <TableCell className="font-medium text-xs py-2">{drug.name}</TableCell>
+                                            <TableCell className="text-xs py-2">{drug.quantity}</TableCell>
+                                            <TableCell className="text-right text-xs py-2" dir="ltr">{drug.price.toLocaleString()} {t('pharmacy.iqd')}</TableCell>
+                                            <TableCell className="text-right space-x-1 py-2">
+                                                <Button size="xs" variant="outline" onClick={() => addToCart(drug)}>
+                                                    <PlusCircle className="mr-1 h-3 w-3" />
                                                     {t('common.add')}
                                                 </Button>
                                             </TableCell>
@@ -365,14 +365,11 @@ export default function PharmacyPage() {
                     </CardContent>
                 </Card>
 
-                 <Card className="flex flex-col">
-                    <CardHeader>
-                        <CardTitle className="flex items-center gap-2">
-                            <ShoppingCart className="h-5 w-5" />
-                            {t('pharmacy.salesCart')}
-                        </CardTitle>
-                         <Select onValueChange={setSelectedPatientId} value={selectedPatientId || ''}>
-                            <SelectTrigger className="w-full">
+                 <div className="flex flex-col gap-4">
+                    <div className="space-y-2">
+                        <Label>{t('pharmacy.selectPatient')}</Label>
+                        <Select onValueChange={setSelectedPatientId} value={selectedPatientId || ''}>
+                            <SelectTrigger className="w-full h-9">
                                 <SelectValue placeholder={t('pharmacy.selectPatient')} />
                             </SelectTrigger>
                             <SelectContent>
@@ -381,41 +378,49 @@ export default function PharmacyPage() {
                                 ))}
                             </SelectContent>
                         </Select>
-                    </CardHeader>
-                    <CardContent className="flex-grow p-0">
-                         <ScrollArea className="h-full min-h-0">
-                            {cart.length === 0 ? (
-                                <div className="p-6 text-center text-muted-foreground h-full flex items-center justify-center">{t('pharmacy.cartEmpty')}</div>
-                            ) : (
-                                <div className="divide-y">
-                                    {cart.map((item) => (
-                                        <div key={item.id} className="flex justify-between items-center p-3">
-                                            <div>
-                                              <span className="text-sm">{item.name}</span>
-                                              <p className="text-xs text-muted-foreground">x {item.orderQuantity}</p>
+                    </div>
+                    <Card className="flex flex-col flex-grow">
+                        <CardHeader className="p-4">
+                            <CardTitle className="flex items-center gap-2 text-base">
+                                <ShoppingCart className="h-5 w-5" />
+                                {t('pharmacy.salesCart')}
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent className="flex-grow p-0">
+                            <ScrollArea className="h-full min-h-[calc(100vh-500px)]">
+                                {cart.length === 0 ? (
+                                    <div className="p-6 text-center text-muted-foreground h-full flex items-center justify-center text-sm">{t('pharmacy.cartEmpty')}</div>
+                                ) : (
+                                    <div className="divide-y">
+                                        {cart.map((item) => (
+                                            <div key={item.id} className="flex justify-between items-center p-2">
+                                                <div>
+                                                <span className="text-xs">{item.name}</span>
+                                                <p className="text-xs text-muted-foreground">x {item.orderQuantity}</p>
+                                                </div>
+                                                <div className="flex items-center gap-1">
+                                                    <span className="text-xs font-mono">{(item.price * item.orderQuantity).toLocaleString()}</span>
+                                                    <Button size="icon" variant="ghost" className="h-5 w-5" onClick={() => removeFromCart(item.id)}>
+                                                        <X className="h-3 w-3 text-destructive" />
+                                                    </Button>
+                                                </div>
                                             </div>
-                                            <div className="flex items-center gap-2">
-                                                <span className="text-sm font-mono">{(item.price * item.orderQuantity).toLocaleString()}</span>
-                                                <Button size="icon" variant="ghost" className="h-6 w-6" onClick={() => removeFromCart(item.id)}>
-                                                    <X className="h-4 w-4 text-destructive" />
-                                                </Button>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            )}
-                         </ScrollArea>
-                    </CardContent>
-                    <CardFooter className="flex-col items-start border-t pt-4 gap-4">
-                        <div className="w-full flex justify-between font-bold text-lg">
-                            <span>{t('pharmacy.total')}:</span>
-                            <span dir="ltr">{totalCost.toLocaleString()} {t('pharmacy.iqd')}</span>
-                        </div>
-                        <Button className="w-full" onClick={handleConfirmSale} disabled={!selectedPatientId || cart.length === 0}>
-                            {t('pharmacy.confirmSale')}
-                        </Button>
-                    </CardFooter>
-                </Card>
+                                        ))}
+                                    </div>
+                                )}
+                            </ScrollArea>
+                        </CardContent>
+                        <CardFooter className="flex-col items-start border-t pt-4 gap-4 p-4">
+                            <div className="w-full flex justify-between font-bold text-base">
+                                <span>{t('pharmacy.total')}:</span>
+                                <span dir="ltr">{totalCost.toLocaleString()} {t('pharmacy.iqd')}</span>
+                            </div>
+                            <Button className="w-full" size="sm" onClick={handleConfirmSale} disabled={!selectedPatientId || cart.length === 0}>
+                                {t('pharmacy.confirmSale')}
+                            </Button>
+                        </CardFooter>
+                    </Card>
+                </div>
             </main>
             
             <Dialog open={isFormOpen} onOpenChange={setFormOpen}>
