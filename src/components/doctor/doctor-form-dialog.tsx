@@ -23,6 +23,16 @@ import { UploadCloud } from 'lucide-react';
 import Image from 'next/image';
 import { ScrollArea } from '../ui/scroll-area';
 import { Textarea } from '../ui/textarea';
+import { Badge } from '../ui/badge';
+import { cn } from '@/lib/utils';
+
+
+const departmentSpecialties = [
+    "Internal Medicine", "General Surgery", "Obstetrics and Gynecology", "Pediatrics", "Orthopedics",
+    "Urology", "ENT", "Ophthalmology", "Dermatology", "Cardiology", "Neurology",
+    "Oncology", "Nephrology"
+];
+
 
 const formSchema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -132,6 +142,7 @@ export function DoctorFormDialog({ open, onOpenChange, doctorToEdit, departmentS
   };
 
   const isSpecialtyDisabled = !!departmentSpecialty && !doctorToEdit;
+  const specialtyValue = form.watch('specialty');
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
@@ -158,19 +169,41 @@ export function DoctorFormDialog({ open, onOpenChange, doctorToEdit, departmentS
                     </FormItem>
                   )}
                 />
+                
                 <FormField
                   control={form.control}
                   name="specialty"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>{t('doctorForm.specialty')}</FormLabel>
-                      <FormControl>
-                        <Input {...field} disabled={isSpecialtyDisabled} />
+                       <FormControl>
+                          <>
+                            {isSpecialtyDisabled ? (
+                              <Input {...field} disabled />
+                            ) : (
+                               <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                                {departmentSpecialties.map(spec => (
+                                    <Badge
+                                    key={spec}
+                                    variant={specialtyValue === spec ? 'default' : 'secondary'}
+                                    className={cn(
+                                        "cursor-pointer justify-center text-center p-2 text-xs",
+                                        specialtyValue === spec && "ring-2 ring-primary"
+                                    )}
+                                    onClick={() => form.setValue('specialty', spec, { shouldValidate: true })}
+                                    >
+                                    {spec}
+                                    </Badge>
+                                ))}
+                                </div>
+                            )}
+                          </>
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
+
                 <FormField
                   control={form.control}
                   name="phoneNumber"
