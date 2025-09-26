@@ -210,19 +210,5 @@ export const MOCK_DOCTORS: Omit<Doctor, 'id' | 'createdAt'>[] = [
     referralCount: 0,
     availableDays: ["Sat", "Tue", "Thu"],
     referralNotes: []
-  },
-  ...Array.from({ length: 135 }, (_, i) => {
-    return {
-        name: `${getRandomArabicName(i)}`,
-        specialty: getRandomSpecialty(),
-        phoneNumber: `07${Math.floor(700000000 + Math.random() * 299999999)}`,
-        clinicAddress: `منطقة ${i+1}, بغداد`,
-        mapLocation: "",
-        clinicCardImageUrl: "",
-        isPartner: Math.random() > 0.5,
-        referralCount: 0,
-        availableDays: ["Sat", "Mon", "Wed"],
-        referralNotes: []
-    }
-  })
+  }
 ];

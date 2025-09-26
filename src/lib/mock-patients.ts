@@ -61,7 +61,7 @@ export const generateInitialData = () => {
       id: `temp_doctor_id_${index}_${doc.name}` // Assign a temporary but unique ID
     }));
 
-    const patients = Array.from({ length: 500 }, (_, i) => createMockPatient(i, doctorsWithTempId));
+    const patients = Array.from({ length: 150 }, (_, i) => createMockPatient(i, doctorsWithTempId));
     
     patients.forEach(patient => {
         if (patient.doctorId) { // doctorId here is the name
