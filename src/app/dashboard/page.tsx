@@ -89,7 +89,7 @@ const mainDepts = [
   {
     name: 'radiology',
     icon: Scan,
-    href: '#', // TBD
+    href: '/dashboard/radiology',
   },
   {
     name: 'representatives',

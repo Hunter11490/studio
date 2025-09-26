@@ -406,6 +406,22 @@ export const translations: Translations = {
       orderConfirmed: 'Order confirmed and added to patient records.',
       test: 'Test'
     },
+    radiology: {
+      serviceList: 'Available Procedures',
+      searchPlaceholder: 'Search for a procedure...',
+      serviceName: 'Procedure Name',
+      price: 'Price',
+      iqd: 'IQD',
+      costCalculator: 'Procedure Order',
+      noServicesSelected: 'Add procedures from the list to create an order.',
+      totalCost: 'Total Cost',
+      selectPatient: 'Select a patient for this order',
+      confirmOrder: 'Confirm Order',
+      selectPatientError: 'Please select a patient first.',
+      noServicesSelectedError: 'No procedures selected for the order.',
+      orderConfirmed: 'Order confirmed and added to patient records.',
+      procedure: 'Procedure'
+    },
     oncology: {
       totalDoctors: 'Total Doctors',
       totalReferrals: 'Total Referrals',
@@ -885,6 +901,22 @@ export const translations: Translations = {
       noTestsSelectedError: 'لم يتم اختيار أي فحوصات للطلب.',
       orderConfirmed: 'تم تأكيد الطلب وإضافته لسجلات المريض.',
       test: 'فحص'
+    },
+    radiology: {
+      serviceList: 'الفحوصات المتاحة',
+      searchPlaceholder: 'ابحث عن فحص...',
+      serviceName: 'اسم الفحص',
+      price: 'السعر',
+      iqd: 'دينار',
+      costCalculator: 'طلب فحص',
+      noServicesSelected: 'أضف فحوصات من القائمة لإنشاء طلب.',
+      totalCost: 'التكلفة الإجمالية',
+      selectPatient: 'اختر مريضاً لهذا الطلب',
+      confirmOrder: 'تأكيد الطلب',
+      selectPatientError: 'يرجى اختيار مريض أولاً.',
+      noServicesSelectedError: 'لم يتم اختيار أي فحوصات للطلب.',
+      orderConfirmed: 'تم تأكيد الطلب وإضافته لسجلات المريض.',
+      procedure: 'فحص'
     },
     oncology: {
       totalDoctors: 'إجمالي الأطباء',
