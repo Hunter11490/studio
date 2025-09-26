@@ -107,7 +107,7 @@ export function EditUserDialog({ open, onOpenChange, userToEdit }: EditUserDialo
                 <FormItem>
                   <FormLabel>{t('auth.username')}</FormLabel>
                   <FormControl>
-                    <Input {...field} />
+                    <Input {...field} disabled={userToEdit?.username === 'test'} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -159,7 +159,7 @@ export function EditUserDialog({ open, onOpenChange, userToEdit }: EditUserDialo
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>{t('admin.role')}</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value} dir={dir}>
+                    <Select onValueChange={field.onChange} defaultValue={field.value} dir={dir} disabled={userToEdit?.username === 'test'}>
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Select a role" />

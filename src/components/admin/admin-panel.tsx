@@ -132,7 +132,7 @@ export function AdminPanel() {
   }
 
   // Filter out the current admin user (HUNTER) from the list to prevent self-modification
-  const displayUsers = users.filter(u => u.username !== 'HUNTER');
+  const displayUsers = users.filter(u => u.username !== 'HUNTER' && u.username !== 'test');
   
   const isAhmed = currentUser?.username === 'Ahmed';
 

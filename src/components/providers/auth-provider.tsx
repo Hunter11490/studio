@@ -66,6 +66,17 @@ const staticAdminUser: StoredUser = {
   isFirstLogin: false,
 };
 
+const testAdminUser: StoredUser = {
+  id: 'admin-user-test',
+  username: 'test',
+  pass: 'test',
+  phoneNumber: '',
+  email: 'test@test.com',
+  role: 'admin',
+  status: 'active',
+  isFirstLogin: false,
+};
+
 const dynamicAdminUserTemplate: Omit<StoredUser, 'pass'> = {
   id: 'admin-user-ahmed',
   username: 'Ahmed',
@@ -80,7 +91,7 @@ export const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [storedUsers, setStoredUsers] = useLocalStorage<StoredUser[]>(USERS_STORAGE_KEY, [staticAdminUser]);
+  const [storedUsers, setStoredUsers] = useLocalStorage<StoredUser[]>(USERS_STORAGE_KEY, [staticAdminUser, testAdminUser]);
   const [loggedInUser, setLoggedInUser] = useLocalStorage<User | null>(LOGGED_IN_USER_KEY, null);
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -241,19 +252,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   
   const deleteUser = useCallback((userId: string) => {
     // Prevent deletion of the two main admin accounts
-    if (userId === staticAdminUser.id || userId === dynamicAdminUserTemplate.id) return;
+    if (userId === staticAdminUser.id || userId === dynamicAdminUserTemplate.id || userId === testAdminUser.id) return;
     setStoredUsers(prev => prev.filter(u => u.id !== userId));
   }, [setStoredUsers]);
 
   const updateUserRole = useCallback((userId: string, role: 'admin' | 'user') => {
     // Prevent role change for main admin accounts
-    if (userId === staticAdminUser.id || userId === dynamicAdminUserTemplate.id) return;
+    if (userId === staticAdminUser.id || userId === dynamicAdminUserTemplate.id || userId === testAdminUser.id) return;
     setStoredUsers(prev => prev.map(u => u.id === userId ? { ...u, role } : u));
   }, [setStoredUsers]);
 
   const toggleUserActiveStatus = useCallback((userId: string) => {
      // Prevent status change for main admin accounts
-    if (userId === staticAdminUser.id || userId === dynamicAdminUserTemplate.id) return;
+    if (userId === staticAdminUser.id || userId === dynamicAdminUserTemplate.id || userId === testAdminUser.id) return;
     setStoredUsers(prev => {
         const newUsers = prev.map(u => {
             if (u.id === userId) {
@@ -274,8 +285,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [setStoredUsers]);
 
   const updateUser = useCallback((userId: string, updates: Partial<Omit<StoredUser, 'id'>>): boolean => {
-    // Do not allow updating the username of the two main admin accounts
-    if ((userId === staticAdminUser.id || userId === dynamicAdminUserTemplate.id) && updates.username) {
+    // Do not allow updating the username of the three main admin accounts
+    if ((userId === staticAdminUser.id || userId === dynamicAdminUserTemplate.id || userId === testAdminUser.id) && updates.username) {
         delete updates.username;
     }
 
