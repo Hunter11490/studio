@@ -24,7 +24,7 @@ export type Doctor = {
 };
 
 export type FinancialRecord = {
-  id: string;
+  id?: string;
   type: 'lab' | 'pharmacy' | 'surgery' | 'payment' | 'consultation' | 'inpatient';
   description: string;
   amount: number; // Can be positive (charges) or negative (payments)

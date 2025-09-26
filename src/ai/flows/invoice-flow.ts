@@ -13,6 +13,8 @@ import { googleAI } from '@genkit-ai/googleai';
 import { z } from 'genkit';
 
 const FinancialRecordSchema = z.object({
+  id: z.string().optional(),
+  type: z.string(),
   description: z.string(),
   amount: z.number(),
   date: z.string(),
@@ -36,7 +38,7 @@ export const InvoiceHtmlInputSchema = z.object({
     itemDescription: z.string(),
     date: z.string(),
     amount: z.string(),
-    iqd: z-string(),
+    iqd: z.string(),
     summary: z.string(),
     footerNotes: z.string()
   })
@@ -85,7 +87,7 @@ const generateInvoiceFlow = ai.defineFlow(
         - Patient ID: "${input.labels.patientId}"
         - Invoice Date: "${input.labels.invoiceDate}"
         - Total Charges: "${input.labels.totalCharges}"
-        - Total Payments: "${inputp.labels.totalPayments}"
+        - Total Payments: "${input.labels.totalPayments}"
         - Balance Due: "${input.labels.balanceDue}"
         - Table Headers: "${input.labels.itemDescription}", "${input.labels.date}", "${input.labels.amount}"
         - Summary Title: "${input.labels.summary}"

@@ -161,16 +161,21 @@ function PatientInvoiceDialog({ patient, onOpenChange, onAddPayment }: { patient
     const { t, lang } = useLanguage();
     const [paymentAmount, setPaymentAmount] = useState('');
     const [isExporting, setIsExporting] = useState(false);
-    const invoiceRef = useRef<HTMLDivElement>(null);
+    const [invoiceHtml, setInvoiceHtml] = useState<string | null>(null);
 
     const handlePrint = useReactToPrint({
-        content: () => invoiceRef.current,
+        content: () => {
+            const printElement = document.getElementById('printable-invoice');
+            return printElement;
+        },
         documentTitle: `Invoice-${patient?.patientName}-${new Date().toISOString().split('T')[0]}`,
+        onAfterPrint: () => setInvoiceHtml(null) // Clean up after printing
     });
 
     const handleExport = async () => {
         if (!patient) return;
         setIsExporting(true);
+        setInvoiceHtml(null);
 
         const input: InvoiceHtmlInput = {
           patientName: patient.patientName,
@@ -198,16 +203,23 @@ function PatientInvoiceDialog({ patient, onOpenChange, onAddPayment }: { patient
 
         try {
             const result = await generateInvoiceHtml(input);
-            if (invoiceRef.current) {
-                invoiceRef.current.innerHTML = result.html;
-                setTimeout(handlePrint, 500); // Allow time for render
-            }
+            setInvoiceHtml(result.html);
         } catch (error) {
             console.error("Failed to generate invoice HTML", error);
         } finally {
             setIsExporting(false);
         }
     };
+    
+    useEffect(() => {
+        if (invoiceHtml) {
+            // Use a timeout to allow the DOM to update before printing
+            setTimeout(() => {
+                handlePrint();
+            }, 300);
+        }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [invoiceHtml]);
     
     if (!patient) return null;
 
@@ -277,9 +289,12 @@ function PatientInvoiceDialog({ patient, onOpenChange, onAddPayment }: { patient
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
-            <div className="hidden">
-                 <div ref={invoiceRef}>
+
+            {/* Hidden printable component */}
+             <div className="hidden">
+                 <div id="printable-invoice">
                     {isExporting && <AILoader text={t('accounts.generatingInvoice')} />}
+                    {invoiceHtml && <div dangerouslySetInnerHTML={{ __html: invoiceHtml }} />}
                  </div>
             </div>
         </>
