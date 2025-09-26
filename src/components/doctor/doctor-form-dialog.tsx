@@ -27,11 +27,27 @@ import { Badge } from '../ui/badge';
 import { cn } from '@/lib/utils';
 
 
-const departmentSpecialties = [
+const departmentSpecialtyKeys = [
     "Internal Medicine", "General Surgery", "Obstetrics and Gynecology", "Pediatrics", "Orthopedics",
     "Urology", "ENT", "Ophthalmology", "Dermatology", "Cardiology", "Neurology",
     "Oncology", "Nephrology"
 ];
+
+const departmentTranslationKeys: { [key: string]: string } = {
+    "Internal Medicine": "internalMedicine",
+    "General Surgery": "generalSurgery",
+    "Obstetrics and Gynecology": "obGyn",
+    "Pediatrics": "pediatrics",
+    "Orthopedics": "orthopedics",
+    "Urology": "urology",
+    "ENT": "ent",
+    "Ophthalmology": "ophthalmology",
+    "Dermatology": "dermatology",
+    "Cardiology": "cardiology",
+    "Neurology": "neurology",
+    "Oncology": "oncology",
+    "Nephrology": "nephrology"
+};
 
 
 const formSchema = z.object({
@@ -177,12 +193,12 @@ export function DoctorFormDialog({ open, onOpenChange, doctorToEdit, departmentS
                     <FormItem>
                       <FormLabel>{t('doctorForm.specialty')}</FormLabel>
                        <FormControl>
-                          <div>
+                          <div {...field}>
                             {isSpecialtyDisabled ? (
-                              <Input {...field} disabled />
+                              <Input value={t(`departments.${departmentTranslationKeys[field.value]}`)} disabled />
                             ) : (
                                <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                                {departmentSpecialties.map(spec => (
+                                {departmentSpecialtyKeys.map(spec => (
                                     <Badge
                                     key={spec}
                                     variant={specialtyValue === spec ? 'default' : 'secondary'}
@@ -192,7 +208,7 @@ export function DoctorFormDialog({ open, onOpenChange, doctorToEdit, departmentS
                                     )}
                                     onClick={() => form.setValue('specialty', spec, { shouldValidate: true })}
                                     >
-                                    {spec}
+                                    {t(`departments.${departmentTranslationKeys[spec]}`)}
                                     </Badge>
                                 ))}
                                 </div>
