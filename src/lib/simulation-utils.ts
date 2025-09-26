@@ -1,7 +1,6 @@
 'use client';
 
-import { Doctor, Patient, FinancialRecord } from '@/types';
-import { usePatients } from '@/hooks/use-patients';
+import { Doctor, Patient, FinancialRecord, TriageLevel, VitalSigns } from '@/types';
 
 const arabicFirstNames = ["د. جاسم", "د. كريم", "د. سعيد", "د. رنا", "د. آلاء", "د. بلال", "د. سندس", "د. ليث", "د. غيث", "د. سارة"];
 const arabicLastNames = ["العاني", "البياتي", "الحمداني", "الجبوري", "الكبيسي", "الأسدي", "المالكي", "الزبيدي", "الدليمي"];
@@ -35,19 +34,41 @@ export const createRandomDoctor = (): Omit<Doctor, 'id' | 'createdAt'> => {
   };
 };
 
+const generateRandomVitals = (): VitalSigns => {
+    return {
+        heartRate: 60 + Math.floor(Math.random() * 40),
+        bloodPressure: `${110 + Math.floor(Math.random() * 20)}/${70 + Math.floor(Math.random() * 15)}`,
+        spo2: 95 + Math.floor(Math.random() * 5),
+        temperature: 36.5 + Math.random()
+    };
+};
+
+const generateRandomTriage = (): TriageLevel => {
+    const rand = Math.random();
+    if (rand < 0.1) return 'critical';
+    if (rand < 0.3) return 'urgent';
+    if (rand < 0.7) return 'stable';
+    return 'minor';
+};
+
 export const createRandomPatient = (doctors: Doctor[]): Omit<Patient, 'id' | 'createdAt' | 'financialRecords'> => {
     const dobYear = 1960 + Math.floor(Math.random() * 50);
     const dobMonth = 1 + Math.floor(Math.random() * 12);
     const dobDay = 1 + Math.floor(Math.random() * 28);
-    const department = getRandomElement(departments);
+    let department = getRandomElement(departments);
 
     let doctorId: string | undefined = undefined;
     const doctorsInDept = doctors.filter(d => d.specialty.toLowerCase().replace(/ /g, '') === department.toLowerCase());
     if (doctorsInDept.length > 0) {
         doctorId = getRandomElement(doctorsInDept).id;
     }
-
-    return {
+    
+    // 20% chance to go to emergency
+    if (Math.random() < 0.2) {
+      department = 'emergency';
+    }
+    
+    const patientData: Omit<Patient, 'id' | 'createdAt' | 'financialRecords'> = {
         patientName: `${getRandomElement(patientFirstNames)} ${getRandomElement(patientLastNames)}`,
         dob: {
             day: String(dobDay),
@@ -65,4 +86,12 @@ export const createRandomPatient = (doctors: Doctor[]): Omit<Patient, 'id' | 'cr
         department,
         doctorId,
     };
+    
+    if (department === 'emergency') {
+      patientData.triageLevel = generateRandomTriage();
+      patientData.status = 'Waiting';
+      patientData.vitalSigns = generateRandomVitals();
+    }
+    
+    return patientData;
 };

@@ -1,4 +1,3 @@
-
 'use client';
 
 import { createContext, useState, useEffect, useCallback, ReactNode } from 'react';
@@ -8,6 +7,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useLanguage } from '@/hooks/use-language';
 import { createRandomDoctor, createRandomPatient } from '@/lib/simulation-utils';
 import { useNotifications } from '@/hooks/use-notifications';
+import { TriageLevel } from '@/types';
 
 type SimulationContextType = {
   isSimulating: boolean;
@@ -29,6 +29,40 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
     setIsSimulating(true);
   }, []);
 
+  const movePatientInEmergency = useCallback(() => {
+    const emergencyPatients = patients.filter(p => p.department === 'emergency' && p.status !== 'Discharged');
+    if (emergencyPatients.length === 0) return;
+
+    const patientToMove = emergencyPatients[Math.floor(Math.random() * emergencyPatients.length)];
+    let nextStatus: Patient['status'] = patientToMove.status;
+    
+    switch(patientToMove.status) {
+        case 'Waiting':
+            nextStatus = 'In Treatment';
+            break;
+        case 'In Treatment':
+            const rand = Math.random();
+            if(patientToMove.triageLevel === 'critical' && rand < 0.5) {
+                 updatePatient(patientToMove.id, { department: 'icu', status: 'Admitted' });
+                 addNotification({ title: 'ICU Admission', description: `${patientToMove.patientName} was admitted to ICU.`});
+                 return; // Exit after moving to ICU
+            }
+            nextStatus = rand < 0.7 ? 'Observation' : 'Discharged';
+            break;
+        case 'Observation':
+            nextStatus = 'Discharged';
+            break;
+    }
+
+    if (nextStatus !== patientToMove.status) {
+        updatePatient(patientToMove.id, { status: nextStatus });
+        if (nextStatus === 'Discharged') {
+           addNotification({ title: 'Patient Discharged', description: `${patientToMove.patientName} was discharged from Emergency.`});
+        }
+    }
+}, [patients, updatePatient, addNotification]);
+
+
   const performRandomAction = useCallback(() => {
     const actions = [
       () => { // Add Doctor
@@ -37,7 +71,7 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
         const notifTitle = t('simulation.doctorAdded');
         addNotification({ title: notifTitle, description: newDoctor.name });
       },
-      () => { // Add Patient with consultation fee
+      () => { // Add Patient
         if (doctors.length > 0) {
           const newPatientData = createRandomPatient(doctors);
           const consultationFee = 25000;
@@ -51,6 +85,7 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
           addNotification({ title: notifTitle, description: notifDesc });
         }
       },
+      movePatientInEmergency, // Add new action to the list
        () => { // Patient gets a lab test
         if(patients.length > 0) {
           const randomPatient = patients[Math.floor(Math.random() * patients.length)];
@@ -125,7 +160,7 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
     const randomAction = actions[Math.floor(Math.random() * actions.length)];
     randomAction();
 
-  }, [doctors, patients, addDoctor, deleteDoctor, addPatient, updateDoctor, addFinancialRecord, t, addNotification]);
+  }, [doctors, patients, addDoctor, deleteDoctor, addPatient, updateDoctor, addFinancialRecord, t, addNotification, movePatientInEmergency]);
 
   useEffect(() => {
     let intervalId: NodeJS.Timeout | null = null;
