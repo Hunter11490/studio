@@ -318,56 +318,58 @@ export default function PharmacyPage() {
             </header>
 
             <main className="flex-grow flex flex-col md:flex-row gap-4 p-4 md:p-6 overflow-hidden">
-                {/* Inventory Panel */}
-                <Card className="flex flex-col md:w-2/3">
-                    <CardHeader className="p-4">
-                        <CardTitle className="flex justify-between items-center text-base">
-                            {t('pharmacy.inventory')}
-                            <Button onClick={handleAddClick} size="xs">
-                                <PlusCircle className="mr-2 h-4 w-4" />
-                                {t('pharmacy.addDrug')}
-                            </Button>
-                        </CardTitle>
-                        <Input
-                            placeholder={t('pharmacy.searchPlaceholder')}
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            className="h-9"
-                        />
-                    </CardHeader>
-                    <CardContent className="p-0 flex-grow overflow-hidden">
-                        <ScrollArea className="h-full">
-                            <Table>
-                                <TableHeader>
-                                    <TableRow>
-                                        <TableHead className="py-2 text-xs">{t('pharmacy.drugName')}</TableHead>
-                                        <TableHead className="py-2 text-xs">{t('pharmacy.quantity')}</TableHead>
-                                        <TableHead className="text-right py-2 text-xs">{t('pharmacy.price')}</TableHead>
-                                        <TableHead className="w-[80px] py-2"></TableHead>
-                                    </TableRow>
-                                </TableHeader>
-                                <TableBody>
-                                    {filteredDrugs.map((drug) => (
-                                       <TableRow key={drug.id} className={drug.quantity < 10 ? 'bg-destructive/10' : ''}>
-                                            <TableCell className="font-medium text-xs py-2">{drug.name}</TableCell>
-                                            <TableCell className="text-xs py-2">{drug.quantity}</TableCell>
-                                            <TableCell className="text-right text-xs py-2" dir="ltr">{drug.price.toLocaleString()} {t('pharmacy.iqd')}</TableCell>
-                                            <TableCell className="text-right space-x-1 py-2">
-                                                <Button size="xs" variant="outline" onClick={() => addToCart(drug)}>
-                                                    <PlusCircle className="mr-1 h-3 w-3" />
-                                                    {t('common.add')}
-                                                </Button>
-                                            </TableCell>
+                {/* Mobile: 50% height for each panel. Desktop: 2/3 width for inventory. */}
+                <div className="flex flex-col h-1/2 md:h-full md:w-2/3">
+                    <Card className="flex-grow flex flex-col overflow-hidden">
+                        <CardHeader className="p-4">
+                            <CardTitle className="flex justify-between items-center text-base">
+                                {t('pharmacy.inventory')}
+                                <Button onClick={handleAddClick} size="xs">
+                                    <PlusCircle className="mr-2 h-4 w-4" />
+                                    {t('pharmacy.addDrug')}
+                                </Button>
+                            </CardTitle>
+                            <Input
+                                placeholder={t('pharmacy.searchPlaceholder')}
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                className="h-9"
+                            />
+                        </CardHeader>
+                        <CardContent className="p-0 flex-grow overflow-hidden">
+                            <ScrollArea className="h-full">
+                                <Table>
+                                    <TableHeader>
+                                        <TableRow>
+                                            <TableHead className="py-2 text-xs">{t('pharmacy.drugName')}</TableHead>
+                                            <TableHead className="py-2 text-xs">{t('pharmacy.quantity')}</TableHead>
+                                            <TableHead className="text-right py-2 text-xs">{t('pharmacy.price')}</TableHead>
+                                            <TableHead className="w-[80px] py-2"></TableHead>
                                         </TableRow>
-                                    ))}
-                                </TableBody>
-                            </Table>
-                        </ScrollArea>
-                    </CardContent>
-                </Card>
+                                    </TableHeader>
+                                    <TableBody>
+                                        {filteredDrugs.map((drug) => (
+                                        <TableRow key={drug.id} className={drug.quantity < 10 ? 'bg-destructive/10' : ''}>
+                                                <TableCell className="font-medium text-xs py-2">{drug.name}</TableCell>
+                                                <TableCell className="text-xs py-2">{drug.quantity}</TableCell>
+                                                <TableCell className="text-right text-xs py-2" dir="ltr">{drug.price.toLocaleString()} {t('pharmacy.iqd')}</TableCell>
+                                                <TableCell className="text-right space-x-1 py-2">
+                                                    <Button size="xs" variant="outline" onClick={() => addToCart(drug)}>
+                                                        <PlusCircle className="mr-1 h-3 w-3" />
+                                                        {t('common.add')}
+                                                    </Button>
+                                                </TableCell>
+                                            </TableRow>
+                                        ))}
+                                    </TableBody>
+                                </Table>
+                            </ScrollArea>
+                        </CardContent>
+                    </Card>
+                </div>
 
-                 {/* Sales Cart Panel */}
-                 <div className="flex flex-col gap-4 flex-grow md:w-1/3">
+                 {/* Mobile: 50% height for each panel. Desktop: 1/3 width for cart. */}
+                 <div className="flex flex-col h-1/2 md:h-full md:w-1/3 gap-4">
                     <div className="space-y-2">
                         <Label>{t('pharmacy.selectPatient')}</Label>
                         <Select onValueChange={setSelectedPatientId} value={selectedPatientId || ''}>
@@ -381,7 +383,7 @@ export default function PharmacyPage() {
                             </SelectContent>
                         </Select>
                     </div>
-                    <Card className="flex flex-col flex-grow">
+                    <Card className="flex flex-col flex-grow overflow-hidden">
                         <CardHeader className="p-4">
                             <CardTitle className="flex items-center gap-2 text-base">
                                 <ShoppingCart className="h-5 w-5" />
