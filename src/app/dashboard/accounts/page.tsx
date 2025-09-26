@@ -240,18 +240,20 @@ class PrintableInvoice extends React.Component<{ patient: Patient; labels: Recor
 function PatientInvoiceDialog({ patient, onOpenChange, onAddPayment }: { patient: Patient | null; onOpenChange: (open:boolean) => void; onAddPayment: (patientId: string, amount: number) => void; }) {
     const { t, lang } = useLanguage();
     const [paymentAmount, setPaymentAmount] = useState('');
-    const invoiceRef = useRef<PrintableInvoice>(null);
+    const invoiceRef = useRef(null);
     const [isPrinting, setIsPrinting] = useState(false);
 
     const handlePrint = useReactToPrint({
         content: () => invoiceRef.current,
         documentTitle: `Invoice-${patient?.patientName}-${new Date().toISOString().split('T')[0]}`,
-        onBeforeGetContent: () => new Promise<void>((resolve) => {
-            setIsPrinting(true);
-            resolve();
-        }),
         onAfterPrint: () => setIsPrinting(false),
     });
+    
+    const triggerPrint = () => {
+      setIsPrinting(true);
+      handlePrint();
+    }
+
 
     const labels = {
         invoiceTitle: t('accounts.invoiceTitle'),
@@ -332,7 +334,7 @@ function PatientInvoiceDialog({ patient, onOpenChange, onAddPayment }: { patient
                                 </Button>
                             </div>
                         </div>
-                        <Button onClick={handlePrint} disabled={isPrinting} className="w-full" variant="outline">
+                        <Button onClick={triggerPrint} disabled={isPrinting} className="w-full" variant="outline">
                             {isPrinting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <FileDown className="mr-2 h-4 w-4" />}
                             {t('accounts.exportPdf')}
                         </Button>
