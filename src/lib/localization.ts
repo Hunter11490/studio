@@ -454,6 +454,31 @@ export const translations: Translations = {
       empty: "You have no new notifications.",
       markAllRead: "Mark all as read",
       clearAll: "Clear All"
+    },
+    emergency: {
+      waiting: "Waiting",
+      inTreatment: "In Treatment",
+      observation: "Observation",
+      admitToICU: "Admit to ICU",
+      admitToWard: "Admit to Ward",
+      discharge: "Discharge",
+      triage: {
+        critical: "Critical",
+        urgent: "Urgent",
+        stable: "Stable",
+        minor: "Minor"
+      },
+      vitals: {
+        heartRate: "Heart Rate",
+        bloodPressure: "Blood Pressure",
+        spo2: "SpO2",
+        temperature: "Temperature"
+      }
+    },
+    icu: {
+      bed: "Bed",
+      vacant: "Vacant",
+      monitorFor: "Live Monitor for",
     }
   },
   ar: {
@@ -909,6 +934,31 @@ export const translations: Translations = {
       empty: "ليس لديك إشعارات جديدة.",
       markAllRead: "تحديد الكل كمقروء",
       clearAll: "مسح الكل"
+    },
+    emergency: {
+      waiting: "في الانتظار",
+      inTreatment: "تحت العلاج",
+      observation: "تحت الملاحظة",
+      admitToICU: "إدخال للعناية المركزة",
+      admitToWard: "إدخال للردهة",
+      discharge: "تخريج",
+      triage: {
+        critical: "حرجة",
+        urgent: "عاجلة",
+        stable: "مستقرة",
+        minor: "بسيطة"
+      },
+      vitals: {
+        heartRate: "النبض",
+        bloodPressure: "الضغط",
+        spo2: "الأكسجين",
+        temperature: "الحرارة"
+      }
+    },
+     icu: {
+      bed: "سرير",
+      vacant: "شاغر",
+      monitorFor: "مراقبة حية للمريض",
     }
   },
 };

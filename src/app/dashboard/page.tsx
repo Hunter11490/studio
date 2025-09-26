@@ -64,12 +64,12 @@ const mainDepts = [
   {
     name: 'emergency',
     icon: Ambulance,
-    href: '#', // TBD
+    href: '/dashboard/emergency',
   },
   {
     name: 'icu',
     icon: BedDouble,
-    href: '#', // TBD
+    href: '/dashboard/icu',
   },
   {
     name: 'surgicalOperations',

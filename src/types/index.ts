@@ -31,6 +31,15 @@ export type FinancialRecord = {
   date: string; // ISO date string
 };
 
+export type TriageLevel = 'critical' | 'urgent' | 'stable' | 'minor';
+
+export type VitalSigns = {
+  heartRate: number;
+  bloodPressure: string;
+  spo2: number;
+  temperature: number;
+}
+
 export type Patient = {
   id: string;
   patientName: string;
@@ -53,6 +62,11 @@ export type Patient = {
   doctorId?: string;
   createdAt: string;
   financialRecords?: FinancialRecord[];
+
+  // New fields for emergency and ICU
+  triageLevel?: TriageLevel;
+  status?: 'Waiting' | 'In Treatment' | 'Observation' | 'Admitted' | 'Discharged';
+  vitalSigns?: VitalSigns;
 };
 
 export type DoctorInfo = {
