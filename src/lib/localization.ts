@@ -519,6 +519,7 @@ export const translations: Translations = {
       admitToWard: "Admit to Ward",
       discharge: "Discharge",
       triage: {
+        title: "Triage Level",
         critical: "Critical",
         urgent: "Urgent",
         stable: "Stable",
@@ -1132,6 +1133,7 @@ export const translations: Translations = {
       admitToWard: "إدخال للردهة",
       discharge: "تخريج",
       triage: {
+        title: "مستوى الخطورة",
         critical: "حرجة",
         urgent: "عاجلة",
         stable: "مستقرة",
