@@ -264,7 +264,7 @@ export default function HospitalDashboardPage() {
             </CardHeader>
             <CardContent>
                  <div className="grid grid-cols-5 gap-2">
-                  {(['light', 'dark', 'pink', 'blue', 'brown', 'emerald', 'amethyst', 'ruby', 'citrine', 'system'] as const).map((themeName) => {
+                  {(['light', 'dark', 'pink', 'blue', 'brown', 'emerald', 'amethyst', 'ruby', 'citrine', 'lavender', 'mint', 'ocean', 'sunset', 'sandstone', 'system'] as const).map((themeName) => {
                     const isActive = theme === themeName;
                     return (
                       <Button
@@ -289,6 +289,11 @@ export default function HospitalDashboardPage() {
                               'bg-[#f0e8f9] border border-[#c4a8f4]': themeName === 'amethyst',
                               'bg-[#fbe8e8] border border-[#f4a8a8]': themeName === 'ruby',
                               'bg-[#fef8e2] border border-[#f4d4a8]': themeName === 'citrine',
+                              'bg-[#f5f2ff] border border-[#d6c9ff]': themeName === 'lavender',
+                              'bg-[#f0fff8] border border-[#a6f4d0]': themeName === 'mint',
+                              'bg-[#eff8ff] border border-[#a7d7ff]': themeName === 'ocean',
+                              'bg-[#fff4f2] border border-[#ffcbbd]': themeName === 'sunset',
+                              'bg-[#fffaf2] border border-[#ffe1b5]': themeName === 'sandstone',
                               'border': themeName === 'system'
                             }
                           )}>
