@@ -12,7 +12,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/componen
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter as DialogFooterComponent } from '@/components/ui/dialog';
 import { Maximize, Minimize, Search, User, FileClock, FileDown, CalendarDays, Calendar, X } from 'lucide-react';
 import { format, differenceInYears, parseISO, isValid, isSameDay, getMonth, getYear, setMonth, setYear } from 'date-fns';
 import { ar } from 'date-fns/locale';
@@ -23,6 +23,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { exportToExcel } from '@/lib/excel';
 import { useToast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
+import { Label } from '@/components/ui/label';
 
 
 const calculateBalance = (records: FinancialRecord[] = []) => {
@@ -227,7 +228,7 @@ function PatientHistoryDialog({ patient, onOpenChange }: { patient: Patient | nu
                         )}
                     </div>
                 </ScrollArea>
-                <DialogFooter className="flex-col items-start gap-2 border-t pt-4">
+                <DialogFooterComponent className="flex-col items-start gap-2 border-t pt-4">
                     <div className="w-full flex justify-between font-bold text-lg">
                         <span>{t('accounts.totalBalance')}:</span>
                         <span className="font-mono" dir="ltr">{balance.toLocaleString()} {t('lab.iqd')}</span>
@@ -236,7 +237,7 @@ function PatientHistoryDialog({ patient, onOpenChange }: { patient: Patient | nu
                         <X className="mr-2 h-4 w-4" />
                         {t('common.close')}
                     </Button>
-                </DialogFooter>
+                </DialogFooterComponent>
             </DialogContent>
         </Dialog>
     );
@@ -329,3 +330,46 @@ function ExportReportsPopover({ allPatients, onExport }: { allPatients: Patient[
         </Popover>
     );
 }
+
+// Add new translations
+Object.assign(translations.en.medicalRecords, {
+    title: "Medical Records",
+    description: "Search and manage the central patient archive.",
+    searchPlaceholder: "Search by patient name, ID, or phone number...",
+    fullName: "Full Name",
+    age: "Age",
+    sex: "Sex",
+    firstAdmission: "First Admission",
+    lastVisit: "Last Visit",
+    noRecords: "No patient records found.",
+    viewHistory: "View History",
+    patientHistoryFor: "Patient History for",
+    exportReports: "Export Reports",
+    exportDesc: "Export patient data to Excel.",
+    exportDaily: "Export Daily Report",
+    exportMonthly: "Export Monthly Report",
+    exportPatient: "Export Patient Report",
+    selectPatientPlaceholder: "Select a patient to export",
+    noDataToExport: "No data found for the selected criteria."
+});
+
+Object.assign(translations.ar.medicalRecords, {
+    title: "السجلات الطبية",
+    description: "ابحث وأدر الأرشيف المركزي للمرضى.",
+    searchPlaceholder: "ابحث بالاسم، الرقم التعريفي، أو رقم الهاتف...",
+    fullName: "الاسم الكامل",
+    age: "العمر",
+    sex: "الجنس",
+    firstAdmission: "أول دخول",
+    lastVisit: "آخر زيارة",
+    noRecords: "لا توجد سجلات مرضى.",
+    viewHistory: "عرض السجل",
+    patientHistoryFor: "السجل المرضي للمريض",
+    exportReports: "تصدير التقارير",
+    exportDesc: "تصدير بيانات المرضى إلى ملف إكسل.",
+    exportDaily: "تصدير تقرير يومي",
+    exportMonthly: "تصدير تقرير شهري",
+    exportPatient: "تصدير تقرير مريض",
+    selectPatientPlaceholder: "اختر مريضاً للتصدير",
+    noDataToExport: "لا توجد بيانات للمعايير المحددة."
+});
