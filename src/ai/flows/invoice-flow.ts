@@ -11,45 +11,7 @@
 import { ai } from '@/ai/genkit';
 import { googleAI } from '@genkit-ai/googleai';
 import { z } from 'genkit';
-
-const FinancialRecordSchema = z.object({
-  id: z.string().optional(),
-  type: z.string(),
-  description: z.string(),
-  amount: z.number(),
-  date: z.string(),
-});
-
-export const InvoiceHtmlInputSchema = z.object({
-  patientName: z.string(),
-  patientId: z.string(),
-  records: z.array(FinancialRecordSchema),
-  hospitalName: z.string(),
-  hospitalLogoUrl: z.string().url(),
-  lang: z.enum(['en', 'ar']),
-  labels: z.object({
-    invoiceTitle: z.string(),
-    patientName: z.string(),
-    patientId: z.string(),
-    invoiceDate: z.string(),
-    totalCharges: z.string(),
-    totalPayments: z.string(),
-    balanceDue: z.string(),
-    itemDescription: z.string(),
-    date: z.string(),
-    amount: z.string(),
-    iqd: z.string(),
-    summary: z.string(),
-    footerNotes: z.string()
-  })
-});
-export type InvoiceHtmlInput = z.infer<typeof InvoiceHtmlInputSchema>;
-
-
-const InvoiceHtmlOutputSchema = z.object({
-  html: z.string().describe('A single, self-contained HTML string representing the styled invoice. It should use inline CSS for styling and be ready to print.'),
-});
-export type InvoiceHtmlOutput = z.infer<typeof InvoiceHtmlOutputSchema>;
+import { InvoiceHtmlInput, InvoiceHtmlInputSchema, InvoiceHtmlOutput, InvoiceHtmlOutputSchema } from '@/ai/schemas/invoice-schemas';
 
 
 export async function generateInvoiceHtml(input: InvoiceHtmlInput): Promise<InvoiceHtmlOutput> {
@@ -78,7 +40,7 @@ const generateInvoiceFlow = ai.defineFlow(
         5.  **Detailed Transactions Table:** Create a table listing all financial records. The table should have columns for: Description, Date, and Amount.
             *   Positive amounts are charges.
             *   Negative amounts are payments. Display them as positive numbers in the "Amount" column but use them for payment calculation.
-        6_  **Styling:** Use a professional and clean design with inline CSS. Use shades of blue for headers and borders. Ensure good typography and spacing. The currency is "${input.labels.iqd}".
+        6.  **Styling:** Use a professional and clean design with inline CSS. Use shades of blue for headers and borders. Ensure good typography and spacing. The currency is "${input.labels.iqd}".
         7. **Footer:** Add a simple footer with a thank you note or other relevant information.
 
         **Labels to use:**
