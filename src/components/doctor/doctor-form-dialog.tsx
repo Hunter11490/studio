@@ -177,7 +177,7 @@ export function DoctorFormDialog({ open, onOpenChange, doctorToEdit, departmentS
                     <FormItem>
                       <FormLabel>{t('doctorForm.specialty')}</FormLabel>
                        <FormControl>
-                          <>
+                          <div>
                             {isSpecialtyDisabled ? (
                               <Input {...field} disabled />
                             ) : (
@@ -197,7 +197,7 @@ export function DoctorFormDialog({ open, onOpenChange, doctorToEdit, departmentS
                                 ))}
                                 </div>
                             )}
-                          </>
+                          </div>
                       </FormControl>
                       <FormMessage />
                     </FormItem>
