@@ -25,6 +25,7 @@ import { requestSterilization } from '@/ai/flows/sterilization-flow';
 import { useToast } from '@/hooks/use-toast';
 import { InstrumentSet, Patient } from '@/types';
 import { usePatients } from '@/hooks/use-patients';
+import { useDoctors } from '@/hooks/use-doctors';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 
@@ -210,7 +211,7 @@ export default function SurgeryPage() {
     };
 
     const { scheduledBookings, completedBookings } = useMemo(() => {
-        const sorted = [...bookings].sort((a,b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+        const sorted = [...bookings].sort((a,b) => new Date(a.date).getTime() - new Date(b.date).getTime());
         return {
             scheduledBookings: sorted.filter(b => !isPast(new Date(b.date)) && b.status === 'scheduled'),
             completedBookings: sorted.filter(b => isPast(new Date(b.date)) || b.status !== 'scheduled'),
@@ -320,6 +321,7 @@ export default function SurgeryPage() {
 function BookingForm({ onSave, bookingToEdit }: { onSave: (data: z.infer<typeof formSchema>) => void; bookingToEdit?: SurgeryBooking | null }) {
     const { t } = useLanguage();
     const { patients } = usePatients();
+    const { doctors } = useDoctors();
 
     const availablePatients = useMemo(() => {
         return patients.filter(p => p.status !== 'Discharged');
@@ -388,9 +390,27 @@ function BookingForm({ onSave, bookingToEdit }: { onSave: (data: z.infer<typeof 
                  <FormField control={form.control} name="surgeryType" render={({ field }) => (
                     <FormItem><FormLabel>{t('surgery.surgeryType')}</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
                 )} />
-                 <FormField control={form.control} name="surgeonName" render={({ field }) => (
-                    <FormItem><FormLabel>{t('surgery.surgeonName')}</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
-                )} />
+                 <FormField 
+                    control={form.control}
+                    name="surgeonName"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>{t('surgery.surgeonName')}</FormLabel>
+                            <Select onValueChange={field.onChange} value={field.value}>
+                                <FormControl>
+                                <SelectTrigger>
+                                    <SelectValue placeholder={t('reception.referredByPlaceholder')} />
+                                </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                    {doctors.map(doc => (
+                                        <SelectItem key={doc.id} value={doc.name}>{doc.name}</SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                            <FormMessage />
+                        </FormItem>
+                 )} />
                  <FormField control={form.control} name="date" render={({ field }) => (
                     <FormItem><FormLabel>{t('surgery.date')}</FormLabel><FormControl><Input type="datetime-local" 
                         value={field.value ? format(field.value, "yyyy-MM-dd'T'HH:mm") : ''}
