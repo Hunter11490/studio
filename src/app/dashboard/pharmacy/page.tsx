@@ -290,7 +290,7 @@ export default function PharmacyPage() {
 
     return (
         <div className="flex flex-col h-screen">
-            <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b bg-card px-4 md:px-6">
+            <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b bg-card px-4 md:px-6 shrink-0">
                 <div className="flex items-center gap-2">
                     <Logo className="h-8 w-8 text-primary" />
                 </div>
@@ -317,8 +317,9 @@ export default function PharmacyPage() {
                 </div>
             </header>
 
-            <main className="flex-grow grid md:grid-cols-3 gap-4 p-4 md:p-6 overflow-hidden">
-                <Card className="md:col-span-2 flex flex-col">
+            <main className="flex-grow flex flex-col md:flex-row gap-4 p-4 md:p-6 overflow-hidden">
+                {/* Inventory Panel */}
+                <Card className="flex flex-col md:w-2/3">
                     <CardHeader className="p-4">
                         <CardTitle className="flex justify-between items-center text-base">
                             {t('pharmacy.inventory')}
@@ -334,8 +335,8 @@ export default function PharmacyPage() {
                             className="h-9"
                         />
                     </CardHeader>
-                    <CardContent className="p-0 flex-grow">
-                        <ScrollArea className="h-[calc(100vh-240px)]">
+                    <CardContent className="p-0 flex-grow overflow-hidden">
+                        <ScrollArea className="h-full">
                             <Table>
                                 <TableHeader>
                                     <TableRow>
@@ -365,7 +366,8 @@ export default function PharmacyPage() {
                     </CardContent>
                 </Card>
 
-                 <div className="flex flex-col gap-4">
+                 {/* Sales Cart Panel */}
+                 <div className="flex flex-col gap-4 flex-grow md:w-1/3">
                     <div className="space-y-2">
                         <Label>{t('pharmacy.selectPatient')}</Label>
                         <Select onValueChange={setSelectedPatientId} value={selectedPatientId || ''}>
@@ -386,10 +388,10 @@ export default function PharmacyPage() {
                                 {t('pharmacy.salesCart')}
                             </CardTitle>
                         </CardHeader>
-                        <CardContent className="flex-grow p-0">
-                            <ScrollArea className="h-full min-h-[calc(100vh-500px)]">
+                        <CardContent className="flex-grow p-0 overflow-hidden">
+                            <ScrollArea className="h-full">
                                 {cart.length === 0 ? (
-                                    <div className="p-6 text-center text-muted-foreground h-full flex items-center justify-center text-sm">{t('pharmacy.cartEmpty')}</div>
+                                    <div className="flex items-center justify-center h-full p-6 text-center text-sm text-muted-foreground">{t('pharmacy.cartEmpty')}</div>
                                 ) : (
                                     <div className="divide-y">
                                         {cart.map((item) => (
