@@ -176,59 +176,24 @@ const initialDrugs: Drug[] = [
     })
 ];
 
-function QuantityPopover({ drug, onAddToCart }: { drug: Drug, onAddToCart: (drug: Drug, quantity: number) => void }) {
-    const [quantity, setQuantity] = useState(1);
-    const [isOpen, setIsOpen] = useState(false);
-    const { t } = useLanguage();
-
-    const handleAdd = () => {
-        onAddToCart(drug, quantity);
-        setIsOpen(false);
-        setQuantity(1);
-    }
-
-    return (
-        <Popover open={isOpen} onOpenChange={setIsOpen}>
-            <PopoverTrigger asChild>
-                <Button variant="ghost" size="icon" disabled={drug.quantity === 0}>
-                    <PlusCircle className="h-4 w-4 text-primary" />
-                </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-48">
-                <div className="grid gap-4">
-                    <div className="space-y-2">
-                        <h4 className="font-medium leading-none">{drug.name}</h4>
-                        <p className="text-sm text-muted-foreground">{t('pharmacy.quantityAvailable')}: {drug.quantity}</p>
-                    </div>
-                    <div className="grid gap-2">
-                        <Label htmlFor="quantity">{t('pharmacy.quantity')}</Label>
-                        <Input
-                            id="quantity"
-                            type="number"
-                            value={quantity}
-                            onChange={(e) => setQuantity(Math.min(drug.quantity, Math.max(1, Number(e.target.value))))}
-                            min="1"
-                            max={drug.quantity}
-                            className="col-span-2 h-8"
-                        />
-                    </div>
-                    <Button onClick={handleAdd} disabled={quantity > drug.quantity || quantity < 1}>
-                        {t('common.add')}
-                    </Button>
-                </div>
-            </PopoverContent>
-        </Popover>
-    );
-}
 
 export default function PharmacyPage() {
     const { t } = useLanguage();
     const [drugs, setDrugs] = useLocalStorage<Drug[]>('pharmacy_drugs_v2', initialDrugs);
     const { patients, addFinancialRecord } = usePatients();
+    const [searchTerm, setSearchTerm] = useState('');
     const [cart, setCart] = useState<CartItem[]>([]);
     const [selectedPatientId, setSelectedPatientId] = useState<string | null>(null);
     const { toast } = useToast();
     const [isFullscreen, setIsFullscreen] = useState(false);
+    const [isFormOpen, setFormOpen] = useState(false);
+    const [drugToEdit, setDrugToEdit] = useState<Drug | null>(null);
+
+
+    const filteredDrugs = useMemo(() => {
+        return drugs.filter(drug => drug.name.toLowerCase().includes(searchTerm.toLowerCase()));
+    }, [drugs, searchTerm]);
+
 
     const handleFullscreenToggle = async () => {
       if (typeof window !== 'undefined') {
@@ -249,13 +214,24 @@ export default function PharmacyPage() {
             const newDrug: Drug = { id: new Date().toISOString(), ...data };
             setDrugs(prev => [newDrug, ...prev]);
         }
+        setFormOpen(false);
     };
 
     const handleDeleteClick = (drugId: string) => {
         setDrugs(prev => prev.filter(d => d.id !== drugId));
     };
 
-    const addToCart = (drug: Drug, quantity: number) => {
+    const handleAddClick = () => {
+        setDrugToEdit(null);
+        setFormOpen(true);
+    };
+
+    const handleEditClick = (drug: Drug) => {
+        setDrugToEdit(drug);
+        setFormOpen(true);
+    };
+
+    const addToCart = (drug: Drug, quantity: number = 1) => {
         const existingItem = cart.find(item => item.id === drug.id);
         if (existingItem) {
             const newQuantity = existingItem.orderQuantity + quantity;
@@ -342,8 +318,54 @@ export default function PharmacyPage() {
                 </div>
             </header>
 
-            <main className="flex-grow p-4 md:p-8">
-                 <Card className="h-full flex flex-col">
+            <main className="flex-grow grid md:grid-cols-3 gap-4 p-4 md:p-8">
+                <Card className="md:col-span-2 flex flex-col">
+                    <CardHeader>
+                        <CardTitle className="flex justify-between items-center">
+                            {t('pharmacy.inventory')}
+                            <Button onClick={handleAddClick} size="sm">
+                                <PlusCircle className="mr-2 h-4 w-4" />
+                                {t('pharmacy.addDrug')}
+                            </Button>
+                        </CardTitle>
+                        <Input
+                            placeholder={t('pharmacy.searchPlaceholder')}
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                        />
+                    </CardHeader>
+                    <CardContent className="p-0 flex-grow">
+                        <ScrollArea className="h-[calc(100vh-250px)]">
+                            <Table>
+                                <TableHeader>
+                                    <TableRow>
+                                        <TableHead>{t('pharmacy.drugName')}</TableHead>
+                                        <TableHead>{t('pharmacy.quantity')}</TableHead>
+                                        <TableHead className="text-right">{t('pharmacy.price')}</TableHead>
+                                        <TableHead className="w-[100px]"></TableHead>
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                    {filteredDrugs.map((drug) => (
+                                       <TableRow key={drug.id} className={drug.quantity < 10 ? 'bg-destructive/10' : ''}>
+                                            <TableCell className="font-medium">{drug.name}</TableCell>
+                                            <TableCell>{drug.quantity}</TableCell>
+                                            <TableCell className="text-right" dir="ltr">{drug.price.toLocaleString()} {t('pharmacy.iqd')}</TableCell>
+                                            <TableCell className="text-right space-x-1">
+                                                <Button size="sm" variant="outline" onClick={() => addToCart(drug)}>
+                                                    <PlusCircle className="mr-2 h-4 w-4" />
+                                                    {t('common.add')}
+                                                </Button>
+                                            </TableCell>
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
+                        </ScrollArea>
+                    </CardContent>
+                </Card>
+
+                 <Card className="flex flex-col">
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2">
                             <ShoppingCart className="h-5 w-5" />
@@ -395,105 +417,19 @@ export default function PharmacyPage() {
                     </CardFooter>
                 </Card>
             </main>
-
-            <DrugInventoryDialog 
-                drugs={drugs} 
-                onAddToCart={addToCart} 
-                onDelete={handleDeleteClick} 
-                onSave={handleSaveDrug}
-            />
-        </div>
-    );
-}
-
-function DrugInventoryDialog({ drugs, onAddToCart, onDelete, onSave }: { drugs: Drug[], onAddToCart: (drug: Drug, quantity: number) => void, onDelete: (id: string) => void, onSave: (data: z.infer<typeof formSchema>, drug: Drug | null) => void }) {
-    const { t } = useLanguage();
-    const [searchTerm, setSearchTerm] = useState('');
-    const [isFormOpen, setFormOpen] = useState(false);
-    const [drugToEdit, setDrugToEdit] = useState<Drug | null>(null);
-
-    const filteredDrugs = useMemo(() => {
-        return drugs.filter(drug => drug.name.toLowerCase().includes(searchTerm.toLowerCase()));
-    }, [drugs, searchTerm]);
-
-    const handleAddClick = () => {
-        setDrugToEdit(null);
-        setFormOpen(true);
-    };
-
-    const handleEditClick = (drug: Drug) => {
-        setDrugToEdit(drug);
-        setFormOpen(true);
-    };
-    
-    const handleSave = (data: z.infer<typeof formSchema>) => {
-        onSave(data, drugToEdit);
-        setFormOpen(false);
-        setDrugToEdit(null);
-    }
-
-    return (
-        <>
-            <Dialog>
-                <DialogTrigger asChild>
-                    <Button variant="outline" size="icon" className="fixed bottom-6 right-6 z-40 h-14 w-14 rounded-full shadow-lg">
-                        <Pill className="h-6 w-6" />
-                    </Button>
-                </DialogTrigger>
-                <DialogContent className="max-w-4xl h-[80vh] flex flex-col">
-                     <DialogHeader className="flex flex-row items-center justify-between">
-                        <DialogTitle>{t('pharmacy.inventory')}</DialogTitle>
-                        <Button onClick={handleAddClick} size="sm">
-                            <PlusCircle className="mr-2 h-4 w-4" />
-                            {t('pharmacy.addDrug')}
-                        </Button>
-                    </DialogHeader>
-                     <div className="px-6 pb-4">
-                        <Input
-                            placeholder={t('pharmacy.searchPlaceholder')}
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                        />
-                    </div>
-                     <ScrollArea className="flex-grow">
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead>{t('pharmacy.drugName')}</TableHead>
-                                    <TableHead>{t('pharmacy.quantity')}</TableHead>
-                                    <TableHead>{t('pharmacy.price')}</TableHead>
-                                    <TableHead className="text-right">{t('common.actions')}</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {filteredDrugs.map((drug) => (
-                                    <TableRow key={drug.id} className={drug.quantity < 10 ? 'bg-destructive/10' : ''}>
-                                        <TableCell className="font-medium">{drug.name}</TableCell>
-                                        <TableCell>{drug.quantity}</TableCell>
-                                        <TableCell dir="ltr">{drug.price.toLocaleString()} {t('pharmacy.iqd')}</TableCell>
-                                        <TableCell className="text-right space-x-1">
-                                            <Button variant="ghost" size="icon" onClick={() => handleEditClick(drug)}><Pencil className="h-4 w-4" /></Button>
-                                            <Button variant="ghost" size="icon" onClick={() => onDelete(drug.id)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
-                                            <QuantityPopover drug={drug} onAddToCart={onAddToCart} />
-                                        </TableCell>
-                                    </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
-                    </ScrollArea>
-                </DialogContent>
-            </Dialog>
+            
             <Dialog open={isFormOpen} onOpenChange={setFormOpen}>
                 <DialogContent>
                     <DialogHeader>
                         <DialogTitle>{drugToEdit ? t('pharmacy.editDrug') : t('pharmacy.addDrug')}</DialogTitle>
                     </DialogHeader>
-                    <DrugForm onSave={handleSave} drugToEdit={drugToEdit} />
+                    <DrugForm onSave={handleSaveDrug} drugToEdit={drugToEdit} />
                 </DialogContent>
             </Dialog>
-        </>
+        </div>
     );
 }
+
 
 function DrugForm({ onSave, drugToEdit }: { onSave: (data: z.infer<typeof formSchema>) => void, drugToEdit?: Drug | null }) {
     const { t } = useLanguage();
