@@ -6,7 +6,7 @@ import { useLanguage } from '@/hooks/use-language';
 import { UserMenu } from '@/components/layout/user-menu';
 import { Logo } from '@/components/logo';
 import { Button } from '@/components/ui/button';
-import { Maximize, Minimize, HeartPulse, Thermometer, Wind, Activity, Pencil } from 'lucide-react';
+import { Maximize, Minimize, HeartPulse, Thermometer, Wind, Activity, Pencil, PlusCircle } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { NotificationsButton } from '@/components/notifications-button';
 import { Patient, TriageLevel } from '@/types';
@@ -64,7 +64,7 @@ function PatientCard({ patient, onUpdatePatient }: { patient: Patient, onUpdateP
             </div>
             <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="xs">Actions</Button>
+                    <Button variant="ghost" size="xs">{t('common.actions')}</Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent>
                     <DropdownMenuItem onClick={() => setIsEditing(true)}>
@@ -104,6 +104,7 @@ export default function EmergencyPage() {
   const { t } = useLanguage();
   const { patients, updatePatient } = usePatients();
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [isAddPatientOpen, setAddPatientOpen] = useState(false);
 
   const handleFullscreenToggle = async () => {
     if (typeof window !== 'undefined') {
@@ -135,6 +136,20 @@ export default function EmergencyPage() {
               <h1 className="text-lg font-semibold tracking-tight whitespace-nowrap text-primary animate-glow">{t('departments.emergency')}</h1>
           </div>
           <div className="flex items-center gap-2">
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => setAddPatientOpen(true)}
+                    >
+                      <PlusCircle className="h-5 w-5" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent><p>{t('reception.addPatient')}</p></TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
@@ -176,6 +191,10 @@ export default function EmergencyPage() {
               </ScrollArea>
           </div>
       </main>
+      <PatientRegistrationDialog
+        open={isAddPatientOpen}
+        onOpenChange={setAddPatientOpen}
+      />
     </div>
   )
 }

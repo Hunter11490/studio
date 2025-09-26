@@ -6,7 +6,7 @@ import { useLanguage } from '@/hooks/use-language';
 import { UserMenu } from '@/components/layout/user-menu';
 import { Logo } from '@/components/logo';
 import { Button } from '@/components/ui/button';
-import { Maximize, Minimize, Bed, User, Stethoscope, HeartPulse, Activity, Wind, Thermometer, Pencil } from 'lucide-react';
+import { Maximize, Minimize, Bed, User, Stethoscope, HeartPulse, Activity, Wind, Thermometer, Pencil, PlusCircle } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { NotificationsButton } from '@/components/notifications-button';
 import { Patient } from '@/types';
@@ -25,7 +25,7 @@ const generateEcgData = () => {
 };
 
 
-function BedCard({ bedNumber, patient }: { bedNumber: number; patient: Patient | null }) {
+function BedCard({ bedNumber, patient, onAddPatient }: { bedNumber: number; patient: Patient | null; onAddPatient: (bedNumber: number) => void; }) {
     const { t } = useLanguage();
     const [isMonitorOpen, setMonitorOpen] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
@@ -40,20 +40,28 @@ function BedCard({ bedNumber, patient }: { bedNumber: number; patient: Patient |
             return () => clearInterval(interval);
         }
     }, [isMonitorOpen]);
+    
+    const handleCardClick = () => {
+        if(isOccupied) {
+            setMonitorOpen(true);
+        } else {
+            onAddPatient(bedNumber);
+        }
+    }
 
     return (
         <>
             <div 
                 className={cn(
                     "flex flex-col items-center justify-center p-4 transition-all rounded-lg border",
-                    isOccupied ? "bg-red-500/10 border-red-500/30 cursor-pointer hover:shadow-lg" : "bg-green-500/10 border-green-500/30"
+                    isOccupied ? "bg-red-500/10 border-red-500/30 cursor-pointer hover:shadow-lg" : "bg-green-500/10 border-green-500/30 cursor-pointer hover:bg-green-500/20"
                 )}
-                onClick={() => isOccupied && setMonitorOpen(true)}
+                onClick={handleCardClick}
             >
-                <div className="flex flex-col items-center gap-2">
+                <div className="flex flex-col items-center gap-2 text-center">
                     <Bed className={cn("h-8 w-8", isOccupied ? "text-red-500" : "text-green-500")} />
                     <span className="font-bold text-lg">{t('icu.bed')} {bedNumber}</span>
-                    <span className="text-sm text-muted-foreground">{isOccupied ? patient.patientName : t('icu.vacant')}</span>
+                    <span className="text-sm text-muted-foreground truncate">{isOccupied ? patient.patientName : t('icu.vacant')}</span>
                 </div>
             </div>
             {isOccupied && patient.vitalSigns && (
@@ -86,11 +94,11 @@ function BedCard({ bedNumber, patient }: { bedNumber: number; patient: Patient |
                                  <div className="p-2 rounded-lg bg-secondary">
                                     <p className="text-xs text-muted-foreground flex items-center justify-center gap-1"><Wind className="h-3 w-3"/> {t('emergency.vitals.spo2')}</p>
                                     <p className="font-bold text-lg">{patient.vitalSigns.spo2}%</p>
-                                </div>
+                                 </div>
                                  <div className="p-2 rounded-lg bg-secondary">
                                     <p className="text-xs text-muted-foreground flex items-center justify-center gap-1"><Thermometer className="h-3 w-3"/> {t('emergency.vitals.temperature')}</p>
                                     <p className="font-bold text-lg">{patient.vitalSigns.temperature.toFixed(1)}°C</p>
-                                </div>
+                                 </div>
                             </div>
                         </div>
                         <DialogFooter>
@@ -118,6 +126,7 @@ export default function ICUPage() {
     const { t } = useLanguage();
     const { patients } = usePatients();
     const [isFullscreen, setIsFullscreen] = useState(false);
+    const [isAddPatientOpen, setIsAddPatientOpen] = useState(false);
 
     const handleFullscreenToggle = async () => {
         if (typeof window !== 'undefined') {
@@ -135,6 +144,10 @@ export default function ICUPage() {
         return patients.filter(p => p.department === 'icu');
     }, [patients]);
     
+    const handleAddPatient = () => {
+        setIsAddPatientOpen(true);
+    }
+    
     return (
         <div className="flex flex-col h-screen">
           <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b bg-card px-4 md:px-6 shrink-0">
@@ -145,6 +158,16 @@ export default function ICUPage() {
                   <h1 className="text-lg font-semibold tracking-tight whitespace-nowrap text-primary animate-glow">{t('departments.icu')}</h1>
               </div>
               <div className="flex items-center gap-2">
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                          <Button variant="ghost" size="icon" onClick={handleAddPatient}>
+                            <PlusCircle className="h-5 w-5" />
+                          </Button>
+                      </TooltipTrigger>
+                      <TooltipContent><p>{t('reception.addPatient')}</p></TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
                   <TooltipProvider>
                     <Tooltip>
                       <TooltipTrigger asChild>
@@ -162,10 +185,14 @@ export default function ICUPage() {
           <main className="flex-grow p-4 md:p-8">
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
                   {Array.from({ length: TOTAL_ICU_BEDS }).map((_, index) => (
-                      <BedCard key={index} bedNumber={index + 1} patient={icuPatients[index] || null} />
+                      <BedCard key={index} bedNumber={index + 1} patient={icuPatients[index] || null} onAddPatient={() => {}} />
                   ))}
               </div>
           </main>
+          <PatientRegistrationDialog
+            open={isAddPatientOpen}
+            onOpenChange={setIsAddPatientOpen}
+          />
         </div>
     )
 }

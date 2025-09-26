@@ -13,13 +13,13 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { UserPlus, Send, UploadCloud } from 'lucide-react';
+import { UserPlus, Send, UploadCloud, HeartPulse, Activity, Wind, Thermometer } from 'lucide-react';
 import { DoctorFormDialog } from '@/components/doctor/doctor-form-dialog';
 import { IRAQI_GOVERNORATES } from '@/lib/constants';
 import { differenceInYears, isValid, parse } from 'date-fns';
 import Image from 'next/image';
 import { ScrollArea } from '../ui/scroll-area';
-import { Patient, FinancialRecord } from '@/types';
+import { Patient, FinancialRecord, TriageLevel, VitalSigns } from '@/types';
 import { useLocalStorage } from '@/hooks/use-local-storage';
 
 const departments = [
@@ -29,6 +29,8 @@ const departments = [
 const medicalDepartments = [
   'internalMedicine', 'generalSurgery', 'obGyn', 'pediatrics', 'orthopedics', 'urology', 'ent', 'ophthalmology', 'dermatology', 'cardiology', 'neurology', 'oncology', 'nephrology'
 ];
+
+const triageLevels: TriageLevel[] = ['minor', 'stable', 'urgent', 'critical'];
 
 const formSchema = z.object({
   patientName: z.string().min(1, { message: 'reception.validation.patientNameRequired' }),
@@ -54,6 +56,14 @@ const formSchema = z.object({
   consultationFee: z.coerce.number().optional(),
   floor: z.number().optional(),
   room: z.number().optional(),
+  // Emergency fields
+  triageLevel: z.custom<TriageLevel>().optional(),
+  vitalSigns: z.object({
+      heartRate: z.coerce.number().optional(),
+      bloodPressure: z.string().optional(),
+      spo2: z.coerce.number().optional(),
+      temperature: z.coerce.number().optional()
+  }).optional(),
 });
 
 type LabTest = { id: string; name: string; price: number; };
@@ -103,6 +113,8 @@ export function PatientRegistrationDialog({ open, onOpenChange, patientToEdit, p
       consultationFee: 25000,
       floor: undefined,
       room: undefined,
+      triageLevel: 'stable',
+      vitalSigns: { heartRate: 80, bloodPressure: '120/80', spo2: 98, temperature: 37.0 }
     },
   });
   
@@ -129,6 +141,7 @@ export function PatientRegistrationDialog({ open, onOpenChange, patientToEdit, p
             form.reset({
                 ...patientToEdit,
                 dob: dobParts,
+                vitalSigns: patientToEdit.vitalSigns || { heartRate: 80, bloodPressure: '120/80', spo2: 98, temperature: 37.0 }
             });
             setIdFrontPreview(patientToEdit.idFront || null);
             setIdBackPreview(patientToEdit.idBack || null);
@@ -161,6 +174,8 @@ export function PatientRegistrationDialog({ open, onOpenChange, patientToEdit, p
                 serviceId: '',
                 examiningDoctorId: '',
                 consultationFee: 25000,
+                triageLevel: 'stable',
+                vitalSigns: { heartRate: 80, bloodPressure: '120/80', spo2: 98, temperature: 37.0 }
             });
             setIdFrontPreview(null);
             setIdBackPreview(null);
@@ -236,15 +251,13 @@ export function PatientRegistrationDialog({ open, onOpenChange, patientToEdit, p
         }
     }
 
-
-    const patientData = { ...values };
-    delete patientData.serviceId;
-    delete patientData.examiningDoctorId;
-    delete patientData.consultationFee;
+    const patientData = { ...values, status: values.department === 'emergency' ? 'Waiting' : undefined };
+    delete (patientData as any).serviceId;
+    delete (patientData as any).examiningDoctorId;
+    delete (patientData as any).consultationFee;
 
     if (patientToEdit) {
       updatePatient(patientToEdit.id, patientData);
-      // Note: Updating doesn't create new financial records for simplicity.
       toast({
         title: t('reception.updateSuccessTitle'),
         description: t('reception.updateSuccessDesc', {patientName: values.patientName}),
@@ -460,7 +473,6 @@ export function PatientRegistrationDialog({ open, onOpenChange, patientToEdit, p
                   </div>
                 </div>
 
-
                 <FormField
                   control={form.control}
                   name="department"
@@ -486,6 +498,33 @@ export function PatientRegistrationDialog({ open, onOpenChange, patientToEdit, p
                   )}
                 />
                 
+                 {department === 'emergency' && (
+                    <div className="p-4 border rounded-lg space-y-4">
+                        <FormField
+                            control={form.control}
+                            name="triageLevel"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>{t('emergency.triage.title')}</FormLabel>
+                                    <Select onValueChange={field.onChange} defaultValue={field.value} dir={dir}>
+                                        <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
+                                        <SelectContent>
+                                            {triageLevels.map(level => (
+                                                <SelectItem key={level} value={level}>{t(`emergency.triage.${level}`)}</SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                </FormItem>
+                        )}/>
+                        <div className="grid grid-cols-2 gap-4">
+                            <FormField control={form.control} name="vitalSigns.heartRate" render={({ field }) => (<FormItem><FormLabel className="text-xs flex items-center gap-1"><HeartPulse className="h-3 w-3"/>{t('emergency.vitals.heartRate')}</FormLabel><FormControl><Input type="number" {...field} /></FormControl></FormItem>)} />
+                            <FormField control={form.control} name="vitalSigns.bloodPressure" render={({ field }) => (<FormItem><FormLabel className="text-xs flex items-center gap-1"><Activity className="h-3 w-3"/>{t('emergency.vitals.bloodPressure')}</FormLabel><FormControl><Input {...field} /></FormControl></FormItem>)} />
+                            <FormField control={form.control} name="vitalSigns.spo2" render={({ field }) => (<FormItem><FormLabel className="text-xs flex items-center gap-1"><Wind className="h-3 w-3"/>{t('emergency.vitals.spo2')}</FormLabel><FormControl><Input type="number" {...field} /></FormControl></FormItem>)} />
+                            <FormField control={form.control} name="vitalSigns.temperature" render={({ field }) => (<FormItem><FormLabel className="text-xs flex items-center gap-1"><Thermometer className="h-3 w-3"/>{t('emergency.vitals.temperature')}</FormLabel><FormControl><Input type="number" step="0.1" {...field} /></FormControl></FormItem>)} />
+                        </div>
+                    </div>
+                 )}
+
                 {isMedicalDepartment && (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 border rounded-lg">
                     <FormField
