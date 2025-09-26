@@ -155,15 +155,13 @@ export default function AccountsPage() {
     );
 }
 
-class PrintableInvoice extends React.Component<{ patient: Patient; labels: Record<string, string> }> {
-  render() {
-    const { patient, labels } = this.props;
+const PrintableInvoice = React.forwardRef<HTMLDivElement, { patient: Patient; labels: Record<string, string> }>(({ patient, labels }, ref) => {
     const totalCharges = (patient.financialRecords || []).filter(r => r.amount > 0).reduce((acc, r) => acc + r.amount, 0);
     const totalPayments = (patient.financialRecords || []).filter(r => r.amount < 0).reduce((acc, r) => acc + Math.abs(r.amount), 0);
     const balanceDue = totalCharges - totalPayments;
 
     return (
-        <div className="p-8 font-sans text-sm text-black bg-white">
+        <div ref={ref} className="p-8 font-sans text-sm text-black bg-white">
             <div className="flex justify-between items-start pb-4 border-b">
                 <div className="flex items-center gap-4">
                      <Logo className="h-16 w-16 text-black" />
@@ -233,14 +231,14 @@ class PrintableInvoice extends React.Component<{ patient: Patient; labels: Recor
             </div>
         </div>
     );
-  }
-}
+});
+PrintableInvoice.displayName = 'PrintableInvoice';
 
 
 function PatientInvoiceDialog({ patient, onOpenChange, onAddPayment }: { patient: Patient | null; onOpenChange: (open:boolean) => void; onAddPayment: (patientId: string, amount: number) => void; }) {
     const { t, lang } = useLanguage();
     const [paymentAmount, setPaymentAmount] = useState('');
-    const invoiceRef = useRef(null);
+    const invoiceRef = useRef<HTMLDivElement>(null);
     const [isPrinting, setIsPrinting] = useState(false);
 
     const handlePrint = useReactToPrint({
@@ -251,7 +249,8 @@ function PatientInvoiceDialog({ patient, onOpenChange, onAddPayment }: { patient
     
     const triggerPrint = () => {
       setIsPrinting(true);
-      handlePrint();
+      // Adding a small timeout to allow the state to update before printing
+      setTimeout(() => handlePrint(), 0);
     }
 
 
