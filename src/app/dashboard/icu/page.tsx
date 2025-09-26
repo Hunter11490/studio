@@ -12,7 +12,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { NotificationsButton } from '@/components/notifications-button';
 import { Patient } from '@/types';
 import { cn } from '@/lib/utils';
-import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip as ChartTooltip } from 'recharts';
+import { ResponsiveContainer, LineChart, Line, Tooltip as ChartTooltip } from 'recharts';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 const TOTAL_ICU_BEDS = 12;
