@@ -23,12 +23,14 @@ import { NotificationsButton } from '@/components/notifications-button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { requestSterilization } from '@/ai/flows/sterilization-flow';
 import { useToast } from '@/hooks/use-toast';
-import { InstrumentSet } from '@/types';
+import { InstrumentSet, Patient } from '@/types';
+import { usePatients } from '@/hooks/use-patients';
 
 
 type SurgeryBooking = {
     id: string;
-    patientName: string;
+    patientId: string;
+    patientName: string; // Keep patientName for display purposes
     surgeryType: string;
     surgeonName: string;
     date: Date;
@@ -38,7 +40,7 @@ type SurgeryBooking = {
 };
 
 const formSchema = z.object({
-  patientName: z.string().min(1, 'Patient name is required'),
+  patientId: z.string().min(1, 'Patient selection is required'),
   surgeryType: z.string().min(1, 'Surgery type is required'),
   surgeonName: z.string().min(1, 'Surgeon name is required'),
   date: z.date(),
@@ -48,9 +50,9 @@ const formSchema = z.object({
 });
 
 const initialBookings: SurgeryBooking[] = [
-    { id: '1', patientName: 'علي حسن', surgeryType: 'استئصال الزائدة', surgeonName: 'د. أحمد الجميلي', date: setMinutes(setHours(new Date(), 9), 0), duration: 60, cost: 500000, status: 'scheduled' },
-    { id: '2', patientName: 'نور محمد', surgeryType: 'جراحة القلب المفتوح', surgeonName: 'د. علي الساعدي', date: setMinutes(setHours(addDays(new Date(), 1), 11), 30), duration: 180, cost: 7500000, status: 'scheduled' },
-    { id: '3', patientName: 'سارة كريم', surgeryType: 'إزالة المرارة', surgeonName: 'د. خالد العامري', date: setMinutes(setHours(new Date(), 14), 0), duration: 90, cost: 1200000, status: 'completed' },
+    { id: '1', patientId: 'mock_patient_1', patientName: 'علي حسن', surgeryType: 'استئصال الزائدة', surgeonName: 'د. أحمد الجميلي', date: setMinutes(setHours(new Date(), 9), 0), duration: 60, cost: 500000, status: 'scheduled' },
+    { id: '2', patientId: 'mock_patient_2', patientName: 'نور محمد', surgeryType: 'جراحة القلب المفتوح', surgeonName: 'د. علي الساعدي', date: setMinutes(setHours(addDays(new Date(), 1), 11), 30), duration: 180, cost: 7500000, status: 'scheduled' },
+    { id: '3', patientId: 'mock_patient_3', patientName: 'سارة كريم', surgeryType: 'إزالة المرارة', surgeonName: 'د. خالد العامري', date: setMinutes(setHours(new Date(), 14), 0), duration: 90, cost: 1200000, status: 'completed' },
 ];
 
 function SterilizationRequestDialog({ open, onOpenChange }: { open: boolean, onOpenChange: (open: boolean) => void }) {
@@ -116,7 +118,8 @@ function SterilizationRequestDialog({ open, onOpenChange }: { open: boolean, onO
 
 export default function SurgeryPage() {
     const { t, lang } = useLanguage();
-    const [bookings, setBookings] = useLocalStorage<SurgeryBooking[]>('surgery_bookings_v3', initialBookings);
+    const [bookings, setBookings] = useLocalStorage<SurgeryBooking[]>('surgery_bookings_v4', initialBookings);
+    const { patients, addFinancialRecord } = usePatients();
     const [isFormOpen, setFormOpen] = useState(false);
     const [isSterilizationRequestOpen, setSterilizationRequestOpen] = useState(false);
     const [bookingToEdit, setBookingToEdit] = useState<SurgeryBooking | null>(null);
@@ -140,21 +143,32 @@ export default function SurgeryPage() {
     const timeSlots = Array.from({ length: 12 }, (_, i) => `${i + 8}:00`); // 8 AM to 7 PM
 
     const handleSaveBooking = (data: z.infer<typeof formSchema>) => {
-        if (bookingToEdit) {
-            setBookings(prev => prev.map(b => b.id === bookingToEdit.id ? { ...b, ...data } : b));
+        const patient = patients.find(p => p.id === data.patientId);
+        if (!patient) return;
+
+        const bookingData = { ...data, patientName: patient.patientName };
+        
+        if (bookingToEdit && bookingToEdit.patientId) {
+            setBookings(prev => prev.map(b => b.id === bookingToEdit.id ? { ...b, ...bookingData } : b));
         } else {
-            const newBooking: SurgeryBooking = { id: new Date().toISOString(), ...data };
+            const newBooking: SurgeryBooking = { id: new Date().toISOString(), ...bookingData };
             setBookings(prev => [newBooking, ...prev]);
+            addFinancialRecord(data.patientId, {
+                type: 'surgery',
+                description: `${t('surgery.surgeryType')}: ${data.surgeryType}`,
+                amount: data.cost
+            });
         }
         setFormOpen(false);
         setBookingToEdit(null);
     };
     
     const handleAddClick = (date: Date, hour: number) => {
-        setBookingToEdit(null);
+        setBookingToEdit(null); // Clear any existing edit data
         const newDate = setMinutes(setHours(date, hour), 0);
         // This is a way to set default values for the form when adding.
-        setBookingToEdit({ id: '', patientName: '', surgeryType: '', surgeonName: '', date: newDate, duration: 60, cost: 0, status: 'scheduled' });
+        const defaultBookingData: Partial<SurgeryBooking> = { date: newDate, duration: 60, cost: 1000000, status: 'scheduled' };
+        // We open the form, but let the user select the patient.
         setFormOpen(true);
     };
 
@@ -229,8 +243,8 @@ export default function SurgeryPage() {
                 </div>
 
                 {/* Schedule Grid */}
-                <div className="flex-grow overflow-x-auto">
-                    <div className="grid grid-cols-7 min-w-[900px] gap-px bg-border rounded-lg border overflow-hidden">
+                <ScrollArea className="flex-grow overflow-x-auto whitespace-nowrap">
+                    <div className="grid grid-cols-7 min-w-[900px] gap-px bg-border rounded-lg border overflow-hidden h-full">
                         {weekDays.map(day => (
                             <div key={day.toString()} className="bg-background relative">
                                 <div className="p-2 border-b text-center font-semibold text-sm h-10 sticky top-0 bg-background z-10">
@@ -238,7 +252,13 @@ export default function SurgeryPage() {
                                 </div>
                                 <div className="relative">
                                     {/* Hour lines */}
-                                    {timeSlots.slice(1).map((_, i) => <div key={i} className="h-[60px] border-t border-dashed"></div>)}
+                                    {timeSlots.map((time, i) => (
+                                      <div 
+                                        key={i} 
+                                        className="h-[60px] border-t border-dashed hover:bg-primary/10 cursor-pointer"
+                                        onClick={() => handleAddClick(day, 8 + i)}
+                                      ></div>
+                                    ))}
                                     
                                     {/* Bookings */}
                                     {bookings
@@ -265,13 +285,19 @@ export default function SurgeryPage() {
                             </div>
                         ))}
                     </div>
-                </div>
+                </ScrollArea>
             </div>
             
-             <Button onClick={() => handleAddClick(new Date(), 9)} className="fixed bottom-24 right-6 z-40 h-14 w-14 rounded-full shadow-lg animate-pulse-glow" size="icon">
-                <PlusCircle className="h-6 w-6" />
-                <span className="sr-only">{t('surgery.newBooking')}</span>
-            </Button>
+             <TooltipProvider>
+                 <Tooltip>
+                    <TooltipTrigger asChild>
+                         <Button onClick={() => handleAddClick(new Date(), 9)} className="fixed bottom-24 right-6 z-40 h-14 w-14 rounded-full shadow-lg animate-pulse-glow" size="icon">
+                            <PlusCircle className="h-6 w-6" />
+                        </Button>
+                    </TooltipTrigger>
+                    <TooltipContent side="left"><p>{t('surgery.newBooking')}</p></TooltipContent>
+                </Tooltip>
+            </TooltipProvider>
             
             <TooltipProvider>
                 <Tooltip>
@@ -287,9 +313,12 @@ export default function SurgeryPage() {
              <Dialog open={isFormOpen} onOpenChange={setFormOpen}>
                 <DialogContent>
                     <DialogHeader>
-                        <DialogTitle>{bookingToEdit && bookingToEdit.patientName ? t('surgery.editBooking') : t('surgery.newBooking')}</DialogTitle>
+                        <DialogTitle>{bookingToEdit && bookingToEdit.patientId ? t('surgery.editBooking') : t('surgery.newBooking')}</DialogTitle>
                     </DialogHeader>
-                    <BookingForm onSave={handleSaveBooking} bookingToEdit={bookingToEdit} />
+                    <BookingForm 
+                      onSave={handleSaveBooking} 
+                      bookingToEdit={bookingToEdit} 
+                    />
                 </DialogContent>
             </Dialog>
             <SterilizationRequestDialog open={isSterilizationRequestOpen} onOpenChange={setSterilizationRequestOpen} />
@@ -297,12 +326,18 @@ export default function SurgeryPage() {
     );
 }
 
-function BookingForm({ onSave, bookingToEdit }: { onSave: (data: z.infer<typeof formSchema>) => void; bookingToEdit?: SurgeryBooking | null }) {
+function BookingForm({ onSave, bookingToEdit }: { onSave: (data: z.infer<typeof formSchema>) => void; bookingToEdit?: Partial<SurgeryBooking> | null }) {
     const { t } = useLanguage();
+    const { patients } = usePatients();
+
+    const availablePatients = useMemo(() => {
+        return patients.filter(p => p.status !== 'Discharged');
+    }, [patients]);
+    
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
-            patientName: '',
+            patientId: '',
             surgeryType: '',
             surgeonName: '',
             date: new Date(),
@@ -316,7 +351,8 @@ function BookingForm({ onSave, bookingToEdit }: { onSave: (data: z.infer<typeof 
         if (bookingToEdit) {
             form.reset({
                 ...bookingToEdit,
-                date: new Date(bookingToEdit.date), // Make sure it's a Date object
+                patientId: bookingToEdit.patientId || '',
+                date: bookingToEdit.date ? new Date(bookingToEdit.date) : new Date(), // Make sure it's a Date object
             });
         }
     }, [bookingToEdit, form]);
@@ -328,9 +364,27 @@ function BookingForm({ onSave, bookingToEdit }: { onSave: (data: z.infer<typeof 
     return (
         <Form {...form}>
             <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
-                 <FormField control={form.control} name="patientName" render={({ field }) => (
-                    <FormItem><FormLabel>{t('surgery.patientName')}</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
-                )} />
+                 <FormField 
+                    control={form.control} 
+                    name="patientId"
+                    render={({ field }) => (
+                     <FormItem>
+                         <FormLabel>{t('surgery.patientName')}</FormLabel>
+                         <Select onValueChange={field.onChange} defaultValue={field.value} disabled={!!bookingToEdit?.patientId}>
+                             <FormControl>
+                                <SelectTrigger>
+                                    <SelectValue placeholder={t('wards.selectPatientPlaceholder')} />
+                                </SelectTrigger>
+                             </FormControl>
+                             <SelectContent>
+                                 {availablePatients.map(p => (
+                                     <SelectItem key={p.id} value={p.id}>{p.patientName}</SelectItem>
+                                 ))}
+                             </SelectContent>
+                         </Select>
+                         <FormMessage />
+                     </FormItem>
+                 )} />
                  <FormField control={form.control} name="surgeryType" render={({ field }) => (
                     <FormItem><FormLabel>{t('surgery.surgeryType')}</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
                 )} />
