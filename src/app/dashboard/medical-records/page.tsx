@@ -24,6 +24,7 @@ import { exportToExcel } from '@/lib/excel';
 import { useToast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
 import { Label } from '@/components/ui/label';
+import { translations } from '@/lib/localization';
 
 
 const calculateBalance = (records: FinancialRecord[] = []) => {
@@ -66,12 +67,14 @@ export default function MedicalRecordsPage() {
       return data.map(p => {
         const balance = calculateBalance(p.financialRecords);
         let age: number | string = 'N/A';
-        const dobString = `${p.dob.year}-${p.dob.month}-${p.dob.day}`;
-        const dobDate = parseISO(dobString);
-        if (isValid(dobDate)) {
-            const calculatedAge = differenceInYears(new Date(), dobDate);
-            if (!isNaN(calculatedAge)) {
-                age = calculatedAge;
+        if (p.dob?.year && p.dob?.month && p.dob?.day) {
+            const dobString = `${p.dob.year}-${p.dob.month}-${p.dob.day}`;
+            const dobDate = parseISO(dobString);
+            if (isValid(dobDate)) {
+                const calculatedAge = differenceInYears(new Date(), dobDate);
+                if (!isNaN(calculatedAge)) {
+                    age = calculatedAge;
+                }
             }
         }
         return {
@@ -145,12 +148,14 @@ export default function MedicalRecordsPage() {
                                 <TableBody>
                                     {filteredPatients.map((patient) => {
                                         let age: number | string = 'N/A';
-                                        const dobString = `${patient.dob.year}-${patient.dob.month}-${patient.dob.day}`;
-                                        const dobDate = parseISO(dobString);
-                                        if (isValid(dobDate)) {
-                                            const calculatedAge = differenceInYears(new Date(), dobDate);
-                                            if (!isNaN(calculatedAge)) {
-                                                age = calculatedAge;
+                                        if (patient.dob?.year && patient.dob?.month && patient.dob?.day) {
+                                            const dobString = `${patient.dob.year}-${patient.dob.month}-${patient.dob.day}`;
+                                            const dobDate = parseISO(dobString);
+                                            if (isValid(dobDate)) {
+                                                const calculatedAge = differenceInYears(new Date(), dobDate);
+                                                if (!isNaN(calculatedAge)) {
+                                                    age = calculatedAge;
+                                                }
                                             }
                                         }
 
