@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useState, useEffect, useCallback, ReactNode } from 'react';
+import { createContext, useState, useEffect, useCallback, ReactNode, useMemo } from 'react';
 import { useDoctors } from '@/hooks/use-doctors';
 import { usePatients } from '@/hooks/use-patients';
 import { useToast } from '@/hooks/use-toast';
@@ -44,17 +44,18 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const simulateAdmission = useCallback(() => {
-    const icuPatientsCount = patients.filter(p => p.department === 'icu' && p.status !== 'Discharged').length;
-    const wardPatientsCount = patients.filter(p => p.department === 'wards' && p.status !== 'Discharged').length;
+    const allPatients = patients; // Get the latest list
+    const icuPatientsCount = allPatients.filter(p => p.department === 'icu' && p.status !== 'Discharged').length;
+    const wardPatientsCount = allPatients.filter(p => p.department === 'wards' && p.status !== 'Discharged').length;
 
     const admitToIcu = Math.random() < 0.2 && icuPatientsCount < ICU_CAPACITY;
     const admitToWard = !admitToIcu && wardPatientsCount < WARDS_CAPACITY;
-
+    
     let patientToAdmit: Patient | undefined;
     
     if (admitToIcu || admitToWard) {
-        const eligiblePatients = patients.filter(p => 
-            (p.department === 'emergency' || (!p.floor && !p.room)) && p.status !== 'Discharged'
+        const eligiblePatients = allPatients.filter(p => 
+            p.department === 'emergency' && p.status !== 'Discharged'
         );
         if (eligiblePatients.length > 0) {
             patientToAdmit = getRandomElement(eligiblePatients);
@@ -64,10 +65,13 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
     if (!patientToAdmit) return;
 
     if (admitToIcu) {
-        updatePatient(patientToAdmit.id, { department: 'icu', status: 'Admitted', floor: undefined, room: undefined });
+        const icuDoctors = doctors.filter(d => d.specialty === 'Intensive Care Medicine');
+        const attendingDoctorId = icuDoctors.length > 0 ? getRandomElement(icuDoctors).id : undefined;
+
+        updatePatient(patientToAdmit.id, { department: 'icu', status: 'Admitted', attendingDoctorId, floor: undefined, room: undefined });
         addNotification({ title: 'ICU Admission', description: `${patientToAdmit.patientName} was admitted to ICU.` });
     } else if (admitToWard) {
-        const occupiedRooms = new Set(patients.filter(p => p.floor && p.room).map(p => `${p.floor}-${p.room}`));
+        const occupiedRooms = new Set(allPatients.filter(p => p.floor && p.room).map(p => `${p.floor}-${p.room}`));
         const availableRooms: {floor: number, room: number}[] = [];
         for (let floor = 1; floor <= 20; floor++) {
             for (let room = 1; room <= 10; room++) {
@@ -78,12 +82,16 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
         }
         if (availableRooms.length > 0) {
             const roomToAdmit = getRandomElement(availableRooms);
+            const wardDoctors = doctors.filter(d => d.specialty === 'Internal Medicine');
+            const attendingDoctorId = wardDoctors.length > 0 ? getRandomElement(wardDoctors).id : undefined;
+            
             updatePatient(patientToAdmit.id, {
                 floor: roomToAdmit.floor,
                 room: roomToAdmit.room,
                 admittedAt: new Date().toISOString(),
                 status: 'Admitted',
-                department: 'wards'
+                department: 'wards',
+                attendingDoctorId,
             });
             addFinancialRecord(patientToAdmit.id, {
                 type: 'inpatient',
@@ -97,8 +105,7 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
             });
         }
     }
-
-  }, [patients, updatePatient, addFinancialRecord, addNotification, t]);
+  }, [patients, updatePatient, addFinancialRecord, addNotification, t, doctors]);
 
   const simulateDischarge = useCallback(() => {
     const admittedPatients = patients.filter(p => p.status === 'Admitted' && (p.department === 'icu' || p.department === 'wards'));

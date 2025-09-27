@@ -7,15 +7,17 @@ import { useDoctors } from '@/hooks/use-doctors';
 import { UserMenu } from '@/components/layout/user-menu';
 import { Logo } from '@/components/logo';
 import { Button } from '@/components/ui/button';
-import { Maximize, Minimize, Bed, User, Stethoscope, HeartPulse, Activity, Wind, Thermometer, Pencil, PlusCircle } from 'lucide-react';
+import { Maximize, Minimize, Bed, User, Stethoscope, HeartPulse, Activity, Wind, Thermometer, Pencil, PlusCircle, LogOut } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { NotificationsButton } from '@/components/notifications-button';
 import { Patient } from '@/types';
 import { cn } from '@/lib/utils';
 import { ResponsiveContainer, LineChart, Line } from 'recharts';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
 import { PatientRegistrationDialog } from '@/components/reception/patient-registration-dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Label } from '@/components/ui/label';
 
 const TOTAL_ICU_BEDS = 12;
 
@@ -26,13 +28,51 @@ const generateEcgData = () => {
     }));
 };
 
+function DischargeDialog({ patient, onDischarge, onOpenChange }: { patient: Patient | null; onDischarge: (status: 'recovered' | 'deceased') => void; onOpenChange: (open: boolean) => void; }) {
+  const { t } = useLanguage();
+  const [status, setStatus] = useState<'recovered' | 'deceased'>('recovered');
+  
+  const handleConfirm = () => {
+    if (patient) {
+      onDischarge(status);
+    }
+  };
 
-function BedCard({ bedNumber, patient, onAddPatient }: { bedNumber: number; patient: Patient | null; onAddPatient: (bedNumber: number) => void; }) {
+  if (!patient) return null;
+
+  return (
+    <Dialog open={!!patient} onOpenChange={onOpenChange}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>{t('emergency.discharge')} {patient.patientName}</DialogTitle>
+          <DialogDescription>{t('emergency.dischargeConfirm')}</DialogDescription>
+        </DialogHeader>
+        <RadioGroup value={status} onValueChange={(v) => setStatus(v as any)} className="my-4">
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="recovered" id="r-icu-recovered" />
+            <Label htmlFor="r-icu-recovered">{t('medicalRecords.dischargeStatus.recovered')}</Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="deceased" id="r-icu-deceased" />
+            <Label htmlFor="r-icu-deceased">{t('medicalRecords.dischargeStatus.deceased')}</Label>
+          </div>
+        </RadioGroup>
+        <DialogFooter>
+          <Button onClick={handleConfirm}>{t('emergency.discharge')}</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+
+function BedCard({ bedNumber, patient, onAddPatient, onDischarge }: { bedNumber: number; patient: Patient | null; onAddPatient: (bedNumber: number) => void; onDischarge: (patientId: string, status: 'recovered' | 'deceased') => void; }) {
     const { t } = useLanguage();
-    const { doctors, updateDoctor } = useDoctors();
+    const { doctors } = useDoctors();
     const { updatePatient } = usePatients();
     const [isMonitorOpen, setMonitorOpen] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
+    const [isDischargeOpen, setDischargeOpen] = useState(false);
     const [ecgData, setEcgData] = useState(generateEcgData());
     const isOccupied = !!patient;
 
@@ -55,6 +95,13 @@ function BedCard({ bedNumber, patient, onAddPatient }: { bedNumber: number; pati
             onAddPatient(bedNumber);
         }
     }
+
+    const handleDischargeConfirm = (status: 'recovered' | 'deceased') => {
+        if (patient) {
+            onDischarge(patient.id, status);
+        }
+        setDischargeOpen(false);
+    };
 
     return (
         <>
@@ -121,10 +168,14 @@ function BedCard({ bedNumber, patient, onAddPatient }: { bedNumber: number; pati
                                  </div>
                             </div>
                         </div>
-                        <DialogFooter>
+                        <DialogFooter className="gap-2">
                             <Button variant="outline" onClick={() => setIsEditing(true)}>
                                 <Pencil className="mr-2 h-4 w-4" />
                                 {t('doctorCard.edit')} {t('reception.patientName')}
+                            </Button>
+                            <Button variant="destructive" onClick={() => setDischargeOpen(true)}>
+                                <LogOut className="mr-2 h-4 w-4" />
+                                {t('emergency.discharge')}
                             </Button>
                         </DialogFooter>
                     </DialogContent>
@@ -137,6 +188,11 @@ function BedCard({ bedNumber, patient, onAddPatient }: { bedNumber: number; pati
                     patientToEdit={patient}
                 />
             )}
+            <DischargeDialog 
+                patient={isDischargeOpen ? patient : null} 
+                onDischarge={handleDischargeConfirm}
+                onOpenChange={setDischargeOpen}
+            />
         </>
     );
 }
@@ -144,7 +200,7 @@ function BedCard({ bedNumber, patient, onAddPatient }: { bedNumber: number; pati
 
 export default function ICUPage() {
     const { t } = useLanguage();
-    const { patients } = usePatients();
+    const { patients, updatePatient } = usePatients();
     const [isFullscreen, setIsFullscreen] = useState(false);
     const [isAddPatientOpen, setIsAddPatientOpen] = useState(false);
 
@@ -161,12 +217,23 @@ export default function ICUPage() {
     };
 
     const icuPatients = useMemo(() => {
-        return patients.filter(p => p.department === 'icu');
+        return patients.filter(p => p.department === 'icu' && p.status !== 'Discharged');
     }, [patients]);
     
     const handleAddPatient = () => {
+        // This flow is now handled by simulation or direct admission from other departments
+        // but we can leave the button to open a generic registration form if needed.
         setIsAddPatientOpen(true);
     }
+
+    const handleDischargePatient = (patientId: string, status: 'recovered' | 'deceased') => {
+        updatePatient(patientId, {
+            status: 'Discharged',
+            dischargeStatus: status,
+            dischargedAt: new Date().toISOString(),
+            department: 'medicalRecords' // Move to medical records archive
+        });
+    };
     
     return (
         <div className="flex flex-col h-screen">
@@ -205,7 +272,13 @@ export default function ICUPage() {
           <main className="flex-grow p-4 md:p-8">
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
                   {Array.from({ length: TOTAL_ICU_BEDS }).map((_, index) => (
-                      <BedCard key={index} bedNumber={index + 1} patient={icuPatients[index] || null} onAddPatient={() => {}} />
+                      <BedCard 
+                        key={index} 
+                        bedNumber={index + 1} 
+                        patient={icuPatients[index] || null} 
+                        onAddPatient={() => {}} 
+                        onDischarge={handleDischargePatient}
+                      />
                   ))}
               </div>
           </main>
