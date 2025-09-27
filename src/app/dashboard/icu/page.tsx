@@ -18,6 +18,7 @@ import { PatientRegistrationDialog } from '@/components/reception/patient-regist
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
+import { translations } from '@/lib/localization';
 
 const TOTAL_ICU_BEDS = 12;
 
@@ -279,7 +280,7 @@ export default function ICUPage() {
         const icuDoctors = usePatients().patients.filter(d => d.department === 'Intensive Care Medicine');
         const attendingDoctorId = icuDoctors.length > 0 ? getRandomElement(icuDoctors).id : undefined;
 
-        updatePatient(patientId, { department: 'icu', status: 'Admitted', attendingDoctorId, floor: undefined, room: undefined });
+        updatePatient(patientId, { department: 'icu', status: 'Admitted', attendingDoctorId, floor: undefined, room: undefined, bedNumber });
         addFinancialRecord(patientId, {
             type: 'inpatient',
             description: 'ICU Admission Fee',
@@ -292,7 +293,8 @@ export default function ICUPage() {
             status: 'Discharged',
             dischargeStatus: status,
             dischargedAt: new Date().toISOString(),
-            department: 'medicalRecords' // Move to medical records archive
+            department: 'medicalRecords', // Move to medical records archive
+            bedNumber: undefined,
         });
     };
     
@@ -364,17 +366,24 @@ export default function ICUPage() {
 }
 
 // Add new translations if they don't exist
-Object.assign(translations.en.icu, {
-    admitToBed: "Admit Patient to Bed",
-});
-Object.assign(translations.ar.icu, {
-    admitToBed: "إدخال مريض إلى السرير",
-});
-Object.assign(translations.en.wards, {
-    admitPatient: "Admit Patient",
-});
-Object.assign(translations.ar.wards, {
-    admitPatient: "إدخال المريض",
-});
-
-
+if (translations.en.icu) {
+    Object.assign(translations.en.icu, {
+        admitToBed: "Admit Patient to Bed",
+    });
+}
+if (translations.ar.icu) {
+    Object.assign(translations.ar.icu, {
+        admitToBed: "إدخال مريض إلى السرير",
+    });
+}
+if (translations.en.wards) {
+    Object.assign(translations.en.wards, {
+        admitPatient: "Admit Patient",
+    });
+}
+if (translations.ar.wards) {
+    Object.assign(translations.ar.wards, {
+        admitPatient: "إدخال المريض",
+    });
+}
+    
