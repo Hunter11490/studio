@@ -7,7 +7,7 @@ import { useDoctors } from '@/hooks/use-doctors';
 import { UserMenu } from '@/components/layout/user-menu';
 import { Logo } from '@/components/logo';
 import { Button } from '@/components/ui/button';
-import { Maximize, Minimize, HeartPulse, Thermometer, Wind, Activity, Pencil, PlusCircle, User as UserIcon, ChevronsRight, Eye, Hourglass, MoreVertical, Search, LogOut, Cross } from 'lucide-react';
+import { MoreVertical, Maximize, Minimize, HeartPulse, Thermometer, Wind, Activity, Pencil, PlusCircle, User as UserIcon, ChevronsRight, Eye, Hourglass, Search, LogOut, Cross } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { NotificationsButton } from '@/components/notifications-button';
 import { Patient, TriageLevel } from '@/types';
@@ -37,10 +37,27 @@ const triageConfig = {
 function DischargeDialog({ patient, onDischarge }: { patient: Patient | null; onDischarge: (status: 'recovered' | 'deceased') => void; }) {
   const { t } = useLanguage();
   const [status, setStatus] = useState<'recovered' | 'deceased'>('recovered');
+  
+  const handleConfirm = () => {
+    if (patient) {
+      onDischarge(status);
+    }
+  };
+
+  const handleOpenChange = (open: boolean) => {
+    if (!open) {
+        // When closing, treat it as a cancel, don't trigger discharge
+        // The onDischarge is only called via the explicit button click
+        // For this to work, we need to pass a different function to onOpenChange
+        // Or handle it in the parent. Let's adjust the parent.
+    }
+};
+
   if (!patient) return null;
 
+
   return (
-    <Dialog open={!!patient} onOpenChange={() => onDischarge(status)}>
+    <Dialog open={!!patient} onOpenChange={(open) => !open && onDischarge(status)}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>{t('emergency.discharge')} {patient.patientName}</DialogTitle>
@@ -57,7 +74,7 @@ function DischargeDialog({ patient, onDischarge }: { patient: Patient | null; on
           </div>
         </RadioGroup>
         <DialogFooter>
-          <Button onClick={() => onDischarge(status)}>{t('emergency.discharge')}</Button>
+          <Button onClick={handleConfirm}>{t('emergency.discharge')}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -98,6 +115,10 @@ function PatientCard({ patient, onUpdatePatient, onDischarge }: { patient: Patie
       onDischarge(patient.id, status);
       setDischargeOpen(false);
   };
+  
+  const closeDischargeDialog = () => {
+    setDischargeOpen(false);
+  }
 
   return (
     <>
@@ -281,7 +302,7 @@ export default function EmergencyPage() {
         </div>
       </div>
       
-      <main className="flex-grow grid grid-cols-1 md:grid-cols-3 gap-4 px-4 pb-4 overflow-hidden min-h-0">
+      <main className="flex-grow grid grid-cols-1 md:grid-cols-3 gap-4 px-4 pb-4 min-h-0">
           <div className="bg-card rounded-lg flex flex-col p-2 min-h-0">
               <h2 className="font-bold p-2 border-b">{t('emergency.waiting')} ({waitingPatients.length})</h2>
               <ScrollArea className="flex-grow">

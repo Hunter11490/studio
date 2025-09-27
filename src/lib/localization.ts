@@ -518,6 +518,7 @@ export const translations: Translations = {
       admitToICU: "Admit to ICU",
       admitToWard: "Admit to Ward",
       discharge: "Discharge",
+      dischargeConfirm: "Select the patient's discharge status.",
       assignDoctor: "Assign Doctor",
       moveToTreatment: "Move to In Treatment",
       moveToObservation: "Move to Observation",
@@ -550,7 +551,9 @@ export const translations: Translations = {
       age: "Age",
       sex: "Sex",
       firstAdmission: "First Admission",
+      admissionDate: "Admission Date",
       lastVisit: "Last Visit",
+      dischargeDate: "Discharge Date",
       noRecords: "No patient records found.",
       viewHistory: "View History",
       patientHistoryFor: "Patient History for",
@@ -566,7 +569,17 @@ export const translations: Translations = {
         all: "All",
         admitted: "Admitted",
         discharged: "Discharged"
-      }
+      },
+      dischargeStatus: {
+        title: "Discharge Status",
+        recovered: "Recovered",
+        deceased: "Deceased"
+      },
+      patientReport: "Patient Medical Report",
+      reportDate: "Report Date",
+      patientInfo: "Patient Information",
+      vitals: "Vital Signs",
+      financialSummary: "Financial Summary",
     },
     sterilization: {
       title: "Central Sterilization",
@@ -1138,9 +1151,10 @@ export const translations: Translations = {
       admitToICU: "إدخال للعناية المركزة",
       admitToWard: "إدخال للردهة",
       discharge: "تخريج",
+      dischargeConfirm: "اختر حالة خروج المريض.",
       assignDoctor: "تعيين طبيب",
-      moveToTreatment: "نقل إلى العلاج",
-      moveToObservation: "نقل إلى الملاحظة",
+      moveToTreatment: "نقل إلى تحت العلاج",
+      moveToObservation: "نقل إلى تحت الملاحظة",
       moveToWaiting: "إرجاع إلى الانتظار",
       triage: {
         title: "مستوى الخطورة",
@@ -1171,6 +1185,7 @@ export const translations: Translations = {
       sex: "الجنس",
       firstAdmission: "أول دخول",
       lastVisit: "آخر زيارة",
+      dischargeDate: "تاريخ الخروج",
       noRecords: "لا توجد سجلات مرضى.",
       viewHistory: "عرض السجل",
       patientHistoryFor: "السجل المرضي للمريض",
@@ -1179,7 +1194,12 @@ export const translations: Translations = {
       exportDaily: "تصدير تقرير يومي",
       exportMonthly: "تصدير تقرير شهري",
       exportPatient: "تصدير تقرير مريض",
-      selectPatientPlaceholder: "اختر مريضاً للتصدير"
+      selectPatientPlaceholder: "اختر مريضاً للتصدير",
+      dischargeStatus: {
+        title: 'حالة الخروج',
+        recovered: 'معافى',
+        deceased: 'متوفى'
+      }
     },
     sterilization: {
       title: "وحدة التعقيم المركزية",
