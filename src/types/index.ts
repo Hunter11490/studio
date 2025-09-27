@@ -73,6 +73,10 @@ export type Patient = {
   floor?: number;
   room?: number;
   admittedAt?: string; // ISO date string
+
+  // New fields for discharge
+  dischargeStatus?: 'recovered' | 'deceased';
+  dischargedAt?: string; // ISO date string
 };
 
 export type DoctorInfo = {

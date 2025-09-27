@@ -54,7 +54,7 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
             break;
         case 'In Treatment':
             const rand = Math.random();
-            if(patientToMove.triageLevel === 'critical' && rand < 0.5) {
+            if(patientToMove.triageLevel === 'critical' && rand < 0.6) { // Increased chance for ICU
                  updatePatient(patientToMove.id, { department: 'icu', status: 'Admitted' });
                  addNotification({ title: 'ICU Admission', description: `${patientToMove.patientName} was admitted to ICU.`});
                  return;
@@ -62,15 +62,19 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
             nextStatus = rand < 0.7 ? 'Observation' : 'Discharged';
             break;
         case 'Observation':
-            nextStatus = 'Discharged';
+             const dischargeRand = Math.random();
+             if (dischargeRand < 0.2) {
+                 updatePatient(patientToMove.id, { status: 'Discharged', dischargeStatus: 'recovered', dischargedAt: new Date().toISOString() });
+                 addNotification({ title: 'Patient Discharged', description: `${patientToMove.patientName} was discharged from Emergency.`});
+             } else if (dischargeRand < 0.22) { // 2% chance of death
+                 updatePatient(patientToMove.id, { status: 'Discharged', dischargeStatus: 'deceased', dischargedAt: new Date().toISOString() });
+                 addNotification({ title: 'Patient Deceased', description: `${patientToMove.patientName} has passed away in Emergency.`});
+             }
             break;
     }
 
     if (nextStatus !== patientToMove.status) {
         updatePatient(patientToMove.id, { status: nextStatus });
-        if (nextStatus === 'Discharged') {
-           addNotification({ title: 'Patient Discharged', description: `${patientToMove.patientName} was discharged from Emergency.`});
-        }
     }
 }, [patients, updatePatient, addNotification]);
 
@@ -96,7 +100,7 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
   }, [instrumentSets, setInstrumentSets, addNotification, t]);
 
   const simulateInpatientAdmission = useCallback(() => {
-    if (Math.random() > 0.2) return;
+    if (Math.random() > 0.4) return; // Increased probability
     const eligiblePatients = patients.filter(p => !p.floor && !p.room && p.status !== 'Discharged' && p.department !== 'emergency');
     if (eligiblePatients.length === 0) return;
 
@@ -172,7 +176,7 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
 
     const actions = [
       () => { // Add Patient to Emergency (priority action)
-        if (!isCapacityFull && doctors.length > 0) {
+        if (!isEmergencyFull && doctors.length > 0) {
           const newPatientData = createRandomPatient(doctors, true); // Force emergency patient
           const consultationFee = 25000 + Math.floor(Math.random() * 25000);
           addPatient(newPatientData, {
