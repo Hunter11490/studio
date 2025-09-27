@@ -20,7 +20,7 @@ export const SimulationContext = createContext<SimulationContextType | undefined
 const DAILY_CHARGE_KEY_PREFIX = 'daily_charge_applied_';
 const DAILY_CHARGE_AMOUNT = 150000;
 const SIMULATION_INTERVAL = 3000; // 3 seconds
-const EMERGENCY_CAPACITY = 20;
+const EMERGENCY_CAPACITY = 50;
 const ICU_CAPACITY = 12;
 
 
@@ -165,7 +165,10 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
     const emergencyPatientsCount = patients.filter(p => p.department === 'emergency' && p.status !== 'Discharged').length;
     const icuPatientsCount = patients.filter(p => p.department === 'icu').length;
 
-    const isCapacityFull = emergencyPatientsCount >= EMERGENCY_CAPACITY && icuPatientsCount >= ICU_CAPACITY;
+    const isEmergencyFull = emergencyPatientsCount >= EMERGENCY_CAPACITY;
+    const isIcuFull = icuPatientsCount >= ICU_CAPACITY;
+    
+    const isCapacityFull = isEmergencyFull || isIcuFull;
 
     const actions = [
       () => { // Add Patient to Emergency (priority action)
