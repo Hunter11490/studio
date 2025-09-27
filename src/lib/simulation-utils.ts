@@ -59,21 +59,22 @@ const generateRandomTriage = (): TriageLevel => {
     return 'minor';
 };
 
-export const createRandomPatient = (doctors: Doctor[]): Omit<Patient, 'id' | 'createdAt' | 'financialRecords'> => {
+export const createRandomPatient = (doctors: Doctor[], forceEmergency: boolean = false): Omit<Patient, 'id' | 'createdAt' | 'financialRecords'> => {
     const dobYear = 1960 + Math.floor(Math.random() * 50);
     const dobMonth = 1 + Math.floor(Math.random() * 12);
     const dobDay = 1 + Math.floor(Math.random() * 28);
     let department = getRandomElement(departments);
 
     let doctorId: string | undefined = undefined;
+    
+    // 20% chance to go to emergency, or if forced
+    if (forceEmergency || Math.random() < 0.2) {
+      department = 'emergency';
+    }
+
     const doctorsInDept = doctors.filter(d => d.specialty.toLowerCase().replace(/ /g, '') === department.toLowerCase());
     if (doctorsInDept.length > 0) {
         doctorId = getRandomElement(doctorsInDept).id;
-    }
-    
-    // 20% chance to go to emergency
-    if (Math.random() < 0.2) {
-      department = 'emergency';
     }
     
     const patientData: Omit<Patient, 'id' | 'createdAt' | 'financialRecords'> = {
