@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Maximize, Minimize, Bed, User, Stethoscope, HeartPulse, Activity, Wind, Thermometer, Pencil, PlusCircle, LogOut } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { NotificationsButton } from '@/components/notifications-button';
-import { Patient } from '@/types';
+import { Patient, FinancialRecord } from '@/types';
 import { cn } from '@/lib/utils';
 import { ResponsiveContainer, LineChart, Line } from 'recharts';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
@@ -101,6 +101,7 @@ function BedCard({ bedNumber, patient, onAddPatient, onDischarge }: { bedNumber:
             onDischarge(patient.id, status);
         }
         setDischargeOpen(false);
+        setMonitorOpen(false);
     };
 
     return (
@@ -197,12 +198,61 @@ function BedCard({ bedNumber, patient, onAddPatient, onDischarge }: { bedNumber:
     );
 }
 
+function AdmitToICUDialog({ open, onOpenChange, bedNumber, onAdmit }: { open: boolean, onOpenChange: (open: boolean) => void, bedNumber: number | null, onAdmit: (patientId: string, bedNumber: number) => void }) {
+    const { t } = useLanguage();
+    const { patients } = usePatients();
+    const [selectedPatientId, setSelectedPatientId] = useState<string>('');
+
+    const availablePatients = useMemo(() => {
+        return patients.filter(p => p.department !== 'icu' && p.status !== 'Discharged');
+    }, [patients]);
+    
+    const handleConfirm = () => {
+        if (selectedPatientId && bedNumber) {
+            onAdmit(selectedPatientId, bedNumber);
+            onOpenChange(false);
+            setSelectedPatientId('');
+        }
+    };
+
+    if (!open) return null;
+
+    return (
+        <Dialog open={open} onOpenChange={onOpenChange}>
+            <DialogContent>
+                <DialogHeader>
+                    <DialogTitle>{t('icu.admitToBed')} {bedNumber}</DialogTitle>
+                </DialogHeader>
+                 <div className="py-4">
+                    <Label>{t('reception.patientName')}</Label>
+                    <Select onValueChange={setSelectedPatientId} value={selectedPatientId}>
+                        <SelectTrigger>
+                            <SelectValue placeholder={t('wards.selectPatientPlaceholder')} />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {availablePatients.map(p => (
+                                <SelectItem key={p.id} value={p.id}>{p.patientName}</SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                 </div>
+                <DialogFooter>
+                    <Button variant="outline" onClick={() => onOpenChange(false)}>{t('doctorForm.cancel')}</Button>
+                    <Button onClick={handleConfirm} disabled={!selectedPatientId}>{t('wards.admitPatient')}</Button>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
+    )
+}
+
 
 export default function ICUPage() {
     const { t } = useLanguage();
-    const { patients, updatePatient } = usePatients();
+    const { patients, updatePatient, addFinancialRecord } = usePatients();
     const [isFullscreen, setIsFullscreen] = useState(false);
     const [isAddPatientOpen, setIsAddPatientOpen] = useState(false);
+    const [isAdmitDialogOpen, setAdmitDialogOpen] = useState(false);
+    const [selectedBed, setSelectedBed] = useState<number | null>(null);
 
     const handleFullscreenToggle = async () => {
         if (typeof window !== 'undefined') {
@@ -219,11 +269,24 @@ export default function ICUPage() {
     const icuPatients = useMemo(() => {
         return patients.filter(p => p.department === 'icu' && p.status !== 'Discharged');
     }, [patients]);
-    
-    const handleAddPatient = () => {
-        setIsAddPatientOpen(true);
-    }
 
+    const handleAdmitToBed = (bedNumber: number) => {
+        setSelectedBed(bedNumber);
+        setAdmitDialogOpen(true);
+    };
+
+    const confirmAdmitPatient = (patientId: string, bedNumber: number) => {
+        const icuDoctors = usePatients().patients.filter(d => d.department === 'Intensive Care Medicine');
+        const attendingDoctorId = icuDoctors.length > 0 ? getRandomElement(icuDoctors).id : undefined;
+
+        updatePatient(patientId, { department: 'icu', status: 'Admitted', attendingDoctorId, floor: undefined, room: undefined });
+        addFinancialRecord(patientId, {
+            type: 'inpatient',
+            description: 'ICU Admission Fee',
+            amount: 500000
+        });
+    };
+    
     const handleDischargePatient = (patientId: string, status: 'recovered' | 'deceased') => {
         updatePatient(patientId, {
             status: 'Discharged',
@@ -232,6 +295,8 @@ export default function ICUPage() {
             department: 'medicalRecords' // Move to medical records archive
         });
     };
+    
+    const getRandomElement = <T,>(arr: T[]): T => arr[Math.floor(Math.random() * arr.length)];
     
     return (
         <div className="flex flex-col h-screen">
@@ -246,7 +311,7 @@ export default function ICUPage() {
                   <TooltipProvider>
                     <Tooltip>
                       <TooltipTrigger asChild>
-                          <Button variant="ghost" size="icon" onClick={handleAddPatient}>
+                          <Button variant="ghost" size="icon" onClick={() => setIsAddPatientOpen(true)}>
                             <PlusCircle className="h-5 w-5" />
                           </Button>
                       </TooltipTrigger>
@@ -269,21 +334,47 @@ export default function ICUPage() {
           </header>
           <main className="flex-grow p-4 md:p-8">
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
-                  {Array.from({ length: TOTAL_ICU_BEDS }).map((_, index) => (
-                      <BedCard 
-                        key={index} 
-                        bedNumber={index + 1} 
-                        patient={icuPatients[index] || null} 
-                        onAddPatient={handleAddPatient} 
-                        onDischarge={handleDischargePatient}
-                      />
-                  ))}
+                  {Array.from({ length: TOTAL_ICU_BEDS }).map((_, index) => {
+                      const bedNumber = index + 1;
+                      const patientInBed = icuPatients.find(p => p.bedNumber === bedNumber);
+                      return (
+                         <BedCard 
+                            key={index} 
+                            bedNumber={bedNumber} 
+                            patient={patientInBed || null} 
+                            onAddPatient={handleAdmitToBed}
+                            onDischarge={handleDischargePatient}
+                          />
+                      );
+                  })}
               </div>
           </main>
           <PatientRegistrationDialog
             open={isAddPatientOpen}
             onOpenChange={setIsAddPatientOpen}
           />
+          <AdmitToICUDialog
+             open={isAdmitDialogOpen}
+             onOpenChange={setAdmitDialogOpen}
+             bedNumber={selectedBed}
+             onAdmit={confirmAdmitPatient}
+          />
         </div>
     )
 }
+
+// Add new translations if they don't exist
+Object.assign(translations.en.icu, {
+    admitToBed: "Admit Patient to Bed",
+});
+Object.assign(translations.ar.icu, {
+    admitToBed: "إدخال مريض إلى السرير",
+});
+Object.assign(translations.en.wards, {
+    admitPatient: "Admit Patient",
+});
+Object.assign(translations.ar.wards, {
+    admitPatient: "إدخال المريض",
+});
+
+

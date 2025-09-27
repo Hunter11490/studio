@@ -68,6 +68,7 @@ export type Patient = {
   triageLevel?: TriageLevel;
   status?: 'Waiting' | 'In Treatment' | 'Observation' | 'Admitted' | 'Discharged';
   vitalSigns?: VitalSigns;
+  bedNumber?: number; // For ICU
   
   // New fields for inpatient wards
   floor?: number;
