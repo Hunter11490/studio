@@ -48,17 +48,28 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
     const patientToMove = getRandomElement(emergencyPatients);
     let nextStatus: Patient['status'] = patientToMove.status;
     
+    // Higher probability to admit critical patients to ICU or wards
+    if (patientToMove.triageLevel === 'critical' && Math.random() < 0.3) { 
+        const admitToIcu = Math.random() < 0.7; // 70% chance for ICU
+        const icuPatientsCount = patients.filter(p => p.department === 'icu').length;
+        if (admitToIcu && icuPatientsCount < ICU_CAPACITY) {
+             updatePatient(patientToMove.id, { department: 'icu', status: 'Admitted' });
+             addNotification({ title: 'ICU Admission', description: `${patientToMove.patientName} was admitted to ICU.`});
+             return;
+        } else {
+             updatePatient(patientToMove.id, { department: 'wards', status: 'Admitted' });
+             addNotification({ title: 'Ward Admission', description: `${patientToMove.patientName} was admitted to a ward.`});
+             return;
+        }
+    }
+
+
     switch(patientToMove.status) {
         case 'Waiting':
             nextStatus = 'In Treatment';
             break;
         case 'In Treatment':
             const rand = Math.random();
-            if(patientToMove.triageLevel === 'critical' && rand < 0.6) { // Increased chance for ICU
-                 updatePatient(patientToMove.id, { department: 'icu', status: 'Admitted' });
-                 addNotification({ title: 'ICU Admission', description: `${patientToMove.patientName} was admitted to ICU.`});
-                 return;
-            }
             nextStatus = rand < 0.7 ? 'Observation' : 'Discharged';
             break;
         case 'Observation':
@@ -74,7 +85,12 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
     }
 
     if (nextStatus !== patientToMove.status) {
-        updatePatient(patientToMove.id, { status: nextStatus });
+        if (nextStatus === 'Discharged') {
+            updatePatient(patientToMove.id, { status: 'Discharged', dischargeStatus: 'recovered', dischargedAt: new Date().toISOString() });
+            addNotification({ title: 'Patient Discharged', description: `${patientToMove.patientName} was discharged from Emergency.`});
+        } else {
+            updatePatient(patientToMove.id, { status: nextStatus });
+        }
     }
 }, [patients, updatePatient, addNotification]);
 
@@ -172,21 +188,20 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
     const isEmergencyFull = emergencyPatientsCount >= EMERGENCY_CAPACITY;
     const isIcuFull = icuPatientsCount >= ICU_CAPACITY;
     
-    const isCapacityFull = isEmergencyFull || isIcuFull;
-
-    const actions = [
-      () => { // Add Patient to Emergency (priority action)
-        if (!isEmergencyFull && doctors.length > 0) {
-          const newPatientData = createRandomPatient(doctors, true); // Force emergency patient
-          const consultationFee = 25000 + Math.floor(Math.random() * 25000);
-          addPatient(newPatientData, {
-            type: 'consultation',
-            description: `${t('reception.title')} - ${t(`departments.${newPatientData.department}`)}`,
-            amount: consultationFee
-          });
-          addNotification({ title: t('simulation.patientAdded'), description: `${newPatientData.patientName} -> ${t(`departments.${newPatientData.department}`)}` });
-        }
-      },
+    // Always prioritize adding new emergency patients if not full
+    if (!isEmergencyFull && doctors.length > 0) {
+      const newPatientData = createRandomPatient(doctors, true); // Force emergency patient
+      const consultationFee = 25000 + Math.floor(Math.random() * 25000);
+      addPatient(newPatientData, {
+        type: 'consultation',
+        description: `${t('reception.title')} - ${t(`departments.${newPatientData.department}`)}`,
+        amount: consultationFee
+      });
+      addNotification({ title: t('simulation.patientAdded'), description: `${newPatientData.patientName} -> ${t(`departments.${newPatientData.department}`)}` });
+      return; // Prioritize this action
+    }
+    
+    const otherActions = [
       movePatientInEmergency,
       simulateServiceRequest,
       simulateSterilizationCycle,
@@ -224,13 +239,8 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
       },
     ];
     
-    // Always prioritize adding new emergency patients if not full
-    if (!isCapacityFull && doctors.length > 0) {
-      actions[0](); // Add Patient action
-    }
-
     // Perform one of the other random actions
-    const randomAction = getRandomElement(actions.slice(1));
+    const randomAction = getRandomElement(otherActions);
     randomAction();
 
   }, [doctors, patients, addPatient, deleteDoctor, addFinancialRecord, t, addNotification, movePatientInEmergency, simulateServiceRequest, simulateSterilizationCycle, simulateInpatientAdmission, simulateDailyCharges]);

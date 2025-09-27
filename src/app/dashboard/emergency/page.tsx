@@ -7,7 +7,7 @@ import { useDoctors } from '@/hooks/use-doctors';
 import { UserMenu } from '@/components/layout/user-menu';
 import { Logo } from '@/components/logo';
 import { Button } from '@/components/ui/button';
-import { Maximize, Minimize, HeartPulse, Thermometer, Wind, Activity, Pencil, PlusCircle, User as UserIcon, ChevronsRight, Eye, Hourglass, MoreVertical, Search } from 'lucide-react';
+import { Maximize, Minimize, HeartPulse, Thermometer, Wind, Activity, Pencil, PlusCircle, User as UserIcon, ChevronsRight, Eye, Hourglass, MoreVertical, Search, LogOut, Cross } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { NotificationsButton } from '@/components/notifications-button';
 import { Patient, TriageLevel } from '@/types';
@@ -23,7 +23,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { PatientRegistrationDialog } from '@/components/reception/patient-registration-dialog';
 import { Input } from '@/components/ui/input';
-
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Label } from '@/components/ui/label';
 
 const triageConfig = {
   critical: { color: "bg-red-500", label: "Critical" },
@@ -31,6 +33,37 @@ const triageConfig = {
   stable: { color: "bg-green-500", label: "Stable" },
   minor: { color: "bg-blue-500", label: "Minor" },
 };
+
+function DischargeDialog({ patient, onDischarge }: { patient: Patient | null; onDischarge: (status: 'recovered' | 'deceased') => void; }) {
+  const { t } = useLanguage();
+  const [status, setStatus] = useState<'recovered' | 'deceased'>('recovered');
+  if (!patient) return null;
+
+  return (
+    <Dialog open={!!patient} onOpenChange={() => onDischarge(status)}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>{t('emergency.discharge')} {patient.patientName}</DialogTitle>
+          <DialogDescription>{t('emergency.dischargeConfirm')}</DialogDescription>
+        </DialogHeader>
+        <RadioGroup value={status} onValueChange={(v) => setStatus(v as any)} className="my-4">
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="recovered" id="r-recovered" />
+            <Label htmlFor="r-recovered">{t('medicalRecords.dischargeStatus.recovered')}</Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="deceased" id="r-deceased" />
+            <Label htmlFor="r-deceased">{t('medicalRecords.dischargeStatus.deceased')}</Label>
+          </div>
+        </RadioGroup>
+        <DialogFooter>
+          <Button onClick={() => onDischarge(status)}>{t('emergency.discharge')}</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 
 function VitalSign({ icon: Icon, value, unit, label }: { icon: React.ElementType, value: string | number, unit: string, label: string }) {
   return (
@@ -49,15 +82,22 @@ function VitalSign({ icon: Icon, value, unit, label }: { icon: React.ElementType
   )
 }
 
-function PatientCard({ patient, onUpdatePatient }: { patient: Patient, onUpdatePatient: (id: string, updates: Partial<Patient>) => void }) {
+function PatientCard({ patient, onUpdatePatient, onDischarge }: { patient: Patient, onUpdatePatient: (id: string, updates: Partial<Patient>) => void, onDischarge: (patientId: string, status: 'recovered' | 'deceased') => void; }) {
   const { t } = useLanguage();
   const { doctors } = useDoctors();
   const [isEditing, setIsEditing] = useState(false);
+  const [isDischargeOpen, setDischargeOpen] = useState(false);
+
   const config = triageConfig[patient.triageLevel as TriageLevel] || triageConfig.minor;
   const { vitalSigns } = patient;
 
   const emergencyDoctors = useMemo(() => doctors.filter(d => d.specialty === 'Emergency Medicine'), [doctors]);
   const attendingDoctor = patient.attendingDoctorId ? doctors.find(d => d.id === patient.attendingDoctorId) : null;
+
+  const handleDischargeConfirm = (status: 'recovered' | 'deceased') => {
+      onDischarge(patient.id, status);
+      setDischargeOpen(false);
+  };
 
   return (
     <>
@@ -107,7 +147,8 @@ function PatientCard({ patient, onUpdatePatient }: { patient: Patient, onUpdateP
                         <DropdownMenuItem onClick={() => onUpdatePatient(patient.id, { department: 'wards', status: 'Admitted' })}>
                           {t('emergency.admitToWard')}
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => onUpdatePatient(patient.id, { status: 'Discharged' })}>
+                        <DropdownMenuItem onClick={() => setDischargeOpen(true)} className="text-destructive">
+                           <LogOut className="mr-2 h-4 w-4" />
                           {t('emergency.discharge')}
                         </DropdownMenuItem>
                     </DropdownMenuContent>
@@ -144,6 +185,7 @@ function PatientCard({ patient, onUpdatePatient }: { patient: Patient, onUpdateP
             onOpenChange={setIsEditing} 
             patientToEdit={patient}
         />
+        <DischargeDialog patient={isDischargeOpen ? patient : null} onDischarge={handleDischargeConfirm} />
     </>
   );
 }
@@ -166,6 +208,14 @@ export default function EmergencyPage() {
             setIsFullscreen(false);
         }
     }
+  };
+  
+  const handleDischargePatient = (patientId: string, status: 'recovered' | 'deceased') => {
+        updatePatient(patientId, {
+            status: 'Discharged',
+            dischargeStatus: status,
+            dischargedAt: new Date().toISOString(),
+        });
   };
 
   const emergencyPatients = useMemo(() => {
@@ -236,7 +286,7 @@ export default function EmergencyPage() {
               <h2 className="font-bold p-2 border-b">{t('emergency.waiting')} ({waitingPatients.length})</h2>
               <ScrollArea className="flex-grow">
                 <div className="p-2">
-                  {waitingPatients.map(p => <PatientCard key={p.id} patient={p} onUpdatePatient={updatePatient} />)}
+                  {waitingPatients.map(p => <PatientCard key={p.id} patient={p} onUpdatePatient={updatePatient} onDischarge={handleDischargePatient} />)}
                 </div>
               </ScrollArea>
           </div>
@@ -244,7 +294,7 @@ export default function EmergencyPage() {
               <h2 className="font-bold p-2 border-b">{t('emergency.inTreatment')} ({treatmentPatients.length})</h2>
               <ScrollArea className="flex-grow">
                 <div className="p-2">
-                    {treatmentPatients.map(p => <PatientCard key={p.id} patient={p} onUpdatePatient={updatePatient} />)}
+                    {treatmentPatients.map(p => <PatientCard key={p.id} patient={p} onUpdatePatient={updatePatient} onDischarge={handleDischargePatient} />)}
                 </div>
               </ScrollArea>
           </div>
@@ -252,7 +302,7 @@ export default function EmergencyPage() {
               <h2 className="font-bold p-2 border-b">{t('emergency.observation')} ({observationPatients.length})</h2>
               <ScrollArea className="flex-grow">
                 <div className="p-2">
-                    {observationPatients.map(p => <PatientCard key={p.id} patient={p} onUpdatePatient={updatePatient} />)}
+                    {observationPatients.map(p => <PatientCard key={p.id} patient={p} onUpdatePatient={updatePatient} onDischarge={handleDischargePatient} />)}
                 </div>
               </ScrollArea>
           </div>
