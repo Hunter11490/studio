@@ -41,7 +41,6 @@ import { exportDataFile, importDataFile } from '@/lib/data-import-export';
 import { useToast } from '@/hooks/use-toast';
 import { ScrollArea } from '../ui/scroll-area';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '../ui/sheet';
-import { AdminPanel } from '../admin/admin-panel';
 import { Separator } from '../ui/separator';
 import { InternetSearchDialog } from '../ai/internet-search-dialog';
 import { cn } from '@/lib/utils';
@@ -61,9 +60,6 @@ export function UserMenu() {
   const [isAboutOpen, setAboutOpen] = useState(false);
   const [isChatOpen, setChatOpen] = useState(false);
   const [isInternetSearchOpen, setInternetSearchOpen] = useState(false);
-  const [isQuickAddOpen, setQuickAddOpen] = useState(false);
-  const [quickAddQuery, setQuickAddQuery] = useState('');
-  const [isAdminPanelOpen, setAdminPanelOpen] = useState(false);
   
   useEffect(() => {
     // This effect is to handle the back button for the main user menu sheet
@@ -86,26 +82,6 @@ export function UserMenu() {
     setMenuOpen(isOpen);
   };
   
-    // This effect handles the back button for the Admin Panel sheet
-  useEffect(() => {
-    if (isAdminPanelOpen) {
-      window.history.pushState({ sheet: 'adminPanel' }, '');
-      const handlePopState = (event: PopStateEvent) => {
-        if (event.state?.sheet === 'adminPanel') {
-          setAdminPanelOpen(false);
-        }
-      };
-      window.addEventListener('popstate', handlePopState);
-      return () => window.removeEventListener('popstate', handlePopState);
-    }
-  }, [isAdminPanelOpen]);
-
-  const handleAdminPanelOpenChange = (isOpen: boolean) => {
-    if (!isOpen && window.history.state?.sheet === 'adminPanel') {
-      window.history.back();
-    }
-    setAdminPanelOpen(isOpen);
-  };
 
   const handleExport = async () => {
     if (doctors.length === 0) {
@@ -152,8 +128,8 @@ export function UserMenu() {
     handleMenuOpenChange(false);
   };
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    await logout();
     router.replace('/login');
   }
 
@@ -198,7 +174,7 @@ export function UserMenu() {
             <SheetTitle className="font-normal">
               <div className="flex flex-col space-y-1">
                 <p className="text-sm font-medium leading-none">{t('userMenu.greeting')},</p>
-                <p className="text-xs leading-none text-muted-foreground">{user.username}</p>
+                <p className="text-xs leading-none text-muted-foreground">{user.email}</p>
               </div>
             </SheetTitle>
           </SheetHeader>
@@ -207,7 +183,6 @@ export function UserMenu() {
                 {user.role === 'admin' && (
                 <>
                   <div className="px-2 py-1.5 text-sm font-semibold">{t('userMenu.management')}</div>
-                  <MenuItem icon={<Shield className="mr-2 h-4 w-4" />} label={t('header.adminDashboard')} onClick={() => { setAdminPanelOpen(true); handleMenuOpenChange(false); }} />
                 </>
               )}
 
@@ -266,20 +241,7 @@ export function UserMenu() {
       <InternetSearchDialog 
         open={isInternetSearchOpen} 
         onOpenChange={setInternetSearchOpen} 
-        initialSearchQuery={quickAddQuery}
       />
-      
-      {/* Admin Panel Sheet */}
-      {user.role === 'admin' && (
-        <Sheet open={isAdminPanelOpen} onOpenChange={handleAdminPanelOpenChange}>
-            <SheetContent className="w-full sm:max-w-3xl overflow-y-auto">
-                <SheetHeader>
-                    <SheetTitle>{t('admin.dashboardTitle')}</SheetTitle>
-                </SheetHeader>
-                <AdminPanel />
-            </SheetContent>
-        </Sheet>
-      )}
     </>
   );
 }

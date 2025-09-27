@@ -94,23 +94,12 @@ export type DoctorInfo = {
     }[];
 };
 
-export type UserStatus = 'pending' | 'active' | 'banned';
-
 export type User = {
   id: string;
-  username: string;
-  email: string;
-  phoneNumber: string;
-  role: 'admin' | 'user';
-  status: UserStatus;
-  sessionStarted?: number;
+  email?: string;
+  role?: string;
 };
 
-export type StoredUser = User & {
-  pass: string;
-  isFirstLogin?: boolean;
-  activatedAt?: number; // Timestamp of activation/creation
-};
 
 export type Translation = {
   [key: string]: string | Translation;

@@ -13,18 +13,17 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { Logo } from '@/components/logo';
-import { Loader2, KeyRound, User } from 'lucide-react';
+import { Loader2, Mail, KeyRound } from 'lucide-react';
 import { AuthLoader } from '@/components/auth-loader';
 
 const formSchema = z.object({
-  username: z.string().min(1, 'Username is required'),
+  email: z.string().email('Invalid email address'),
   password: z.string().min(1, 'Password is required'),
 });
 
-
 export default function LoginPage() {
   const router = useRouter();
-  const { user, users, login, isLoading } = useAuth();
+  const { user, login, isLoading } = useAuth();
   const { t } = useLanguage();
   const { toast } = useToast();
 
@@ -38,7 +37,7 @@ export default function LoginPage() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      username: '',
+      email: '',
       password: '',
     },
   });
@@ -46,35 +45,21 @@ export default function LoginPage() {
   const { isSubmitting } = form.formState;
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    // Simulate network delay
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    const success = login(values.username, values.password);
-    if (success) {
-      const loggedInUser = users.find(u => u.username === values.username);
-      if (loggedInUser?.status === 'active') {
-        toast({
-          title: t('auth.login'),
-          description: `${t('userMenu.greeting')} ${values.username}`,
-        });
-        router.replace('/dashboard');
-      } else if (loggedInUser?.status === 'pending') {
-        router.replace('/dashboard');
-      } else {
-         toast({
-          title: t('admin.status.deactivated'),
-          description: t('admin.bannedDesc'),
-          variant: 'destructive',
-        });
-        form.reset();
-      }
-    } else {
+    const { error } = await login(values.email, values.password);
+
+    if (error) {
       toast({
         title: 'Login Failed',
-        description: 'Invalid username or password.',
+        description: error.message || 'Invalid email or password.',
         variant: 'destructive',
       });
       form.reset();
+    } else {
+      toast({
+        title: t('auth.login'),
+        description: `${t('userMenu.greeting')} ${values.email}`,
+      });
+      router.replace('/dashboard');
     }
   }
 
@@ -95,14 +80,14 @@ export default function LoginPage() {
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <FormField
               control={form.control}
-              name="username"
+              name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>{t('auth.username')}</FormLabel>
+                  <FormLabel>{t('auth.email')}</FormLabel>
                    <div className="relative">
-                        <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                         <FormControl>
-                            <Input placeholder="user123" {...field} className="pl-10" />
+                            <Input placeholder="user@example.com" {...field} className="pl-10" />
                         </FormControl>
                    </div>
                   <FormMessage />

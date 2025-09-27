@@ -13,6 +13,7 @@ import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { Logo } from '@/components/logo';
 import { Loader2, User, Mail, KeyRound, Phone } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 const formSchema = z.object({
   username: z.string().min(3, 'Username must be at least 3 characters'),
@@ -26,6 +27,7 @@ export default function SignupPage() {
   const { signup } = useAuth();
   const { t } = useLanguage();
   const { toast } = useToast();
+  const [isSignupSuccessful, setSignupSuccessful] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -40,23 +42,42 @@ export default function SignupPage() {
   const { isSubmitting } = form.formState;
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    // Simulate network delay
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    const { error } = await signup(values.email, values.password, {
+      data: {
+        username: values.username,
+        phone_number: values.phoneNumber
+      }
+    });
 
-    const success = signup(values.username, values.password, values.phoneNumber, values.email);
-    if (success) {
+    if (error) {
+      toast({
+        title: t('auth.signupFailedTitle'),
+        description: error.message,
+        variant: 'destructive',
+      });
+    } else {
+      setSignupSuccessful(true);
       toast({
         title: t('auth.signupSuccessTitle'),
         description: t('auth.signupSuccessDesc'),
       });
-      router.replace('/login');
-    } else {
-      toast({
-        title: t('auth.signupFailedTitle'),
-        description: t('auth.signupFailedDesc'),
-        variant: 'destructive',
-      });
+      form.reset();
     }
+  }
+
+  if (isSignupSuccessful) {
+    return (
+      <div className="flex flex-col gap-6 text-center">
+        <Logo className="h-16 w-16 text-primary mx-auto mb-2" />
+        <h1 className="text-2xl font-semibold">{t('auth.signupSuccessTitle')}</h1>
+        <Alert>
+          <AlertDescription>{t('auth.checkEmail')}</AlertDescription>
+        </Alert>
+        <Button asChild>
+          <Link href="/login">{t('auth.login')}</Link>
+        </Button>
+      </div>
+    );
   }
 
   return (

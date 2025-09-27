@@ -17,9 +17,10 @@ export const translations: Translations = {
       haveAccount: 'Already have an account?',
       logout: 'Logout',
       signupSuccessTitle: 'Account Created',
-      signupSuccessDesc: 'Your account has been created successfully! You can now log in.',
+      signupSuccessDesc: 'Your account has been created successfully! Please check your email to verify your account.',
       signupFailedTitle: 'Signup Failed',
       signupFailedDesc: 'A user with this email or phone number already exists.',
+      checkEmail: 'Please check your email for a confirmation link to complete your registration.'
     },
     header: {
       searchPlaceholder: 'Search by name, specialty, address...',
@@ -502,7 +503,9 @@ export const translations: Translations = {
         date: "Date",
         amount: "Amount",
         summary: "Account Summary",
-        footerNotes: "Wishing you a speedy recovery and good health."
+        footerNotes: "Wishing you a speedy recovery and good health.",
+        age: "Age",
+        address: "Address",
     },
     notifications: {
       title: "Notifications",
@@ -572,9 +575,9 @@ export const translations: Translations = {
         discharged: "Discharged"
       },
       dischargeStatus: {
-        title: "Discharge Status",
-        recovered: "Recovered",
-        deceased: "Deceased"
+        title: 'Discharge Status',
+        recovered: 'Recovered',
+        deceased: 'Deceased'
       },
       patientReport: "Patient Medical Report",
       reportDate: "Report Date",
@@ -654,9 +657,10 @@ export const translations: Translations = {
       haveAccount: 'لديك حساب بالفعل؟',
       logout: 'تسجيل الخروج',
       signupSuccessTitle: 'تم إنشاء الحساب',
-      signupSuccessDesc: 'تم إنشاء حسابك بنجاح! يمكنك الآن تسجيل الدخول.',
+      signupSuccessDesc: 'تم إنشاء حسابك بنجاح! يرجى التحقق من بريدك الإلكتروني لتفعيل حسابك.',
       signupFailedTitle: 'فشل في إنشاء الحساب',
       signupFailedDesc: 'يوجد مستخدم بهذا البريد الإلكتروني أو رقم الهاتف بالفعل.',
+      checkEmail: 'يرجى التحقق من بريدك الإلكتروني للحصول على رابط التأكيد لإكمال تسجيلك.'
     },
     header: {
       searchPlaceholder: 'ابحث بالاسم، التخصص، العنوان...',
@@ -1139,7 +1143,9 @@ export const translations: Translations = {
         date: "التاريخ",
         amount: "المبلغ",
         summary: "ملخص الحساب",
-        footerNotes: "نتمنى لكم الشفاء العاجل ودوام الصحة والعافية."
+        footerNotes: "نتمنى لكم الشفاء العاجل ودوام الصحة والعافية.",
+        age: "العمر",
+        address: "العنوان",
     },
     notifications: {
       title: "الإشعارات",
