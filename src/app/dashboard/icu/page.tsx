@@ -157,7 +157,7 @@ function BedCard({ bedNumber, patient, onAddPatient, onDischarge }: { bedNumber:
                                 <div className="p-2 rounded-lg bg-secondary">
                                     <p className="text-xs text-muted-foreground flex items-center justify-center gap-1"><Activity className="h-3 w-3"/> {t('emergency.vitals.bloodPressure')}</p>
                                     <p className="font-bold text-lg">{patient.vitalSigns.bloodPressure}</p>
-                                </div>
+                                 </div>
                                  <div className="p-2 rounded-lg bg-secondary">
                                     <p className="text-xs text-muted-foreground flex items-center justify-center gap-1"><Wind className="h-3 w-3"/> {t('emergency.vitals.spo2')}</p>
                                     <p className="font-bold text-lg">{patient.vitalSigns.spo2}%</p>
@@ -221,8 +221,6 @@ export default function ICUPage() {
     }, [patients]);
     
     const handleAddPatient = () => {
-        // This flow is now handled by simulation or direct admission from other departments
-        // but we can leave the button to open a generic registration form if needed.
         setIsAddPatientOpen(true);
     }
 
@@ -276,7 +274,7 @@ export default function ICUPage() {
                         key={index} 
                         bedNumber={index + 1} 
                         patient={icuPatients[index] || null} 
-                        onAddPatient={() => {}} 
+                        onAddPatient={handleAddPatient} 
                         onDischarge={handleDischargePatient}
                       />
                   ))}
