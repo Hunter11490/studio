@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useState, useEffect, useCallback, ReactNode, useMemo } from 'react';
+import { createContext, useState, useEffect, useCallback, ReactNode, useMemo, useContext } from 'react';
 import { useDoctors } from '@/hooks/use-doctors';
 import { usePatients } from '@/hooks/use-patients';
 import { useToast } from '@/hooks/use-toast';
@@ -17,21 +17,19 @@ type SimulationContextType = {
 
 export const SimulationContext = createContext<SimulationContextType | undefined>(undefined);
 
-const DAILY_CHARGE_KEY_PREFIX = 'daily_charge_applied_';
-const DAILY_CHARGE_AMOUNT = 150000;
-const ADMISSION_INTERVAL = 5000;
-const DISCHARGE_INTERVAL = 7000;
-const OTHER_ACTIONS_INTERVAL = 3000;
+const SIMULATION_TICK_INTERVAL = 7000; // 7 seconds for main actions
+const ADMISSION_INTERVAL = 5000; // 5 seconds for admissions
+const DISCHARGE_INTERVAL = 7000; // 7 seconds for discharges
+
 const EMERGENCY_CAPACITY = 50;
 const ICU_CAPACITY = 12;
-const WARDS_CAPACITY = 20 * 10;
-
+const WARDS_CAPACITY = 20 * 10; // 20 floors * 10 rooms
 
 const getRandomElement = <T,>(arr: T[]): T => arr[Math.floor(Math.random() * arr.length)];
 
 export function SimulationProvider({ children }: { children: ReactNode }) {
   const [isSimulating, setIsSimulating] = useState(false);
-  const { doctors, addDoctor, deleteDoctor } = useDoctors();
+  const { doctors } = useDoctors();
   const { patients, addPatient, updatePatient, addFinancialRecord } = usePatients();
   const [serviceRequests, setServiceRequests] = useLocalStorage<ServiceRequest[]>('hospital_services_requests', []);
   const [instrumentSets, setInstrumentSets] = useLocalStorage<InstrumentSet[]>('sterilization_sets', []);
@@ -44,243 +42,134 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const simulateAdmission = useCallback(() => {
-    const allPatients = patients; // Get the latest list
-    const icuPatientsCount = allPatients.filter(p => p.department === 'icu' && p.status !== 'Discharged').length;
-    const wardPatientsCount = allPatients.filter(p => p.department === 'wards' && p.status !== 'Discharged').length;
+    if (!isSimulating || doctors.length === 0) return;
 
-    const admitToIcu = Math.random() < 0.2 && icuPatientsCount < ICU_CAPACITY;
-    const admitToWard = !admitToIcu && wardPatientsCount < WARDS_CAPACITY;
+    const icuPatientsCount = patients.filter(p => p.department === 'icu' && p.status !== 'Discharged').length;
+    const wardPatientsCount = patients.filter(p => p.department === 'wards' && p.status !== 'Discharged').length;
     
-    let patientToAdmit: Patient | undefined;
-    
-    if (admitToIcu || admitToWard) {
-        const eligiblePatients = allPatients.filter(p => 
-            p.department === 'emergency' && p.status !== 'Discharged'
-        );
-        if (eligiblePatients.length > 0) {
-            patientToAdmit = getRandomElement(eligiblePatients);
-        }
+    // Try to admit a new patient to Emergency
+    if (Math.random() < 0.6) {
+       const emergencyPatientsCount = patients.filter(p => p.department === 'emergency' && p.status !== 'Discharged').length;
+       if (emergencyPatientsCount < EMERGENCY_CAPACITY) {
+         const newPatientData = createRandomPatient(doctors, true);
+         addPatient(newPatientData, {
+           type: 'consultation',
+           description: `${t('reception.title')} - ${t('departments.emergency')}`,
+           amount: 25000,
+         });
+         addNotification({ title: t('simulation.patientAdded'), description: `${newPatientData.patientName} -> ${t('departments.emergency')}` });
+         return; // Do one thing at a time
+       }
     }
 
-    if (!patientToAdmit) return;
-
-    if (admitToIcu) {
-        const icuDoctors = doctors.filter(d => d.specialty === 'Intensive Care Medicine');
-        const attendingDoctorId = icuDoctors.length > 0 ? getRandomElement(icuDoctors).id : undefined;
-
-        updatePatient(patientToAdmit.id, { department: 'icu', status: 'Admitted', attendingDoctorId, floor: undefined, room: undefined });
-        addNotification({ title: 'ICU Admission', description: `${patientToAdmit.patientName} was admitted to ICU.` });
-    } else if (admitToWard) {
-        const occupiedRooms = new Set(allPatients.filter(p => p.floor && p.room).map(p => `${p.floor}-${p.room}`));
-        const availableRooms: {floor: number, room: number}[] = [];
-        for (let floor = 1; floor <= 20; floor++) {
-            for (let room = 1; room <= 10; room++) {
-                if (!occupiedRooms.has(`${floor}-${room}`)) {
-                    availableRooms.push({ floor, room });
-                }
+    // Try to transfer a patient from Emergency
+    const patientToTransfer = patients.find(p => p.department === 'emergency' && (p.status === 'In Treatment' || p.status === 'Observation'));
+    if (patientToTransfer) {
+        if (patientToTransfer.triageLevel === 'critical' && icuPatientsCount < ICU_CAPACITY) {
+            const icuDoctors = doctors.filter(d => d.specialty === 'Intensive Care Medicine');
+            const attendingDoctorId = icuDoctors.length > 0 ? getRandomElement(icuDoctors).id : undefined;
+            const availableBed = Array.from({ length: ICU_CAPACITY }, (_, i) => i + 1).find(bedNum => !patients.some(p => p.bedNumber === bedNum));
+            
+            if(availableBed){
+                updatePatient(patientToTransfer.id, { department: 'icu', status: 'Admitted', attendingDoctorId, bedNumber: availableBed });
+                addFinancialRecord(patientToTransfer.id, { type: 'inpatient', description: 'ICU Admission Fee', amount: 500000 });
+                addNotification({ title: 'ICU Admission', description: `${patientToTransfer.patientName} was admitted to ICU Bed ${availableBed}.` });
             }
-        }
-        if (availableRooms.length > 0) {
-            const roomToAdmit = getRandomElement(availableRooms);
+        } else if (wardPatientsCount < WARDS_CAPACITY) {
             const wardDoctors = doctors.filter(d => d.specialty === 'Internal Medicine');
             const attendingDoctorId = wardDoctors.length > 0 ? getRandomElement(wardDoctors).id : undefined;
-            
-            updatePatient(patientToAdmit.id, {
-                floor: roomToAdmit.floor,
-                room: roomToAdmit.room,
-                admittedAt: new Date().toISOString(),
-                status: 'Admitted',
-                department: 'wards',
-                attendingDoctorId,
-            });
-            addFinancialRecord(patientToAdmit.id, {
-                type: 'inpatient',
-                description: t('wards.admissionFee'),
-                amount: DAILY_CHARGE_AMOUNT,
-                date: new Date().toISOString()
-            });
-            addNotification({ 
-                title: t('simulation.patientAdmitted'), 
-                description: t('simulation.patientAdmittedDesc', { patientName: patientToAdmit.patientName, floor: roomToAdmit.floor, room: roomToAdmit.floor * 100 + roomToAdmit.room })
-            });
+            updatePatient(patientToTransfer.id, { department: 'wards', status: 'Admitted', attendingDoctorId });
+            addFinancialRecord(patientToTransfer.id, { type: 'inpatient', description: t('wards.admissionFee'), amount: 150000 });
+            addNotification({ title: t('simulation.patientAdmitted'), description: `${patientToTransfer.patientName} has been admitted to a ward.` });
         }
     }
-  }, [patients, updatePatient, addFinancialRecord, addNotification, t, doctors]);
+  }, [isSimulating, doctors, patients, addPatient, updatePatient, addFinancialRecord, addNotification, t]);
 
   const simulateDischarge = useCallback(() => {
+    if (!isSimulating || patients.length === 0) return;
+    
     const admittedPatients = patients.filter(p => p.status === 'Admitted' && (p.department === 'icu' || p.department === 'wards'));
-    if (admittedPatients.length === 0) return;
-
-    const patientToDischarge = getRandomElement(admittedPatients);
-    const dischargeStatus = Math.random() < 0.05 ? 'deceased' : 'recovered';
-
-    updatePatient(patientToDischarge.id, {
-        status: 'Discharged',
-        dischargeStatus: dischargeStatus,
-        dischargedAt: new Date().toISOString(),
-        floor: undefined,
-        room: undefined,
-        department: 'medicalRecords'
-    });
-    
-    addNotification({
-        title: dischargeStatus === 'recovered' ? 'Patient Discharged' : 'Patient Deceased',
-        description: `${patientToDischarge.patientName} has been discharged (${dischargeStatus}).`
-    });
-
-  }, [patients, updatePatient, addNotification]);
-
-  const simulateServiceRequest = useCallback(() => {
-    if (serviceRequests.length < 20 && Math.random() < 0.1) {
-        const newRequest = createRandomServiceRequest();
-        setServiceRequests(prev => [newRequest, ...prev]);
-        addNotification({ title: `New Service Request: ${newRequest.type}`, description: `For: ${t(`departments.${newRequest.department}`)}` });
+    if (admittedPatients.length > 0) {
+        const patientToDischarge = getRandomElement(admittedPatients);
+        const dischargeStatus = Math.random() < 0.05 ? 'deceased' : 'recovered';
+        updatePatient(patientToDischarge.id, {
+            status: 'Discharged',
+            dischargeStatus: dischargeStatus,
+            dischargedAt: new Date().toISOString(),
+            department: 'medicalRecords',
+            bedNumber: undefined,
+            floor: undefined,
+            room: undefined
+        });
+        addNotification({ title: 'Patient Discharged', description: `${patientToDischarge.patientName} was discharged (${dischargeStatus}).` });
     }
-  }, [serviceRequests.length, setServiceRequests, addNotification, t]);
-
-  const simulateSterilizationCycle = useCallback(() => {
-    const setsToMove = instrumentSets.filter(s => {
-        if (s.status === 'sterilizing') {
-            return (Date.now() - s.cycleStartTime) / 1000 > s.cycleDuration;
-        }
-        return Math.random() < 0.05;
-    });
-
-    if (setsToMove.length === 0) return;
-
-    const setToMove = getRandomElement(setsToMove);
-    const originalStatus = setToMove.status;
-    const newStatus = moveInstrumentSet(originalStatus);
-    
-    const wasSterilizing = originalStatus === 'sterilizing';
-
-    setInstrumentSets(prev => prev.map(s => 
-        s.id === setToMove.id 
-        ? { 
-            ...s, 
-            status: newStatus,
-            cycleStartTime: newStatus === 'sterilizing' ? Date.now() : s.cycleStartTime
-          } 
-        : s
-    ));
-    
-    if (wasSterilizing) {
-       addNotification({ title: t('sterilization.cycleComplete'), description: `${setToMove.name} ${t('sterilization.nowInStorage')}` });
-    }
-
-  }, [instrumentSets, setInstrumentSets, addNotification, t]);
-  
-  const simulateDailyCharges = useCallback(() => {
-      const todayStr = new Date().toISOString().split('T')[0];
-      const admittedPatients = patients.filter(p => p.status === 'Admitted' && p.floor && p.room);
-      
-      admittedPatients.forEach(patient => {
-          const lastChargeKey = `${DAILY_CHARGE_KEY_PREFIX}${patient.id}`;
-          const lastChargeDate = localStorage.getItem(lastChargeKey);
-
-          if (lastChargeDate !== todayStr) {
-              addFinancialRecord(patient.id, {
-                  type: 'inpatient',
-                  description: t('simulation.dailyCharge'),
-                  amount: DAILY_CHARGE_AMOUNT,
-                  date: new Date().toISOString()
-              });
-              localStorage.setItem(lastChargeKey, todayStr);
-              addNotification({
-                  title: t('simulation.dailyCharge'),
-                  description: t('simulation.dailyChargeDesc', { patientName: patient.patientName, amount: DAILY_CHARGE_AMOUNT.toLocaleString() })
-              });
-          }
-      });
-  }, [patients, addFinancialRecord, addNotification, t]);
+  }, [isSimulating, patients, updatePatient, addNotification]);
 
   const performOtherRandomActions = useCallback(() => {
-    const emergencyPatientsCount = patients.filter(p => p.department === 'emergency' && p.status !== 'Discharged').length;
-    
-    if (emergencyPatientsCount < EMERGENCY_CAPACITY && doctors.length > 0) {
-      const newPatientData = createRandomPatient(doctors, true);
-      const consultationFee = 25000 + Math.floor(Math.random() * 25000);
-      addPatient(newPatientData, {
-        type: 'consultation',
-        description: `${t('reception.title')} - ${t(`departments.${newPatientData.department}`)}`,
-        amount: consultationFee
-      });
-      addNotification({ title: t('simulation.patientAdded'), description: `${newPatientData.patientName} -> ${t(`departments.${newPatientData.department}`)}` });
-    }
+     if (!isSimulating) return;
 
-    const otherActions = [
-      () => { 
-        const emergencyPatients = patients.filter(p => p.department === 'emergency' && p.status !== 'Discharged');
-        if (emergencyPatients.length === 0) return;
-        const patientToMove = getRandomElement(emergencyPatients);
-        let nextStatus: Patient['status'] = patientToMove.status;
-        switch(patientToMove.status) {
-            case 'Waiting': nextStatus = 'In Treatment'; break;
-            case 'In Treatment': nextStatus = 'Observation'; break;
-            case 'Observation': nextStatus = 'Waiting'; break;
-        }
-        updatePatient(patientToMove.id, { status: nextStatus });
-      },
-      simulateServiceRequest,
-      simulateSterilizationCycle,
-      simulateDailyCharges,
-      () => { 
-        if(patients.length > 0 && Math.random() < 0.3) {
-          const randomPatient = getRandomElement(patients);
-          const testCost = 15000 + Math.floor(Math.random() * 50000);
-          addFinancialRecord(randomPatient.id, { type: 'lab', description: `${t('lab.test')} ${t('common.random')}`, amount: testCost });
-        }
-      },
-      () => { 
-        if(patients.length > 0 && Math.random() < 0.4) {
-          const randomPatient = getRandomElement(patients);
-          const drugCost = 5000 + Math.floor(Math.random() * 100000);
-          addFinancialRecord(randomPatient.id, { type: 'pharmacy', description: `${t('pharmacy.drugName')} ${t('common.random')}`, amount: drugCost });
-        }
-      },
-      () => {
-        if (doctors.length > 20 && Math.random() < 0.05) { 
-          const oldestDoctor = [...doctors].sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())[0];
-          deleteDoctor(oldestDoctor.id);
-        }
-      },
-    ];
-    
-    const randomAction = getRandomElement(otherActions);
-    randomAction();
+     // 1. Create a service request
+     if (Math.random() < 0.15) {
+       const newRequest = createRandomServiceRequest();
+       setServiceRequests(prev => [newRequest, ...prev].slice(0, 50)); // Keep last 50
+       addNotification({ title: `New Service Request: ${newRequest.type}`, description: `For: ${t(`departments.${newRequest.department}`)}` });
+     }
+     
+     // 2. Advance sterilization cycle
+     if (instrumentSets.length > 0 && Math.random() < 0.5) {
+       const setToMove = getRandomElement(instrumentSets.filter(s => s.status !== 'sterilizing')); // Don't interrupt sterilization
+       if(setToMove) {
+           const originalStatus = setToMove.status;
+           const newStatus = moveInstrumentSet(originalStatus);
+           
+           setInstrumentSets(prev => prev.map(s => s.id === setToMove.id ? { ...s, status: newStatus, cycleStartTime: newStatus === 'sterilizing' ? Date.now() : s.cycleStartTime } : s));
+           
+           if (originalStatus === 'packaging' && newStatus === 'sterilizing') {
+              addNotification({ title: 'Sterilization Started', description: `${setToMove.name} has started its cycle.` });
+           }
+       }
+     }
+     
+     // 3. Complete a sterilization cycle
+     const sterilizingSet = instrumentSets.find(s => s.status === 'sterilizing' && (Date.now() - s.cycleStartTime) / 1000 > s.cycleDuration);
+     if(sterilizingSet) {
+        setInstrumentSets(prev => prev.map(s => s.id === sterilizingSet.id ? { ...s, status: 'storage' } : s));
+        addNotification({ title: t('sterilization.cycleComplete'), description: `${sterilizingSet.name} ${t('sterilization.nowInStorage')}` });
+     }
 
-  }, [doctors, patients, addPatient, deleteDoctor, addFinancialRecord, t, addNotification, simulateServiceRequest, simulateSterilizationCycle, simulateDailyCharges, updatePatient]);
+  }, [isSimulating, setServiceRequests, addNotification, t, instrumentSets, setInstrumentSets]);
 
   useEffect(() => {
     let admissionInterval: NodeJS.Timeout | null = null;
     let dischargeInterval: NodeJS.Timeout | null = null;
-    let otherActionsInterval: NodeJS.Timeout | null = null;
-
+    let otherInterval: NodeJS.Timeout | null = null;
+    
     if (isSimulating) {
       admissionInterval = setInterval(simulateAdmission, ADMISSION_INTERVAL);
       dischargeInterval = setInterval(simulateDischarge, DISCHARGE_INTERVAL);
-      otherActionsInterval = setInterval(performOtherRandomActions, OTHER_ACTIONS_INTERVAL);
+      otherInterval = setInterval(performOtherRandomActions, SIMULATION_TICK_INTERVAL);
     }
     
     return () => {
       if (admissionInterval) clearInterval(admissionInterval);
       if (dischargeInterval) clearInterval(dischargeInterval);
-      if (otherActionsInterval) clearInterval(otherActionsInterval);
+      if (otherInterval) clearInterval(otherInterval);
     };
   }, [isSimulating, simulateAdmission, simulateDischarge, performOtherRandomActions]);
 
   const toggleSimulation = () => {
-    const wasSimulating = isSimulating;
-    setIsSimulating(prev => !prev);
-     if(wasSimulating) {
-        toast({ title: t('simulation.stopped') });
-     } else {
-        toast({ title: t('simulation.started') });
-     }
+    const nextState = !isSimulating;
+    setIsSimulating(nextState);
+    toast({ title: nextState ? t('simulation.started') : t('simulation.stopped') });
   };
   
+  const contextValue = useMemo(() => ({
+    isSimulating,
+    toggleSimulation,
+  }), [isSimulating, toggleSimulation]);
+
   return (
-    <SimulationContext.Provider value={{ isSimulating, toggleSimulation }}>
+    <SimulationContext.Provider value={contextValue}>
       {children}
     </SimulationContext.Provider>
   );
