@@ -52,7 +52,6 @@ import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { UserMenu } from '@/components/layout/user-menu';
 import { Logo } from '@/components/logo';
-import { useSimulation } from '@/hooks/use-simulation';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { NotificationsButton } from '@/components/notifications-button';
 
@@ -134,7 +133,6 @@ export default function HospitalDashboardPage() {
   const { lang, setLang, t, dir } = useLanguage();
   const { user, updateUser, users } = useAuth();
   const { theme, setTheme } = useTheme();
-  const { isSimulating, toggleSimulation } = useSimulation();
   
   const currentUser = users.find(u => u.id === user?.id);
   const [isClient, setIsClient] = useState(false);
@@ -324,19 +322,6 @@ export default function HospitalDashboardPage() {
           </Card>
       </div>
       
-      <TooltipProvider>
-        <Tooltip>
-          <TooltipTrigger asChild>
-              <Button onClick={toggleSimulation} variant={isSimulating ? "destructive" : "default"} size="icon" className="fixed bottom-24 left-6 z-40 h-14 w-14 rounded-full shadow-lg animate-pulse-glow">
-                <Zap className="h-6 w-6" />
-              </Button>
-          </TooltipTrigger>
-          <TooltipContent side={dir === 'rtl' ? 'left' : 'right'}>
-            <p>{isSimulating ? t('simulation.stop') : t('simulation.start')}</p>
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
-
       {isClient && <WelcomeDialog open={showWelcome} onOpenChange={setShowWelcome} onFinished={handleWelcomeClose} />}
     </>
   );

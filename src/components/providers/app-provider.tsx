@@ -18,9 +18,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
             <AuthProvider>
               <DoctorProvider>
                 <PatientProvider>
-                  <SimulationProvider>
                     {children}
-                  </SimulationProvider>
                 </PatientProvider>
               </DoctorProvider>
             </AuthProvider>
