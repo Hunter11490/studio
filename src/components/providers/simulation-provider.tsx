@@ -5,7 +5,7 @@ import { useDoctors } from '@/hooks/use-doctors';
 import { usePatients } from '@/hooks/use-patients';
 import { useToast } from '@/hooks/use-toast';
 import { useLanguage } from '@/hooks/use-language';
-import { createRandomDoctor, createRandomPatient, createRandomServiceRequest, moveInstrumentSet } from '@/lib/simulation-utils';
+import { createRandomPatient, createRandomServiceRequest, moveInstrumentSet } from '@/lib/simulation-utils';
 import { useNotifications } from '@/hooks/use-notifications';
 import { TriageLevel, ServiceRequest, InstrumentSet, Patient } from '@/types';
 import { useLocalStorage } from '@/hooks/use-local-storage';
@@ -19,9 +19,12 @@ export const SimulationContext = createContext<SimulationContextType | undefined
 
 const DAILY_CHARGE_KEY_PREFIX = 'daily_charge_applied_';
 const DAILY_CHARGE_AMOUNT = 150000;
-const SIMULATION_INTERVAL = 3000; // 3 seconds
+const ADMISSION_INTERVAL = 5000; // 5 seconds
+const DISCHARGE_INTERVAL = 7000; // 7 seconds
+const OTHER_ACTIONS_INTERVAL = 3000; // 3 seconds
 const EMERGENCY_CAPACITY = 50;
 const ICU_CAPACITY = 12;
+const WARDS_CAPACITY = 20 * 10; // 20 floors * 10 rooms
 
 
 const getRandomElement = <T,>(arr: T[]): T => arr[Math.floor(Math.random() * arr.length)];
@@ -41,120 +44,127 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
     setIsSimulating(true);
   }, []);
 
-  const movePatientInEmergency = useCallback(() => {
-    const emergencyPatients = patients.filter(p => p.department === 'emergency' && p.status !== 'Discharged');
-    if (emergencyPatients.length === 0) return;
+  const simulateAdmission = useCallback(() => {
+    const icuPatientsCount = patients.filter(p => p.department === 'icu' && p.status !== 'Discharged').length;
+    const wardPatientsCount = patients.filter(p => p.department === 'wards' && p.status !== 'Discharged').length;
 
-    const patientToMove = getRandomElement(emergencyPatients);
-    let nextStatus: Patient['status'] = patientToMove.status;
+    // Decide where to admit
+    const admitToIcu = Math.random() < 0.2 && icuPatientsCount < ICU_CAPACITY;
+    const admitToWard = !admitToIcu && wardPatientsCount < WARDS_CAPACITY;
+
+    let patientToAdmit: Patient | undefined;
     
-    // Higher probability to admit critical patients to ICU or wards
-    if (patientToMove.triageLevel === 'critical' && Math.random() < 0.3) { 
-        const admitToIcu = Math.random() < 0.7; // 70% chance for ICU
-        const icuPatientsCount = patients.filter(p => p.department === 'icu').length;
-        if (admitToIcu && icuPatientsCount < ICU_CAPACITY) {
-             updatePatient(patientToMove.id, { department: 'icu', status: 'Admitted' });
-             addNotification({ title: 'ICU Admission', description: `${patientToMove.patientName} was admitted to ICU.`});
-             return;
-        } else {
-             updatePatient(patientToMove.id, { department: 'wards', status: 'Admitted' });
-             addNotification({ title: 'Ward Admission', description: `${patientToMove.patientName} was admitted to a ward.`});
-             return;
+    if (admitToIcu || admitToWard) {
+        // Find a patient in ER or without a specific internal location
+        const eligiblePatients = patients.filter(p => 
+            (p.department === 'emergency' || (!p.floor && !p.room)) && p.status !== 'Discharged'
+        );
+        if (eligiblePatients.length > 0) {
+            patientToAdmit = getRandomElement(eligiblePatients);
         }
     }
 
+    if (!patientToAdmit) return;
 
-    switch(patientToMove.status) {
-        case 'Waiting':
-            nextStatus = 'In Treatment';
-            break;
-        case 'In Treatment':
-            const rand = Math.random();
-            nextStatus = rand < 0.7 ? 'Observation' : 'Discharged';
-            break;
-        case 'Observation':
-             const dischargeRand = Math.random();
-             if (dischargeRand < 0.2) {
-                 updatePatient(patientToMove.id, { status: 'Discharged', dischargeStatus: 'recovered', dischargedAt: new Date().toISOString() });
-                 addNotification({ title: 'Patient Discharged', description: `${patientToMove.patientName} was discharged from Emergency.`});
-             } else if (dischargeRand < 0.22) { // 2% chance of death
-                 updatePatient(patientToMove.id, { status: 'Discharged', dischargeStatus: 'deceased', dischargedAt: new Date().toISOString() });
-                 addNotification({ title: 'Patient Deceased', description: `${patientToMove.patientName} has passed away in Emergency.`});
-             }
-            break;
-    }
-
-    if (nextStatus !== patientToMove.status) {
-        if (nextStatus === 'Discharged') {
-            updatePatient(patientToMove.id, { status: 'Discharged', dischargeStatus: 'recovered', dischargedAt: new Date().toISOString() });
-            addNotification({ title: 'Patient Discharged', description: `${patientToMove.patientName} was discharged from Emergency.`});
-        } else {
-            updatePatient(patientToMove.id, { status: nextStatus });
-        }
-    }
-}, [patients, updatePatient, addNotification]);
-
-  const simulateServiceRequest = useCallback(() => {
-    if (Math.random() > 0.3) return; // Don't run every time
-    const newRequest = createRandomServiceRequest();
-    setServiceRequests(prev => [newRequest, ...prev].slice(0, 50));
-    addNotification({ title: t('services.newRequest'), description: `${newRequest.description} (${t(`departments.${newRequest.department}`)})` });
-  }, [setServiceRequests, addNotification, t]);
-
-  const simulateSterilizationCycle = useCallback(() => {
-    if (instrumentSets.length === 0 || Math.random() > 0.4) return;
-    const setToMove = getRandomElement(instrumentSets);
-    if (!setToMove) return;
-
-    const newStatus = moveInstrumentSet(setToMove.status);
-    if (newStatus !== setToMove.status) {
-      setInstrumentSets(prev => prev.map(s => s.id === setToMove.id ? { ...s, status: newStatus, cycleStartTime: Date.now() } : s));
-       if (newStatus === 'storage') {
-        addNotification({ title: t('sterilization.cycleComplete'), description: `${setToMove.name} ${t('sterilization.nowInStorage')}` });
-      }
-    }
-  }, [instrumentSets, setInstrumentSets, addNotification, t]);
-
-  const simulateInpatientAdmission = useCallback(() => {
-    if (Math.random() > 0.4) return; // Increased probability
-    const eligiblePatients = patients.filter(p => !p.floor && !p.room && p.status !== 'Discharged' && p.department !== 'emergency');
-    if (eligiblePatients.length === 0) return;
-
-    const occupiedRooms = new Set(patients.filter(p => p.floor && p.room).map(p => `${p.floor}-${p.room}`));
-    const availableRooms: {floor: number, room: number}[] = [];
-    for (let floor = 1; floor <= 20; floor++) {
-        for (let room = 1; room <= 10; room++) {
-            if (!occupiedRooms.has(`${floor}-${room}`)) {
-                availableRooms.push({ floor, room });
+    if (admitToIcu) {
+        updatePatient(patientToAdmit.id, { department: 'icu', status: 'Admitted', floor: undefined, room: undefined });
+        addNotification({ title: 'ICU Admission', description: `${patientToAdmit.patientName} was admitted to ICU.` });
+    } else if (admitToWard) {
+        const occupiedRooms = new Set(patients.filter(p => p.floor && p.room).map(p => `${p.floor}-${p.room}`));
+        const availableRooms: {floor: number, room: number}[] = [];
+        for (let floor = 1; floor <= 20; floor++) {
+            for (let room = 1; room <= 10; room++) {
+                if (!occupiedRooms.has(`${floor}-${room}`)) {
+                    availableRooms.push({ floor, room });
+                }
             }
         }
+        if (availableRooms.length > 0) {
+            const roomToAdmit = getRandomElement(availableRooms);
+            updatePatient(patientToAdmit.id, {
+                floor: roomToAdmit.floor,
+                room: roomToAdmit.room,
+                admittedAt: new Date().toISOString(),
+                status: 'Admitted',
+                department: 'wards'
+            });
+            addFinancialRecord(patientToAdmit.id, {
+                type: 'inpatient',
+                description: t('wards.admissionFee'),
+                amount: DAILY_CHARGE_AMOUNT,
+                date: new Date().toISOString()
+            });
+            addNotification({ 
+                title: t('simulation.patientAdmitted'), 
+                description: t('simulation.patientAdmittedDesc', { patientName: patientToAdmit.patientName, floor: roomToAdmit.floor, room: roomToAdmit.floor * 100 + roomToAdmit.room })
+            });
+        }
     }
 
-    if (availableRooms.length === 0) return;
-
-    const patientToAdmit = getRandomElement(eligiblePatients);
-    const roomToAdmit = getRandomElement(availableRooms);
-    
-    updatePatient(patientToAdmit.id, {
-        floor: roomToAdmit.floor,
-        room: roomToAdmit.room,
-        admittedAt: new Date().toISOString(),
-        status: 'Admitted',
-        department: 'wards'
-    });
-    
-    addFinancialRecord(patientToAdmit.id, {
-        type: 'inpatient',
-        description: t('wards.admissionFee'),
-        amount: DAILY_CHARGE_AMOUNT,
-        date: new Date().toISOString()
-    });
-
-    addNotification({ 
-        title: t('simulation.patientAdmitted'), 
-        description: t('simulation.patientAdmittedDesc', { patientName: patientToAdmit.patientName, floor: roomToAdmit.floor, room: roomToAdmit.floor * 100 + roomToAdmit.room })
-    });
   }, [patients, updatePatient, addFinancialRecord, addNotification, t]);
+
+  const simulateDischarge = useCallback(() => {
+    const admittedPatients = patients.filter(p => p.status === 'Admitted' && (p.department === 'icu' || p.department === 'wards'));
+    if (admittedPatients.length === 0) return;
+
+    const patientToDischarge = getRandomElement(admittedPatients);
+    const dischargeStatus = Math.random() < 0.05 ? 'deceased' : 'recovered'; // 5% chance of death
+
+    updatePatient(patientToDischarge.id, {
+        status: 'Discharged',
+        dischargeStatus: dischargeStatus,
+        dischargedAt: new Date().toISOString(),
+        floor: undefined,
+        room: undefined,
+        department: 'medicalRecords' // Move to archives
+    });
+    
+    addNotification({
+        title: dischargeStatus === 'recovered' ? 'Patient Discharged' : 'Patient Deceased',
+        description: `${patientToDischarge.patientName} has been discharged (${dischargeStatus}).`
+    });
+
+  }, [patients, updatePatient, addNotification]);
+
+  const simulateServiceRequest = useCallback(() => {
+    if (serviceRequests.length < 20 && Math.random() < 0.1) {
+        const newRequest = createRandomServiceRequest();
+        setServiceRequests(prev => [newRequest, ...prev]);
+        addNotification({ title: `New Service Request: ${newRequest.type}`, description: `For: ${t(`departments.${newRequest.department}`)}` });
+    }
+  }, [serviceRequests.length, setServiceRequests, addNotification, t]);
+
+  const simulateSterilizationCycle = useCallback(() => {
+    const setsToMove = instrumentSets.filter(s => {
+        if (s.status === 'sterilizing') {
+            return (Date.now() - s.cycleStartTime) / 1000 > s.cycleDuration;
+        }
+        return Math.random() < 0.05; // 5% chance to move from other stages
+    });
+
+    if (setsToMove.length === 0) return;
+
+    const setToMove = getRandomElement(setsToMove);
+    const originalStatus = setToMove.status;
+    const newStatus = moveInstrumentSet(originalStatus);
+    
+    const wasSterilizing = originalStatus === 'sterilizing';
+
+    setInstrumentSets(prev => prev.map(s => 
+        s.id === setToMove.id 
+        ? { 
+            ...s, 
+            status: newStatus,
+            cycleStartTime: newStatus === 'sterilizing' ? Date.now() : s.cycleStartTime
+          } 
+        : s
+    ));
+    
+    if (wasSterilizing) {
+       addNotification({ title: t('sterilization.cycleComplete'), description: `${setToMove.name} ${t('sterilization.nowInStorage')}` });
+    }
+
+  }, [instrumentSets, setInstrumentSets, addNotification, t]);
   
   const simulateDailyCharges = useCallback(() => {
       const todayStr = new Date().toISOString().split('T')[0];
@@ -180,16 +190,11 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
       });
   }, [patients, addFinancialRecord, addNotification, t]);
 
-  const performRandomAction = useCallback(() => {
-    // Capacity Check
+  const performOtherRandomActions = useCallback(() => {
     const emergencyPatientsCount = patients.filter(p => p.department === 'emergency' && p.status !== 'Discharged').length;
-    const icuPatientsCount = patients.filter(p => p.department === 'icu').length;
-
-    const isEmergencyFull = emergencyPatientsCount >= EMERGENCY_CAPACITY;
-    const isIcuFull = icuPatientsCount >= ICU_CAPACITY;
     
-    // Always prioritize adding new emergency patients if not full
-    if (!isEmergencyFull && doctors.length > 0) {
+    // Add new emergency patient if not full
+    if (emergencyPatientsCount < EMERGENCY_CAPACITY && doctors.length > 0) {
       const newPatientData = createRandomPatient(doctors, true); // Force emergency patient
       const consultationFee = 25000 + Math.floor(Math.random() * 25000);
       addPatient(newPatientData, {
@@ -198,40 +203,39 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
         amount: consultationFee
       });
       addNotification({ title: t('simulation.patientAdded'), description: `${newPatientData.patientName} -> ${t(`departments.${newPatientData.department}`)}` });
-      return; // Prioritize this action
     }
-    
+
     const otherActions = [
-      movePatientInEmergency,
+      () => { // Move patient within Emergency
+        const emergencyPatients = patients.filter(p => p.department === 'emergency' && p.status !== 'Discharged');
+        if (emergencyPatients.length === 0) return;
+        const patientToMove = getRandomElement(emergencyPatients);
+        let nextStatus: Patient['status'] = patientToMove.status;
+        switch(patientToMove.status) {
+            case 'Waiting': nextStatus = 'In Treatment'; break;
+            case 'In Treatment': nextStatus = 'Observation'; break;
+            case 'Observation': nextStatus = 'Waiting'; break; // Cycle back
+        }
+        updatePatient(patientToMove.id, { status: nextStatus });
+      },
       simulateServiceRequest,
       simulateSterilizationCycle,
-      simulateInpatientAdmission,
       simulateDailyCharges,
-       () => { // Patient gets a lab test
+      () => { // Patient gets a lab test
         if(patients.length > 0 && Math.random() < 0.3) {
           const randomPatient = getRandomElement(patients);
           const testCost = 15000 + Math.floor(Math.random() * 50000);
           addFinancialRecord(randomPatient.id, { type: 'lab', description: `${t('lab.test')} ${t('common.random')}`, amount: testCost });
         }
       },
-       () => { // Patient buys medicine
+      () => { // Patient buys medicine
         if(patients.length > 0 && Math.random() < 0.4) {
           const randomPatient = getRandomElement(patients);
           const drugCost = 5000 + Math.floor(Math.random() * 100000);
           addFinancialRecord(randomPatient.id, { type: 'pharmacy', description: `${t('pharmacy.drugName')} ${t('common.random')}`, amount: drugCost });
         }
       },
-      () => { // Patient makes a payment
-        if(patients.length > 0 && Math.random() < 0.2) {
-          const indebtedPatients = patients.filter(p => (p.financialRecords || []).reduce((acc, r) => acc + r.amount, 0) > 0);
-          if (indebtedPatients.length > 0) {
-            const randomPatient = getRandomElement(indebtedPatients);
-            const paymentAmount = 10000 + Math.floor(Math.random() * 50000);
-            addFinancialRecord(randomPatient.id, { type: 'payment', description: t('accounts.paymentReceived'), amount: -paymentAmount });
-          }
-        }
-      },
-       () => { // Remove Oldest Doctor
+      () => { // Remove Oldest Doctor
         if (doctors.length > 20 && Math.random() < 0.05) { 
           const oldestDoctor = [...doctors].sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())[0];
           deleteDoctor(oldestDoctor.id);
@@ -239,23 +243,28 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
       },
     ];
     
-    // Perform one of the other random actions
     const randomAction = getRandomElement(otherActions);
     randomAction();
 
-  }, [doctors, patients, addPatient, deleteDoctor, addFinancialRecord, t, addNotification, movePatientInEmergency, simulateServiceRequest, simulateSterilizationCycle, simulateInpatientAdmission, simulateDailyCharges]);
+  }, [doctors, patients, addPatient, deleteDoctor, addFinancialRecord, t, addNotification, simulateServiceRequest, simulateSterilizationCycle, simulateDailyCharges, updatePatient]);
 
   useEffect(() => {
-    let intervalId: NodeJS.Timeout | null = null;
+    let admissionInterval: NodeJS.Timeout | null = null;
+    let dischargeInterval: NodeJS.Timeout | null = null;
+    let otherActionsInterval: NodeJS.Timeout | null = null;
+
     if (isSimulating) {
-      intervalId = setInterval(performRandomAction, SIMULATION_INTERVAL);
+      admissionInterval = setInterval(simulateAdmission, ADMISSION_INTERVAL);
+      dischargeInterval = setInterval(simulateDischarge, DISCHARGE_INTERVAL);
+      otherActionsInterval = setInterval(performOtherRandomActions, OTHER_ACTIONS_INTERVAL);
     }
+    
     return () => {
-      if (intervalId) {
-        clearInterval(intervalId);
-      }
+      if (admissionInterval) clearInterval(admissionInterval);
+      if (dischargeInterval) clearInterval(dischargeInterval);
+      if (otherActionsInterval) clearInterval(otherActionsInterval);
     };
-  }, [isSimulating, performRandomAction]);
+  }, [isSimulating, simulateAdmission, simulateDischarge, performOtherRandomActions]);
 
   const toggleSimulation = () => {
     const wasSimulating = isSimulating;
