@@ -86,8 +86,8 @@ export function PatientRegistrationDialog({ open, onOpenChange, patientToEdit, p
   const [idFrontPreview, setIdFrontPreview] = useState<string | null>(null);
   const [idBackPreview, setIdBackPreview] = useState<string | null>(null);
 
-  const [labTests] = useLocalStorage<LabTest[]>('lab_tests_list', []);
-  const [drugs] = useLocalStorage<Drug[]>('pharmacy_drugs', []);
+  const [labTests] = useLocalStorage<LabTest[]>('lab_tests_list_v2', []);
+  const [drugs] = useLocalStorage<Drug[]>('pharmacy_drugs_v2', []);
 
   const getTodayDateString = () => {
     const today = new Date();
@@ -251,7 +251,7 @@ export function PatientRegistrationDialog({ open, onOpenChange, patientToEdit, p
         }
     }
 
-    const patientData = { ...values, status: values.department === 'emergency' ? 'Waiting' : undefined };
+    const patientData = { ...values, status: values.department === 'emergency' && !patientToEdit ? 'Waiting' : patientToEdit?.status };
     delete (patientData as any).serviceId;
     delete (patientData as any).examiningDoctorId;
     delete (patientData as any).consultationFee;
@@ -273,6 +273,8 @@ export function PatientRegistrationDialog({ open, onOpenChange, patientToEdit, p
   };
 
   const isEditing = !!patientToEdit;
+  const isEmergencyOrIcuEdit = isEditing && (patientToEdit.department === 'emergency' || patientToEdit.department === 'icu');
+
 
   return (
     <>
@@ -498,7 +500,7 @@ export function PatientRegistrationDialog({ open, onOpenChange, patientToEdit, p
                   )}
                 />
                 
-                 {(department === 'emergency' || patientToEdit?.department === 'emergency' || patientToEdit?.department === 'icu') && (
+                 {(department === 'emergency' || isEmergencyOrIcuEdit) && (
                     <div className="p-4 border rounded-lg space-y-4">
                         {(department === 'emergency' || patientToEdit?.department === 'emergency') &&
                             <FormField

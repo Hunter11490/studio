@@ -519,6 +519,9 @@ export const translations: Translations = {
       admitToWard: "Admit to Ward",
       discharge: "Discharge",
       assignDoctor: "Assign Doctor",
+      moveToTreatment: "Move to In Treatment",
+      moveToObservation: "Move to Observation",
+      moveToWaiting: "Move to Waiting",
       triage: {
         title: "Triage Level",
         critical: "Critical",
@@ -1136,6 +1139,9 @@ export const translations: Translations = {
       admitToWard: "إدخال للردهة",
       discharge: "تخريج",
       assignDoctor: "تعيين طبيب",
+      moveToTreatment: "نقل إلى العلاج",
+      moveToObservation: "نقل إلى الملاحظة",
+      moveToWaiting: "إرجاع إلى الانتظار",
       triage: {
         title: "مستوى الخطورة",
         critical: "حرجة",

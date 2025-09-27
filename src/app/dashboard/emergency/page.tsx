@@ -7,7 +7,7 @@ import { useDoctors } from '@/hooks/use-doctors';
 import { UserMenu } from '@/components/layout/user-menu';
 import { Logo } from '@/components/logo';
 import { Button } from '@/components/ui/button';
-import { Maximize, Minimize, HeartPulse, Thermometer, Wind, Activity, Pencil, PlusCircle, User as UserIcon } from 'lucide-react';
+import { Maximize, Minimize, HeartPulse, Thermometer, Wind, Activity, Pencil, PlusCircle, User as UserIcon, ChevronsRight, Eye, Hourglass } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { NotificationsButton } from '@/components/notifications-button';
 import { Patient, TriageLevel } from '@/types';
@@ -17,6 +17,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -77,14 +78,34 @@ function PatientCard({ patient, onUpdatePatient }: { patient: Patient, onUpdateP
                             <Pencil className="mr-2 h-4 w-4" />
                             {t('doctorCard.edit')}
                         </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        {patient.status !== 'In Treatment' && (
+                          <DropdownMenuItem onClick={() => onUpdatePatient(patient.id, { status: 'In Treatment' })}>
+                            <ChevronsRight className="mr-2 h-4 w-4" />
+                            {t('emergency.moveToTreatment')}
+                          </DropdownMenuItem>
+                        )}
+                        {patient.status !== 'Observation' && (
+                          <DropdownMenuItem onClick={() => onUpdatePatient(patient.id, { status: 'Observation' })}>
+                              <Eye className="mr-2 h-4 w-4" />
+                              {t('emergency.moveToObservation')}
+                          </DropdownMenuItem>
+                        )}
+                        {patient.status !== 'Waiting' && (
+                          <DropdownMenuItem onClick={() => onUpdatePatient(patient.id, { status: 'Waiting' })}>
+                              <Hourglass className="mr-2 h-4 w-4" />
+                              {t('emergency.moveToWaiting')}
+                          </DropdownMenuItem>
+                        )}
+                        <DropdownMenuSeparator />
                         <DropdownMenuItem onClick={() => onUpdatePatient(patient.id, { department: 'icu', status: 'Admitted' })}>
-                        {t('emergency.admitToICU')}
+                          {t('emergency.admitToICU')}
                         </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => onUpdatePatient(patient.id, { department: 'wards', status: 'Admitted' })}>
-                        {t('emergency.admitToWard')}
+                          {t('emergency.admitToWard')}
                         </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => onUpdatePatient(patient.id, { status: 'Discharged' })}>
-                        {t('emergency.discharge')}
+                          {t('emergency.discharge')}
                         </DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
