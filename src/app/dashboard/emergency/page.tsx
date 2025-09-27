@@ -7,7 +7,7 @@ import { useDoctors } from '@/hooks/use-doctors';
 import { UserMenu } from '@/components/layout/user-menu';
 import { Logo } from '@/components/logo';
 import { Button } from '@/components/ui/button';
-import { Maximize, Minimize, HeartPulse, Thermometer, Wind, Activity, Pencil, PlusCircle, User as UserIcon, ChevronsRight, Eye, Hourglass } from 'lucide-react';
+import { Maximize, Minimize, HeartPulse, Thermometer, Wind, Activity, Pencil, PlusCircle, User as UserIcon, ChevronsRight, Eye, Hourglass, MoreVertical } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { NotificationsButton } from '@/components/notifications-button';
 import { Patient, TriageLevel } from '@/types';
@@ -71,7 +71,9 @@ function PatientCard({ patient, onUpdatePatient }: { patient: Patient, onUpdateP
                 </div>
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="xs">{t('common.actions')}</Button>
+                        <Button variant="ghost" size="icon" className="h-8 w-8">
+                            <MoreVertical className="h-4 w-4" />
+                        </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent>
                         <DropdownMenuItem onClick={() => setIsEditing(true)}>
@@ -244,3 +246,5 @@ export default function EmergencyPage() {
     </div>
   )
 }
+
+    
