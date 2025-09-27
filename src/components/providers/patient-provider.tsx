@@ -127,8 +127,6 @@ export function PatientProvider({ children }: { children: React.ReactNode }) {
 
 
     if (patientData.doctorId && updateDoctor) {
-      // This part still uses the old client-side updateDoctor logic, which is fine for now
-      // as it will trigger its own Supabase update.
       updateDoctor(patientData.doctorId, {
         referralCount: (currentCount: any) => (currentCount || 0) + 1,
         referralNotes: (currentNotes: any) => [
@@ -138,7 +136,7 @@ export function PatientProvider({ children }: { children: React.ReactNode }) {
             referralDate: patientData.receptionDate,
             testDate: new Date().toISOString().split('T')[0],
             testType: initialRecord?.description || '',
-            patientAge: String(new Date().getFullYear() - parseInt(patientData.dob.year)),
+            patientAge: patientData.dob?.year ? String(new Date().getFullYear() - parseInt(patientData.dob.year)) : '',
             chronicDiseases: '',
           },
         ] as ReferralCase[],
@@ -156,7 +154,7 @@ export function PatientProvider({ children }: { children: React.ReactNode }) {
     
     if (error) {
         console.error("Error updating patient:", error);
-    } else if (data) {
+    } else if (data && data.length > 0) {
         setPatients(prev => prev.map(p => p.id === id ? fromSupabase(data[0]) : p));
     }
   }, []);
