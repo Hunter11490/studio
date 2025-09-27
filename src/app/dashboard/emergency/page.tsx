@@ -211,8 +211,8 @@ export default function EmergencyPage() {
           </div>
       </header>
       
-      <main className="flex-grow grid grid-cols-1 md:grid-cols-3 gap-4 p-4 overflow-hidden">
-          <div className="bg-card rounded-lg flex flex-col p-2">
+      <main className="flex-grow grid grid-cols-1 md:grid-cols-3 gap-4 p-4 overflow-hidden min-h-0">
+          <div className="bg-card rounded-lg flex flex-col p-2 min-h-0">
               <h2 className="font-bold p-2 border-b">{t('emergency.waiting')} ({waitingPatients.length})</h2>
               <ScrollArea className="flex-grow">
                 <div className="p-2">
@@ -220,7 +220,7 @@ export default function EmergencyPage() {
                 </div>
               </ScrollArea>
           </div>
-          <div className="bg-card rounded-lg flex flex-col p-2">
+          <div className="bg-card rounded-lg flex flex-col p-2 min-h-0">
               <h2 className="font-bold p-2 border-b">{t('emergency.inTreatment')} ({treatmentPatients.length})</h2>
               <ScrollArea className="flex-grow">
                 <div className="p-2">
@@ -228,7 +228,7 @@ export default function EmergencyPage() {
                 </div>
               </ScrollArea>
           </div>
-          <div className="bg-card rounded-lg flex flex-col p-2">
+          <div className="bg-card rounded-lg flex flex-col p-2 min-h-0">
               <h2 className="font-bold p-2 border-b">{t('emergency.observation')} ({observationPatients.length})</h2>
               <ScrollArea className="flex-grow">
                 <div className="p-2">
