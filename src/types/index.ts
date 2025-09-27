@@ -43,6 +43,7 @@ export type VitalSigns = {
 
 export type Patient = {
   id: string;
+  user_id: string;
   patientName: string;
   dob: {
     day: string;
