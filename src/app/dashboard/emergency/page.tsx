@@ -7,7 +7,7 @@ import { useDoctors } from '@/hooks/use-doctors';
 import { UserMenu } from '@/components/layout/user-menu';
 import { Logo } from '@/components/logo';
 import { Button } from '@/components/ui/button';
-import { Maximize, Minimize, HeartPulse, Thermometer, Wind, Activity, Pencil, PlusCircle, User as UserIcon, ChevronsRight, Eye, Hourglass, MoreVertical } from 'lucide-react';
+import { Maximize, Minimize, HeartPulse, Thermometer, Wind, Activity, Pencil, PlusCircle, User as UserIcon, ChevronsRight, Eye, Hourglass, MoreVertical, Search } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { NotificationsButton } from '@/components/notifications-button';
 import { Patient, TriageLevel } from '@/types';
@@ -22,6 +22,7 @@ import {
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { PatientRegistrationDialog } from '@/components/reception/patient-registration-dialog';
+import { Input } from '@/components/ui/input';
 
 
 const triageConfig = {
@@ -153,6 +154,7 @@ export default function EmergencyPage() {
   const { patients, updatePatient } = usePatients();
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isAddPatientOpen, setAddPatientOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
 
   const handleFullscreenToggle = async () => {
     if (typeof window !== 'undefined') {
@@ -167,8 +169,12 @@ export default function EmergencyPage() {
   };
 
   const emergencyPatients = useMemo(() => {
-    return patients.filter(p => p.department === 'emergency' && p.status !== 'Discharged');
-  }, [patients]);
+    return patients.filter(p => 
+      p.department === 'emergency' && 
+      p.status !== 'Discharged' &&
+      (searchTerm === '' || p.patientName.toLowerCase().includes(searchTerm.toLowerCase()))
+    );
+  }, [patients, searchTerm]);
   
   const waitingPatients = emergencyPatients.filter(p => p.status === 'Waiting');
   const treatmentPatients = emergencyPatients.filter(p => p.status === 'In Treatment');
@@ -212,8 +218,20 @@ export default function EmergencyPage() {
               <UserMenu />
           </div>
       </header>
+
+      <div className="p-4">
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input 
+            placeholder={t('accounts.searchPatient')}
+            className="pl-10"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
+      </div>
       
-      <main className="flex-grow grid grid-cols-1 md:grid-cols-3 gap-4 p-4 overflow-hidden min-h-0">
+      <main className="flex-grow grid grid-cols-1 md:grid-cols-3 gap-4 px-4 pb-4 overflow-hidden min-h-0">
           <div className="bg-card rounded-lg flex flex-col p-2 min-h-0">
               <h2 className="font-bold p-2 border-b">{t('emergency.waiting')} ({waitingPatients.length})</h2>
               <ScrollArea className="flex-grow">
@@ -246,5 +264,3 @@ export default function EmergencyPage() {
     </div>
   )
 }
-
-    
