@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useCallback } from 'react';
 import { usePatients } from '@/hooks/use-patients';
 import { useLanguage } from '@/hooks/use-language';
 import { useDoctors } from '@/hooks/use-doctors';
@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Maximize, Minimize, Bed, User, Stethoscope, HeartPulse, Activity, Wind, Thermometer, Pencil, PlusCircle, LogOut } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { NotificationsButton } from '@/components/notifications-button';
-import { Patient, FinancialRecord } from '@/types';
+import { Patient, FinancialRecord, Doctor } from '@/types';
 import { cn } from '@/lib/utils';
 import { ResponsiveContainer, LineChart, Line } from 'recharts';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
@@ -250,6 +250,7 @@ function AdmitToICUDialog({ open, onOpenChange, bedNumber, onAdmit }: { open: bo
 export default function ICUPage() {
     const { t } = useLanguage();
     const { patients, updatePatient, addFinancialRecord } = usePatients();
+    const { doctors } = useDoctors();
     const [isFullscreen, setIsFullscreen] = useState(false);
     const [isAddPatientOpen, setIsAddPatientOpen] = useState(false);
     const [isAdmitDialogOpen, setAdmitDialogOpen] = useState(false);
@@ -276,8 +277,10 @@ export default function ICUPage() {
         setAdmitDialogOpen(true);
     };
 
-    const confirmAdmitPatient = (patientId: string, bedNumber: number) => {
-        const icuDoctors = usePatients().patients.filter(d => d.department === 'Intensive Care Medicine');
+    const getRandomElement = <T,>(arr: T[]): T => arr[Math.floor(Math.random() * arr.length)];
+
+    const confirmAdmitPatient = useCallback((patientId: string, bedNumber: number) => {
+        const icuDoctors = doctors.filter(d => d.specialty === 'Intensive Care Medicine');
         const attendingDoctorId = icuDoctors.length > 0 ? getRandomElement(icuDoctors).id : undefined;
 
         updatePatient(patientId, { department: 'icu', status: 'Admitted', attendingDoctorId, floor: undefined, room: undefined, bedNumber });
@@ -286,9 +289,9 @@ export default function ICUPage() {
             description: 'ICU Admission Fee',
             amount: 500000
         });
-    };
+    }, [doctors, updatePatient, addFinancialRecord]);
     
-    const handleDischargePatient = (patientId: string, status: 'recovered' | 'deceased') => {
+    const handleDischargePatient = useCallback((patientId: string, status: 'recovered' | 'deceased') => {
         updatePatient(patientId, {
             status: 'Discharged',
             dischargeStatus: status,
@@ -296,9 +299,7 @@ export default function ICUPage() {
             department: 'medicalRecords', // Move to medical records archive
             bedNumber: undefined,
         });
-    };
-    
-    const getRandomElement = <T,>(arr: T[]): T => arr[Math.floor(Math.random() * arr.length)];
+    }, [updatePatient]);
     
     return (
         <div className="flex flex-col h-screen">
@@ -366,24 +367,31 @@ export default function ICUPage() {
 }
 
 // Add new translations if they don't exist
-if (translations.en.icu) {
-    Object.assign(translations.en.icu, {
-        admitToBed: "Admit Patient to Bed",
-    });
+if (!translations.en.icu) {
+    translations.en.icu = {};
 }
-if (translations.ar.icu) {
-    Object.assign(translations.ar.icu, {
-        admitToBed: "إدخال مريض إلى السرير",
-    });
+Object.assign(translations.en.icu, {
+    admitToBed: "Admit Patient to Bed",
+});
+
+if (!translations.ar.icu) {
+    translations.ar.icu = {};
 }
-if (translations.en.wards) {
-    Object.assign(translations.en.wards, {
-        admitPatient: "Admit Patient",
-    });
+Object.assign(translations.ar.icu, {
+    admitToBed: "إدخال مريض إلى السرير",
+});
+
+if (!translations.en.wards) {
+    translations.en.wards = {};
 }
-if (translations.ar.wards) {
-    Object.assign(translations.ar.wards, {
-        admitPatient: "إدخال المريض",
-    });
+Object.assign(translations.en.wards, {
+    admitPatient: "Admit Patient",
+});
+
+if (!translations.ar.wards) {
+    translations.ar.wards = {};
 }
+Object.assign(translations.ar.wards, {
+    admitPatient: "إدخال المريض",
+});
     
