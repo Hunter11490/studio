@@ -326,7 +326,7 @@ function PatientInvoiceDialog({ patient, onOpenChange, onAddPayment }: { patient
                                             {format(new Date(record.date), 'PPP', { locale: lang === 'ar' ? ar : undefined })}
                                         </p>
                                     </div>
-                                    <Badge variant={record.amount > 0 ? 'destructive' : 'success'} className="font-mono">
+                                    <Badge variant={record.amount >= 0 ? 'destructive' : 'success'} className="font-mono">
                                         {record.amount.toLocaleString()} {t('lab.iqd')}
                                     </Badge>
                                 </div>

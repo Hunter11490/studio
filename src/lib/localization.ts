@@ -537,11 +537,12 @@ export const translations: Translations = {
         temperature: "Temperature"
       }
     },
-    icu: {
+     icu: {
       bed: "Bed",
       vacant: "Vacant",
       monitorFor: "Live Monitor for",
       assignDoctor: "Assign Doctor",
+      admitToBed: "Admit Patient to Bed",
     },
     medicalRecords: {
       title: "Medical Records",
@@ -580,6 +581,9 @@ export const translations: Translations = {
       patientInfo: "Patient Information",
       vitals: "Vital Signs",
       financialSummary: "Financial Summary",
+      hr: "HR",
+      bp: "BP",
+      temp: "Temp",
     },
     sterilization: {
       title: "Central Sterilization",
@@ -1175,15 +1179,17 @@ export const translations: Translations = {
       vacant: "شاغر",
       monitorFor: "مراقبة حية للمريض",
       assignDoctor: "تعيين طبيب",
+      admitToBed: "إدخال مريض إلى السرير",
     },
     medicalRecords: {
       title: "السجلات الطبية",
       description: "ابحث وأدر الأرشيف المركزي للمرضى.",
-      searchPlaceholder: "ابحث بالاسم، الرقم التعريفي، أو رقم الهاتف...",
+      searchPlaceholder: "ابحث بالاسم أو الرقم التعريفي...",
       fullName: "الاسم الكامل",
       age: "العمر",
       sex: "الجنس",
       firstAdmission: "أول دخول",
+      admissionDate: "تاريخ الدخول",
       lastVisit: "آخر زيارة",
       dischargeDate: "تاريخ الخروج",
       noRecords: "لا توجد سجلات مرضى.",
@@ -1195,11 +1201,26 @@ export const translations: Translations = {
       exportMonthly: "تصدير تقرير شهري",
       exportPatient: "تصدير تقرير مريض",
       selectPatientPlaceholder: "اختر مريضاً للتصدير",
+      noDataToExport: "لا توجد بيانات للمعايير المحددة.",
+      status: {
+        title: "الحالة",
+        all: "الكل",
+        admitted: "راقد",
+        discharged: "مُخرَّج"
+      },
       dischargeStatus: {
         title: 'حالة الخروج',
         recovered: 'معافى',
         deceased: 'متوفى'
-      }
+      },
+      patientReport: "تقرير طبي للمريض",
+      reportDate: "تاريخ التقرير",
+      patientInfo: "معلومات المريض",
+      vitals: "العلامات الحيوية",
+      financialSummary: "الملخص المالي",
+      hr: "النبض",
+      bp: "الضغط",
+      temp: "الحرارة",
     },
     sterilization: {
       title: "وحدة التعقيم المركزية",

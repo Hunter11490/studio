@@ -218,7 +218,7 @@ export default function MedicalRecordsPage() {
                 </Card>
             </main>
 
-            <ExportReportsPopover allPatients={patients} onExport={handleExport} selectedPatient={selectedPatient} />
+            <ExportReportsPopover allPatients={patients} onExport={handleExport} />
             
             <PatientHistoryDialog 
                 patient={selectedPatient}
@@ -229,7 +229,7 @@ export default function MedicalRecordsPage() {
 }
 
 const PrintableReport = React.forwardRef<HTMLDivElement, { patient: Patient, labels: Record<string, string>, doctors: any[] }>(({ patient, labels, doctors }, ref) => {
-    const { t, lang } = useLanguage();
+    const { lang } = useLanguage();
     const balance = calculateBalance(patient.financialRecords);
 
     let age: number | string = 'N/A';
@@ -354,7 +354,7 @@ function PatientHistoryDialog({ patient, onOpenChange }: { patient: Patient | nu
         patientId: t('accounts.patientId'),
         age: t('reception.age'),
         address: t('reception.address'),
-        admissionDate: t('medicalRecords.firstAdmission'),
+        admissionDate: t('medicalRecords.admissionDate'),
         dischargeDate: t('medicalRecords.dischargeDate'),
         dischargeStatus: t('medicalRecords.dischargeStatus.title'),
         recovered: t('medicalRecords.dischargeStatus.recovered'),
@@ -451,7 +451,7 @@ function PatientHistoryDialog({ patient, onOpenChange }: { patient: Patient | nu
     );
 }
 
-function ExportReportsPopover({ allPatients, selectedPatient, onExport }: { allPatients: Patient[], selectedPatient: Patient | null, onExport: (data: Patient[], filename: string) => void }) {
+function ExportReportsPopover({ allPatients, onExport }: { allPatients: Patient[], onExport: (data: Patient[], filename: string) => void }) {
     const { t } = useLanguage();
     const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
     const [selectedMonth, setSelectedMonth] = useState(getMonth(new Date()));
