@@ -79,7 +79,7 @@ type PatientRegistrationDialogProps = {
 export function PatientRegistrationDialog({ open, onOpenChange, patientToEdit, prefilledRoom }: PatientRegistrationDialogProps) {
   const { t, dir } = useLanguage();
   const { doctors } = useDoctors();
-  const { addPatient, updatePatient } = usePatients();
+  const { patients, addPatient, updatePatient } = usePatients();
   const { toast } = useToast();
   const [isAddDoctorOpen, setAddDoctorOpen] = useState(false);
   const [calculatedAge, setCalculatedAge] = useState<number | null>(null);
@@ -223,6 +223,19 @@ export function PatientRegistrationDialog({ open, onOpenChange, patientToEdit, p
 
 
   const onSubmit = (values: z.infer<typeof formSchema>) => {
+    // Prevent duplicate patient names
+    if (!patientToEdit) { // Only check for duplicates when adding a new patient
+      const patientExists = patients.some(p => p.patientName.trim().toLowerCase() === values.patientName.trim().toLowerCase());
+      if (patientExists) {
+        toast({
+          title: "اسم المريض مكرر",
+          description: "يوجد مريض بنفس هذا الاسم بالفعل. يرجى استخدام اسم مختلف.",
+          variant: "destructive",
+        });
+        return;
+      }
+    }
+    
     let initialRecord: Omit<FinancialRecord, 'id' | 'date'> | undefined = undefined;
     
     if (values.serviceId && servicesForDepartment.length > 0) {
@@ -642,3 +655,5 @@ export function PatientRegistrationDialog({ open, onOpenChange, patientToEdit, p
     </>
   );
 }
+
+    

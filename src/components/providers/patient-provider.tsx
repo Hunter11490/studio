@@ -80,7 +80,25 @@ export function PatientProvider({ children }: { children: React.ReactNode }) {
   }, [setPatients, updateDoctor]);
 
   const updatePatient = useCallback((id: string, updates: Partial<Omit<Patient, 'id'>>) => {
-    setPatients(prev => prev.map(p => p.id === id ? { ...p, ...updates } : p));
+    setPatients(prev => prev.map(p => {
+      if (p.id === id) {
+        const updatedPatient = { ...p, ...updates };
+
+        // If department changes, clear location-specific fields
+        if (updates.department) {
+          if (updates.department !== 'icu') {
+            updatedPatient.bedNumber = undefined;
+          }
+          if (updates.department !== 'wards') {
+            updatedPatient.floor = undefined;
+            updatedPatient.room = undefined;
+          }
+        }
+        
+        return updatedPatient;
+      }
+      return p;
+    }));
   }, [setPatients]);
   
   const value = useMemo(() => ({
@@ -92,3 +110,5 @@ export function PatientProvider({ children }: { children: React.ReactNode }) {
 
   return <PatientContext.Provider value={value}>{children}</PatientContext.Provider>;
 }
+
+    
