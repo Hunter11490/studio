@@ -76,19 +76,18 @@ export function DoctorCard({ doctor }: { doctor: Doctor }) {
   const handleReferralChange = (amount: number) => {
     const newCount = Math.max(0, referralCount + amount);
 
+    const updatedNotes = [...(doctor.referralNotes || [])];
+    if (amount > 0) { // Adding referrals
+        for (let i = 0; i < amount; i++) {
+            updatedNotes.push({ patientName: '', referralDate: '', testDate: getTodayDateString(), testType: '', patientAge: '', chronicDiseases: '' });
+        }
+    } else { // Removing referrals
+        updatedNotes.length = newCount;
+    }
+
     updateDoctor(doctor.id, { 
       referralCount: newCount,
-      referralNotes: (prevNotes = []) => {
-        const newNotes: ReferralCase[] = [...prevNotes];
-        if (amount > 0) { // Adding referrals
-            for (let i = 0; i < amount; i++) {
-                newNotes.push({ patientName: '', referralDate: '', testDate: getTodayDateString(), testType: '', patientAge: '', chronicDiseases: '' });
-            }
-        } else { // Removing referrals
-            newNotes.length = newCount;
-        }
-        return newNotes;
-      }
+      referralNotes: updatedNotes,
     });
   };
   

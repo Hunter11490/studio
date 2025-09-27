@@ -9,6 +9,7 @@ export type ReferralCase = {
 
 export type Doctor = {
   id: string;
+  user_id: string;
   name: string;
   specialty: string;
   phoneNumber: string;

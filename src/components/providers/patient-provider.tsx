@@ -1,12 +1,10 @@
 'use client';
 
 import { createContext, useState, useMemo, useCallback } from 'react';
-import { Patient, FinancialRecord } from '@/types';
+import { Patient, FinancialRecord, ReferralCase } from '@/types';
 import { useDoctors } from '@/hooks/use-doctors';
-import { generateInitialData } from '@/lib/mock-patients';
 
-const initialData = generateInitialData();
-const initialPatients = initialData.patients;
+const initialPatients: Patient[] = [];
 
 export type PatientContextType = {
   patients: Patient[];
@@ -59,11 +57,10 @@ export function PatientProvider({ children }: { children: React.ReactNode }) {
 
     setPatients(prev => [newPatient, ...prev]);
 
-    // If a referring doctor is assigned, update their referral count
     if (patientData.doctorId && updateDoctor) {
       updateDoctor(patientData.doctorId, {
-        referralCount: (currentCount: number | undefined) => (currentCount || 0) + 1,
-        referralNotes: (currentNotes: any[] | undefined) => [
+        referralCount: (currentCount: any) => (currentCount || 0) + 1,
+        referralNotes: (currentNotes: any) => [
           ...(currentNotes || []),
           {
             patientName: patientData.patientName,
@@ -73,7 +70,7 @@ export function PatientProvider({ children }: { children: React.ReactNode }) {
             patientAge: String(new Date().getFullYear() - parseInt(patientData.dob.year)),
             chronicDiseases: '',
           },
-        ]
+        ] as ReferralCase[],
       });
     }
 
@@ -110,5 +107,3 @@ export function PatientProvider({ children }: { children: React.ReactNode }) {
 
   return <PatientContext.Provider value={value}>{children}</PatientContext.Provider>;
 }
-
-    
